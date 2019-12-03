@@ -123,3 +123,82 @@ func newTestComplexCreateServiceRequest() *pb.CreateServiceRequest {
 		Source: "QmSuVcdic2dhS5QKQGWp66SJQUkDRqAqCHpU6Sx9uXJcdc",
 	}
 }
+
+func newTestOrchestratorCreateServiceRequest() *pb.CreateServiceRequest {
+	return &api.CreateServiceRequest{
+		Sid:  "test-service-simple",
+		Name: "test-service-simple",
+		Tasks: []*service.Service_Task{
+			{
+				Key: "task1",
+				Inputs: []*service.Service_Parameter{
+					{
+						Key:  "msg",
+						Type: "String",
+					},
+				},
+				Outputs: []*service.Service_Parameter{
+					{
+						Key:  "msg",
+						Type: "String",
+					},
+					{
+						Key:  "timestamp",
+						Type: "Number",
+					},
+				},
+			},
+			{
+				Key: "task2",
+				Inputs: []*service.Service_Parameter{
+					{
+						Key:  "msg",
+						Type: "String",
+					},
+				},
+				Outputs: []*service.Service_Parameter{
+					{
+						Key:  "msg",
+						Type: "String",
+					},
+					{
+						Key:  "timestamp",
+						Type: "Number",
+					},
+				},
+			},
+		},
+		Events: []*service.Service_Event{
+			{
+				Key: "test_service_ready",
+			},
+			{
+				Key: "test_event",
+				Data: []*service.Service_Parameter{
+					{
+						Key:  "msg",
+						Type: "String",
+					},
+					{
+						Key:  "timestamp",
+						Type: "Number",
+					},
+				},
+			},
+			{
+				Key: "event_after_task",
+				Data: []*service.Service_Parameter{
+					{
+						Key:  "msg",
+						Type: "String",
+					},
+					{
+						Key:  "timestamp",
+						Type: "Number",
+					},
+				},
+			},
+		},
+		Source: "QmaGz2grYKGSYX92ELC3DWoB8KZ6jnWhig5aSfL37AVByF",
+	}
+}
