@@ -30,8 +30,8 @@ service Process {
 
 // The request's data for the `Create` API.
 message CreateProcessRequest {
-  // Process's key
-  string key = 2 [
+  // Process's name
+  string name = 2 [
     (gogoproto.moretags) = 'validate:"required,printascii"'
   ];
 
