@@ -33,11 +33,10 @@ func testOrchestratorResultMapTaskMapTask(executionStream pb.Execution_StreamCli
 						Key: "n1",
 						Type: &process.Process_Node_Map_{
 							Map: &process.Process_Node_Map{
-								Outputs: []*process.Process_Node_Map_Output{
-									{
-										Key: "msg",
-										Value: &process.Process_Node_Map_Output_Constant{
-											Constant: &types.Value{Kind: &types.Value_StringValue{StringValue: "itsAConstant"}},
+								Outputs: map[string]*process.Process_Node_Map_Output{
+									"msg": {
+										Value: &process.Process_Node_Map_Output_StringConst{
+											StringConst: "itsAConstant",
 										},
 									},
 								},
@@ -57,9 +56,8 @@ func testOrchestratorResultMapTaskMapTask(executionStream pb.Execution_StreamCli
 						Key: "n3",
 						Type: &process.Process_Node_Map_{
 							Map: &process.Process_Node_Map{
-								Outputs: []*process.Process_Node_Map_Output{
-									{
-										Key: "msg",
+								Outputs: map[string]*process.Process_Node_Map_Output{
+									"msg": {
 										Value: &process.Process_Node_Map_Output_Ref{
 											Ref: &process.Process_Node_Map_Output_Reference{
 												NodeKey: "n0",

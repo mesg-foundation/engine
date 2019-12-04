@@ -34,11 +34,10 @@ func testOrchestratorEventMapTask(executionStream pb.Execution_StreamClient, ins
 						Key: "n1",
 						Type: &process.Process_Node_Map_{
 							Map: &process.Process_Node_Map{
-								Outputs: []*process.Process_Node_Map_Output{
-									{
-										Key: "msg",
-										Value: &process.Process_Node_Map_Output_Constant{
-											Constant: &types.Value{Kind: &types.Value_StringValue{StringValue: "itsAConstant"}},
+								Outputs: map[string]*process.Process_Node_Map_Output{
+									"msg": {
+										Value: &process.Process_Node_Map_Output_StringConst{
+											StringConst: "itsAConstant",
 										},
 									},
 								},
