@@ -54,8 +54,7 @@ func TestAPI(t *testing.T) {
 	t.Run("instance", testInstance)
 	t.Run("event", testEvent)
 	t.Run("execution", testExecution)
+	t.Run("orchestrator", testOrchestrator)
 	t.Run("runner/delete", testDeleteRunner)
-
-	// complex tests
 	t.Run("complex-service", testComplexService)
 }

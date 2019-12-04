@@ -1,41 +1,73 @@
 name: test-service
 sid: test-service
-
 configuration:
   env:
     - FOO=1
     - BAR=2
     - REQUIRED
-
 tasks:
-  ping:
+  task1:
     inputs:
       msg:
         type: String
     outputs:
-      pong:
+      msg:
         type: String
-  add:
+      timestamp:
+        type: Number
+  task2:
     inputs:
-      n:
-        type: Number
-      m:
-        type: Number
+      msg:
+        type: String
     outputs:
-      res:
+      msg:
+        type: String
+      timestamp:
         type: Number
-  error:
+  task_complex:
+    inputs:
+      msg:
+        type: Object
+        object:
+          msg:
+            type: String
+          array:
+            type: String
+            repeated: true
+    outputs:
+      msg:
+        type: Object
+        object:
+          msg:
+            type: String
+          timestamp:
+            type: Number
+          array:
+            type: String
+            repeated: true
 events:
   test_service_ready:
-  ping_ok:
+  test_event:
     data:
       msg:
         type: String
-  add_ok:
+      timestamp:
+        type: Number
+  test_event_complex:
     data:
       msg:
-        type: String
-  error_ok:
+        type: Object
+        object:
+          msg:
+            type: String
+          timestamp:
+            type: Number
+          array:
+            type: String
+            repeated: true
+  event_after_task:
     data:
-      msg:
+      task_key:
         type: String
+      timestamp:
+        type: Number
