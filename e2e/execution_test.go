@@ -109,9 +109,9 @@ func testExecution(t *testing.T) {
 									"array": {
 										Kind: &types.Value_ListValue{
 											ListValue: &types.ListValue{Values: []*types.Value{
-												&types.Value{Kind: &types.Value_StringValue{StringValue: "first"}},
-												&types.Value{Kind: &types.Value_StringValue{StringValue: "second"}},
-												&types.Value{Kind: &types.Value_StringValue{StringValue: "third"}},
+												{Kind: &types.Value_StringValue{StringValue: "first"}},
+												{Kind: &types.Value_StringValue{StringValue: "second"}},
+												{Kind: &types.Value_StringValue{StringValue: "third"}},
 											}},
 										},
 									},

@@ -95,11 +95,11 @@ func newTestCreateServiceRequest() *pb.CreateServiceRequest {
 						Key:  "msg",
 						Type: "Object",
 						Object: []*service.Service_Parameter{
-							&service.Service_Parameter{
+							{
 								Key:  "msg",
 								Type: "String",
 							},
-							&service.Service_Parameter{
+							{
 								Key:      "array",
 								Type:     "String",
 								Repeated: true,
@@ -112,15 +112,15 @@ func newTestCreateServiceRequest() *pb.CreateServiceRequest {
 						Key:  "msg",
 						Type: "Object",
 						Object: []*service.Service_Parameter{
-							&service.Service_Parameter{
+							{
 								Key:  "msg",
 								Type: "String",
 							},
-							&service.Service_Parameter{
+							{
 								Key:  "timestamp",
 								Type: "Number",
 							},
-							&service.Service_Parameter{
+							{
 								Key:      "array",
 								Type:     "String",
 								Repeated: true,
@@ -154,15 +154,15 @@ func newTestCreateServiceRequest() *pb.CreateServiceRequest {
 						Key:  "msg",
 						Type: "Object",
 						Object: []*service.Service_Parameter{
-							&service.Service_Parameter{
+							{
 								Key:  "msg",
 								Type: "String",
 							},
-							&service.Service_Parameter{
+							{
 								Key:  "timestamp",
 								Type: "Number",
 							},
-							&service.Service_Parameter{
+							{
 								Key:      "array",
 								Type:     "String",
 								Repeated: true,
