@@ -20,5 +20,6 @@ func testOrchestrator(t *testing.T) {
 	t.Run("event map task", testOrchestratorEventMapTask(executionStream, testInstanceHash))
 	t.Run("result map task map task", testOrchestratorResultMapTaskMapTask(executionStream, testRunnerHash, testInstanceHash))
 	t.Run("event map task map task", testOrchestratorEventMapTaskMapTask(executionStream, testInstanceHash))
+	t.Run("event task complex data", testOrchestratorEventTaskComplexData(executionStream, testInstanceHash))
 	t.Run("event filter task", testOrchestratorEventFilterTask(executionStream, testInstanceHash))
 }
