@@ -15,6 +15,7 @@ function onexit {
 
 trap onexit EXIT
 
+rm -rf "${MESG_PATH}"
 mkdir -p "${MESG_PATH}"
 cp "$(pwd)"/e2e/testdata/e2e.config.yml "${MESG_PATH}"/config.yml
 

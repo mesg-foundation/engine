@@ -58,4 +58,5 @@ func TestAPI(t *testing.T) {
 
 	// complex tests
 	t.Run("complex-service", testComplexService)
+	t.Run("orchestrator", testOrchestrator)
 }

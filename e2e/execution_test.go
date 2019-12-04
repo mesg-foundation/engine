@@ -13,8 +13,22 @@ import (
 )
 
 func testExecution(t *testing.T) {
-	var executionHash hash.Hash
-	var execPing *execution.Execution
+	var (
+		executionHash hash.Hash
+		execPing      *execution.Execution
+		taskKey       = "ping"
+		eventHash     = hash.Int(1)
+		executorHash  = testRunnerHash
+		inputs        = &types.Struct{
+			Fields: map[string]*types.Value{
+				"msg": {
+					Kind: &types.Value_StringValue{
+						StringValue: "test",
+					},
+				},
+			},
+		}
+	)
 
 	t.Run("stream", func(t *testing.T) {
 		t.Run("nil filter", func(t *testing.T) {
@@ -24,25 +38,17 @@ func testExecution(t *testing.T) {
 		t.Run("good", func(t *testing.T) {
 			stream, err := client.ExecutionClient.Stream(context.Background(), &pb.StreamExecutionRequest{
 				Filter: &pb.StreamExecutionRequest_Filter{
-					ExecutorHash: testRunnerHash,
+					ExecutorHash: executorHash,
 				},
 			})
 			require.NoError(t, err)
 			acknowledgement.WaitForStreamToBeReady(stream)
 
 			resp, err := client.ExecutionClient.Create(context.Background(), &pb.CreateExecutionRequest{
-				TaskKey:      "ping",
-				EventHash:    hash.Int(1),
-				ExecutorHash: testRunnerHash,
-				Inputs: &types.Struct{
-					Fields: map[string]*types.Value{
-						"msg": {
-							Kind: &types.Value_StringValue{
-								StringValue: "test",
-							},
-						},
-					},
-				},
+				TaskKey:      taskKey,
+				EventHash:    eventHash,
+				ExecutorHash: executorHash,
+				Inputs:       inputs,
 			})
 			require.NoError(t, err)
 			executionHash = resp.Hash
@@ -50,15 +56,30 @@ func testExecution(t *testing.T) {
 				execPingInProgress, err := stream.Recv()
 				require.NoError(t, err)
 				require.Equal(t, resp.Hash, execPingInProgress.Hash)
-				require.Equal(t, "ping", execPingInProgress.TaskKey)
+				require.Equal(t, taskKey, execPingInProgress.TaskKey)
+				require.Equal(t, eventHash, execPingInProgress.EventHash)
+				require.Equal(t, executorHash, execPingInProgress.ExecutorHash)
 				require.Equal(t, execution.Status_InProgress, execPingInProgress.Status)
+				require.True(t, inputs.Equal(execPingInProgress.Inputs))
 			})
 			t.Run("receive completed execution", func(t *testing.T) {
 				execPing, err = stream.Recv()
 				require.NoError(t, err)
 				require.Equal(t, resp.Hash, execPing.Hash)
-				require.Equal(t, "ping", execPing.TaskKey)
+				require.Equal(t, taskKey, execPing.TaskKey)
+				require.Equal(t, eventHash, execPing.EventHash)
+				require.Equal(t, executorHash, execPing.ExecutorHash)
 				require.Equal(t, execution.Status_Completed, execPing.Status)
+				require.True(t, inputs.Equal(execPing.Inputs))
+				require.True(t, execPing.Outputs.Equal(&types.Struct{
+					Fields: map[string]*types.Value{
+						"pong": {
+							Kind: &types.Value_StringValue{
+								StringValue: "test",
+							},
+						},
+					},
+				}))
 			})
 		})
 	})
