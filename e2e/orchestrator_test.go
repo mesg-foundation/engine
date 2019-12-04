@@ -21,5 +21,4 @@ func testOrchestrator(t *testing.T) {
 	t.Run("result map task map task", testOrchestratorResultMapTaskMapTask(executionStream, testRunnerHash, testInstanceHash))
 	t.Run("event map task map task", testOrchestratorEventMapTaskMapTask(executionStream, testInstanceHash))
 	t.Run("event filter task", testOrchestratorEventFilterTask(executionStream, testInstanceHash))
-	// TODO: ref to object (nested). first nested data service
 }
