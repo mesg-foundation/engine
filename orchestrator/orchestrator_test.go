@@ -179,7 +179,7 @@ func TestFindNode(t *testing.T) {
 // 	o := New(&mocks.EventSDK{}, e, &mocks.ProcessSDK{})
 // 	exec := &execution.Execution{
 // 		ProcessHash: hash.Int(1),
-// 		StepID:      "1",
+// 		NodeKey:      "1",
 // 		ParentHash:  hash.Int(2),
 // 		Outputs: &types.Struct{
 // 			Fields: map[string]*types.Value{
