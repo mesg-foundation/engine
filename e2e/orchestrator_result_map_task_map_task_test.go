@@ -18,21 +18,21 @@ func testOrchestratorResultMapTaskMapTask(executionStream pb.Execution_StreamCli
 		t.Skip("this test doesn't work as map cannot access the trigger result")
 		t.Run("create process", func(t *testing.T) {
 			respProc, err := client.ProcessClient.Create(context.Background(), &pb.CreateProcessRequest{
-				Key: "result-map-task-map-task-process",
+				Name: "result-map-task-map-task-process",
 				Nodes: []*process.Process_Node{
 					{
+						Key: "n0",
 						Type: &process.Process_Node_Result_{
 							Result: &process.Process_Node_Result{
-								Key:          "n0",
 								InstanceHash: instanceHash,
 								TaskKey:      "task2",
 							},
 						},
 					},
 					{
+						Key: "n1",
 						Type: &process.Process_Node_Map_{
 							Map: &process.Process_Node_Map{
-								Key: "n1",
 								Outputs: []*process.Process_Node_Map_Output{
 									{
 										Key: "msg",
@@ -45,18 +45,18 @@ func testOrchestratorResultMapTaskMapTask(executionStream pb.Execution_StreamCli
 						},
 					},
 					{
+						Key: "n2",
 						Type: &process.Process_Node_Task_{
 							Task: &process.Process_Node_Task{
-								Key:          "n2",
 								InstanceHash: instanceHash,
 								TaskKey:      "task1",
 							},
 						},
 					},
 					{
+						Key: "n3",
 						Type: &process.Process_Node_Map_{
 							Map: &process.Process_Node_Map{
-								Key: "n3",
 								Outputs: []*process.Process_Node_Map_Output{
 									{
 										Key: "msg",
@@ -72,9 +72,9 @@ func testOrchestratorResultMapTaskMapTask(executionStream pb.Execution_StreamCli
 						},
 					},
 					{
+						Key: "n4",
 						Type: &process.Process_Node_Task_{
 							Task: &process.Process_Node_Task{
-								Key:          "n4",
 								InstanceHash: instanceHash,
 								TaskKey:      "task1",
 							},
@@ -139,7 +139,7 @@ func testOrchestratorResultMapTaskMapTask(executionStream pb.Execution_StreamCli
 			t.Run("check in progress execution", func(t *testing.T) {
 				exec, err := executionStream.Recv()
 				require.NoError(t, err)
-				require.Equal(t, "n2", exec.StepID)
+				require.Equal(t, "n2", exec.NodeKey)
 				require.Equal(t, "task1", exec.TaskKey)
 				require.True(t, processHash.Equal(exec.ProcessHash))
 				require.Equal(t, execution.Status_InProgress, exec.Status)
@@ -148,7 +148,7 @@ func testOrchestratorResultMapTaskMapTask(executionStream pb.Execution_StreamCli
 			t.Run("check completed execution", func(t *testing.T) {
 				exec, err := executionStream.Recv()
 				require.NoError(t, err)
-				require.Equal(t, "n2", exec.StepID)
+				require.Equal(t, "n2", exec.NodeKey)
 				require.Equal(t, "task1", exec.TaskKey)
 				require.True(t, processHash.Equal(exec.ProcessHash))
 				require.Equal(t, execution.Status_Completed, exec.Status)
@@ -160,7 +160,7 @@ func testOrchestratorResultMapTaskMapTask(executionStream pb.Execution_StreamCli
 			t.Run("check in progress execution", func(t *testing.T) {
 				exec, err := executionStream.Recv()
 				require.NoError(t, err)
-				require.Equal(t, "n4", exec.StepID)
+				require.Equal(t, "n4", exec.NodeKey)
 				require.Equal(t, "task1", exec.TaskKey)
 				require.True(t, processHash.Equal(exec.ProcessHash))
 				require.Equal(t, execution.Status_InProgress, exec.Status)
@@ -169,7 +169,7 @@ func testOrchestratorResultMapTaskMapTask(executionStream pb.Execution_StreamCli
 			t.Run("check completed execution", func(t *testing.T) {
 				exec, err := executionStream.Recv()
 				require.NoError(t, err)
-				require.Equal(t, "n4", exec.StepID)
+				require.Equal(t, "n4", exec.NodeKey)
 				require.Equal(t, "task1", exec.TaskKey)
 				require.True(t, processHash.Equal(exec.ProcessHash))
 				require.Equal(t, execution.Status_Completed, exec.Status)

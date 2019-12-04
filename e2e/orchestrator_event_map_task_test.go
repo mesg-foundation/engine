@@ -19,21 +19,21 @@ func testOrchestratorEventMapTask(executionStream pb.Execution_StreamClient, ins
 
 		t.Run("create process", func(t *testing.T) {
 			respProc, err := client.ProcessClient.Create(context.Background(), &pb.CreateProcessRequest{
-				Key: "event-map-task-process",
+				Name: "event-map-task-process",
 				Nodes: []*process.Process_Node{
 					{
+						Key: "n0",
 						Type: &process.Process_Node_Event_{
 							Event: &process.Process_Node_Event{
-								Key:          "n0",
 								InstanceHash: instanceHash,
 								EventKey:     "test_event",
 							},
 						},
 					},
 					{
+						Key: "n1",
 						Type: &process.Process_Node_Map_{
 							Map: &process.Process_Node_Map{
-								Key: "n1",
 								Outputs: []*process.Process_Node_Map_Output{
 									{
 										Key: "msg",
@@ -46,9 +46,9 @@ func testOrchestratorEventMapTask(executionStream pb.Execution_StreamClient, ins
 						},
 					},
 					{
+						Key: "n2",
 						Type: &process.Process_Node_Task_{
 							Task: &process.Process_Node_Task{
-								Key:          "n2",
 								InstanceHash: instanceHash,
 								TaskKey:      "task1",
 							},
