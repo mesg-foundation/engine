@@ -4,59 +4,22 @@ import (
 	"context"
 	"testing"
 
-	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/protobuf/acknowledgement"
 	pb "github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/stretchr/testify/require"
 )
 
 func testOrchestrator(t *testing.T) {
-	var (
-		eventStream     pb.Event_StreamClient
-		executionStream pb.Execution_StreamClient
-		runnerHash      hash.Hash
-		instanceHash    hash.Hash
-		err             error
-	)
-	t.Run("setup", func(t *testing.T) {
-		respCreate, err := client.ServiceClient.Create(context.Background(), newTestOrchestratorCreateServiceRequest())
-		require.NoError(t, err)
-		serviceHash := respCreate.Hash
-
-		eventStream, err = client.EventClient.Stream(context.Background(), &pb.StreamEventRequest{})
-		require.NoError(t, err)
-		acknowledgement.WaitForStreamToBeReady(eventStream)
-
-		executionStream, err = client.ExecutionClient.Stream(context.Background(), &pb.StreamExecutionRequest{})
-		require.NoError(t, err)
-		acknowledgement.WaitForStreamToBeReady(executionStream)
-
-		respRun, err := client.RunnerClient.Create(context.Background(), &pb.CreateRunnerRequest{
-			ServiceHash: serviceHash,
-		})
-		require.NoError(t, err)
-		runnerHash = respRun.Hash
-
-		respRunGet, err := client.RunnerClient.Get(context.Background(), &pb.GetRunnerRequest{Hash: runnerHash})
-		require.NoError(t, err)
-		instanceHash = respRunGet.InstanceHash
-
-		// wait for service to be ready
-		_, err = eventStream.Recv()
-		require.NoError(t, err)
-	})
+	executionStream, err := client.ExecutionClient.Stream(context.Background(), &pb.StreamExecutionRequest{})
+	require.NoError(t, err)
+	acknowledgement.WaitForStreamToBeReady(executionStream)
 
 	// running orchestrator tests
-	t.Run("event task", testOrchestratorEventTask(executionStream, instanceHash))
-	t.Run("result task", testOrchestratorResultTask(executionStream, runnerHash, instanceHash))
-	t.Run("event map task", testOrchestratorEventMapTask(executionStream, instanceHash))
-	t.Run("result map task map task", testOrchestratorResultMapTaskMapTask(executionStream, runnerHash, instanceHash))
-	t.Run("event map task map task", testOrchestratorEventMapTaskMapTask(executionStream, instanceHash))
-	t.Run("event filter task", testOrchestratorEventFilterTask(executionStream, instanceHash))
-	// TODO: ref to object (nested). first nested data service
-
-	t.Run("cleanup", func(t *testing.T) {
-		_, err = client.RunnerClient.Delete(context.Background(), &pb.DeleteRunnerRequest{Hash: runnerHash})
-		require.NoError(t, err)
-	})
+	t.Run("event task", testOrchestratorEventTask(executionStream, testInstanceHash))
+	t.Run("result task", testOrchestratorResultTask(executionStream, testRunnerHash, testInstanceHash))
+	t.Run("event map task", testOrchestratorEventMapTask(executionStream, testInstanceHash))
+	t.Run("result map task map task", testOrchestratorResultMapTaskMapTask(executionStream, testRunnerHash, testInstanceHash))
+	t.Run("event map task map task", testOrchestratorEventMapTaskMapTask(executionStream, testInstanceHash))
+	t.Run("event task complex data", testOrchestratorEventTaskComplexData(executionStream, testInstanceHash))
+	t.Run("event filter task", testOrchestratorEventFilterTask(executionStream, testInstanceHash))
 }
