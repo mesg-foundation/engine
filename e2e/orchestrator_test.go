@@ -47,8 +47,13 @@ func testOrchestrator(t *testing.T) {
 	})
 
 	// running orchestrator tests
-	t.Run("1 event 1 task", testOrchestrator1Event1Task(executionStream, instanceHash))
-	t.Run("1 result 1 task", testOrchestrator1Result1Task(executionStream, runnerHash, instanceHash))
+	t.Run("event task", testOrchestratorEventTask(executionStream, instanceHash))
+	t.Run("result task", testOrchestratorResultTask(executionStream, runnerHash, instanceHash))
+	t.Run("event map task", testOrchestratorEventMapTask(executionStream, instanceHash))
+	t.Run("result map task map task", testOrchestratorResultMapTaskMapTask(executionStream, runnerHash, instanceHash))
+	t.Run("event map task map task", testOrchestratorEventMapTaskMapTask(executionStream, instanceHash))
+	t.Run("event filter task", testOrchestratorEventFilterTask(executionStream, instanceHash))
+	// TODO: ref to object (nested). first nested data service
 
 	t.Run("cleanup", func(t *testing.T) {
 		_, err = client.RunnerClient.Delete(context.Background(), &pb.DeleteRunnerRequest{Hash: runnerHash})
