@@ -6,88 +6,6 @@ import (
 	"github.com/mesg-foundation/engine/service"
 )
 
-func newTestCreateServiceRequest() *pb.CreateServiceRequest {
-	return &api.CreateServiceRequest{
-		Sid:  "test-service",
-		Name: "test-service",
-		Configuration: service.Service_Configuration{
-			Env: []string{"FOO=1", "BAR=2", "REQUIRED"},
-		},
-		Tasks: []*service.Service_Task{
-			{
-				Key: "ping",
-				Inputs: []*service.Service_Parameter{
-					{
-						Key:  "msg",
-						Type: "String",
-					},
-				},
-				Outputs: []*service.Service_Parameter{
-					{
-						Key:  "pong",
-						Type: "String",
-					},
-				},
-			},
-			{
-				Key: "add",
-				Inputs: []*service.Service_Parameter{
-					{
-						Key:  "n",
-						Type: "Number",
-					},
-					{
-						Key:  "m",
-						Type: "Number",
-					},
-				},
-				Outputs: []*service.Service_Parameter{
-					{
-						Key:  "res",
-						Type: "Number",
-					},
-				},
-			},
-			{
-				Key: "error",
-			},
-		},
-		Events: []*service.Service_Event{
-			{
-				Key: "test_service_ready",
-			},
-			{
-				Key: "ping_ok",
-				Data: []*service.Service_Parameter{
-					{
-						Key:  "msg",
-						Type: "String",
-					},
-				},
-			},
-			{
-				Key: "add_ok",
-				Data: []*service.Service_Parameter{
-					{
-						Key:  "msg",
-						Type: "String",
-					},
-				},
-			},
-			{
-				Key: "error_ok",
-				Data: []*service.Service_Parameter{
-					{
-						Key:  "msg",
-						Type: "String",
-					},
-				},
-			},
-		},
-		Source: "QmZ8r6Basr67m1FYe9mar3B9gB1kDfDZnqZvs3EVj46Np4",
-	}
-}
-
 func newTestComplexCreateServiceRequest() *pb.CreateServiceRequest {
 	return &api.CreateServiceRequest{
 		Sid:  "test-complex-service",
@@ -124,10 +42,13 @@ func newTestComplexCreateServiceRequest() *pb.CreateServiceRequest {
 	}
 }
 
-func newTestOrchestratorCreateServiceRequest() *pb.CreateServiceRequest {
+func newTestCreateServiceRequest() *pb.CreateServiceRequest {
 	return &api.CreateServiceRequest{
-		Sid:  "test-service-simple",
-		Name: "test-service-simple",
+		Sid:  "test-service",
+		Name: "test-service",
+		Configuration: service.Service_Configuration{
+			Env: []string{"FOO=1", "BAR=2", "REQUIRED"},
+		},
 		Tasks: []*service.Service_Task{
 			{
 				Key: "task1",
@@ -167,6 +88,47 @@ func newTestOrchestratorCreateServiceRequest() *pb.CreateServiceRequest {
 					},
 				},
 			},
+			{
+				Key: "task_complex",
+				Inputs: []*service.Service_Parameter{
+					{
+						Key:  "msg",
+						Type: "Object",
+						Object: []*service.Service_Parameter{
+							&service.Service_Parameter{
+								Key:  "msg",
+								Type: "String",
+							},
+							&service.Service_Parameter{
+								Key:      "array",
+								Type:     "String",
+								Repeated: true,
+							},
+						},
+					},
+				},
+				Outputs: []*service.Service_Parameter{
+					{
+						Key:  "msg",
+						Type: "Object",
+						Object: []*service.Service_Parameter{
+							&service.Service_Parameter{
+								Key:  "msg",
+								Type: "String",
+							},
+							&service.Service_Parameter{
+								Key:  "timestamp",
+								Type: "Number",
+							},
+							&service.Service_Parameter{
+								Key:      "array",
+								Type:     "String",
+								Repeated: true,
+							},
+						},
+					},
+				},
+			},
 		},
 		Events: []*service.Service_Event{
 			{
@@ -186,10 +148,34 @@ func newTestOrchestratorCreateServiceRequest() *pb.CreateServiceRequest {
 				},
 			},
 			{
-				Key: "event_after_task",
+				Key: "test_event_complex",
 				Data: []*service.Service_Parameter{
 					{
 						Key:  "msg",
+						Type: "Object",
+						Object: []*service.Service_Parameter{
+							&service.Service_Parameter{
+								Key:  "msg",
+								Type: "String",
+							},
+							&service.Service_Parameter{
+								Key:  "timestamp",
+								Type: "Number",
+							},
+							&service.Service_Parameter{
+								Key:      "array",
+								Type:     "String",
+								Repeated: true,
+							},
+						},
+					},
+				},
+			},
+			{
+				Key: "event_after_task",
+				Data: []*service.Service_Parameter{
+					{
+						Key:  "task_key",
 						Type: "String",
 					},
 					{
@@ -199,6 +185,6 @@ func newTestOrchestratorCreateServiceRequest() *pb.CreateServiceRequest {
 				},
 			},
 		},
-		Source: "QmaGz2grYKGSYX92ELC3DWoB8KZ6jnWhig5aSfL37AVByF",
+		Source: "Qmcbi3CFeCRTDVkvkthx81wfDBc8yySKmEgsSEJYwQUqbF",
 	}
 }

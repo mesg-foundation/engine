@@ -114,32 +114,55 @@ func main() {
 			Hash: exec.Hash,
 		}
 
-		if exec.TaskKey == "ping" {
+		if exec.TaskKey == "task1" || exec.TaskKey == "task2" {
 			req.Result = &pb.UpdateExecutionRequest_Outputs{
 				Outputs: &types.Struct{
 					Fields: map[string]*types.Value{
-						"pong": {
+						"msg": {
 							Kind: &types.Value_StringValue{
 								StringValue: exec.Inputs.Fields["msg"].GetStringValue(),
 							},
 						},
-					},
-				},
-			}
-		} else if exec.TaskKey == "add" {
-			req.Result = &pb.UpdateExecutionRequest_Outputs{
-				Outputs: &types.Struct{
-					Fields: map[string]*types.Value{
-						"res": {
+						"timestamp": {
 							Kind: &types.Value_NumberValue{
-								NumberValue: exec.Inputs.Fields["n"].GetNumberValue() + exec.Inputs.Fields["m"].GetNumberValue(),
+								NumberValue: float64(time.Now().Unix()),
 							},
 						},
 					},
 				},
 			}
-		} else if exec.TaskKey == "error" {
-			req.Result = &pb.UpdateExecutionRequest_Error{Error: "error"}
+		} else if exec.TaskKey == "task_complex" {
+			req.Result = &pb.UpdateExecutionRequest_Outputs{
+				Outputs: &types.Struct{
+					Fields: map[string]*types.Value{
+						"msg": {
+							Kind: &types.Value_StructValue{
+								StructValue: &types.Struct{
+									Fields: map[string]*types.Value{
+										"msg": {
+											Kind: &types.Value_StringValue{
+												StringValue: exec.Inputs.Fields["msg"].GetStructValue().Fields["msg"].GetStringValue(),
+											},
+										},
+										"timestamp": {
+											Kind: &types.Value_NumberValue{
+												NumberValue: float64(time.Now().Unix()),
+											},
+										},
+										"array": {
+											Kind: &types.Value_ListValue{
+												ListValue: exec.Inputs.Fields["msg"].GetStructValue().Fields["array"].GetListValue(),
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			}
+		} else {
+			log.Fatalf("Taskkey %q not implemented", exec.TaskKey)
 		}
 
 		if _, err := client.ExecutionClient.Update(context.Background(), req); err != nil {
@@ -149,12 +172,17 @@ func main() {
 
 		if _, err := client.EventClient.Create(context.Background(), &pb.CreateEventRequest{
 			InstanceHash: client.InstanceHash,
-			Key:          exec.TaskKey + "_ok",
+			Key:          "event_after_task",
 			Data: &types.Struct{
 				Fields: map[string]*types.Value{
-					"msg": {
+					"task_key": {
 						Kind: &types.Value_StringValue{
 							StringValue: exec.TaskKey,
+						},
+					},
+					"timestamp": {
+						Kind: &types.Value_NumberValue{
+							NumberValue: float64(time.Now().Unix()),
 						},
 					},
 				},
@@ -162,6 +190,6 @@ func main() {
 		}); err != nil {
 			log.Fatal(err)
 		}
-		log.Printf("emitted " + exec.TaskKey + "_ok event\n")
+		log.Printf("emitted event_after_task event\n")
 	}
 }

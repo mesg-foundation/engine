@@ -16,7 +16,7 @@ func testExecution(t *testing.T) {
 	var (
 		executionHash hash.Hash
 		execPing      *execution.Execution
-		taskKey       = "ping"
+		taskKey       = "task1"
 		eventHash     = hash.Int(1)
 		executorHash  = testRunnerHash
 		inputs        = &types.Struct{
@@ -71,15 +71,8 @@ func testExecution(t *testing.T) {
 				require.Equal(t, executorHash, execPing.ExecutorHash)
 				require.Equal(t, execution.Status_Completed, execPing.Status)
 				require.True(t, inputs.Equal(execPing.Inputs))
-				require.True(t, execPing.Outputs.Equal(&types.Struct{
-					Fields: map[string]*types.Value{
-						"pong": {
-							Kind: &types.Value_StringValue{
-								StringValue: "test",
-							},
-						},
-					},
-				}))
+				require.Equal(t, "test", execPing.Outputs.Fields["msg"].GetStringValue())
+				require.NotEmpty(t, execPing.Outputs.Fields["timestamp"].GetNumberValue())
 			})
 		})
 	})

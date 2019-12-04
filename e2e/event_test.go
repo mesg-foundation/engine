@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"testing"
+	"time"
 
 	"github.com/mesg-foundation/engine/protobuf/acknowledgement"
 	pb "github.com/mesg-foundation/engine/protobuf/api"
@@ -19,12 +20,17 @@ func testEvent(t *testing.T) {
 
 	resp, err := client.EventClient.Create(context.Background(), &pb.CreateEventRequest{
 		InstanceHash: testInstanceHash,
-		Key:          "ping_ok",
+		Key:          "test_event",
 		Data: &types.Struct{
 			Fields: map[string]*types.Value{
 				"msg": {
 					Kind: &types.Value_StringValue{
 						StringValue: "foo",
+					},
+				},
+				"timestamp": {
+					Kind: &types.Value_NumberValue{
+						NumberValue: float64(time.Now().Unix()),
 					},
 				},
 			},
@@ -37,6 +43,7 @@ func testEvent(t *testing.T) {
 
 	require.Equal(t, resp.Hash, event.Hash)
 	require.Equal(t, testInstanceHash, event.InstanceHash)
-	require.Equal(t, "ping_ok", event.Key)
+	require.Equal(t, "test_event", event.Key)
 	require.Equal(t, "foo", event.Data.Fields["msg"].GetStringValue())
+	require.NotEmpty(t, event.Data.Fields["timestamp"].GetNumberValue())
 }
