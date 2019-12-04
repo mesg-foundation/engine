@@ -19,21 +19,21 @@ func testOrchestratorEventTask(executionStream pb.Execution_StreamClient, instan
 
 		t.Run("create process", func(t *testing.T) {
 			respProc, err := client.ProcessClient.Create(context.Background(), &pb.CreateProcessRequest{
-				Key: "event-task-process",
+				Name: "event-task-process",
 				Nodes: []*process.Process_Node{
 					{
+						Key: "n0",
 						Type: &process.Process_Node_Event_{
 							Event: &process.Process_Node_Event{
-								Key:          "n0",
 								InstanceHash: instanceHash,
 								EventKey:     "test_event",
 							},
 						},
 					},
 					{
+						Key: "n1",
 						Type: &process.Process_Node_Task_{
 							Task: &process.Process_Node_Task{
-								Key:          "n1",
 								InstanceHash: instanceHash,
 								TaskKey:      "task1",
 							},

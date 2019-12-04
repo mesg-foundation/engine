@@ -21,7 +21,7 @@ func NewProcessServer(sdk *sdk.SDK) *ProcessServer {
 // Create creates a new process.
 func (s *ProcessServer) Create(ctx context.Context, req *api.CreateProcessRequest) (*api.CreateProcessResponse, error) {
 	wf, err := s.sdk.Process.Create(&process.Process{
-		Key:   req.Key,
+		Name:  req.Name,
 		Nodes: req.Nodes,
 		Edges: req.Edges,
 	})
