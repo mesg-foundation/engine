@@ -73,7 +73,7 @@ func (s *Backend) querier(req cosmostypes.Request, path []string, _ abci.Request
 func (s *Backend) Create(req cosmostypes.Request, msg *msgCreateProcess) (*process.Process, error) {
 	store := req.KVStore(s.storeKey)
 	p := &process.Process{
-		Key:   msg.Request.Key,
+		Name:  msg.Request.Name,
 		Nodes: msg.Request.Nodes,
 		Edges: msg.Request.Edges,
 	}
