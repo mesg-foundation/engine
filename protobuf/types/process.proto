@@ -75,13 +75,27 @@ message Process {
         }
 
         message Reference {
-          // Key of the node in the graph. If empty, will be using the src of the edge.
+          message Path {
+            oneof selector {
+              string key = 1 [
+                (gogoproto.moretags) = 'hash:"name:1" validate:"printascii"'
+              ];
+              uint64 index = 2 [
+                (gogoproto.moretags) = 'hash:"name:2"'
+              ];
+            }
+
+            // Path can be nil if on the leaf
+            Path path = 3 [
+              (gogoproto.moretags) = 'hash:"name:3"'
+            ];
+          }
+
           string nodeKey = 1 [
             (gogoproto.moretags) = 'hash:"name:1" validate:"required"'
           ];
 
-          // Key of a specific parameter of the referenced node's output data.
-          string key = 2 [
+          Path path = 2 [
             (gogoproto.moretags) = 'hash:"name:2" validate:"required"'
           ];
         }

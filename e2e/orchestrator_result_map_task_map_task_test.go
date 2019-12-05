@@ -15,7 +15,6 @@ import (
 func testOrchestratorResultMapTaskMapTask(executionStream pb.Execution_StreamClient, runnerHash hash.Hash, instanceHash hash.Hash) func(t *testing.T) {
 	return func(t *testing.T) {
 		var processHash hash.Hash
-		t.Skip("this test doesn't work as map cannot access the trigger result")
 		t.Run("create process", func(t *testing.T) {
 			respProc, err := client.ProcessClient.Create(context.Background(), &pb.CreateProcessRequest{
 				Name: "result-map-task-map-task-process",
@@ -60,8 +59,12 @@ func testOrchestratorResultMapTaskMapTask(executionStream pb.Execution_StreamCli
 									"msg": {
 										Value: &process.Process_Node_Map_Output_Ref{
 											Ref: &process.Process_Node_Map_Output_Reference{
+												Path: &process.Process_Node_Map_Output_Reference_Path{
+													Selector: &process.Process_Node_Map_Output_Reference_Path_Key{
+														Key: "msg",
+													},
+												},
 												NodeKey: "n0",
-												Key:     "msg",
 											},
 										},
 									},

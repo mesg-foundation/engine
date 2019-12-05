@@ -39,6 +39,7 @@ func (s *Orchestrator) Start() error {
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
+
 	executionStream, errC, err := s.execution.Stream(ctx, &api.StreamExecutionRequest{
 		Filter: &api.StreamExecutionRequest_Filter{
 			Statuses: []execution.Status{execution.Status_Completed},
@@ -159,7 +160,7 @@ func (s *Orchestrator) processMap(outputs map[string]*process.Process_Node_Map_O
 		Fields: make(map[string]*types.Value),
 	}
 	for key, output := range outputs {
-		value, err := s.outputToValue(output, wf, exec, data)
+		value, err := s.outputToValue(output, key, wf, exec, data)
 		if err != nil {
 			return nil, err
 		}
@@ -168,7 +169,7 @@ func (s *Orchestrator) processMap(outputs map[string]*process.Process_Node_Map_O
 	return result, nil
 }
 
-func (s *Orchestrator) outputToValue(output *process.Process_Node_Map_Output, wf *process.Process, exec *execution.Execution, data *types.Struct) (*types.Value, error) {
+func (s *Orchestrator) outputToValue(output *process.Process_Node_Map_Output, outputKey string, wf *process.Process, exec *execution.Execution, data *types.Struct) (*types.Value, error) {
 	switch v := output.GetValue().(type) {
 	case *process.Process_Node_Map_Output_Null_:
 		return &types.Value{Kind: &types.Value_NullValue{NullValue: types.NullValue_NULL_VALUE}}, nil
@@ -187,7 +188,7 @@ func (s *Orchestrator) outputToValue(output *process.Process_Node_Map_Output, wf
 	case *process.Process_Node_Map_Output_List_:
 		var values []*types.Value
 		for i := range v.List.Outputs {
-			value, err := s.outputToValue(v.List.Outputs[i], wf, exec, data)
+			value, err := s.outputToValue(v.List.Outputs[i], outputKey, wf, exec, data)
 			if err != nil {
 				return nil, err
 			}
@@ -207,9 +208,9 @@ func (s *Orchestrator) outputToValue(output *process.Process_Node_Map_Output, wf
 			return nil, err
 		}
 		if node.GetTask() != nil {
-			return s.resolveInput(wf.Hash, exec, v.Ref.NodeKey, v.Ref.Key)
+			return s.resolveInput(wf.Hash, exec, v.Ref.NodeKey, outputKey)
 		}
-		return data.Fields[v.Ref.Key], nil
+		return resolveRef(data, v.Ref.Path)
 	default:
 		return nil, errors.New("unknown output")
 	}
@@ -258,4 +259,46 @@ func (s *Orchestrator) processTask(nodeKey string, task *process.Process_Node_Ta
 		Tags:         nil,
 	}, s.accountName, s.accountPassword)
 	return err
+}
+
+func resolveRef(data *types.Struct, path *process.Process_Node_Map_Output_Reference_Path) (*types.Value, error) {
+	var v *types.Value
+	key, ok := path.Selector.(*process.Process_Node_Map_Output_Reference_Path_Key)
+	if !ok {
+		return nil, fmt.Errorf("orchestrator: first selector in the path must be a key")
+	}
+
+	v, ok = data.Fields[key.Key]
+	if !ok {
+		return nil, fmt.Errorf("orchestrator: key %s not found", key.Key)
+	}
+
+	for p := path.Path; p != nil; p = p.Path {
+		switch s := p.Selector.(type) {
+		case *process.Process_Node_Map_Output_Reference_Path_Key:
+			str, ok := v.GetKind().(*types.Value_StructValue)
+			if !ok {
+				return nil, fmt.Errorf("orchestrator: can't get key from non-struct value")
+			}
+			if str.StructValue.GetFields() == nil {
+				return nil, fmt.Errorf("orchestrator: can't get key from nil-struct")
+			}
+			v, ok = str.StructValue.Fields[s.Key]
+			if !ok {
+				return nil, fmt.Errorf("orchestrator: key %s not found", s.Key)
+			}
+		case *process.Process_Node_Map_Output_Reference_Path_Index:
+			list, ok := v.GetKind().(*types.Value_ListValue)
+			if !ok {
+				return nil, fmt.Errorf("orchestrator: can't get index from non-list value")
+			}
+
+			if len(list.ListValue.GetValues()) <= int(s.Index) {
+				return nil, fmt.Errorf("orchestrator: index %d out of range", s.Index)
+			}
+			v = list.ListValue.Values[s.Index]
+		}
+	}
+
+	return v, nil
 }
