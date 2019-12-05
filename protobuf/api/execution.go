@@ -3,7 +3,7 @@ package api
 import (
 	fmt "fmt"
 
-	execution "github.com/mesg-foundation/engine/execution"
+	"github.com/mesg-foundation/engine/execution"
 	"github.com/mesg-foundation/engine/x/xstrings"
 )
 
@@ -41,17 +41,6 @@ func (f *StreamExecutionRequest_Filter) Match(e *execution.Execution) bool {
 		return false
 	}
 	if f.TaskKey != "" && f.TaskKey != "*" && f.TaskKey != e.TaskKey {
-		return false
-	}
-
-	match := len(f.Statuses) == 0
-	for _, status := range f.Statuses {
-		if status == e.Status {
-			match = true
-			break
-		}
-	}
-	if !match {
 		return false
 	}
 	for _, tag := range f.Tags {

@@ -4,7 +4,7 @@ TYPES_PATH=protobuf/types
 APIS_PATH=protobuf/api
 
 # generate type
-for file in "${TYPES_PATH}"/{account,event,execution,instance,service,process,ownership,runner}.proto
+for file in "${TYPES_PATH}"/{account,event,result,execution,instance,service,process,ownership,runner}.proto
 do
   file=$(basename ${file})
   dir="${file%.*}"
@@ -16,7 +16,7 @@ done
 protoc --gogo_out=paths=source_relative:. protobuf/types/struct.proto
 
 # generate services
-for file in "${APIS_PATH}"/{account,event,execution,instance,service,process,ownership,runner}.proto
+for file in "${APIS_PATH}"/{account,event,result,execution,instance,service,process,ownership,runner}.proto
 do
   protoc --gogo_out=plugins=grpc:. --proto_path . "${file}"
 done

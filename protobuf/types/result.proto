@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+import "gogo/protobuf/gogoproto/gogo.proto";
+import "protobuf/types/struct.proto";
+
+package mesg.types;
+option go_package = "github.com/mesg-foundation/engine/result";
+
+option (gogoproto.goproto_getters_all) = false;
+option (gogoproto.equal_all) = true;
+
+// Result represents a single result of an execution.
+message Result {
+  // Hash is a unique hash to identify this execution's result.
+  bytes hash = 1 [
+    (gogoproto.moretags) = 'hash:"-"',
+    (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
+    (gogoproto.nullable) = false
+  ];
+
+  // requestHash is hash of the associated execution.
+  bytes requestHash = 2 [
+    (gogoproto.moretags) = 'hash:"name:2"',
+    (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
+    (gogoproto.nullable) = false
+  ];
+
+  // result pass to execution
+  oneof result {
+    // outputs are the returned data of successful execution.
+    mesg.protobuf.Struct outputs = 3 [
+      (gogoproto.moretags) = 'hash:"name:3"'
+    ];
+
+    // error message of a failed execution.
+    string error = 4 [
+      (gogoproto.moretags) = 'hash:"name:4"'
+    ];
+  }
+}

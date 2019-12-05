@@ -68,18 +68,6 @@ func (s *ExecutionServer) Stream(req *api.StreamExecutionRequest, resp api.Execu
 	}
 }
 
-// Update updates execution from given hash.
-func (s *ExecutionServer) Update(ctx context.Context, req *api.UpdateExecutionRequest) (*api.UpdateExecutionResponse, error) {
-	credUsername, credPassphrase, err := GetCredentialFromContext(ctx)
-	if err != nil {
-		return nil, err
-	}
-	if _, err := s.sdk.Execution.Update(req, credUsername, credPassphrase); err != nil {
-		return nil, err
-	}
-	return &api.UpdateExecutionResponse{}, nil
-}
-
 // List returns all executions.
 func (s *ExecutionServer) List(ctx context.Context, req *api.ListExecutionRequest) (*api.ListExecutionResponse, error) {
 	executions, err := s.sdk.Execution.List()

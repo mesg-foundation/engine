@@ -5,7 +5,7 @@ import (
 )
 
 func init() {
-	codec.RegisterInterface((*isUpdateExecutionRequest_Result)(nil), nil)
-	codec.RegisterConcrete(&UpdateExecutionRequest_Outputs{}, "mesg.api.UpdateExecutionRequest_Outputs", nil)
-	codec.RegisterConcrete(&UpdateExecutionRequest_Error{}, "mesg.api.UpdateExecutionRequest_Error", nil)
+	codec.RegisterInterface((*isCreateResultRequest_Result)(nil), nil)
+	codec.RegisterConcrete(&CreateResultRequest_Outputs{}, "mesg.api.CreateResultRequest_Outputs", nil)
+	codec.RegisterConcrete(&CreateResultRequest_Error{}, "mesg.api.CreateResultRequest_Error", nil)
 }

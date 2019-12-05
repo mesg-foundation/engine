@@ -11,6 +11,7 @@ import (
 	instancesdk "github.com/mesg-foundation/engine/sdk/instance"
 	ownershipsdk "github.com/mesg-foundation/engine/sdk/ownership"
 	processesdk "github.com/mesg-foundation/engine/sdk/process"
+	resultsdk "github.com/mesg-foundation/engine/sdk/result"
 	runnersdk "github.com/mesg-foundation/engine/sdk/runner"
 	servicesdk "github.com/mesg-foundation/engine/sdk/service"
 )
@@ -19,12 +20,13 @@ import (
 type SDK struct {
 	Service   *servicesdk.SDK
 	Instance  *instancesdk.SDK
-	Execution *executionsdk.SDK
 	Event     *eventsdk.Event
 	Process   *processesdk.Process
 	Account   *accountsdk.SDK
 	Ownership *ownershipsdk.SDK
 	Runner    *runnersdk.SDK
+	Execution *executionsdk.SDK
+	Result    *resultsdk.SDK
 }
 
 // New creates a new SDK with given options.
@@ -36,16 +38,18 @@ func New(client *cosmos.Client, kb *cosmos.Keybase, processDB database.ProcessDB
 	instanceSDK := instancesdk.New(client)
 	runnerSDK := runnersdk.New(client, accountSDK, serviceSDK, instanceSDK, container, engineName, port, ipfsEndpoint)
 	processSDK := processesdk.New(instanceSDK, processDB)
-	executionSDK := executionsdk.New(client, kb, serviceSDK, instanceSDK, runnerSDK)
+	executionSDK := executionsdk.New(client, kb)
+	resultSDK := resultsdk.New(client, kb)
 	eventSDK := eventsdk.New(ps, serviceSDK, instanceSDK)
 	return &SDK{
 		Service:   serviceSDK,
 		Instance:  instanceSDK,
-		Execution: executionSDK,
 		Event:     eventSDK,
 		Process:   processSDK,
 		Account:   accountSDK,
 		Ownership: ownershipSDK,
 		Runner:    runnerSDK,
+		Execution: executionSDK,
+		Result:    resultSDK,
 	}
 }

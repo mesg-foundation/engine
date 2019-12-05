@@ -45,16 +45,6 @@ func TestFilter(t *testing.T) {
 			false,
 		},
 		{
-			&StreamExecutionRequest_Filter{Statuses: []execution.Status{execution.Status_Created}},
-			&execution.Execution{Status: execution.Status_Created},
-			true,
-		},
-		{
-			&StreamExecutionRequest_Filter{Statuses: []execution.Status{execution.Status_Created}},
-			&execution.Execution{Status: execution.Status_InProgress},
-			false,
-		},
-		{
 			&StreamExecutionRequest_Filter{TaskKey: "0"},
 			&execution.Execution{TaskKey: "0"},
 			true,

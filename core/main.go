@@ -205,7 +205,7 @@ func main() {
 	}()
 
 	logrus.WithField("module", "main").Info("starting process engine")
-	s := orchestrator.New(sdk.Event, sdk.Execution, sdk.Process, sdk.Runner, cfg.Account.Name, cfg.Account.Password)
+	s := orchestrator.New(sdk.Event, sdk.Execution, sdk.Result, sdk.Process, sdk.Runner, cfg.Account.Name, cfg.Account.Password)
 	go func() {
 		if err := s.Start(); err != nil {
 			logrus.WithField("module", "main").Fatalln(err)

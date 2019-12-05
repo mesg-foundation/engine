@@ -9,8 +9,6 @@ import (
 	"github.com/mesg-foundation/engine/cosmos"
 	"github.com/mesg-foundation/engine/execution"
 	"github.com/mesg-foundation/engine/hash"
-	"github.com/mesg-foundation/engine/protobuf/api"
-	"github.com/mesg-foundation/engine/protobuf/types"
 	instancesdk "github.com/mesg-foundation/engine/sdk/instance"
 	runnersdk "github.com/mesg-foundation/engine/sdk/runner"
 	servicesdk "github.com/mesg-foundation/engine/sdk/service"
@@ -51,14 +49,8 @@ func (s *Backend) handler(request cosmostypes.Request, msg cosmostypes.Msg) (has
 			return nil, err
 		}
 		return exec.Hash, nil
-	case msgUpdateExecution:
-		exec, err := s.Update(request, msg)
-		if err != nil {
-			return nil, err
-		}
-		return exec.Hash, nil
 	default:
-		errmsg := fmt.Sprintf("Unrecognized execution Msg type: %v", msg.Type())
+		errmsg := fmt.Sprintf("Unrecognized execution msg type: %v", msg.Type())
 		return nil, cosmostypes.ErrUnknownRequest(errmsg)
 	}
 }
@@ -78,7 +70,7 @@ func (s *Backend) querier(request cosmostypes.Request, path []string, req abci.R
 	}
 }
 
-// Create creates a new execution from definition.
+// Create creates a new execution.
 func (s *Backend) Create(request cosmostypes.Request, msg msgCreateExecution) (*execution.Execution, error) {
 	run, err := s.runnerBack.Get(request, msg.Request.ExecutorHash)
 	if err != nil {
@@ -104,7 +96,7 @@ func (s *Backend) Create(request cosmostypes.Request, msg msgCreateExecution) (*
 	exec := execution.New(
 		msg.Request.ProcessHash,
 		run.InstanceHash,
-		msg.Request.ParentHash,
+		msg.Request.ParentResultHash,
 		msg.Request.EventHash,
 		msg.Request.NodeKey,
 		msg.Request.TaskKey,
@@ -116,67 +108,18 @@ func (s *Backend) Create(request cosmostypes.Request, msg msgCreateExecution) (*
 	if store.Has(exec.Hash) {
 		return nil, fmt.Errorf("execution %q already exists", exec.Hash)
 	}
-	if err := exec.Execute(); err != nil {
-		return nil, err
-	}
 	value, err := codec.MarshalBinaryBare(exec)
 	if err != nil {
 		return nil, err
 	}
 	store.Set(exec.Hash, value)
 	return exec, nil
-}
-
-// Update updates a new execution from definition.
-func (s *Backend) Update(request cosmostypes.Request, msg msgUpdateExecution) (*execution.Execution, error) {
-	store := request.KVStore(s.storeKey)
-	if !store.Has(msg.Request.Hash) {
-		return nil, fmt.Errorf("execution %q doesn't exist", msg.Request.Hash)
-	}
-	var exec *execution.Execution
-	if err := codec.UnmarshalBinaryBare(store.Get(msg.Request.Hash), &exec); err != nil {
-		return nil, err
-	}
-	switch res := msg.Request.Result.(type) {
-	case *api.UpdateExecutionRequest_Outputs:
-		if err := s.validateExecutionOutput(request, exec.InstanceHash, exec.TaskKey, res.Outputs); err != nil {
-			if err1 := exec.Failed(err); err1 != nil {
-				return nil, err1
-			}
-		} else if err := exec.Complete(res.Outputs); err != nil {
-			return nil, err
-		}
-	case *api.UpdateExecutionRequest_Error:
-		if err := exec.Failed(errors.New(res.Error)); err != nil {
-			return nil, err
-		}
-	default:
-		return nil, errors.New("no execution result supplied")
-	}
-	value, err := codec.MarshalBinaryBare(exec)
-	if err != nil {
-		return nil, err
-	}
-	store.Set(exec.Hash, value)
-	return exec, nil
-}
-
-func (s *Backend) validateExecutionOutput(request cosmostypes.Request, instanceHash hash.Hash, taskKey string, outputs *types.Struct) error {
-	inst, err := s.instanceBack.Get(request, instanceHash)
-	if err != nil {
-		return err
-	}
-	srv, err := s.serviceBack.Get(request, inst.ServiceHash)
-	if err != nil {
-		return err
-	}
-	return srv.RequireTaskOutputs(taskKey, outputs)
 }
 
 // Get returns the execution that matches given hash.
 func (s *Backend) Get(request cosmostypes.Request, hash hash.Hash) (*execution.Execution, error) {
-	var exec *execution.Execution
 	store := request.KVStore(s.storeKey)
+	var exec *execution.Execution
 	if !store.Has(hash) {
 		return nil, fmt.Errorf("execution %q not found", hash)
 	}
