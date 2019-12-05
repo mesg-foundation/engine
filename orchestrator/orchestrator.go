@@ -83,14 +83,14 @@ func (s *Orchestrator) dependencyFilter(exec *execution.Execution) func(wf *proc
 		if !exec.ProcessHash.Equal(wf.Hash) {
 			return false, nil
 		}
-		parents := wf.ParentIDs(node.ID())
+		parents := wf.ParentKeys(node.Key)
 		if len(parents) == 0 {
 			return false, nil
 		}
 		if len(parents) > 1 {
 			return false, fmt.Errorf("multi parents not supported")
 		}
-		return parents[0] == exec.StepID, nil
+		return parents[0] == exec.NodeKey, nil
 	}
 }
 
@@ -121,12 +121,12 @@ func (s *Orchestrator) execute(filter func(wf *process.Process, node *process.Pr
 
 func (s *Orchestrator) executeNode(wf *process.Process, n *process.Process_Node, exec *execution.Execution, event *event.Event, data *types.Struct) error {
 	logrus.WithField("module", "orchestrator").
-		WithField("nodeID", n.ID()).
+		WithField("node.key", n.Key).
 		WithField("type", fmt.Sprintf("%T", n)).Debug("process process")
 	if task := n.GetTask(); task != nil {
 		// This returns directly because a task cannot process its children.
 		// Children will be processed only when the execution is done and the dependencies are resolved
-		return s.processTask(task, wf, exec, event, data)
+		return s.processTask(n.Key, task, wf, exec, event, data)
 	} else if m := n.GetMap(); m != nil {
 		var err error
 		data, err = s.processMap(m, wf, exec, data)
@@ -138,7 +138,7 @@ func (s *Orchestrator) executeNode(wf *process.Process, n *process.Process_Node,
 			return nil
 		}
 	}
-	for _, childrenID := range wf.ChildrenIDs(n.ID()) {
+	for _, childrenID := range wf.ChildrenKeys(n.Key) {
 		children, err := wf.FindNode(childrenID)
 		if err != nil {
 			// does not return an error to continue to process other tasks if needed
@@ -183,7 +183,7 @@ func (s *Orchestrator) resolveInput(wfHash hash.Hash, exec *execution.Execution,
 	if !wfHash.Equal(exec.ProcessHash) {
 		return nil, fmt.Errorf("reference's nodeKey not found")
 	}
-	if exec.StepID != nodeKey {
+	if exec.NodeKey != nodeKey {
 		parent, err := s.execution.Get(exec.ParentHash)
 		if err != nil {
 			return nil, err
@@ -193,7 +193,7 @@ func (s *Orchestrator) resolveInput(wfHash hash.Hash, exec *execution.Execution,
 	return exec.Outputs.Fields[outputKey], nil
 }
 
-func (s *Orchestrator) processTask(task *process.Process_Node_Task, wf *process.Process, exec *execution.Execution, event *event.Event, data *types.Struct) error {
+func (s *Orchestrator) processTask(nodeKey string, task *process.Process_Node_Task, wf *process.Process, exec *execution.Execution, event *event.Event, data *types.Struct) error {
 	var eventHash, execHash hash.Hash
 	if event != nil {
 		eventHash = event.Hash
@@ -215,7 +215,7 @@ func (s *Orchestrator) processTask(task *process.Process_Node_Task, wf *process.
 		ProcessHash:  wf.Hash,
 		EventHash:    eventHash,
 		ParentHash:   execHash,
-		StepID:       task.Key,
+		NodeKey:      nodeKey,
 		TaskKey:      task.TaskKey,
 		Inputs:       data,
 		ExecutorHash: executor.Hash,

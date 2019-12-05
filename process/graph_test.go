@@ -9,13 +9,13 @@ import (
 func defaultProcess() *Process {
 	return &Process{
 		Nodes: []*Process_Node{
-			{Type: &Process_Node_Task_{&Process_Node_Task{Key: "nodeKey1"}}},
-			{Type: &Process_Node_Task_{&Process_Node_Task{Key: "nodeKey2"}}},
-			{Type: &Process_Node_Task_{&Process_Node_Task{Key: "nodeKey3"}}},
-			{Type: &Process_Node_Task_{&Process_Node_Task{Key: "nodeKey4"}}},
-			{Type: &Process_Node_Task_{&Process_Node_Task{Key: "nodeKey5"}}},
-			{Type: &Process_Node_Task_{&Process_Node_Task{Key: "nodeKey6"}}},
-			{Type: &Process_Node_Task_{&Process_Node_Task{Key: "nodeKey7"}}}},
+			{Key: "nodeKey1", Type: &Process_Node_Task_{&Process_Node_Task{}}},
+			{Key: "nodeKey2", Type: &Process_Node_Task_{&Process_Node_Task{}}},
+			{Key: "nodeKey3", Type: &Process_Node_Task_{&Process_Node_Task{}}},
+			{Key: "nodeKey4", Type: &Process_Node_Task_{&Process_Node_Task{}}},
+			{Key: "nodeKey5", Type: &Process_Node_Task_{&Process_Node_Task{}}},
+			{Key: "nodeKey6", Type: &Process_Node_Task_{&Process_Node_Task{}}},
+			{Key: "nodeKey7", Type: &Process_Node_Task_{&Process_Node_Task{}}}},
 		Edges: []*Process_Edge{
 			{Src: "nodeKey1", Dst: "nodeKey2"},
 			{Src: "nodeKey2", Dst: "nodeKey3"},
@@ -27,7 +27,7 @@ func defaultProcess() *Process {
 	}
 }
 
-func TestChildrenIDs(t *testing.T) {
+func TestChildrenKeys(t *testing.T) {
 	var tests = []struct {
 		graph    *Process
 		node     string
@@ -42,11 +42,11 @@ func TestChildrenIDs(t *testing.T) {
 		{graph: defaultProcess(), node: "nodeKey7", children: []string{}},
 	}
 	for _, test := range tests {
-		assert.Equal(t, test.graph.ChildrenIDs(test.node), test.children)
+		assert.Equal(t, test.graph.ChildrenKeys(test.node), test.children)
 	}
 }
 
-func TestParentIDs(t *testing.T) {
+func TestParentKeys(t *testing.T) {
 	var tests = []struct {
 		graph   *Process
 		node    string
@@ -61,7 +61,7 @@ func TestParentIDs(t *testing.T) {
 		{graph: defaultProcess(), node: "nodeKey7", parents: []string{"nodeKey4"}},
 	}
 	for _, test := range tests {
-		assert.Equal(t, test.graph.ParentIDs(test.node), test.parents)
+		assert.Equal(t, test.graph.ParentKeys(test.node), test.parents)
 	}
 }
 
@@ -84,7 +84,7 @@ func TestFindNode(t *testing.T) {
 		node, err := test.graph.FindNode(test.node)
 		if test.present {
 			assert.NoError(t, err)
-			assert.Equal(t, node.ID(), test.node)
+			assert.Equal(t, node.Key, test.node)
 		} else {
 			assert.Error(t, err)
 		}
@@ -112,8 +112,8 @@ func TestIsAcyclic(t *testing.T) {
 		{graph: defaultProcess(), acyclic: true},
 		{graph: &Process{
 			Nodes: []*Process_Node{
-				{Type: &Process_Node_Task_{&Process_Node_Task{Key: "nodeKey1"}}},
-				{Type: &Process_Node_Task_{&Process_Node_Task{Key: "nodeKey2"}}},
+				{Key: "nodeKey1", Type: &Process_Node_Task_{&Process_Node_Task{}}},
+				{Key: "nodeKey2", Type: &Process_Node_Task_{&Process_Node_Task{}}},
 			},
 			Edges: []*Process_Edge{
 				{Src: "nodeKey1", Dst: "nodeKey2"},
@@ -122,9 +122,9 @@ func TestIsAcyclic(t *testing.T) {
 		}, acyclic: false},
 		{graph: &Process{
 			Nodes: []*Process_Node{
-				{Type: &Process_Node_Task_{&Process_Node_Task{Key: "nodeKey1"}}},
-				{Type: &Process_Node_Task_{&Process_Node_Task{Key: "nodeKey2"}}},
-				{Type: &Process_Node_Task_{&Process_Node_Task{Key: "nodeKey3"}}},
+				{Key: "nodeKey1", Type: &Process_Node_Task_{&Process_Node_Task{}}},
+				{Key: "nodeKey2", Type: &Process_Node_Task_{&Process_Node_Task{}}},
+				{Key: "nodeKey3", Type: &Process_Node_Task_{&Process_Node_Task{}}},
 			},
 			Edges: []*Process_Edge{
 				{Src: "nodeKey1", Dst: "nodeKey2"},
@@ -134,9 +134,9 @@ func TestIsAcyclic(t *testing.T) {
 		}, acyclic: false},
 		{graph: &Process{
 			Nodes: []*Process_Node{
-				{Type: &Process_Node_Task_{&Process_Node_Task{Key: "nodeKey1"}}},
-				{Type: &Process_Node_Task_{&Process_Node_Task{Key: "nodeKey2"}}},
-				{Type: &Process_Node_Task_{&Process_Node_Task{Key: "nodeKey3"}}},
+				{Key: "nodeKey1", Type: &Process_Node_Task_{&Process_Node_Task{}}},
+				{Key: "nodeKey2", Type: &Process_Node_Task_{&Process_Node_Task{}}},
+				{Key: "nodeKey3", Type: &Process_Node_Task_{&Process_Node_Task{}}},
 			},
 			Edges: []*Process_Edge{
 				{Src: "nodeKey1", Dst: "nodeKey2"},
@@ -146,10 +146,10 @@ func TestIsAcyclic(t *testing.T) {
 		}, acyclic: false},
 		{graph: &Process{
 			Nodes: []*Process_Node{
-				{Type: &Process_Node_Task_{&Process_Node_Task{Key: "nodeKey1"}}},
-				{Type: &Process_Node_Task_{&Process_Node_Task{Key: "nodeKey2"}}},
-				{Type: &Process_Node_Task_{&Process_Node_Task{Key: "nodeKey3"}}},
-				{Type: &Process_Node_Task_{&Process_Node_Task{Key: "nodeKey4"}}},
+				{Key: "nodeKey1", Type: &Process_Node_Task_{&Process_Node_Task{}}},
+				{Key: "nodeKey2", Type: &Process_Node_Task_{&Process_Node_Task{}}},
+				{Key: "nodeKey3", Type: &Process_Node_Task_{&Process_Node_Task{}}},
+				{Key: "nodeKey4", Type: &Process_Node_Task_{&Process_Node_Task{}}},
 			},
 			Edges: []*Process_Edge{
 				{Src: "nodeKey1", Dst: "nodeKey2"},
@@ -173,10 +173,10 @@ func TestIsConnected(t *testing.T) {
 		{graph: defaultProcess(), connected: true},
 		{graph: &Process{
 			Nodes: []*Process_Node{
-				{Type: &Process_Node_Task_{&Process_Node_Task{Key: "nodeKey1"}}},
-				{Type: &Process_Node_Task_{&Process_Node_Task{Key: "nodeKey2"}}},
-				{Type: &Process_Node_Task_{&Process_Node_Task{Key: "nodeKey3"}}},
-				{Type: &Process_Node_Task_{&Process_Node_Task{Key: "nodeKey4"}}},
+				{Key: "nodeKey1", Type: &Process_Node_Task_{&Process_Node_Task{}}},
+				{Key: "nodeKey2", Type: &Process_Node_Task_{&Process_Node_Task{}}},
+				{Key: "nodeKey3", Type: &Process_Node_Task_{&Process_Node_Task{}}},
+				{Key: "nodeKey4", Type: &Process_Node_Task_{&Process_Node_Task{}}},
 			},
 			Edges: []*Process_Edge{
 				{Src: "nodeKey1", Dst: "nodeKey2"},
@@ -238,9 +238,9 @@ func TestIsMonoParental(t *testing.T) {
 		{graph: defaultProcess(), max: 1},
 		{graph: &Process{
 			Nodes: []*Process_Node{
-				{Type: &Process_Node_Task_{&Process_Node_Task{Key: "nodeKey1"}}},
-				{Type: &Process_Node_Task_{&Process_Node_Task{Key: "nodeKey2"}}},
-				{Type: &Process_Node_Task_{&Process_Node_Task{Key: "nodeKey3"}}},
+				{Key: "nodeKey1", Type: &Process_Node_Task_{&Process_Node_Task{}}},
+				{Key: "nodeKey2", Type: &Process_Node_Task_{&Process_Node_Task{}}},
+				{Key: "nodeKey3", Type: &Process_Node_Task_{&Process_Node_Task{}}},
 			},
 			Edges: []*Process_Edge{
 				{Src: "nodeKey1", Dst: "nodeKey3"},
@@ -249,10 +249,10 @@ func TestIsMonoParental(t *testing.T) {
 		}, max: 2},
 		{graph: &Process{
 			Nodes: []*Process_Node{
-				{Type: &Process_Node_Task_{&Process_Node_Task{Key: "nodeKey1"}}},
-				{Type: &Process_Node_Task_{&Process_Node_Task{Key: "nodeKey2"}}},
-				{Type: &Process_Node_Task_{&Process_Node_Task{Key: "nodeKey3"}}},
-				{Type: &Process_Node_Task_{&Process_Node_Task{Key: "nodeKey4"}}},
+				{Key: "nodeKey1", Type: &Process_Node_Task_{&Process_Node_Task{}}},
+				{Key: "nodeKey2", Type: &Process_Node_Task_{&Process_Node_Task{}}},
+				{Key: "nodeKey3", Type: &Process_Node_Task_{&Process_Node_Task{}}},
+				{Key: "nodeKey4", Type: &Process_Node_Task_{&Process_Node_Task{}}},
 			},
 			Edges: []*Process_Edge{
 				{Src: "nodeKey1", Dst: "nodeKey2"},
@@ -263,10 +263,10 @@ func TestIsMonoParental(t *testing.T) {
 		}, max: 2},
 		{graph: &Process{
 			Nodes: []*Process_Node{
-				{Type: &Process_Node_Task_{&Process_Node_Task{Key: "nodeKey1"}}},
-				{Type: &Process_Node_Task_{&Process_Node_Task{Key: "nodeKey2"}}},
-				{Type: &Process_Node_Task_{&Process_Node_Task{Key: "nodeKey3"}}},
-				{Type: &Process_Node_Task_{&Process_Node_Task{Key: "nodeKey4"}}},
+				{Key: "nodeKey1", Type: &Process_Node_Task_{&Process_Node_Task{}}},
+				{Key: "nodeKey2", Type: &Process_Node_Task_{&Process_Node_Task{}}},
+				{Key: "nodeKey3", Type: &Process_Node_Task_{&Process_Node_Task{}}},
+				{Key: "nodeKey4", Type: &Process_Node_Task_{&Process_Node_Task{}}},
 			},
 			Edges: []*Process_Edge{
 				{Src: "nodeKey1", Dst: "nodeKey4"},

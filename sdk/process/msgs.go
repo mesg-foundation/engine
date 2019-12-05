@@ -42,7 +42,7 @@ func (msg msgCreateProcess) ValidateBasic() cosmostypes.Error {
 		return cosmostypes.ErrInternal(err.Error())
 	}
 	p := &process.Process{
-		Key:   msg.Request.Key,
+		Name:  msg.Request.Name,
 		Nodes: msg.Request.Nodes,
 		Edges: msg.Request.Edges,
 	}
