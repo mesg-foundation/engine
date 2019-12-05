@@ -39,7 +39,7 @@ func NewBackend(appFactory *cosmos.AppFactory) *Backend {
 	instance := instancesdk.NewBackend(appFactory)
 	process := processsdk.NewBackend(appFactory, ownership, instance)
 	runner := runnersdk.NewBackend(appFactory, instance)
-	execution := executionsdk.NewBackend(appFactory, service, instance, runner)
+	execution := executionsdk.NewBackend(appFactory, service, instance, runner, process)
 	return &Backend{
 		Service:   service,
 		Ownership: ownership,
