@@ -111,6 +111,7 @@ func testOrchestratorResultMapTaskMapTask(executionStream pb.Execution_StreamCli
 				exec, err := executionStream.Recv()
 				require.NoError(t, err)
 				require.Equal(t, "task2", exec.TaskKey)
+				require.Equal(t, "", exec.NodeKey)
 				require.True(t, hash.Int(11010101011).Equal(exec.EventHash))
 				require.Equal(t, execution.Status_InProgress, exec.Status)
 				require.True(t, exec.Inputs.Equal(&types.Struct{
@@ -127,6 +128,7 @@ func testOrchestratorResultMapTaskMapTask(executionStream pb.Execution_StreamCli
 				exec, err := executionStream.Recv()
 				require.NoError(t, err)
 				require.Equal(t, "task2", exec.TaskKey)
+				require.Equal(t, "", exec.NodeKey)
 				require.True(t, hash.Int(11010101011).Equal(exec.EventHash))
 				require.Equal(t, execution.Status_Completed, exec.Status)
 				require.Equal(t, "foo_result", exec.Outputs.Fields["msg"].GetStringValue())
