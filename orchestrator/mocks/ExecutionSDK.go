@@ -3,7 +3,6 @@
 package mocks
 
 import api "github.com/mesg-foundation/engine/protobuf/api"
-import context "context"
 import execution "github.com/mesg-foundation/engine/execution"
 import hash "github.com/mesg-foundation/engine/hash"
 import mock "github.com/stretchr/testify/mock"
@@ -57,36 +56,4 @@ func (_m *ExecutionSDK) Get(_a0 hash.Hash) (*execution.Execution, error) {
 	}
 
 	return r0, r1
-}
-
-// Stream provides a mock function with given fields: ctx, req
-func (_m *ExecutionSDK) Stream(ctx context.Context, req *api.StreamExecutionRequest) (chan *execution.Execution, chan error, error) {
-	ret := _m.Called(ctx, req)
-
-	var r0 chan *execution.Execution
-	if rf, ok := ret.Get(0).(func(context.Context, *api.StreamExecutionRequest) chan *execution.Execution); ok {
-		r0 = rf(ctx, req)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(chan *execution.Execution)
-		}
-	}
-
-	var r1 chan error
-	if rf, ok := ret.Get(1).(func(context.Context, *api.StreamExecutionRequest) chan error); ok {
-		r1 = rf(ctx, req)
-	} else {
-		if ret.Get(1) != nil {
-			r1 = ret.Get(1).(chan error)
-		}
-	}
-
-	var r2 error
-	if rf, ok := ret.Get(2).(func(context.Context, *api.StreamExecutionRequest) error); ok {
-		r2 = rf(ctx, req)
-	} else {
-		r2 = ret.Error(2)
-	}
-
-	return r0, r1, r2
 }

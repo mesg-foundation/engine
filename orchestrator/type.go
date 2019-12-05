@@ -7,6 +7,7 @@ import (
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/process"
 	"github.com/mesg-foundation/engine/protobuf/api"
+	"github.com/mesg-foundation/engine/result"
 	"github.com/mesg-foundation/engine/runner"
 	eventsdk "github.com/mesg-foundation/engine/sdk/event"
 	runnersdk "github.com/mesg-foundation/engine/sdk/runner"
@@ -14,9 +15,14 @@ import (
 
 // ExecutionSDK execution interface needed for the orchestrator
 type ExecutionSDK interface {
-	Stream(ctx context.Context, req *api.StreamExecutionRequest) (chan *execution.Execution, chan error, error)
 	Get(hash hash.Hash) (*execution.Execution, error)
 	Create(req *api.CreateExecutionRequest, accountName, accountPassword string) (*execution.Execution, error)
+}
+
+// ResultSDK execution interface needed for the orchestrator
+type ResultSDK interface {
+	Stream(ctx context.Context, req *api.StreamResultRequest) (chan *result.Result, chan error, error)
+	Get(hash hash.Hash) (*result.Result, error)
 }
 
 // EventSDK event interface needed for the orchestrator
@@ -39,8 +45,9 @@ type Orchestrator struct {
 	event       EventSDK
 	eventStream *eventsdk.Listener
 
-	execution       ExecutionSDK
-	executionStream <-chan *execution.Execution
+	execution    ExecutionSDK
+	result       ResultSDK
+	resultStream <-chan *result.Result
 
 	process ProcessSDK
 
