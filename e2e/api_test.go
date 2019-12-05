@@ -13,6 +13,7 @@ type apiclient struct {
 	pb.ServiceClient
 	pb.EventClient
 	pb.ExecutionClient
+	pb.ResultClient
 	pb.AccountClient
 	pb.ProcessClient
 	pb.InstanceClient
@@ -34,6 +35,7 @@ func TestAPI(t *testing.T) {
 		pb.NewServiceClient(conn),
 		pb.NewEventClient(conn),
 		pb.NewExecutionClient(conn),
+		pb.NewResultClient(conn),
 		pb.NewAccountClient(conn),
 		pb.NewProcessClient(conn),
 		pb.NewInstanceClient(conn),
@@ -53,7 +55,7 @@ func TestAPI(t *testing.T) {
 	t.Run("process", testProcess)
 	t.Run("instance", testInstance)
 	t.Run("event", testEvent)
-	t.Run("execution", testExecution)
+	t.Run("execute-task", testExecuteTask)
 	t.Run("orchestrator", testOrchestrator)
 	t.Run("runner/delete", testDeleteRunner)
 	t.Run("complex-service", testComplexService)

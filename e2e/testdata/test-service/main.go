@@ -7,7 +7,6 @@ import (
 	"os"
 	"time"
 
-	"github.com/mesg-foundation/engine/execution"
 	"github.com/mesg-foundation/engine/hash"
 	pb "github.com/mesg-foundation/engine/protobuf/api"
 	types "github.com/mesg-foundation/engine/protobuf/types"
@@ -27,6 +26,7 @@ type Client struct {
 	// all clients registered by mesg server.
 	pb.EventClient
 	pb.ExecutionClient
+	pb.ResultClient
 
 	// instance hash that could be used in api calls.
 	InstanceHash hash.Hash
@@ -69,6 +69,7 @@ func New() (*Client, error) {
 
 	return &Client{
 		ExecutionClient: pb.NewExecutionClient(conn),
+		ResultClient:    pb.NewResultClient(conn),
 		EventClient:     pb.NewEventClient(conn),
 		InstanceHash:    instanceHash,
 		RunnerHash:      runnerHash,
@@ -84,9 +85,9 @@ func main() {
 	}
 	log.Printf("connected to %s\n", os.Getenv(envMesgEndpoint))
 
+	log.Printf("create execution stream\n")
 	stream, err := client.ExecutionClient.Stream(context.Background(), &pb.StreamExecutionRequest{
 		Filter: &pb.StreamExecutionRequest_Filter{
-			Statuses:     []execution.Status{execution.Status_InProgress},
 			ExecutorHash: client.RunnerHash,
 		},
 	})
@@ -95,6 +96,7 @@ func main() {
 	}
 	log.Printf("created execution stream\n")
 
+	log.Printf("emit test_service_ready event\n")
 	if _, err := client.EventClient.Create(context.Background(), &pb.CreateEventRequest{
 		InstanceHash: client.InstanceHash,
 		Key:          "test_service_ready",
@@ -110,12 +112,12 @@ func main() {
 		}
 		log.Printf("received execution %s %s\n", exec.TaskKey, exec.Hash)
 
-		req := &pb.UpdateExecutionRequest{
-			Hash: exec.Hash,
+		req := &pb.CreateResultRequest{
+			RequestHash: exec.Hash,
 		}
 
 		if exec.TaskKey == "task1" || exec.TaskKey == "task2" {
-			req.Result = &pb.UpdateExecutionRequest_Outputs{
+			req.Result = &pb.CreateResultRequest_Outputs{
 				Outputs: &types.Struct{
 					Fields: map[string]*types.Value{
 						"msg": {
@@ -132,7 +134,7 @@ func main() {
 				},
 			}
 		} else if exec.TaskKey == "task_complex" {
-			req.Result = &pb.UpdateExecutionRequest_Outputs{
+			req.Result = &pb.CreateResultRequest_Outputs{
 				Outputs: &types.Struct{
 					Fields: map[string]*types.Value{
 						"msg": {
@@ -165,10 +167,10 @@ func main() {
 			log.Fatalf("Taskkey %q not implemented", exec.TaskKey)
 		}
 
-		if _, err := client.ExecutionClient.Update(context.Background(), req); err != nil {
+		if _, err := client.ResultClient.Create(context.Background(), req); err != nil {
 			log.Fatal(err)
 		}
-		log.Printf("execution result submitted\n")
+		log.Printf("result submitted\n")
 
 		if _, err := client.EventClient.Create(context.Background(), &pb.CreateEventRequest{
 			InstanceHash: client.InstanceHash,

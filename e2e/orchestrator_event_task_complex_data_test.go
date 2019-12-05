@@ -5,7 +5,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/mesg-foundation/engine/execution"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/process"
 	pb "github.com/mesg-foundation/engine/protobuf/api"
@@ -13,7 +12,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func testOrchestratorEventTaskComplexData(executionStream pb.Execution_StreamClient, instanceHash hash.Hash) func(t *testing.T) {
+func testOrchestratorEventTaskComplexData(executionStream pb.Execution_StreamClient, resultStream pb.Result_StreamClient, instanceHash hash.Hash) func(t *testing.T) {
 	return func(t *testing.T) {
 		var processHash hash.Hash
 
@@ -86,27 +85,25 @@ func testOrchestratorEventTaskComplexData(executionStream pb.Execution_StreamCli
 			})
 			require.NoError(t, err)
 		})
+		var execHash hash.Hash
 		t.Run("check in progress execution", func(t *testing.T) {
 			exec, err := executionStream.Recv()
 			require.NoError(t, err)
 			require.Equal(t, "task_complex", exec.TaskKey)
 			require.True(t, processHash.Equal(exec.ProcessHash))
-			require.Equal(t, execution.Status_InProgress, exec.Status)
 			require.True(t, data.Equal(exec.Inputs))
+			execHash = exec.Hash
 		})
 		t.Run("check completed execution", func(t *testing.T) {
-			exec, err := executionStream.Recv()
+			res, err := resultStream.Recv()
 			require.NoError(t, err)
-			require.Equal(t, "task_complex", exec.TaskKey)
-			require.True(t, processHash.Equal(exec.ProcessHash))
-			require.Equal(t, execution.Status_Completed, exec.Status)
-			require.True(t, data.Equal(exec.Inputs))
-			require.Equal(t, "complex", exec.Outputs.Fields["msg"].GetStructValue().Fields["msg"].GetStringValue())
-			require.Len(t, exec.Outputs.Fields["msg"].GetStructValue().Fields["array"].GetListValue().Values, 3)
-			require.Equal(t, "first", exec.Outputs.Fields["msg"].GetStructValue().Fields["array"].GetListValue().Values[0].GetStringValue())
-			require.Equal(t, "second", exec.Outputs.Fields["msg"].GetStructValue().Fields["array"].GetListValue().Values[1].GetStringValue())
-			require.Equal(t, "third", exec.Outputs.Fields["msg"].GetStructValue().Fields["array"].GetListValue().Values[2].GetStringValue())
-			require.NotEmpty(t, exec.Outputs.Fields["msg"].GetStructValue().Fields["timestamp"].GetNumberValue())
+			require.True(t, res.RequestHash.Equal(execHash))
+			require.Equal(t, "complex", res.GetOutputs().Fields["msg"].GetStructValue().Fields["msg"].GetStringValue())
+			require.Len(t, res.GetOutputs().Fields["msg"].GetStructValue().Fields["array"].GetListValue().Values, 3)
+			require.Equal(t, "first", res.GetOutputs().Fields["msg"].GetStructValue().Fields["array"].GetListValue().Values[0].GetStringValue())
+			require.Equal(t, "second", res.GetOutputs().Fields["msg"].GetStructValue().Fields["array"].GetListValue().Values[1].GetStringValue())
+			require.Equal(t, "third", res.GetOutputs().Fields["msg"].GetStructValue().Fields["array"].GetListValue().Values[2].GetStringValue())
+			require.NotEmpty(t, res.GetOutputs().Fields["msg"].GetStructValue().Fields["timestamp"].GetNumberValue())
 		})
 		t.Run("delete process", func(t *testing.T) {
 			_, err := client.ProcessClient.Delete(context.Background(), &pb.DeleteProcessRequest{Hash: processHash})

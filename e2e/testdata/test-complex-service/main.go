@@ -26,7 +26,6 @@ const (
 type Client struct {
 	// all clients registered by mesg server.
 	pb.EventClient
-	pb.ExecutionClient
 
 	// instance hash that could be used in api calls.
 	InstanceHash hash.Hash
@@ -60,9 +59,8 @@ func New() (*Client, error) {
 	}
 
 	return &Client{
-		ExecutionClient: pb.NewExecutionClient(conn),
-		EventClient:     pb.NewEventClient(conn),
-		InstanceHash:    instanceHash,
+		EventClient:  pb.NewEventClient(conn),
+		InstanceHash: instanceHash,
 	}, nil
 }
 
