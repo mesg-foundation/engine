@@ -262,6 +262,10 @@ func (s *Orchestrator) processTask(nodeKey string, task *process.Process_Node_Ta
 }
 
 func resolveRef(data *types.Struct, path *process.Process_Node_Map_Output_Reference_Path) (*types.Value, error) {
+	if path == nil {
+		return &types.Value{Kind: &types.Value_StructValue{StructValue: data}}, nil
+	}
+
 	var v *types.Value
 	key, ok := path.Selector.(*process.Process_Node_Map_Output_Reference_Path_Key)
 	if !ok {
