@@ -297,6 +297,8 @@ func resolveRef(data *types.Struct, path *process.Process_Node_Map_Output_Refere
 				return nil, fmt.Errorf("orchestrator: index %d out of range", s.Index)
 			}
 			v = list.ListValue.Values[s.Index]
+		default:
+			return nil, fmt.Errorf("orchestrator: unknown selector type %T", v)
 		}
 	}
 
