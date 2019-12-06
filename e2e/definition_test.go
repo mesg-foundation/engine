@@ -103,6 +103,7 @@ func newTestCreateServiceRequest() *pb.CreateServiceRequest {
 								Key:      "array",
 								Type:     "String",
 								Repeated: true,
+								Optional: true,
 							},
 						},
 					},
@@ -124,6 +125,7 @@ func newTestCreateServiceRequest() *pb.CreateServiceRequest {
 								Key:      "array",
 								Type:     "String",
 								Repeated: true,
+								Optional: true,
 							},
 						},
 					},
@@ -185,6 +187,6 @@ func newTestCreateServiceRequest() *pb.CreateServiceRequest {
 				},
 			},
 		},
-		Source: "Qmcbi3CFeCRTDVkvkthx81wfDBc8yySKmEgsSEJYwQUqbF",
+		Source: "QmWHKNvJ4wT83TLHPLMjTRBjJYvcwyr8oqTtqxaJZVXPbQ",
 	}
 }

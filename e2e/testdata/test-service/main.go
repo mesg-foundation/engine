@@ -132,29 +132,32 @@ func main() {
 				},
 			}
 		} else if exec.TaskKey == "task_complex" {
+			var fields = map[string]*types.Value{
+				"msg": {
+					Kind: &types.Value_StringValue{
+						StringValue: exec.Inputs.Fields["msg"].GetStructValue().Fields["msg"].GetStringValue(),
+					},
+				},
+				"timestamp": {
+					Kind: &types.Value_NumberValue{
+						NumberValue: float64(time.Now().Unix()),
+					},
+				},
+			}
+			if exec.Inputs.Fields["msg"].GetStructValue().Fields["array"].GetListValue() != nil {
+				fields["array"] = &types.Value{
+					Kind: &types.Value_ListValue{
+						ListValue: exec.Inputs.Fields["msg"].GetStructValue().Fields["array"].GetListValue(),
+					},
+				}
+			}
 			req.Result = &pb.UpdateExecutionRequest_Outputs{
 				Outputs: &types.Struct{
 					Fields: map[string]*types.Value{
 						"msg": {
 							Kind: &types.Value_StructValue{
 								StructValue: &types.Struct{
-									Fields: map[string]*types.Value{
-										"msg": {
-											Kind: &types.Value_StringValue{
-												StringValue: exec.Inputs.Fields["msg"].GetStructValue().Fields["msg"].GetStringValue(),
-											},
-										},
-										"timestamp": {
-											Kind: &types.Value_NumberValue{
-												NumberValue: float64(time.Now().Unix()),
-											},
-										},
-										"array": {
-											Kind: &types.Value_ListValue{
-												ListValue: exec.Inputs.Fields["msg"].GetStructValue().Fields["array"].GetListValue(),
-											},
-										},
-									},
+									Fields: fields,
 								},
 							},
 						},

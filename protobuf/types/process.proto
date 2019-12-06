@@ -96,7 +96,7 @@ message Process {
           ];
 
           Path path = 2 [
-            (gogoproto.moretags) = 'hash:"name:2" validate:"required"'
+            (gogoproto.moretags) = 'hash:"name:2"'
           ];
         }
 
