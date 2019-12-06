@@ -175,68 +175,24 @@ func TestFindNode(t *testing.T) {
 	}), 0)
 }
 
-// // func TestProcessMap(t *testing.T) {
-// // 	e := &mocks.ExecutionSDK{}
-// // 	o := New(&mocks.EventSDK{}, e, &mocks.ProcessSDK{})
-// // 	exec := &execution.Execution{
-// // 		ProcessHash: hash.Int(1),
-// // 		NodeKey:      "1",
-// // 		ParentHash:  hash.Int(2),
-// // 		Outputs: &types.Struct{
-// // 			Fields: map[string]*types.Value{
-// // 				"outputKeyXXX": &types.Value{
-// // 					Kind: &types.Value_StringValue{StringValue: "str"},
-// // 				},
-// // 			},
-// // 		},
-// // 	}
-// // 	o.processMap(&process.Process_Node_Map{
-// // 		Outputs: []*process.Process_Node_Map_Output{},
-// // 	}, )
-// // }
-
-// func TestResolveInput(t *testing.T) {
+// func TestProcessMap(t *testing.T) {
 // 	e := &mocks.ExecutionSDK{}
-// 	o := New(&mocks.EventSDK{}, e, &mocks.ProcessSDK{}, &mocks.RunnerSDK{}, "", "")
+// 	o := New(&mocks.EventSDK{}, e, &mocks.ProcessSDK{})
 // 	exec := &execution.Execution{
 // 		ProcessHash: hash.Int(1),
 // 		NodeKey:      "1",
 // 		ParentHash:  hash.Int(2),
 // 		Outputs: &types.Struct{
 // 			Fields: map[string]*types.Value{
-// 				"outputKeyXXX": {
+// 				"outputKeyXXX": &types.Value{
 // 					Kind: &types.Value_StringValue{StringValue: "str"},
 // 				},
 // 			},
 // 		},
 // 	}
-// 	// Different processes
-// 	_, err := o.resolveInput(hash.Int(1), exec, "2", "outputKeyXXX")
-// 	require.Error(t, err)
-// 	// Different steps, should return the value of the data
-// 	val, err := o.resolveInput(hash.Int(2), exec, "2", "outputKeyXXX")
-// 	require.NoError(t, err)
-// 	require.Equal(t, val, exec.Outputs.Fields["outputKeyXXX"])
-// 	// Invalid execution parent hash
-// 	e.On("Get", mock.Anything).Once().Return(nil, fmt.Errorf("err"))
-// 	_, err = o.resolveInput(hash.Int(2), exec, "-", "outputKeyXXX")
-// 	require.Error(t, err)
-// 	// Output from a previous exec
-// 	execMock := &execution.Execution{
-// 		NodeKey:      "nodeKey3",
-// 		ProcessHash: hash.Int(2),
-// 		Outputs: &types.Struct{
-// 			Fields: map[string]*types.Value{
-// 				"outputKeyYYY": {
-// 					Kind: &types.Value_StringValue{StringValue: "str2"},
-// 				},
-// 			},
-// 		},
-// 	}
-// 	e.On("Get", mock.Anything).Once().Return(execMock, nil)
-// 	val, err = o.resolveInput(hash.Int(2), exec, "nodeKey3", "outputKeyYYY")
-// 	require.NoError(t, err)
-// 	require.Equal(t, val, execMock.Outputs.Fields["outputKeyYYY"])
+// 	o.processMap(&process.Process_Node_Map{
+// 		Outputs: []*process.Process_Node_Map_Output{},
+// 	}, )
 // }
 
 func TestResolveInput(t *testing.T) {
