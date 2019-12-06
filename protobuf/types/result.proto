@@ -18,8 +18,8 @@ message Result {
     (gogoproto.nullable) = false
   ];
 
-  // requestHash is hash of the associated execution.
-  bytes requestHash = 2 [
+  // executionHash is hash of the associated execution.
+  bytes executionHash = 2 [
     (gogoproto.moretags) = 'hash:"name:2"',
     (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
     (gogoproto.nullable) = false

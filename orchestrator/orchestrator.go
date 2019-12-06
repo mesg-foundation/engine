@@ -40,9 +40,7 @@ func (s *Orchestrator) Start() error {
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	resultStream, errC, err := s.result.Stream(ctx, &api.StreamResultRequest{
-		//TODO: filter out result with error or catch them and put the error on the errChan
-	})
+	resultStream, errC, err := s.result.Stream(ctx, &api.StreamResultRequest{})
 	if err != nil {
 		return err
 	}
@@ -50,11 +48,14 @@ func (s *Orchestrator) Start() error {
 	for {
 		select {
 		case event := <-s.eventStream.C:
-			// TODO: are we sure the function in param (s.eventFilter) is also call in the go func?
 			go s.execute(s.eventFilter(event), nil, nil, event, event.Data)
 		case res := <-s.resultStream:
 			go func(res *result.Result) {
-				exec, err := s.execution.Get(res.RequestHash)
+				if x := res.GetResult().(*result.Result_Error); x != nil {
+					// discard result containing error
+					return
+				}
+				exec, err := s.execution.Get(res.ExecutionHash)
 				if err != nil {
 					s.ErrC <- err
 					return

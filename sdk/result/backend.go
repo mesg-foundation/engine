@@ -74,7 +74,7 @@ func (s *Backend) querier(request cosmostypes.Request, path []string, req abci.R
 
 // Create creates a new result.
 func (s *Backend) Create(request cosmostypes.Request, msg msgCreateResult) (*result.Result, error) {
-	exec, err := s.execBack.Get(request, msg.Request.RequestHash)
+	exec, err := s.execBack.Get(request, msg.Request.ExecutionHash)
 	if err != nil {
 		return nil, err
 	}
@@ -84,7 +84,7 @@ func (s *Backend) Create(request cosmostypes.Request, msg msgCreateResult) (*res
 		return nil, err
 	}
 	if len(ress) > 0 {
-		return nil, fmt.Errorf("execution %q has already a result", msg.Request.RequestHash)
+		return nil, fmt.Errorf("execution %q has already a result", msg.Request.ExecutionHash)
 	}
 
 	var res *result.Result
@@ -155,14 +155,14 @@ func (s *Backend) List(request cosmostypes.Request) ([]*result.Result, error) {
 	return execs, nil
 }
 
-func (s *Backend) fetchResultsOfRequest(request cosmostypes.Request, requestHash hash.Hash) ([]*result.Result, error) {
+func (s *Backend) fetchResultsOfRequest(request cosmostypes.Request, executionHash hash.Hash) ([]*result.Result, error) {
 	var execsMatch []*result.Result
 	execs, err := s.List(request)
 	if err != nil {
 		return nil, err
 	}
 	for _, res := range execs {
-		if res.RequestHash.Equal(requestHash) {
+		if res.ExecutionHash.Equal(executionHash) {
 			execsMatch = append(execsMatch, res)
 		}
 	}

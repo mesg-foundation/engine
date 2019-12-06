@@ -113,7 +113,7 @@ func main() {
 		log.Printf("received execution %s %s\n", exec.TaskKey, exec.Hash)
 
 		req := &pb.CreateResultRequest{
-			RequestHash: exec.Hash,
+			ExecutionHash: exec.Hash,
 		}
 
 		if exec.TaskKey == "task1" || exec.TaskKey == "task2" {

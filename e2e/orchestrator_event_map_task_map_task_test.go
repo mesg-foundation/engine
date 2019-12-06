@@ -126,7 +126,7 @@ func testOrchestratorEventMapTaskMapTask(executionStream pb.Execution_StreamClie
 			t.Run("check completed execution", func(t *testing.T) {
 				res, err := resultStream.Recv()
 				require.NoError(t, err)
-				require.True(t, res.RequestHash.Equal(execHash))
+				require.True(t, res.ExecutionHash.Equal(execHash))
 				require.Equal(t, "itsAConstant", res.GetOutputs().Fields["msg"].GetStringValue())
 				require.NotEmpty(t, res.GetOutputs().Fields["timestamp"].GetNumberValue())
 			})
@@ -145,7 +145,7 @@ func testOrchestratorEventMapTaskMapTask(executionStream pb.Execution_StreamClie
 			t.Run("check completed execution", func(t *testing.T) {
 				res, err := resultStream.Recv()
 				require.NoError(t, err)
-				require.True(t, res.RequestHash.Equal(execHash))
+				require.True(t, res.ExecutionHash.Equal(execHash))
 				require.Equal(t, "foo_event", res.GetOutputs().Fields["msg"].GetStringValue())
 				require.NotEmpty(t, res.GetOutputs().Fields["timestamp"].GetNumberValue())
 			})

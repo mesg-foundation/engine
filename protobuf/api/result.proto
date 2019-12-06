@@ -30,8 +30,8 @@ service Result {
 
 // CreateResultRequest defines request to create a single result.
 message CreateResultRequest {
-  // requestHash is hash of the associated execution.
-  bytes requestHash = 1 [
+  // executionHash is hash of the associated execution.
+  bytes executionHash = 1 [
     (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
     (gogoproto.nullable) = false
   ];

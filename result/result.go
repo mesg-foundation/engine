@@ -6,9 +6,9 @@ import (
 )
 
 // NewWithOutputs returns a new result
-func NewWithOutputs(requestHash hash.Hash, outputs *types.Struct) *Result {
+func NewWithOutputs(executionHash hash.Hash, outputs *types.Struct) *Result {
 	result := &Result{
-		RequestHash: requestHash,
+		ExecutionHash: executionHash,
 		Result:      &Result_Outputs{outputs},
 	}
 	result.Hash = hash.Dump(result)
@@ -16,9 +16,9 @@ func NewWithOutputs(requestHash hash.Hash, outputs *types.Struct) *Result {
 }
 
 // NewWithError returns a new result
-func NewWithError(requestHash hash.Hash, err string) *Result {
+func NewWithError(executionHash hash.Hash, err string) *Result {
 	result := &Result{
-		RequestHash: requestHash,
+		ExecutionHash: executionHash,
 		Result:      &Result_Error{err},
 	}
 	result.Hash = hash.Dump(result)

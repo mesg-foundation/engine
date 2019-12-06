@@ -90,7 +90,7 @@ func testExecuteTask(t *testing.T) {
 		t.Run("completed", func(t *testing.T) {
 			res, err = resultStream.Recv()
 			require.NoError(t, err)
-			require.True(t, res.RequestHash.Equal(execHash))
+			require.True(t, res.ExecutionHash.Equal(execHash))
 			require.Equal(t, "test", res.GetOutputs().Fields["msg"].GetStringValue())
 			require.NotEmpty(t, res.GetOutputs().Fields["timestamp"].GetNumberValue())
 		})
@@ -162,7 +162,7 @@ func testExecuteTask(t *testing.T) {
 		t.Run("completed", func(t *testing.T) {
 			res, err = resultStream.Recv()
 			require.NoError(t, err)
-			require.True(t, res.RequestHash.Equal(execHash))
+			require.True(t, res.ExecutionHash.Equal(execHash))
 			require.Equal(t, "complex", res.GetOutputs().Fields["msg"].GetStructValue().Fields["msg"].GetStringValue())
 			require.Len(t, res.GetOutputs().Fields["msg"].GetStructValue().Fields["array"].GetListValue().Values, 3)
 			require.Equal(t, "first", res.GetOutputs().Fields["msg"].GetStructValue().Fields["array"].GetListValue().Values[0].GetStringValue())

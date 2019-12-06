@@ -19,11 +19,11 @@ func TestNew(t *testing.T) {
 			},
 		})
 		require.True(t, res.Hash.Valid())
-		require.True(t, execHash.Equal(res.RequestHash))
+		require.True(t, execHash.Equal(res.ExecutionHash))
 	})
 	t.Run("NewWithError", func(t *testing.T) {
 		resErr := NewWithError(execHash, "error string")
 		require.True(t, resErr.Hash.Valid())
-		require.True(t, execHash.Equal(resErr.RequestHash))
+		require.True(t, execHash.Equal(resErr.ExecutionHash))
 	})
 }
