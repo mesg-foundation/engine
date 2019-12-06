@@ -9,7 +9,7 @@ import (
 func NewWithOutputs(executionHash hash.Hash, outputs *types.Struct) *Result {
 	result := &Result{
 		ExecutionHash: executionHash,
-		Result:      &Result_Outputs{outputs},
+		Result:        &Result_Outputs{outputs},
 	}
 	result.Hash = hash.Dump(result)
 	return result
@@ -19,7 +19,7 @@ func NewWithOutputs(executionHash hash.Hash, outputs *types.Struct) *Result {
 func NewWithError(executionHash hash.Hash, err string) *Result {
 	result := &Result{
 		ExecutionHash: executionHash,
-		Result:      &Result_Error{err},
+		Result:        &Result_Error{err},
 	}
 	result.Hash = hash.Dump(result)
 	return result
