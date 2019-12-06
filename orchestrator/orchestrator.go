@@ -199,7 +199,7 @@ func (s *Orchestrator) resolveInput(wfHash hash.Hash, exec *execution.Execution,
 		}
 		execParent, err := s.execution.Get(res.Hash)
 		if err != nil {
-			s.ErrC <- err
+			return nil, err
 		}
 		return s.resolveInput(wfHash, execParent, resParent, nodeKey, outputKey)
 	}
