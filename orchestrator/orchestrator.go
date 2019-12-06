@@ -51,7 +51,7 @@ func (s *Orchestrator) Start() error {
 			go s.execute(s.eventFilter(event), nil, nil, event, event.Data)
 		case res := <-s.resultStream:
 			go func(res *result.Result) {
-				if x := res.GetResult().(*result.Result_Error); x != nil {
+				if x, ok := res.GetResult().(*result.Result_Error); ok && x != nil {
 					// discard result containing error
 					return
 				}
