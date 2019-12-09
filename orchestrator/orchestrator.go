@@ -210,6 +210,9 @@ func (s *Orchestrator) outputToValue(output *process.Process_Node_Map_Output, ou
 		if node.GetTask() != nil {
 			return s.resolveInput(wf.Hash, exec, v.Ref.NodeKey, outputKey)
 		}
+		if result := node.GetResult(); result != nil {
+			return s.resolveResult(wf.Hash, exec, result, outputKey)
+		}
 		return resolveRef(data, v.Ref.Path)
 	default:
 		return nil, errors.New("unknown output")
@@ -226,6 +229,20 @@ func (s *Orchestrator) resolveInput(wfHash hash.Hash, exec *execution.Execution,
 			return nil, err
 		}
 		return s.resolveInput(wfHash, parent, nodeKey, outputKey)
+	}
+	return exec.Outputs.Fields[outputKey], nil
+}
+
+func (s *Orchestrator) resolveResult(wfHash hash.Hash, exec *execution.Execution, result process.Process_Node_Result, outputKey string) (*types.Value, error) {
+	if !wfHash.Equal(exec.ProcessHash) {
+		return nil, fmt.Errorf("reference's result nodeKey not found")
+	}
+	if !exec.InstanceHash.Equal(result.InstanceHash) && exec.TaskKey == result.TaskKey {
+		parent, err := s.execution.Get(exec.ParentHash)
+		if err != nil {
+			return nil, err
+		}
+		return s.resolveResult(wfHash, parent, result, outputKey)
 	}
 	return exec.Outputs.Fields[outputKey], nil
 }
