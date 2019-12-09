@@ -9,10 +9,15 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/keys"
 	"github.com/cosmos/cosmos-sdk/client/lcd"
 	"github.com/cosmos/cosmos-sdk/client/rpc"
+	"github.com/cosmos/cosmos-sdk/server"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/version"
 	authcmd "github.com/cosmos/cosmos-sdk/x/auth/client/cli"
 	authrest "github.com/cosmos/cosmos-sdk/x/auth/client/rest"
+	"github.com/cosmos/cosmos-sdk/x/genaccounts"
+	genaccscmd "github.com/cosmos/cosmos-sdk/x/genaccounts/client/cli"
+	genutilcmd "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
+	"github.com/cosmos/cosmos-sdk/x/staking"
 	"github.com/mesg-foundation/engine/codec"
 	"github.com/mesg-foundation/engine/cosmos"
 	"github.com/mesg-foundation/engine/logger"
@@ -29,8 +34,9 @@ const (
 )
 
 var (
-	defaultCLIHome = os.ExpandEnv("$HOME/.mesgcli")
-	app            *cosmos.App
+	defaultCLIHome  = os.ExpandEnv("$HOME/.mesgcli")
+	defaultNodeHome = os.ExpandEnv("$HOME/.mesg") // TODO: should use config package
+	app             *cosmos.App
 )
 
 func main() {
@@ -78,11 +84,9 @@ func main() {
 		client.ConfigCmd(defaultCLIHome),
 		queryCmd(cdc),
 		txCmd(cdc),
-		client.LineBreak,
+		genesisCmd(cdc),
 		lcd.ServeCommand(cdc, registerRoutes),
-		client.LineBreak,
 		keys.Commands(),
-		client.LineBreak,
 		version.Cmd,
 		client.NewCompletionCmd(rootCmd, true),
 	)
@@ -108,13 +112,11 @@ func queryCmd(cdc *amino.Codec) *cobra.Command {
 	}
 
 	queryCmd.AddCommand(
-		client.LineBreak,
 		rpc.ValidatorCommand(cdc),
 		rpc.BlockCommand(),
 		rpc.StatusCommand(),
 		authcmd.QueryTxsByEventsCmd(cdc),
 		authcmd.QueryTxCmd(cdc),
-		client.LineBreak,
 	)
 
 	// add modules' query commands
@@ -130,16 +132,38 @@ func txCmd(cdc *amino.Codec) *cobra.Command {
 	}
 
 	txCmd.AddCommand(
-		client.LineBreak,
 		authcmd.GetBroadcastCommand(cdc),
 		authcmd.GetEncodeCommand(cdc),
-		client.LineBreak,
 	)
 
 	// add modules' tx commands
 	app.BasicManager().AddTxCommands(txCmd, cdc)
 
 	return txCmd
+}
+
+func genesisCmd(cdc *amino.Codec) *cobra.Command {
+	ctx := server.NewDefaultContext()
+
+	genCmd := &cobra.Command{
+		Use:               "genesis",
+		Short:             "Genesis subcommands",
+		PersistentPreRunE: server.PersistentPreRunEFn(ctx),
+	}
+
+	genCmd.AddCommand(
+		genutilcmd.InitCmd(ctx, cdc, app.BasicManager(), defaultNodeHome),
+		genutilcmd.CollectGenTxsCmd(ctx, cdc, genaccounts.AppModuleBasic{}, defaultNodeHome),
+		genutilcmd.GenTxCmd(
+			ctx, cdc, app.BasicManager(), staking.AppModuleBasic{},
+			genaccounts.AppModuleBasic{}, defaultNodeHome, defaultCLIHome,
+		),
+		genutilcmd.ValidateGenesisCmd(ctx, cdc, app.BasicManager()),
+		// AddGenesisAccountCmd allows users to add accounts to the genesis file
+		genaccscmd.AddGenesisAccountCmd(ctx, cdc, defaultNodeHome, defaultCLIHome),
+	)
+
+	return genCmd
 }
 
 func initConfig(cmd *cobra.Command) error {
