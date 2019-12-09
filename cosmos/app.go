@@ -68,3 +68,7 @@ func NewApp(factory *AppFactory) (*App, error) {
 func (a *App) DefaultGenesis() map[string]json.RawMessage {
 	return a.basicManager.DefaultGenesis()
 }
+
+func (a *App) BasicManager() module.BasicManager {
+	return a.basicManager
+}

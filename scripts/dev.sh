@@ -61,6 +61,7 @@ function start_engine {
     --network name=$MESG_TENDERMINT_NETWORK \
     --publish $MESG_SERVER_PORT:50052 \
     --publish $MESG_TENDERMINT_PORT:26656 \
+    --publish 26657:26657 \
     mesg/engine:local
 }
 
