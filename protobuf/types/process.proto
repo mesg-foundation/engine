@@ -96,7 +96,7 @@ message Process {
           ];
 
           double double_const = 3 [
-            (gogoproto.moretags) = 'hash:"name:3"'
+            (gogoproto.moretags) = 'hash:"name:3" amino:"unsafe"'
           ];
 
           bool bool_const = 4 [
