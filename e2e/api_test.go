@@ -48,7 +48,6 @@ func TestAPI(t *testing.T) {
 	// basic tests
 	t.Run("account", testAccount)
 	t.Run("service", testService)
-	t.Run("ownership", testOwnership)
 	t.Run("runner", testRunner)
 	t.Run("process", testProcess)
 	t.Run("instance", testInstance)
