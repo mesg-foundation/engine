@@ -10,7 +10,6 @@ import (
 	"github.com/mesg-foundation/engine/config"
 	"github.com/mesg-foundation/engine/container"
 	"github.com/mesg-foundation/engine/cosmos"
-	"github.com/mesg-foundation/engine/database"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/logger"
 	"github.com/mesg-foundation/engine/orchestrator"
@@ -27,11 +26,6 @@ import (
 	tmtypes "github.com/tendermint/tendermint/types"
 	db "github.com/tendermint/tm-db"
 )
-
-func initDatabases(cfg *config.Config) (*database.LevelDBProcessDB, error) {
-	// init process db.
-	return database.NewProcessDB(filepath.Join(cfg.Path, cfg.Database.ProcessRelativePath))
-}
 
 func stopRunningServices(sdk *enginesdk.SDK, cfg *config.Config, address string) error {
 	runners, err := sdk.Runner.List(&runnersdk.Filter{Address: address})
@@ -125,12 +119,6 @@ func main() {
 	// init logger.
 	logger.Init(cfg.Log.Format, cfg.Log.Level, cfg.Log.ForceColors)
 
-	// init databases
-	processDB, err := initDatabases(cfg)
-	if err != nil {
-		logrus.WithField("module", "main").Fatalln(err)
-	}
-
 	// init container.
 	container, err := container.New(cfg.Name)
 	if err != nil {
@@ -185,7 +173,7 @@ func main() {
 	client := cosmos.NewClient(node, kb, genesis.ChainID)
 
 	// init sdk
-	sdk := enginesdk.New(client, kb, processDB, container, cfg.Name, strconv.Itoa(port), cfg.IpfsEndpoint)
+	sdk := enginesdk.New(client, kb, container, cfg.Name, strconv.Itoa(port), cfg.IpfsEndpoint)
 
 	// start tendermint node
 	logrus.WithField("module", "main").WithField("seeds", cfg.Tendermint.Config.P2P.Seeds).Info("starting tendermint node")
