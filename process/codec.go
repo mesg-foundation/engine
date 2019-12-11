@@ -64,3 +64,31 @@ func (m *Process_Node_Map) UnmarshalAmino(keyValues []KeyOutput) error {
 	}
 	return nil
 }
+
+// MarshalAmino transforms the Process_Node_Map_Output_Map to an array of key/value.
+func (m Process_Node_Map_Output_Map) MarshalAmino() ([]KeyOutput, error) {
+	p := make([]KeyOutput, len(m.Outputs))
+	outputKeys := make([]string, len(m.Outputs))
+	i := 0
+	for key := range m.Outputs {
+		outputKeys[i] = key
+		i++
+	}
+	sort.Stable(sort.StringSlice(outputKeys))
+	for i, key := range outputKeys {
+		p[i] = KeyOutput{
+			Key:   key,
+			Value: m.Outputs[key],
+		}
+	}
+	return p, nil
+}
+
+// UnmarshalAmino transforms the key/value array to a Process_Node_Map_Output_Map.
+func (m *Process_Node_Map_Output_Map) UnmarshalAmino(keyValues []KeyOutput) error {
+	m.Outputs = make(map[string]*Process_Node_Map_Output, len(keyValues))
+	for _, p := range keyValues {
+		m.Outputs[p.Key] = p.Value
+	}
+	return nil
+}
