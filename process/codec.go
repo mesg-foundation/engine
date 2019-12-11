@@ -1,8 +1,9 @@
 package process
 
 import (
-	"github.com/mesg-foundation/engine/codec"
 	"sort"
+
+	"github.com/mesg-foundation/engine/codec"
 )
 
 func init() {
