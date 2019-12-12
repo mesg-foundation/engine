@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"sync"
 	"time"
 
 	"github.com/cosmos/cosmos-sdk/crypto/keys"
@@ -17,6 +18,12 @@ import (
 	"github.com/tendermint/tendermint/node"
 	rpcclient "github.com/tendermint/tendermint/rpc/client"
 	tenderminttypes "github.com/tendermint/tendermint/types"
+)
+
+var (
+	// sequence is a local in-memory cache of sequence.
+	sequence         uint64
+	getSequenceMutex sync.Mutex
 )
 
 // Client is a tendermint client with helper functions.
@@ -73,18 +80,9 @@ func (c *Client) QueryWithData(path string, data []byte) ([]byte, int64, error) 
 
 // BuildAndBroadcastMsg builds and signs message and broadcast it to node.
 func (c *Client) BuildAndBroadcastMsg(msg sdktypes.Msg) (*abci.ResponseDeliverTx, error) {
-	info, err := c.kb.Get(c.accName)
+	accSeq, err := c.getAccountSequenceAndIncrement()
 	if err != nil {
 		return nil, err
-	}
-	accRetriever := auth.NewAccountRetriever(c)
-	accSeq := uint64(0)
-	err = accRetriever.EnsureExists(info.GetAddress())
-	if err == nil {
-		_, accSeq, err = accRetriever.GetAccountNumberSequence(info.GetAddress())
-		if err != nil {
-			return nil, err
-		}
 	}
 
 	txBuilder := NewTxBuilder(accSeq, c.kb, c.chainID)
@@ -176,4 +174,26 @@ func (c *Client) Stream(ctx context.Context, query string) (chan hash.Hash, chan
 // GetAccount returns the keybase's account.
 func (c *Client) GetAccount() (keys.Info, error) {
 	return c.kb.Get(c.accName)
+}
+
+// GetAccountNumberSequenceAndIncrement returns the account number and sequence but also increment the sequence.
+func (c *Client) getAccountSequenceAndIncrement() (uint64, error) {
+	getSequenceMutex.Lock()
+	defer getSequenceMutex.Unlock()
+	accKb, err := c.GetAccount()
+	if err != nil {
+		return 0, err
+	}
+	// get local seq
+	seq := sequence
+	// get remote seq
+	if acc, err := auth.NewAccountRetriever(c).GetAccount(accKb.GetAddress()); err == nil {
+		// replace seq if sup
+		if acc.GetSequence() > seq {
+			seq = acc.GetSequence()
+		}
+	}
+	// increment local sequence
+	sequence = seq + 1
+	return seq, nil
 }
