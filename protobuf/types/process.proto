@@ -14,33 +14,38 @@ message Process {
   message Node {
     message Result {
       // Hash of the instance that triggers the process.
-      bytes instanceHash = 2 [
-        (gogoproto.moretags) = 'hash:"name:2" validate:"required"',
+      bytes instanceHash = 1 [
+        (gogoproto.moretags) = 'hash:"name:1" validate:"required"',
         (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
         (gogoproto.nullable) = false
       ];
 
       // Key of the task that triggers the process.
-      string taskKey = 3 [
-        (gogoproto.moretags) = 'hash:"name:3" validate:"printascii,required"'
+      string taskKey = 2 [
+        (gogoproto.moretags) = 'hash:"name:2" validate:"printascii,required"'
       ];
     }
 
     message Event {
       // Hash of the instance that triggers the process.
-      bytes instanceHash = 2 [
-        (gogoproto.moretags) = 'hash:"name:2" validate:"required"',
+      bytes instanceHash = 1 [
+        (gogoproto.moretags) = 'hash:"name:1" validate:"required"',
         (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
         (gogoproto.nullable) = false
       ];
 
       // Key of the event that triggers the process.
-      string eventKey = 3 [
-        (gogoproto.moretags) = 'hash:"name:3" validate:"printascii,required"'
+      string eventKey = 2 [
+        (gogoproto.moretags) = 'hash:"name:2" validate:"printascii,required"'
       ];
     }
 
     message Task {
+      // RefKey of this execution's node. Must to set to reference an output of this task from a map node.
+      string refKey = 1 [
+        (gogoproto.moretags) = 'hash:"name:1" validate:"required"'
+      ];
+
       // Hash of the instance to execute.
       bytes instanceHash = 2 [
         (gogoproto.moretags) = 'hash:"name:2" validate:"required"',
@@ -75,8 +80,8 @@ message Process {
         }
 
         message Reference {
-          // Key of the node in the graph. If empty, will be using the src of the edge.
-          string nodeKey = 1 [
+          // RefKey of the execution's node in the graph.
+          string refKey = 1 [
             (gogoproto.moretags) = 'hash:"name:1" validate:"required"'
           ];
 

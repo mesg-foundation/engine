@@ -61,8 +61,8 @@ func testOrchestratorEventMapTaskMapTask(executionStream pb.Execution_StreamClie
 									"msg": {
 										Value: &process.Process_Node_Map_Output_Ref{
 											Ref: &process.Process_Node_Map_Output_Reference{
-												NodeKey: "n0",
-												Key:     "msg",
+												RefKey: "n0",
+												Key:    "msg",
 											},
 										},
 									},

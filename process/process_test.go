@@ -25,6 +25,7 @@ func TestValidateProcess(t *testing.T) {
 			Type: &Process_Node_Task_{&Process_Node_Task{
 				InstanceHash: hash.Int(2),
 				TaskKey:      "-",
+				RefKey:       "-",
 			}},
 		},
 		{
@@ -32,6 +33,7 @@ func TestValidateProcess(t *testing.T) {
 			Type: &Process_Node_Task_{&Process_Node_Task{
 				InstanceHash: hash.Int(3),
 				TaskKey:      "-",
+				RefKey:       "-",
 			}},
 		},
 	}
@@ -87,12 +89,14 @@ func TestValidateProcess(t *testing.T) {
 				Type: &Process_Node_Task_{&Process_Node_Task{
 					InstanceHash: hash.Int(2),
 					TaskKey:      "-",
+					RefKey:       "-",
 				}},
 			}, &Process_Node{
 				Key: "nodeKey4",
 				Type: &Process_Node_Task_{&Process_Node_Task{
 					InstanceHash: hash.Int(2),
 					TaskKey:      "-",
+					RefKey:       "-",
 				}},
 			}),
 			Edges: append(edges,
@@ -108,12 +112,14 @@ func TestValidateProcess(t *testing.T) {
 				Type: &Process_Node_Task_{&Process_Node_Task{
 					InstanceHash: hash.Int(2),
 					TaskKey:      "-",
+					RefKey:       "-",
 				}},
 			}, &Process_Node{
 				Key: "nodeKey4",
 				Type: &Process_Node_Task_{&Process_Node_Task{
 					InstanceHash: hash.Int(2),
 					TaskKey:      "-",
+					RefKey:       "-",
 				}},
 			}),
 			Edges: append(edges,
@@ -131,30 +137,35 @@ func TestValidateProcess(t *testing.T) {
 				Type: &Process_Node_Task_{&Process_Node_Task{
 					InstanceHash: hash.Int(2),
 					TaskKey:      "-",
+					RefKey:       "-",
 				}},
 			}, &Process_Node{
 				Key: "nodeKey4",
 				Type: &Process_Node_Task_{&Process_Node_Task{
 					InstanceHash: hash.Int(2),
 					TaskKey:      "-",
+					RefKey:       "-",
 				}},
 			}, &Process_Node{
 				Key: "nodeKey5",
 				Type: &Process_Node_Task_{&Process_Node_Task{
 					InstanceHash: hash.Int(2),
 					TaskKey:      "-",
+					RefKey:       "-",
 				}},
 			}, &Process_Node{
 				Key: "nodeKey6",
 				Type: &Process_Node_Task_{&Process_Node_Task{
 					InstanceHash: hash.Int(2),
 					TaskKey:      "-",
+					RefKey:       "-",
 				}},
 			}, &Process_Node{
 				Key: "nodeKey7",
 				Type: &Process_Node_Task_{&Process_Node_Task{
 					InstanceHash: hash.Int(2),
 					TaskKey:      "-",
+					RefKey:       "-",
 				}},
 			}),
 			Edges: append(edges,
@@ -175,7 +186,7 @@ func TestValidateProcess(t *testing.T) {
 					Outputs: map[string]*Process_Node_Map_Output{
 						"key": {
 							Value: &Process_Node_Map_Output_Ref{
-								Ref: &Process_Node_Map_Output_Reference{Key: "-", NodeKey: "invalid"},
+								Ref: &Process_Node_Map_Output_Reference{Key: "-", RefKey: "invalid"},
 							},
 						},
 					},
@@ -191,7 +202,7 @@ func TestValidateProcess(t *testing.T) {
 					Outputs: map[string]*Process_Node_Map_Output{
 						"key": {
 							Value: &Process_Node_Map_Output_Ref{
-								Ref: &Process_Node_Map_Output_Reference{Key: "-", NodeKey: "nodeKey1"},
+								Ref: &Process_Node_Map_Output_Reference{Key: "-", RefKey: "nodeKey1"},
 							},
 						},
 					},

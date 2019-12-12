@@ -22,7 +22,7 @@ func (w *Process) Validate() error {
 		if mapNode != nil {
 			for _, output := range mapNode.Outputs {
 				if ref := output.GetRef(); ref != nil {
-					if _, err := w.FindNode(ref.NodeKey); err != nil {
+					if _, err := w.FindNode(ref.RefKey); err != nil {
 						return err
 					}
 				}

@@ -202,14 +202,14 @@ func (s *Orchestrator) outputToValue(output *process.Process_Node_Map_Output, wf
 			},
 		}, nil
 	case *process.Process_Node_Map_Output_Ref:
-		node, err := wf.FindNode(v.Ref.NodeKey)
-		if err != nil {
-			return nil, err
+		nodes := wf.FindNodes(func(n *process.Process_Node) bool {
+			task := n.GetTask()
+			return task != nil && task.RefKey == v.Ref.RefKey
+		})
+		if len(nodes) != 1 {
+			return nil, fmt.Errorf("reference's key not found")
 		}
-		if node.GetTask() != nil {
-			return s.resolveInput(wf.Hash, exec, v.Ref.NodeKey, v.Ref.Key)
-		}
-		return data.Fields[v.Ref.Key], nil
+		return s.resolveInput(wf.Hash, exec, v.Ref.RefKey, v.Ref.Key)
 	default:
 		return nil, errors.New("unknown output")
 	}
