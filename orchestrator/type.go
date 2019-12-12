@@ -16,7 +16,7 @@ import (
 type ExecutionSDK interface {
 	Stream(ctx context.Context, req *api.StreamExecutionRequest) (chan *execution.Execution, chan error, error)
 	Get(hash hash.Hash) (*execution.Execution, error)
-	Create(req *api.CreateExecutionRequest, accountName, accountPassword string) (*execution.Execution, error)
+	Create(req *api.CreateExecutionRequest) (*execution.Execution, error)
 }
 
 // EventSDK event interface needed for the orchestrator
@@ -47,7 +47,4 @@ type Orchestrator struct {
 	runner RunnerSDK
 
 	ErrC chan error
-
-	accountName     string
-	accountPassword string
 }

@@ -3,6 +3,7 @@ package executionsdk
 import (
 	"context"
 
+	cosmostypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/mesg-foundation/engine/cosmos"
 	"github.com/mesg-foundation/engine/execution"
 	"github.com/mesg-foundation/engine/hash"
@@ -14,8 +15,8 @@ import (
 
 // SDK is the execution sdk.
 type SDK struct {
-	client *cosmos.Client
-	kb     *cosmos.Keybase
+	client     *cosmos.Client
+	accAddress cosmostypes.AccAddress
 
 	serviceSDK  *servicesdk.SDK
 	instanceSDK *instancesdk.SDK
@@ -23,10 +24,10 @@ type SDK struct {
 }
 
 // New returns the execution sdk.
-func New(client *cosmos.Client, kb *cosmos.Keybase, serviceSDK *servicesdk.SDK, instanceSDK *instancesdk.SDK, runnerSDK *runnersdk.SDK) *SDK {
+func New(client *cosmos.Client, accAddress cosmostypes.AccAddress, serviceSDK *servicesdk.SDK, instanceSDK *instancesdk.SDK, runnerSDK *runnersdk.SDK) *SDK {
 	sdk := &SDK{
 		client:      client,
-		kb:          kb,
+		accAddress:  accAddress,
 		serviceSDK:  serviceSDK,
 		instanceSDK: instanceSDK,
 		runnerSDK:   runnerSDK,
@@ -35,14 +36,9 @@ func New(client *cosmos.Client, kb *cosmos.Keybase, serviceSDK *servicesdk.SDK, 
 }
 
 // Create creates a new execution.
-func (s *SDK) Create(req *api.CreateExecutionRequest, accountName, accountPassword string) (*execution.Execution, error) {
-	acc, err := s.kb.Get(accountName)
-	if err != nil {
-		return nil, err
-	}
-
-	msg := newMsgCreateExecution(req, acc.GetAddress())
-	tx, err := s.client.BuildAndBroadcastMsg(msg, accountName, accountPassword)
+func (s *SDK) Create(req *api.CreateExecutionRequest) (*execution.Execution, error) {
+	msg := newMsgCreateExecution(req, s.accAddress)
+	tx, err := s.client.BuildAndBroadcastMsg(msg)
 	if err != nil {
 		return nil, err
 	}
@@ -50,13 +46,9 @@ func (s *SDK) Create(req *api.CreateExecutionRequest, accountName, accountPasswo
 }
 
 // Update updates a execution.
-func (s *SDK) Update(req *api.UpdateExecutionRequest, accountName, accountPassword string) (*execution.Execution, error) {
-	acc, err := s.kb.Get(accountName)
-	if err != nil {
-		return nil, err
-	}
-	msg := newMsgUpdateExecution(req, acc.GetAddress())
-	tx, err := s.client.BuildAndBroadcastMsg(msg, accountName, accountPassword)
+func (s *SDK) Update(req *api.UpdateExecutionRequest) (*execution.Execution, error) {
+	msg := newMsgUpdateExecution(req, s.accAddress)
+	tx, err := s.client.BuildAndBroadcastMsg(msg)
 	if err != nil {
 		return nil, err
 	}

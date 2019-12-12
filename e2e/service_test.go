@@ -52,12 +52,8 @@ func testService(t *testing.T) {
 	t.Run("check ownership creation", func(t *testing.T) {
 		ownerships, err := client.OwnershipClient.List(context.Background(), &pb.ListOwnershipRequest{})
 		require.NoError(t, err)
-
-		acc, err := client.AccountClient.Get(context.Background(), &pb.GetAccountRequest{Name: "engine"})
-		require.NoError(t, err)
-
 		require.Len(t, ownerships.Ownerships, 1)
-		require.Equal(t, acc.Address, ownerships.Ownerships[0].Owner)
+		require.NotEmpty(t, ownerships.Ownerships[0].Owner)
 		require.Equal(t, ownership.Ownership_Service, ownerships.Ownerships[0].Resource)
 		require.Equal(t, testServiceHash, ownerships.Ownerships[0].ResourceHash)
 	})

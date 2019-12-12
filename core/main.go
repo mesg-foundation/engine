@@ -27,7 +27,7 @@ import (
 	db "github.com/tendermint/tm-db"
 )
 
-func stopRunningServices(sdk *enginesdk.SDK, cfg *config.Config, address string) error {
+func stopRunningServices(sdk *enginesdk.SDK, address string) error {
 	runners, err := sdk.Runner.List(&runnersdk.Filter{Address: address})
 	if err != nil {
 		return err
@@ -44,7 +44,7 @@ func stopRunningServices(sdk *enginesdk.SDK, cfg *config.Config, address string)
 			err := sdk.Runner.Delete(&api.DeleteRunnerRequest{
 				Hash:       hash,
 				DeleteData: false,
-			}, cfg.Account.Name, cfg.Account.Password)
+			})
 			if err != nil {
 				errC <- err
 			}
@@ -170,10 +170,10 @@ func main() {
 	}
 
 	// create cosmos client
-	client := cosmos.NewClient(node, kb, genesis.ChainID)
+	client := cosmos.NewClient(node, kb, genesis.ChainID, cfg.Account.Name, cfg.Account.Password)
 
 	// init sdk
-	sdk := enginesdk.New(client, kb, container, cfg.Name, strconv.Itoa(port), cfg.IpfsEndpoint)
+	sdk := enginesdk.New(client, kb, container, cfg.Name, strconv.Itoa(port), cfg.IpfsEndpoint, acc.GetAddress())
 
 	// start tendermint node
 	logrus.WithField("module", "main").WithField("seeds", cfg.Tendermint.Config.P2P.Seeds).Info("starting tendermint node")
@@ -193,7 +193,7 @@ func main() {
 	}()
 
 	logrus.WithField("module", "main").Info("starting process engine")
-	s := orchestrator.New(sdk.Event, sdk.Execution, sdk.Process, sdk.Runner, cfg.Account.Name, cfg.Account.Password)
+	s := orchestrator.New(sdk.Event, sdk.Execution, sdk.Process, sdk.Runner)
 	go func() {
 		if err := s.Start(); err != nil {
 			logrus.WithField("module", "main").Fatalln(err)
@@ -206,7 +206,7 @@ func main() {
 	}()
 
 	<-xsignal.WaitForInterrupt()
-	if err := stopRunningServices(sdk, cfg, acc.GetAddress().String()); err != nil {
+	if err := stopRunningServices(sdk, acc.GetAddress().String()); err != nil {
 		logrus.WithField("module", "main").Fatalln(err)
 	}
 

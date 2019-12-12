@@ -13,13 +13,13 @@ type ExecutionSDK struct {
 	mock.Mock
 }
 
-// Create provides a mock function with given fields: req, accountName, accountPassword
-func (_m *ExecutionSDK) Create(req *api.CreateExecutionRequest, accountName string, accountPassword string) (*execution.Execution, error) {
-	ret := _m.Called(req, accountName, accountPassword)
+// Create provides a mock function with given fields: req
+func (_m *ExecutionSDK) Create(req *api.CreateExecutionRequest) (*execution.Execution, error) {
+	ret := _m.Called(req)
 
 	var r0 *execution.Execution
-	if rf, ok := ret.Get(0).(func(*api.CreateExecutionRequest, string, string) *execution.Execution); ok {
-		r0 = rf(req, accountName, accountPassword)
+	if rf, ok := ret.Get(0).(func(*api.CreateExecutionRequest) *execution.Execution); ok {
+		r0 = rf(req)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*execution.Execution)
@@ -27,8 +27,8 @@ func (_m *ExecutionSDK) Create(req *api.CreateExecutionRequest, accountName stri
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(*api.CreateExecutionRequest, string, string) error); ok {
-		r1 = rf(req, accountName, accountPassword)
+	if rf, ok := ret.Get(1).(func(*api.CreateExecutionRequest) error); ok {
+		r1 = rf(req)
 	} else {
 		r1 = ret.Error(1)
 	}

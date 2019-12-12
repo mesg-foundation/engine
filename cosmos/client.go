@@ -22,16 +22,20 @@ import (
 // Client is a tendermint client with helper functions.
 type Client struct {
 	rpcclient.Client
-	kb      keys.Keybase
-	chainID string
+	kb          keys.Keybase
+	chainID     string
+	accName     string
+	accPassword string
 }
 
 // NewClient returns a rpc tendermint client.
-func NewClient(node *node.Node, kb keys.Keybase, chainID string) *Client {
+func NewClient(node *node.Node, kb keys.Keybase, chainID, accName, accPassword string) *Client {
 	return &Client{
-		Client:  rpcclient.NewLocal(node),
-		kb:      kb,
-		chainID: chainID,
+		Client:      rpcclient.NewLocal(node),
+		kb:          kb,
+		chainID:     chainID,
+		accName:     accName,
+		accPassword: accPassword,
 	}
 }
 
@@ -68,12 +72,11 @@ func (c *Client) QueryWithData(path string, data []byte) ([]byte, int64, error) 
 }
 
 // BuildAndBroadcastMsg builds and signs message and broadcast it to node.
-func (c *Client) BuildAndBroadcastMsg(msg sdktypes.Msg, accName, accPassword string) (*abci.ResponseDeliverTx, error) {
-	info, err := c.kb.Get(accName)
+func (c *Client) BuildAndBroadcastMsg(msg sdktypes.Msg) (*abci.ResponseDeliverTx, error) {
+	info, err := c.kb.Get(c.accName)
 	if err != nil {
 		return nil, err
 	}
-
 	accRetriever := auth.NewAccountRetriever(c)
 	accNumber, accSeq := uint64(0), uint64(0)
 	err = accRetriever.EnsureExists(info.GetAddress())
@@ -87,7 +90,7 @@ func (c *Client) BuildAndBroadcastMsg(msg sdktypes.Msg, accName, accPassword str
 	txBuilder := NewTxBuilder(accNumber, accSeq, c.kb, c.chainID)
 
 	// TODO: cannot sign 2 tx at the same time. Maybe keybase cannot be access at the same time. Add a lock?
-	signedTx, err := txBuilder.BuildAndSignStdTx(msg, accName, accPassword)
+	signedTx, err := txBuilder.BuildAndSignStdTx(msg, c.accName, c.accPassword)
 	if err != nil {
 		return nil, err
 	}

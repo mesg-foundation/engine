@@ -15,7 +15,6 @@ import (
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/keepalive"
-	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/reflection"
 )
 
@@ -51,14 +50,6 @@ func (s *Server) Serve(address string) error {
 		grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
 			grpc_logrus.UnaryServerInterceptor(logrus.StandardLogger().WithField("module", "grpc")),
 			validateInterceptor,
-			func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp interface{}, err error) {
-				// inject credentials from config
-				ctx = metadata.NewIncomingContext(ctx, map[string][]string{
-					"credential_username":   {s.cfg.Account.Name},
-					"credential_passphrase": {s.cfg.Account.Password},
-				})
-				return handler(ctx, req)
-			},
 		)),
 	)
 	s.register()
@@ -85,7 +76,6 @@ func (s *Server) register() {
 	protobuf_api.RegisterInstanceServer(s.instance, api.NewInstanceServer(s.sdk))
 	protobuf_api.RegisterServiceServer(s.instance, api.NewServiceServer(s.sdk))
 	protobuf_api.RegisterProcessServer(s.instance, api.NewProcessServer(s.sdk))
-	protobuf_api.RegisterAccountServer(s.instance, api.NewAccountServer(s.sdk))
 	protobuf_api.RegisterOwnershipServer(s.instance, api.NewOwnershipServer(s.sdk))
 	protobuf_api.RegisterRunnerServer(s.instance, api.NewRunnerServer(s.sdk))
 

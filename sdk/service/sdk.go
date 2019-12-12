@@ -5,38 +5,28 @@ import (
 	"github.com/mesg-foundation/engine/cosmos"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/protobuf/api"
-	accountsdk "github.com/mesg-foundation/engine/sdk/account"
 	"github.com/mesg-foundation/engine/service"
 )
 
 // SDK is the service sdk.
 type SDK struct {
-	accountSDK *accountsdk.SDK
 	client     *cosmos.Client
+	accAddress cosmostypes.AccAddress
 }
 
 // New returns the service sdk.
-func New(client *cosmos.Client, accountSDK *accountsdk.SDK) *SDK {
+func New(client *cosmos.Client, accAddress cosmostypes.AccAddress) *SDK {
 	sdk := &SDK{
-		accountSDK: accountSDK,
 		client:     client,
+		accAddress: accAddress,
 	}
 	return sdk
 }
 
 // Create creates a new service from definition.
-func (s *SDK) Create(req *api.CreateServiceRequest, accountName, accountPassword string) (*service.Service, error) {
-	account, err := s.accountSDK.Get(accountName)
-	if err != nil {
-		return nil, err
-	}
-	// TODO: pass account by parameters
-	owner, err := cosmostypes.AccAddressFromBech32(account.Address)
-	if err != nil {
-		return nil, err
-	}
-	msg := newMsgCreateService(req, owner)
-	tx, err := s.client.BuildAndBroadcastMsg(msg, accountName, accountPassword)
+func (s *SDK) Create(req *api.CreateServiceRequest) (*service.Service, error) {
+	msg := newMsgCreateService(req, s.accAddress)
+	tx, err := s.client.BuildAndBroadcastMsg(msg)
 	if err != nil {
 		return nil, err
 	}

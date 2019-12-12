@@ -21,11 +21,7 @@ func NewRunnerServer(sdk *sdk.SDK) *RunnerServer {
 
 // Create creates a new runner.
 func (s *RunnerServer) Create(ctx context.Context, req *protobuf_api.CreateRunnerRequest) (*protobuf_api.CreateRunnerResponse, error) {
-	credUsername, credPassphrase, err := GetCredentialFromContext(ctx)
-	if err != nil {
-		return nil, err
-	}
-	srv, err := s.sdk.Runner.Create(req, credUsername, credPassphrase)
+	srv, err := s.sdk.Runner.Create(req)
 	if err != nil {
 		return nil, err
 	}
@@ -34,11 +30,7 @@ func (s *RunnerServer) Create(ctx context.Context, req *protobuf_api.CreateRunne
 
 // Delete deletes a runner.
 func (s *RunnerServer) Delete(ctx context.Context, req *protobuf_api.DeleteRunnerRequest) (*protobuf_api.DeleteRunnerResponse, error) {
-	credUsername, credPassphrase, err := GetCredentialFromContext(ctx)
-	if err != nil {
-		return nil, err
-	}
-	if err := s.sdk.Runner.Delete(req, credUsername, credPassphrase); err != nil {
+	if err := s.sdk.Runner.Delete(req); err != nil {
 		return nil, err
 	}
 	return &protobuf_api.DeleteRunnerResponse{}, nil
