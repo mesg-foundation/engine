@@ -89,6 +89,87 @@ func testExecution(t *testing.T) {
 		})
 	})
 
+	t.Run("double execution", func(t *testing.T) {
+		var (
+			executionHash1 hash.Hash
+			executionHash2 hash.Hash
+			taskKey        = "task1"
+			inputs         = &types.Struct{
+				Fields: map[string]*types.Value{
+					"msg": {
+						Kind: &types.Value_StringValue{
+							StringValue: "test",
+						},
+					},
+				},
+			}
+		)
+		t.Run("create first", func(t *testing.T) {
+			resp, err := client.ExecutionClient.Create(context.Background(), &pb.CreateExecutionRequest{
+				TaskKey:      taskKey,
+				EventHash:    hash.Int(2),
+				ExecutorHash: executorHash,
+				Inputs:       inputs,
+			})
+			require.NoError(t, err)
+			executionHash1 = resp.Hash
+		})
+		t.Run("create second", func(t *testing.T) {
+			resp, err := client.ExecutionClient.Create(context.Background(), &pb.CreateExecutionRequest{
+				TaskKey:      taskKey,
+				EventHash:    hash.Int(3),
+				ExecutorHash: executorHash,
+				Inputs:       inputs,
+			})
+			require.NoError(t, err)
+			executionHash2 = resp.Hash
+		})
+		t.Run("first in progress", func(t *testing.T) {
+			execInProgress, err := stream.Recv()
+			require.NoError(t, err)
+			require.Equal(t, executionHash1, execInProgress.Hash)
+			require.Equal(t, taskKey, execInProgress.TaskKey)
+			require.Equal(t, hash.Int(2), execInProgress.EventHash)
+			require.Equal(t, executorHash, execInProgress.ExecutorHash)
+			require.Equal(t, execution.Status_InProgress, execInProgress.Status)
+			require.True(t, inputs.Equal(execInProgress.Inputs))
+		})
+		t.Run("second in progress", func(t *testing.T) {
+			execInProgress, err := stream.Recv()
+			require.NoError(t, err)
+			require.Equal(t, executionHash2, execInProgress.Hash)
+			require.Equal(t, taskKey, execInProgress.TaskKey)
+			require.Equal(t, hash.Int(3), execInProgress.EventHash)
+			require.Equal(t, executorHash, execInProgress.ExecutorHash)
+			require.Equal(t, execution.Status_InProgress, execInProgress.Status)
+			require.True(t, inputs.Equal(execInProgress.Inputs))
+		})
+		t.Run("first completed", func(t *testing.T) {
+			exec, err := stream.Recv()
+			require.NoError(t, err)
+			require.Equal(t, executionHash1, exec.Hash)
+			require.Equal(t, taskKey, exec.TaskKey)
+			require.Equal(t, hash.Int(2), exec.EventHash)
+			require.Equal(t, executorHash, exec.ExecutorHash)
+			require.Equal(t, execution.Status_Completed, exec.Status)
+			require.True(t, inputs.Equal(exec.Inputs))
+			require.Equal(t, "test", exec.Outputs.Fields["msg"].GetStringValue())
+			require.NotEmpty(t, exec.Outputs.Fields["timestamp"].GetNumberValue())
+		})
+		t.Run("second completed", func(t *testing.T) {
+			exec, err := stream.Recv()
+			require.NoError(t, err)
+			require.Equal(t, executionHash2, exec.Hash)
+			require.Equal(t, taskKey, exec.TaskKey)
+			require.Equal(t, hash.Int(3), exec.EventHash)
+			require.Equal(t, executorHash, exec.ExecutorHash)
+			require.Equal(t, execution.Status_Completed, exec.Status)
+			require.True(t, inputs.Equal(exec.Inputs))
+			require.Equal(t, "test", exec.Outputs.Fields["msg"].GetStringValue())
+			require.NotEmpty(t, exec.Outputs.Fields["timestamp"].GetNumberValue())
+		})
+	})
+
 	t.Run("complex execution", func(t *testing.T) {
 		var (
 			executionHash hash.Hash
@@ -168,6 +249,6 @@ func testExecution(t *testing.T) {
 	t.Run("list", func(t *testing.T) {
 		resp, err := client.ExecutionClient.List(context.Background(), &pb.ListExecutionRequest{})
 		require.NoError(t, err)
-		require.Len(t, resp.Executions, 2)
+		require.Len(t, resp.Executions, 4)
 	})
 }
