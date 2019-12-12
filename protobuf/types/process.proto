@@ -102,7 +102,7 @@ message Process {
 
         oneof value {
           Null null = 1 [
-            (gogoproto.moretags) = 'hash:"name:1" validate:"required_without=Ref Constant List Map"'
+            (gogoproto.moretags) = 'hash:"name:1"'
           ];
 
           string string_const = 2 [
@@ -110,7 +110,7 @@ message Process {
           ];
 
           double double_const = 3 [
-            (gogoproto.moretags) = 'hash:"name:3"'
+            (gogoproto.moretags) = 'hash:"name:3" amino:"unsafe"'
           ];
 
           bool bool_const = 4 [
@@ -119,17 +119,17 @@ message Process {
 
           // Input defined as reference.
           Reference ref = 5 [
-            (gogoproto.moretags) = 'hash:"name:5" validate:"required_without=Null Constant List Map"'
+            (gogoproto.moretags) = 'hash:"name:5"'
           ];
 
           // Outputs represent array.
           List list = 6 [
-            (gogoproto.moretags) = 'hash:"name:6" validate:"required_without=Null Ref Constant Map"'
+            (gogoproto.moretags) = 'hash:"name:6"'
           ];
 
           // Outputs represent a field.
           Map map = 7 [
-            (gogoproto.moretags) = 'hash:"name:6" validate:"required_without=Null Ref Constant List"'
+            (gogoproto.moretags) = 'hash:"name:7"'
           ];
         }
       }

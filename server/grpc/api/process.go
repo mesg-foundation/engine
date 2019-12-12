@@ -20,11 +20,12 @@ func NewProcessServer(sdk *sdk.SDK) *ProcessServer {
 
 // Create creates a new process.
 func (s *ProcessServer) Create(ctx context.Context, req *api.CreateProcessRequest) (*api.CreateProcessResponse, error) {
-	wf, err := s.sdk.Process.Create(&process.Process{
-		Name:  req.Name,
-		Nodes: req.Nodes,
-		Edges: req.Edges,
-	})
+	name, pass, err := GetCredentialFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	wf, err := s.sdk.Process.Create(req, name, pass)
 	if err != nil {
 		return nil, err
 	}
@@ -32,8 +33,13 @@ func (s *ProcessServer) Create(ctx context.Context, req *api.CreateProcessReques
 }
 
 // Delete deletes process by hash or sid.
-func (s *ProcessServer) Delete(ctx context.Context, request *api.DeleteProcessRequest) (*api.DeleteProcessResponse, error) {
-	return &api.DeleteProcessResponse{}, s.sdk.Process.Delete(request.Hash)
+func (s *ProcessServer) Delete(ctx context.Context, req *api.DeleteProcessRequest) (*api.DeleteProcessResponse, error) {
+	name, pass, err := GetCredentialFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return &api.DeleteProcessResponse{}, s.sdk.Process.Delete(req, name, pass)
 }
 
 // Get returns process from given hash.
