@@ -80,25 +80,12 @@ func (c *Client) QueryWithData(path string, data []byte) ([]byte, int64, error) 
 
 // BuildAndBroadcastMsg builds and signs message and broadcast it to node.
 func (c *Client) BuildAndBroadcastMsg(msg sdktypes.Msg) (*abci.ResponseDeliverTx, error) {
-	accSeq, err := c.getAccountSequenceAndIncrement()
+	signedTx, err := c.Sign(msg)
 	if err != nil {
 		return nil, err
 	}
 
-	txBuilder := NewTxBuilder(accSeq, c.kb, c.chainID)
-
-	// TODO: cannot sign 2 tx at the same time. Maybe keybase cannot be access at the same time. Add a lock?
-	signedTx, err := txBuilder.BuildAndSignStdTx(msg, c.accName, c.accPassword)
-	if err != nil {
-		return nil, err
-	}
-
-	encodedTx, err := txBuilder.Encode(signedTx)
-	if err != nil {
-		return nil, err
-	}
-
-	txres, err := c.BroadcastTxSync(encodedTx)
+	txres, err := c.BroadcastTxSync(signedTx)
 	if err != nil {
 		return nil, err
 	}
@@ -111,7 +98,7 @@ func (c *Client) BuildAndBroadcastMsg(msg sdktypes.Msg) (*abci.ResponseDeliverTx
 	defer cancel()
 
 	subscriber := "engine"
-	query := tenderminttypes.EventQueryTxFor(encodedTx).String()
+	query := tenderminttypes.EventQueryTxFor(signedTx).String()
 	out, err := c.Subscribe(ctx, subscriber, query)
 	if err != nil {
 		return nil, err
@@ -196,4 +183,19 @@ func (c *Client) getAccountSequenceAndIncrement() (uint64, error) {
 	// increment local sequence
 	sequence = seq + 1
 	return seq, nil
+}
+
+// Sign signs a msg and return a tendermint tx.
+func (c *Client) Sign(msg sdktypes.Msg) (tenderminttypes.Tx, error) {
+	accSeq, err := c.getAccountSequenceAndIncrement()
+	if err != nil {
+		return nil, err
+	}
+
+	txBuilder := NewTxBuilder(accSeq, c.kb, c.chainID)
+	signedTx, err := txBuilder.BuildAndSignStdTx(msg, c.accName, c.accPassword)
+	if err != nil {
+		return nil, err
+	}
+	return txBuilder.Encode(signedTx)
 }
