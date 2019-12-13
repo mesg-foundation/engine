@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 
-	cosmostypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/mesg-foundation/engine/container"
 	"github.com/mesg-foundation/engine/cosmos"
 	"github.com/mesg-foundation/engine/hash"
@@ -25,7 +24,6 @@ type SDK struct {
 	port         string
 	engineName   string
 	ipfsEndpoint string
-	accAddress   cosmostypes.AccAddress
 }
 
 // Filter to apply while listing runners.
@@ -35,7 +33,7 @@ type Filter struct {
 }
 
 // New returns the runner sdk.
-func New(client *cosmos.Client, serviceSDK *servicesdk.SDK, instanceSDK *instancesdk.SDK, container container.Container, engineName, port, ipfsEndpoint string, accAddress cosmostypes.AccAddress) *SDK {
+func New(client *cosmos.Client, serviceSDK *servicesdk.SDK, instanceSDK *instancesdk.SDK, container container.Container, engineName, port, ipfsEndpoint string) *SDK {
 	sdk := &SDK{
 		container:    container,
 		serviceSDK:   serviceSDK,
@@ -44,7 +42,6 @@ func New(client *cosmos.Client, serviceSDK *servicesdk.SDK, instanceSDK *instanc
 		port:         port,
 		engineName:   engineName,
 		ipfsEndpoint: ipfsEndpoint,
-		accAddress:   accAddress,
 	}
 	return sdk
 }
@@ -64,8 +61,12 @@ func (s *SDK) Create(req *api.CreateRunnerRequest) (*runner.Runner, error) {
 		ServiceHash: srv.Hash,
 		EnvHash:     envHash,
 	})
+	acc, err := s.client.GetAccount()
+	if err != nil {
+		return nil, err
+	}
 	expRunnerHash := hash.Dump(&runner.Runner{
-		Address:      s.accAddress.String(),
+		Address:      acc.GetAddress().String(),
 		InstanceHash: instanceHash,
 	})
 
@@ -86,7 +87,7 @@ func (s *SDK) Create(req *api.CreateRunnerRequest) (*runner.Runner, error) {
 		stop(s.container, expRunnerHash, srv.Dependencies)
 	}
 
-	msg := newMsgCreateRunner(s.accAddress, req.ServiceHash, envHash)
+	msg := newMsgCreateRunner(acc.GetAddress(), req.ServiceHash, envHash)
 	tx, err := s.client.BuildAndBroadcastMsg(msg)
 	if err != nil {
 		onError()
@@ -111,8 +112,11 @@ func (s *SDK) Delete(req *api.DeleteRunnerRequest) error {
 	if err != nil {
 		return err
 	}
-
-	msg := newMsgDeleteRunner(s.accAddress, req.Hash)
+	acc, err := s.client.GetAccount()
+	if err != nil {
+		return err
+	}
+	msg := newMsgDeleteRunner(acc.GetAddress(), req.Hash)
 	_, err = s.client.BuildAndBroadcastMsg(msg)
 	if err != nil {
 		return err

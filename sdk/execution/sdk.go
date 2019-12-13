@@ -3,7 +3,6 @@ package executionsdk
 import (
 	"context"
 
-	cosmostypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/mesg-foundation/engine/cosmos"
 	"github.com/mesg-foundation/engine/execution"
 	"github.com/mesg-foundation/engine/hash"
@@ -15,8 +14,7 @@ import (
 
 // SDK is the execution sdk.
 type SDK struct {
-	client     *cosmos.Client
-	accAddress cosmostypes.AccAddress
+	client *cosmos.Client
 
 	serviceSDK  *servicesdk.SDK
 	instanceSDK *instancesdk.SDK
@@ -24,10 +22,9 @@ type SDK struct {
 }
 
 // New returns the execution sdk.
-func New(client *cosmos.Client, accAddress cosmostypes.AccAddress, serviceSDK *servicesdk.SDK, instanceSDK *instancesdk.SDK, runnerSDK *runnersdk.SDK) *SDK {
+func New(client *cosmos.Client, serviceSDK *servicesdk.SDK, instanceSDK *instancesdk.SDK, runnerSDK *runnersdk.SDK) *SDK {
 	sdk := &SDK{
 		client:      client,
-		accAddress:  accAddress,
 		serviceSDK:  serviceSDK,
 		instanceSDK: instanceSDK,
 		runnerSDK:   runnerSDK,
@@ -37,7 +34,11 @@ func New(client *cosmos.Client, accAddress cosmostypes.AccAddress, serviceSDK *s
 
 // Create creates a new execution.
 func (s *SDK) Create(req *api.CreateExecutionRequest) (*execution.Execution, error) {
-	msg := newMsgCreateExecution(req, s.accAddress)
+	acc, err := s.client.GetAccount()
+	if err != nil {
+		return nil, err
+	}
+	msg := newMsgCreateExecution(req, acc.GetAddress())
 	tx, err := s.client.BuildAndBroadcastMsg(msg)
 	if err != nil {
 		return nil, err
@@ -47,7 +48,11 @@ func (s *SDK) Create(req *api.CreateExecutionRequest) (*execution.Execution, err
 
 // Update updates a execution.
 func (s *SDK) Update(req *api.UpdateExecutionRequest) (*execution.Execution, error) {
-	msg := newMsgUpdateExecution(req, s.accAddress)
+	acc, err := s.client.GetAccount()
+	if err != nil {
+		return nil, err
+	}
+	msg := newMsgUpdateExecution(req, acc.GetAddress())
 	tx, err := s.client.BuildAndBroadcastMsg(msg)
 	if err != nil {
 		return nil, err

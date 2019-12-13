@@ -1,7 +1,6 @@
 package servicesdk
 
 import (
-	cosmostypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/mesg-foundation/engine/cosmos"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/protobuf/api"
@@ -10,22 +9,24 @@ import (
 
 // SDK is the service sdk.
 type SDK struct {
-	client     *cosmos.Client
-	accAddress cosmostypes.AccAddress
+	client *cosmos.Client
 }
 
 // New returns the service sdk.
-func New(client *cosmos.Client, accAddress cosmostypes.AccAddress) *SDK {
+func New(client *cosmos.Client) *SDK {
 	sdk := &SDK{
-		client:     client,
-		accAddress: accAddress,
+		client: client,
 	}
 	return sdk
 }
 
 // Create creates a new service from definition.
 func (s *SDK) Create(req *api.CreateServiceRequest) (*service.Service, error) {
-	msg := newMsgCreateService(req, s.accAddress)
+	acc, err := s.client.GetAccount()
+	if err != nil {
+		return nil, err
+	}
+	msg := newMsgCreateService(req, acc.GetAddress())
 	tx, err := s.client.BuildAndBroadcastMsg(msg)
 	if err != nil {
 		return nil, err

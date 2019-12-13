@@ -1,7 +1,6 @@
 package sdk
 
 import (
-	cosmostypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cskr/pubsub"
 	"github.com/mesg-foundation/engine/container"
 	"github.com/mesg-foundation/engine/cosmos"
@@ -26,14 +25,14 @@ type SDK struct {
 }
 
 // New creates a new SDK with given options.
-func New(client *cosmos.Client, kb *cosmos.Keybase, container container.Container, engineName, port, ipfsEndpoint string, accAddress cosmostypes.AccAddress) *SDK {
+func New(client *cosmos.Client, kb *cosmos.Keybase, container container.Container, engineName, port, ipfsEndpoint string) *SDK {
 	ps := pubsub.New(0)
-	serviceSDK := servicesdk.New(client, accAddress)
+	serviceSDK := servicesdk.New(client)
 	ownershipSDK := ownershipsdk.New(client)
 	instanceSDK := instancesdk.New(client)
-	runnerSDK := runnersdk.New(client, serviceSDK, instanceSDK, container, engineName, port, ipfsEndpoint, accAddress)
-	processSDK := processesdk.New(client, accAddress)
-	executionSDK := executionsdk.New(client, accAddress, serviceSDK, instanceSDK, runnerSDK)
+	runnerSDK := runnersdk.New(client, serviceSDK, instanceSDK, container, engineName, port, ipfsEndpoint)
+	processSDK := processesdk.New(client)
+	executionSDK := executionsdk.New(client, serviceSDK, instanceSDK, runnerSDK)
 	eventSDK := eventsdk.New(ps, serviceSDK, instanceSDK)
 	return &SDK{
 		Service:   serviceSDK,

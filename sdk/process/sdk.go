@@ -1,7 +1,6 @@
 package processsdk
 
 import (
-	cosmostypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/mesg-foundation/engine/cosmos"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/process"
@@ -10,21 +9,23 @@ import (
 
 // SDK is the process sdk.
 type SDK struct {
-	client     *cosmos.Client
-	accAddress cosmostypes.AccAddress
+	client *cosmos.Client
 }
 
 // New creates a new Process SDK with given options.
-func New(client *cosmos.Client, accAddress cosmostypes.AccAddress) *SDK {
+func New(client *cosmos.Client) *SDK {
 	return &SDK{
-		client:     client,
-		accAddress: accAddress,
+		client: client,
 	}
 }
 
 // Create creates a new process.
 func (s *SDK) Create(req *api.CreateProcessRequest) (*process.Process, error) {
-	msg := newMsgCreateProcess(s.accAddress, req)
+	acc, err := s.client.GetAccount()
+	if err != nil {
+		return nil, err
+	}
+	msg := newMsgCreateProcess(acc.GetAddress(), req)
 	tx, err := s.client.BuildAndBroadcastMsg(msg)
 	if err != nil {
 		return nil, err
@@ -34,8 +35,12 @@ func (s *SDK) Create(req *api.CreateProcessRequest) (*process.Process, error) {
 
 // Delete deletes the process by hash.
 func (s *SDK) Delete(req *api.DeleteProcessRequest) error {
-	msg := newMsgDeleteProcess(s.accAddress, req)
-	_, err := s.client.BuildAndBroadcastMsg(msg)
+	acc, err := s.client.GetAccount()
+	if err != nil {
+		return err
+	}
+	msg := newMsgDeleteProcess(acc.GetAddress(), req)
+	_, err = s.client.BuildAndBroadcastMsg(msg)
 	return err
 }
 

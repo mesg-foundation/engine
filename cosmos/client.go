@@ -172,3 +172,8 @@ func (c *Client) Stream(ctx context.Context, query string) (chan hash.Hash, chan
 	}()
 	return hashC, errC, nil
 }
+
+// GetAccount returns the keybase's account.
+func (c *Client) GetAccount() (keys.Info, error) {
+	return c.kb.Get(c.accName)
+}
