@@ -78,16 +78,16 @@ func (c *Client) BuildAndBroadcastMsg(msg sdktypes.Msg) (*abci.ResponseDeliverTx
 		return nil, err
 	}
 	accRetriever := auth.NewAccountRetriever(c)
-	accNumber, accSeq := uint64(0), uint64(0)
+	accSeq := uint64(0)
 	err = accRetriever.EnsureExists(info.GetAddress())
 	if err == nil {
-		accNumber, accSeq, err = accRetriever.GetAccountNumberSequence(info.GetAddress())
+		_, accSeq, err = accRetriever.GetAccountNumberSequence(info.GetAddress())
 		if err != nil {
 			return nil, err
 		}
 	}
 
-	txBuilder := NewTxBuilder(accNumber, accSeq, c.kb, c.chainID)
+	txBuilder := NewTxBuilder(accSeq, c.kb, c.chainID)
 
 	// TODO: cannot sign 2 tx at the same time. Maybe keybase cannot be access at the same time. Add a lock?
 	signedTx, err := txBuilder.BuildAndSignStdTx(msg, c.accName, c.accPassword)
