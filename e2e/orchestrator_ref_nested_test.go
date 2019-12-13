@@ -39,7 +39,7 @@ func testOrchestratorRefNested(executionStream pb.Execution_StreamClient, instan
 										Value: &process.Process_Node_Map_Output_Map_{
 											Map: &process.Process_Node_Map_Output_Map{
 												Outputs: map[string]*process.Process_Node_Map_Output{
-													"msg": &process.Process_Node_Map_Output{
+													"msg": {
 														Value: &process.Process_Node_Map_Output_Ref{
 															Ref: &process.Process_Node_Map_Output_Reference{
 																NodeKey: "n0",
@@ -56,11 +56,11 @@ func testOrchestratorRefNested(executionStream pb.Execution_StreamClient, instan
 															},
 														},
 													},
-													"array": &process.Process_Node_Map_Output{
+													"array": {
 														Value: &process.Process_Node_Map_Output_List_{
 															List: &process.Process_Node_Map_Output_List{
 																Outputs: []*process.Process_Node_Map_Output{
-																	&process.Process_Node_Map_Output{
+																	{
 																		Value: &process.Process_Node_Map_Output_Ref{
 																			Ref: &process.Process_Node_Map_Output_Reference{
 																				NodeKey: "n0",
@@ -82,7 +82,7 @@ func testOrchestratorRefNested(executionStream pb.Execution_StreamClient, instan
 																			},
 																		},
 																	},
-																	&process.Process_Node_Map_Output{
+																	{
 																		Value: &process.Process_Node_Map_Output_Ref{
 																			Ref: &process.Process_Node_Map_Output_Reference{
 																				NodeKey: "n0",
@@ -104,7 +104,7 @@ func testOrchestratorRefNested(executionStream pb.Execution_StreamClient, instan
 																			},
 																		},
 																	},
-																	&process.Process_Node_Map_Output{
+																	{
 																		Value: &process.Process_Node_Map_Output_Ref{
 																			Ref: &process.Process_Node_Map_Output_Reference{
 																				NodeKey: "n0",
