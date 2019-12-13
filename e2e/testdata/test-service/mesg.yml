@@ -34,6 +34,7 @@ tasks:
           array:
             type: String
             repeated: true
+            optional: true
     outputs:
       msg:
         type: Object
@@ -45,6 +46,7 @@ tasks:
           array:
             type: String
             repeated: true
+            optional: true
 events:
   test_service_ready:
   test_event:

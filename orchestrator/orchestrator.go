@@ -37,6 +37,7 @@ func (s *Orchestrator) Start() error {
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
+
 	executionStream, errC, err := s.execution.Stream(ctx, &api.StreamExecutionRequest{
 		Filter: &api.StreamExecutionRequest_Filter{
 			Statuses: []execution.Status{execution.Status_Completed},
@@ -205,15 +206,15 @@ func (s *Orchestrator) outputToValue(output *process.Process_Node_Map_Output, wf
 			return nil, err
 		}
 		if node.GetTask() != nil {
-			return s.resolveInput(wf.Hash, exec, v.Ref.NodeKey, v.Ref.Key)
+			return s.resolveInput(wf.Hash, exec, v.Ref.NodeKey, v.Ref.Path)
 		}
-		return data.Fields[v.Ref.Key], nil
+		return resolveRef(data, v.Ref.Path)
 	default:
 		return nil, errors.New("unknown output")
 	}
 }
 
-func (s *Orchestrator) resolveInput(wfHash hash.Hash, exec *execution.Execution, nodeKey string, outputKey string) (*types.Value, error) {
+func (s *Orchestrator) resolveInput(wfHash hash.Hash, exec *execution.Execution, nodeKey string, path *process.Process_Node_Map_Output_Reference_Path) (*types.Value, error) {
 	if !wfHash.Equal(exec.ProcessHash) {
 		return nil, fmt.Errorf("reference's nodeKey not found")
 	}
@@ -222,9 +223,9 @@ func (s *Orchestrator) resolveInput(wfHash hash.Hash, exec *execution.Execution,
 		if err != nil {
 			return nil, err
 		}
-		return s.resolveInput(wfHash, parent, nodeKey, outputKey)
+		return s.resolveInput(wfHash, parent, nodeKey, path)
 	}
-	return exec.Outputs.Fields[outputKey], nil
+	return resolveRef(exec.Outputs, path)
 }
 
 func (s *Orchestrator) processTask(nodeKey string, task *process.Process_Node_Task, wf *process.Process, exec *execution.Execution, event *event.Event, data *types.Struct) error {
@@ -256,4 +257,52 @@ func (s *Orchestrator) processTask(nodeKey string, task *process.Process_Node_Ta
 		Tags:         nil,
 	})
 	return err
+}
+
+func resolveRef(data *types.Struct, path *process.Process_Node_Map_Output_Reference_Path) (*types.Value, error) {
+	if path == nil {
+		return &types.Value{Kind: &types.Value_StructValue{StructValue: data}}, nil
+	}
+
+	var v *types.Value
+	key, ok := path.Selector.(*process.Process_Node_Map_Output_Reference_Path_Key)
+	if !ok {
+		return nil, fmt.Errorf("orchestrator: first selector in the path must be a key")
+	}
+
+	v, ok = data.Fields[key.Key]
+	if !ok {
+		return nil, fmt.Errorf("orchestrator: key %s not found", key.Key)
+	}
+
+	for p := path.Path; p != nil; p = p.Path {
+		switch s := p.Selector.(type) {
+		case *process.Process_Node_Map_Output_Reference_Path_Key:
+			str, ok := v.GetKind().(*types.Value_StructValue)
+			if !ok {
+				return nil, fmt.Errorf("orchestrator: can't get key from non-struct value")
+			}
+			if str.StructValue.GetFields() == nil {
+				return nil, fmt.Errorf("orchestrator: can't get key from nil-struct")
+			}
+			v, ok = str.StructValue.Fields[s.Key]
+			if !ok {
+				return nil, fmt.Errorf("orchestrator: key %s not found", s.Key)
+			}
+		case *process.Process_Node_Map_Output_Reference_Path_Index:
+			list, ok := v.GetKind().(*types.Value_ListValue)
+			if !ok {
+				return nil, fmt.Errorf("orchestrator: can't get index from non-list value")
+			}
+
+			if len(list.ListValue.GetValues()) <= int(s.Index) {
+				return nil, fmt.Errorf("orchestrator: index %d out of range", s.Index)
+			}
+			v = list.ListValue.Values[s.Index]
+		default:
+			return nil, fmt.Errorf("orchestrator: unknown selector type %T", v)
+		}
+	}
+
+	return v, nil
 }
