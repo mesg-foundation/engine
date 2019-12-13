@@ -160,7 +160,7 @@ func (s *Orchestrator) processMap(outputs map[string]*process.Process_Node_Map_O
 		Fields: make(map[string]*types.Value),
 	}
 	for key, output := range outputs {
-		value, err := s.outputToValue(output, key, wf, exec, data)
+		value, err := s.outputToValue(output, wf, exec, data)
 		if err != nil {
 			return nil, err
 		}
@@ -169,7 +169,7 @@ func (s *Orchestrator) processMap(outputs map[string]*process.Process_Node_Map_O
 	return result, nil
 }
 
-func (s *Orchestrator) outputToValue(output *process.Process_Node_Map_Output, outputKey string, wf *process.Process, exec *execution.Execution, data *types.Struct) (*types.Value, error) {
+func (s *Orchestrator) outputToValue(output *process.Process_Node_Map_Output, wf *process.Process, exec *execution.Execution, data *types.Struct) (*types.Value, error) {
 	switch v := output.GetValue().(type) {
 	case *process.Process_Node_Map_Output_Null_:
 		return &types.Value{Kind: &types.Value_NullValue{NullValue: types.NullValue_NULL_VALUE}}, nil
@@ -188,7 +188,7 @@ func (s *Orchestrator) outputToValue(output *process.Process_Node_Map_Output, ou
 	case *process.Process_Node_Map_Output_List_:
 		var values []*types.Value
 		for i := range v.List.Outputs {
-			value, err := s.outputToValue(v.List.Outputs[i], outputKey, wf, exec, data)
+			value, err := s.outputToValue(v.List.Outputs[i], wf, exec, data)
 			if err != nil {
 				return nil, err
 			}
@@ -208,7 +208,7 @@ func (s *Orchestrator) outputToValue(output *process.Process_Node_Map_Output, ou
 			return nil, err
 		}
 		if node.GetTask() != nil {
-			return s.resolveInput(wf.Hash, exec, v.Ref.NodeKey, outputKey)
+			return s.resolveInput(wf.Hash, exec, v.Ref.NodeKey, v.Ref.Path)
 		}
 		return resolveRef(data, v.Ref.Path)
 	default:
@@ -216,7 +216,7 @@ func (s *Orchestrator) outputToValue(output *process.Process_Node_Map_Output, ou
 	}
 }
 
-func (s *Orchestrator) resolveInput(wfHash hash.Hash, exec *execution.Execution, nodeKey string, outputKey string) (*types.Value, error) {
+func (s *Orchestrator) resolveInput(wfHash hash.Hash, exec *execution.Execution, nodeKey string, path *process.Process_Node_Map_Output_Reference_Path) (*types.Value, error) {
 	if !wfHash.Equal(exec.ProcessHash) {
 		return nil, fmt.Errorf("reference's nodeKey not found")
 	}
@@ -225,9 +225,9 @@ func (s *Orchestrator) resolveInput(wfHash hash.Hash, exec *execution.Execution,
 		if err != nil {
 			return nil, err
 		}
-		return s.resolveInput(wfHash, parent, nodeKey, outputKey)
+		return s.resolveInput(wfHash, parent, nodeKey, path)
 	}
-	return exec.Outputs.Fields[outputKey], nil
+	return resolveRef(exec.Outputs, path)
 }
 
 func (s *Orchestrator) processTask(nodeKey string, task *process.Process_Node_Task, wf *process.Process, exec *execution.Execution, event *event.Event, data *types.Struct) error {
