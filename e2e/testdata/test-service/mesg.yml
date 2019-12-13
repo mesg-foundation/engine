@@ -1,0 +1,73 @@
+name: test-service
+sid: test-service
+configuration:
+  env:
+    - FOO=1
+    - BAR=2
+    - REQUIRED
+tasks:
+  task1:
+    inputs:
+      msg:
+        type: String
+    outputs:
+      msg:
+        type: String
+      timestamp:
+        type: Number
+  task2:
+    inputs:
+      msg:
+        type: String
+    outputs:
+      msg:
+        type: String
+      timestamp:
+        type: Number
+  task_complex:
+    inputs:
+      msg:
+        type: Object
+        object:
+          msg:
+            type: String
+          array:
+            type: String
+            repeated: true
+    outputs:
+      msg:
+        type: Object
+        object:
+          msg:
+            type: String
+          timestamp:
+            type: Number
+          array:
+            type: String
+            repeated: true
+events:
+  test_service_ready:
+  test_event:
+    data:
+      msg:
+        type: String
+      timestamp:
+        type: Number
+  test_event_complex:
+    data:
+      msg:
+        type: Object
+        object:
+          msg:
+            type: String
+          timestamp:
+            type: Number
+          array:
+            type: String
+            repeated: true
+  event_after_task:
+    data:
+      task_key:
+        type: String
+      timestamp:
+        type: Number

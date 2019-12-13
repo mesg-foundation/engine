@@ -1,6 +1,9 @@
 package xerrors
 
-import "strings"
+import (
+	"strings"
+	"sync"
+)
 
 // Errors is an error for tracing multiple errors.
 type Errors []error
@@ -22,4 +25,17 @@ func (e Errors) Error() string {
 	}
 
 	return strings.Join(s, "\n")
+}
+
+// SyncErrors is an error for tracing multiple errors safe to use in multiple goroutines.
+type SyncErrors struct {
+	mx sync.Mutex
+	Errors
+}
+
+// Append appends given err.
+func (e *SyncErrors) Append(err error) {
+	e.mx.Lock()
+	e.Errors = append(e.Errors, err)
+	e.mx.Unlock()
 }

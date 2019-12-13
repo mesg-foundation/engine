@@ -1,12 +1,31 @@
 package xos
 
-import "os"
+import (
+	"sort"
+	"strings"
+)
 
-// GetenvDefault retrieves the value of the environment variable named by the key.
-// It returns the value, which will be set to fallback if the variable is empty.
-func GetenvDefault(key, fallback string) string {
-	if val := os.Getenv(key); val != "" {
-		return val
+// EnvMergeSlices merges multiple slices into single one.
+// If the same key exist multiple time, it will be added in occurrence order.
+func EnvMergeSlices(values ...[]string) []string {
+	envs := make(map[string]string)
+	for _, value := range values {
+		for _, v := range value {
+			if e := strings.SplitN(v, "=", 2); len(e) == 1 {
+				envs[e[0]] = ""
+			} else {
+				envs[e[0]] = e[1]
+			}
+		}
 	}
-	return fallback
+
+	env := make([]string, 0, len(values))
+	for k, v := range envs {
+		env = append(env, k+"="+v)
+	}
+
+	// Make sure envs are sorted to give repeatable output
+	// It is important for hash instance calculation
+	sort.Stable(sort.StringSlice(env))
+	return env
 }

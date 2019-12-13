@@ -7,10 +7,12 @@ import (
 )
 
 // Init initializes default logger. It panics on invalid format or level.
-func Init(format, level string) {
+func Init(format, level string, forceColors bool) {
 	switch format {
 	case "text":
-		logrus.SetFormatter(&logrus.TextFormatter{})
+		logrus.SetFormatter(&logrus.TextFormatter{
+			ForceColors: forceColors,
+		})
 	case "json":
 		logrus.SetFormatter(&logrus.JSONFormatter{})
 	default:

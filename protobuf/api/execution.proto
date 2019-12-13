@@ -1,0 +1,159 @@
+syntax = "proto3";
+
+import "gogo/protobuf/gogoproto/gogo.proto";
+import "protobuf/types/struct.proto";
+import "protobuf/types/execution.proto";
+
+package mesg.api;
+option go_package = "api";
+
+// This is the API to interact with the Executions.
+//
+// This API is a [gRPC](https://grpc.io/) API.
+//
+// The source file of this API is hosted on [GitHub](https://github.com/mesg-foundation/engine/blob/master/protobuf/api/execution.proto).
+
+service Execution {
+  // Create creates a single Execution specified in a request.
+  rpc Create(CreateExecutionRequest) returns (CreateExecutionResponse) {}
+
+  // Get returns a single Execution specified in a request.
+  rpc Get(GetExecutionRequest) returns (types.Execution) {}
+
+  // List returns all Executions matching the criteria of the request.
+  rpc List(ListExecutionRequest) returns (ListExecutionResponse) {}
+
+  // Stream returns a stream of executions that satisfy criteria
+  // specified in a request.
+  rpc Stream(StreamExecutionRequest) returns (stream types.Execution) {}
+
+  // Update updates execution with outputs or an error.
+  rpc Update(UpdateExecutionRequest) returns (UpdateExecutionResponse) {}
+}
+
+// CreateExecutionRequest defines request to create a single execution.
+message CreateExecutionRequest {
+  // taskKey to filter executions.
+  string taskKey = 2 [
+    (gogoproto.moretags) = 'validate:"required,printascii"'
+  ];
+
+  mesg.protobuf.Struct inputs = 3;
+
+  // tags the execution.
+  repeated string tags = 4 [
+    (gogoproto.moretags) = 'validate:"dive,printascii"'
+  ];
+
+  bytes parentHash = 5 [
+    (gogoproto.moretags) = 'validate:"omitempty,hash"',
+    (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
+    (gogoproto.nullable) = false
+  ];
+
+  bytes eventHash = 6 [
+    (gogoproto.moretags) = 'validate:"omitempty,hash"',
+    (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
+    (gogoproto.nullable) = false
+  ];
+
+  bytes processHash = 7 [
+    (gogoproto.moretags) = 'validate:"omitempty,hash"',
+    (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
+    (gogoproto.nullable) = false
+  ];
+
+  string nodeKey = 8;
+
+  bytes executorHash = 9 [
+    (gogoproto.moretags) = 'validate:"omitempty,hash"',
+    (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
+    (gogoproto.nullable) = false
+  ];
+}
+
+// CreateExecutionResponse defines response for execution creation.
+message CreateExecutionResponse {
+  // Execution's hash.
+  bytes hash = 1 [
+    (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
+    (gogoproto.nullable) = false
+  ];
+}
+
+// GetExecutionRequest defines request to retrieve a single execution.
+message GetExecutionRequest {
+  // Execution's hash to fetch.
+  bytes hash = 1 [
+    (gogoproto.moretags) = 'validate:"required,hash"',
+    (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
+    (gogoproto.nullable) = false
+  ];
+}
+
+// StreamExecutionRequest defines request to retrieve a stream of executions.
+message StreamExecutionRequest{
+  // Filter contains filtering criteria.
+  message Filter {
+    // Statuses to filter executions. One status needs to be present in the execution.
+    repeated types.Status statuses = 1;
+
+    // Instance's hash to filter executions.
+    bytes instanceHash = 2 [
+      (gogoproto.moretags) = 'validate:"omitempty,hash"',
+      (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
+      (gogoproto.nullable) = false
+    ];
+
+    // taskKey to filter executions.
+    string taskKey = 3 [
+      (gogoproto.moretags) = 'validate:"printascii"'
+    ];
+
+    // tags to filter executions. All tags needs to be present in the execution.
+    repeated string tags = 4 [
+      (gogoproto.moretags) = 'validate:"dive,printascii"'
+    ];
+    
+    // Executor's hash to filter executions.
+    bytes executorHash = 5 [
+      (gogoproto.moretags) = 'validate:"omitempty,hash"',
+      (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
+      (gogoproto.nullable) = false
+    ];
+  }
+
+  // Filter used to filter a stream of executions.
+  Filter filter = 1;
+}
+
+// UpdateExecutionRequest defines request for execution update.
+message UpdateExecutionRequest {
+  // Hash represents execution.
+  bytes hash = 1 [
+    (gogoproto.moretags) = 'validate:"required,hash"',
+    (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
+    (gogoproto.nullable) = false
+  ];
+
+  // result pass to execution
+  oneof result {
+    // outputs is a success result.
+    mesg.protobuf.Struct outputs = 2;
+
+    // error is an error result.
+    string error = 3;
+  }
+}
+
+// UpdateExecutionResponse defines response for execution update.
+message UpdateExecutionResponse {}
+
+// The request's data for the `List` API.
+message ListExecutionRequest {}
+
+// The response's data for the `List` API.
+message ListExecutionResponse {
+  // List of executions that match the request's filters.
+  repeated types.Execution executions = 1;
+}

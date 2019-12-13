@@ -10,6 +10,7 @@
 
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
+coverage.txt
 
 .vscode
 debug
@@ -17,4 +18,17 @@ debug
 
 /bin
 /test
-/node_modules
+node_modules
+
+# do not store vendor dir
+vendor
+tmp-systemservices
+
+# genesis
+.genesis
+
+# gogo extension
+gogo/
+
+main
+engine

@@ -1,107 +1,195 @@
 version: 2
 
-onlyTagProd: &onlyTagProd
-  filters:
-    tags:
-      only: /^v.*/
-    branches:
-      ignore: /.*/
-onlyBranchDev: &onlyBranchDev
-  filters:
-    branches:
-      only:
-        - dev
-transient: &transient
-  filters:
-    tags:
-      only: /.*/
-runOnMachine: &runOnMachine
+run_on_machine: &run_on_machine
   machine:
-    docker_layer_caching: true
-  working_directory: ~/.go_workspace/src/github.com/mesg-foundation/core
-runOnDocker: &runOnDocker
+    docker_layer_caching: false
+    image: ubuntu-1604:201903-01
+
+run_on_docker: &run_on_docker
   docker:
-    - image: circleci/golang:1.10
-  working_directory: /go/src/github.com/mesg-foundation/core
+    - image: circleci/golang:1.13.0
+
+go_path: &go_path /tmp/go/path
+
+restore_go_path: &restore_go_path
+  - restore_cache:
+      keys:
+        - go-path-{{ checksum "go.sum" }}
+
+save_go_path: &save_go_path
+  - save_cache:
+      key: go-path-{{ checksum "go.sum" }}
+      paths:
+        - *go_path
+
+go_cache_dir: &go_cache_dir /tmp/go/cache
+
+restore_go_cache: &restore_go_cache
+  - restore_cache:
+      keys:
+        - go-cache-{{ .Branch }}-{{ .Environment.CIRCLE_PREVIOUS_BUILD_NUM }}
+        - go-cache-{{ .Branch }}
+        - go-cache
+
+save_go_cache: &save_go_cache
+  - save_cache:
+      key: go-cache-{{ .Branch }}-{{ .BuildNum }}
+      paths:
+        - *go_cache_dir
 
 jobs:
-  "build_docker":
-    <<: *runOnMachine
-    steps:
-      - checkout
-      - run: docker pull mesg/core:latest
-      - run: docker build -t mesg/core:$CIRCLE_SHA1 --build-arg version="dev build `echo $CIRCLE_SHA1 | cut -c1-7`" .
-
   "test":
-    <<: *runOnDocker
+    <<: *run_on_docker
+    environment:
+      - GOPATH : *go_path
+      - GOCACHE: *go_cache_dir
     steps:
       - checkout
       - setup_remote_docker
-      - run: go get -t ./...
       - run: docker swarm init
-      - run: docker pull nginx:stable-alpine
-      - run: docker pull alpine
-      - run: env MESG_CORE_IMAGE=mesg/core:$CIRCLE_SHA1 go test -ldflags="-X 'github.com/mesg-foundation/core/config.Path=./'" -timeout 180s -p 1 -coverprofile=coverage.txt ./... # TODO: should remove ldflags when package database is mocked
+      - <<: *restore_go_cache
+      - <<: *restore_go_path
+      - run: make test
+      - <<: *save_go_path
+      - <<: *save_go_cache
       - run: bash <(curl -s https://codecov.io/bash)
 
-  "publish_docker_dev":
-    <<: *runOnMachine
+  "test_e2e":
+    <<: *run_on_machine
+    environment:
+      - GOPATH : *go_path
+      - GOCACHE: *go_cache_dir
     steps:
       - checkout
-      - run: docker pull mesg/core:dev
-      - run: docker build -t mesg/core:dev --build-arg version="dev build `echo $CIRCLE_SHA1 | cut -c1-7`" .
+      - run:
+          name: "Install Go"
+          command: |
+            sudo rm -rf /usr/local/go
+            curl -sSL "https://dl.google.com/go/go1.13.linux-amd64.tar.gz" | sudo tar -xz -C /usr/local/
+            echo "export PATH=$PATH:/usr/local/go/bin" >> $BASH_ENV
+      - run: docker swarm init
+      - <<: *restore_go_cache
+      - <<: *restore_go_path
+      - run: make e2e
+      - <<: *save_go_path
+      - <<: *save_go_cache
+
+  "lint":
+    docker:
+      - image: golangci/golangci-lint:v1.21
+    steps:
+      - checkout
+      - run: make lint
+
+  "publish_docker_dev":
+    <<: *run_on_machine
+    steps:
+      - checkout
       - run: docker login -u $DOCKER_USER -p $DOCKER_PASS
-      - run: docker push mesg/core:dev
+      - run: make docker-publish-dev version=`echo $CIRCLE_SHA1 | cut -c1-7`
 
   "publish_docker_prod":
-    <<: *runOnMachine
+    <<: *run_on_machine
     steps:
       - checkout
-      - run: docker pull mesg/core:latest
-      - run: docker build -t mesg/core:$CIRCLE_TAG -t mesg/core:latest --build-arg version=$CIRCLE_TAG .
       - run: docker login -u $DOCKER_USER -p $DOCKER_PASS
-      - run: docker push mesg/core:$CIRCLE_TAG
-      - run: docker push mesg/core:latest
-
-  "release_cli_dev":
-    <<: *runOnDocker
-    steps:
-      - checkout
-      - run: scripts/build-cli.sh "dev build `echo $CIRCLE_SHA1 | cut -c1-7`"
-      - run: go get -u github.com/tcnksm/ghr
-      - run: ghr -u mesg-foundation -r core -delete -prerelease -b "Warning - this is a developer release, use it only if you know what are doing. Make sure to pull the latest \`mesg/core:dev\` image. \`\`\`docker pull mesg/core:dev\`\`\`" release-dev ./bin
-
-  "release_cli_prod":
-    <<: *runOnDocker
-    steps:
-      - checkout
-      - run: scripts/build-cli.sh $CIRCLE_TAG
-      - run: go get -u github.com/tcnksm/ghr
-      - run: ghr -u mesg-foundation -r core -delete $CIRCLE_TAG ./bin
+      - run: make docker-publish version=$CIRCLE_TAG
 
 workflows:
   version: 2
-  build_n_deploy:
+
+  pull_request:
     jobs:
-      - "build_docker":
-          <<: *transient
+      - "lint":
+          filters:
+            tags:
+              ignore: /.*/
+            branches:
+              ignore:
+                - "dev"
+                - "master"
       - "test":
-          <<: *transient
+          filters:
+            tags:
+              ignore: /.*/
+            branches:
+              ignore:
+                - "dev"
+                - "master"
+      - "test_e2e":
           requires:
-            - "build_docker"
+            - "test"
+            - "lint"
+
+  release_dev:
+    jobs:
+      - "lint":
+          filters:
+            tags:
+              ignore: /.*/
+            branches:
+              only: dev
+      - "test":
+          filters:
+            tags:
+              ignore: /.*/
+            branches:
+              only: dev
+      - "test_e2e":
+          requires:
+            - "test"
+            - "lint"
       - "publish_docker_dev":
-          <<: *onlyBranchDev
+          requires:
+            - "test_e2e"
+
+  test_prod:
+    jobs:
+      - "test":
+          filters:
+            tags:
+              ignore: /.*/
+            branches:
+              only: master
+      - "lint":
+          filters:
+            tags:
+              ignore: /.*/
+            branches:
+              only: master
+      - "test_e2e":
           requires:
             - "test"
-      - "release_cli_dev":
-          <<: *onlyBranchDev
+            - "lint"
+
+  release_prod:
+    jobs:
+      - "lint":
+          filters:
+            tags:
+              only: /^v.*/
+            branches:
+              ignore: /.*/
+      - "test":
+          filters:
+            tags:
+              only: /^v.*/
+            branches:
+              ignore: /.*/
+      - "test_e2e":
+          filters:
+            tags:
+              only: /^v.*/
+            branches:
+              ignore: /.*/
           requires:
-            - "publish_docker_dev"
+            - "test"
+            - "lint"
       - "publish_docker_prod":
-          <<: *onlyTagProd
+          filters:
+            tags:
+              only: /^v.*/
+            branches:
+              ignore: /.*/
           requires:
-            - "test"
-      - "release_cli_prod":
-          <<: *onlyTagProd
-          requires:
-            - "publish_docker_prod"
+            - "test_e2e"

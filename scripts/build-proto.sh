@@ -1,16 +1,22 @@
 #!/bin/bash
 
-cd $GOPATH/src
+TYPES_PATH=protobuf/types
+APIS_PATH=protobuf/api
 
-go get github.com/pseudomuto/protoc-gen-doc/cmd/protoc-gen-doc
+# generate type
+for file in "${TYPES_PATH}"/{account,event,execution,instance,service,process,ownership,runner}.proto
+do
+  file=$(basename ${file})
+  dir="${file%.*}"
 
-PROJECT=github.com/mesg-foundation/core
-GRPC=$PROJECT/interface/grpc
-CORE=$(pwd)/$PROJECT
-API_DOCS="--doc_out=$CORE/docs/api/ --doc_opt=$CORE/docs/api.template"
-DATA_DOCS="--doc_out=$CORE/docs/api/ --doc_opt=$CORE/docs/data.template"
-GRPC_PLUGIN="--go_out=plugins=grpc:./"
+  protoc --gogo_out=paths=source_relative:"${dir}" --proto_path . --proto_path "${TYPES_PATH}" "${file}"
+done
 
-protoc $GRPC_PLUGIN $DATA_DOCS,service-type.md --proto_path=./ $GRPC/core/service.proto
-protoc $GRPC_PLUGIN $API_DOCS,core.md          --proto_path=./ $GRPC/core/api.proto
-protoc $GRPC_PLUGIN $API_DOCS,service.md       --proto_path=./ $GRPC/service/api.proto
+# generate google type
+protoc --gogo_out=paths=source_relative:. protobuf/types/struct.proto
+
+# generate services
+for file in "${APIS_PATH}"/{account,event,execution,instance,service,process,ownership,runner}.proto
+do
+  protoc --gogo_out=plugins=grpc:. --proto_path . "${file}"
+done

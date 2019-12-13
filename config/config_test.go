@@ -1,75 +1,79 @@
 package config
 
 import (
+	"io/ioutil"
 	"os"
-	"strings"
+	"path/filepath"
 	"testing"
+	"time"
 
+	homedir "github.com/mitchellh/go-homedir"
 	"github.com/stretchr/testify/require"
 )
 
-func TestDefaultValue(t *testing.T) {
-	c := New()
+func TestNew(t *testing.T) {
+	_, err := New()
+	require.NoError(t, err)
+}
+
+func TestDefaultConfig(t *testing.T) {
+	home, _ := homedir.Dir()
+	c, err := New()
+	require.NoError(t, err)
 	require.Equal(t, ":50052", c.Server.Address)
-	require.Equal(t, "localhost:50052", c.Client.Address)
+	require.Equal(t, "http://ipfs.app.mesg.com:8080/ipfs/", c.IpfsEndpoint)
 	require.Equal(t, "text", c.Log.Format)
 	require.Equal(t, "info", c.Log.Level)
-	require.True(t, strings.HasPrefix(c.Core.Image, "mesg/core:"))
+	require.Equal(t, false, c.Log.ForceColors)
+	require.Equal(t, filepath.Join(home, ".mesg"), c.Path)
+	require.Equal(t, filepath.Join("database", "executions", executionDBVersion), c.Database.ExecutionRelativePath)
+	require.Equal(t, "engine", c.Name)
+	require.Equal(t, "engine", c.Account.Name)
+	require.Equal(t, "pass", c.Account.Password)
 }
 
-func TestGlobal(t *testing.T) {
-	c, err := Global()
+func TestEnv(t *testing.T) {
+	os.Setenv(envPathKey, "tempPath")
+	defer os.Unsetenv(envPathKey)
+	os.Setenv(envNameKey, "name")
+	defer os.Unsetenv(envNameKey)
+	c, err := New()
 	require.NoError(t, err)
-	require.NotNil(t, c)
+	require.Equal(t, "tempPath", c.Path)
+	require.Equal(t, "name", c.Name)
 }
 
-func TestLoad(t *testing.T) {
-	snapsnot := map[string]string{
-		"MESG_SERVER_ADDRESS": "",
-		"MESG_CLIENT_ADDRESS": "",
-		"MESG_LOG_FORMAT":     "",
-		"MESG_LOG_LEVEL":      "",
-		"MESG_CORE_IMAGE":     "",
-	}
-	for key := range snapsnot {
-		snapsnot[key] = os.Getenv(key)
-	}
-	defer func() {
-		for key, value := range snapsnot {
-			os.Setenv(key, value)
-		}
-	}()
+func TestLoadFromFile(t *testing.T) {
+	tempPath, _ := ioutil.TempDir("", "TestLoadFromFile")
+	defer os.RemoveAll(tempPath)
+	os.Setenv(envPathKey, tempPath)
+	defer os.Unsetenv(envPathKey)
 
-	os.Setenv("MESG_SERVER_ADDRESS", "test_server_address")
-	os.Setenv("MESG_CLIENT_ADDRESS", "test_client_address")
-	os.Setenv("MESG_LOG_FORMAT", "test_log_format")
-	os.Setenv("MESG_LOG_LEVEL", "test_log_level")
-	os.Setenv("MESG_CORE_IMAGE", "test_core_image")
-	c := New()
-	c.Load()
-	require.Equal(t, "test_server_address", c.Server.Address)
-	require.Equal(t, "test_client_address", c.Client.Address)
-	require.Equal(t, "test_log_format", c.Log.Format)
-	require.Equal(t, "test_log_level", c.Log.Level)
-	require.Equal(t, "test_core_image", c.Core.Image)
-}
+	t.Run("key does not exist", func(t *testing.T) {
+		ioutil.WriteFile(filepath.Join(tempPath, defaultConfigFileName), []byte(`foo: bar`), 0644)
+		_, err := New()
+		require.Error(t, err)
+	})
+	t.Run("load", func(t *testing.T) {
+		ioutil.WriteFile(filepath.Join(tempPath, defaultConfigFileName), []byte(`server:
+  address: :50050
+log:
+  forcecolors: true
+account:
+  mnemonic: glimpse upon body vast economy give taxi yellow rabbit come click ranch chronic hammer sport near rotate charge lumber chicken cloud base thing forum
+tendermint:
+  config:
+    consensus:
+      timeoutcommit: 1m6s
+`), 0644)
 
-func TestValidate(t *testing.T) {
-	c := New()
-	require.NoError(t, c.Validate())
-
-	c = New()
-	c.Log.Format = "wrongValue"
-	require.Error(t, c.Validate())
-
-	c = New()
-	c.Log.Level = "wrongValue"
-	require.Error(t, c.Validate())
-}
-
-func TestDaemonEnv(t *testing.T) {
-	c := New()
-	env := c.DaemonEnv()
-	require.Equal(t, c.Log.Format, env["MESG_LOG_FORMAT"])
-	require.Equal(t, c.Log.Level, env["MESG_LOG_LEVEL"])
+		// load
+		c, err := New()
+		require.NoError(t, err)
+		require.Equal(t, ":50050", c.Server.Address)
+		require.Equal(t, 66*time.Second, c.Tendermint.Config.Consensus.TimeoutCommit)
+		require.Equal(t, "tcp://0.0.0.0:26657", c.Tendermint.Config.RPC.ListenAddress)
+		require.Equal(t, tempPath, c.Path)
+		require.Equal(t, "engine", c.Name)
+	})
 }

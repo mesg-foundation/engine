@@ -1,0 +1,45 @@
+run:
+  tests: true
+  skip-files:
+    - ".*.pb.go$"
+
+linters-settings:
+  govet:
+    check-shadowing: false
+  golint:
+    min-confidence: 0
+  gocyclo:
+    min-complexity: 20
+  maligned:
+    suggest-new: true
+  misspell:
+    locale: US
+
+issues:
+  exclude:
+    - "ineffective break statement. Did you mean to break out of the outer loop"
+
+  exclude-rules:
+    - path: x/xvalidator/validator.go
+      linters:
+        - golint
+      text: "exported var Translator should have its own declaration"
+
+linters:
+  enable-all: true
+  disable:
+    - depguard
+    - dupl
+    - errcheck
+    - funlen
+    - gochecknoglobals
+    - gocognit
+    - goconst
+    - godox
+    - gosec
+    - interfacer
+    - lll
+    - prealloc
+    - stylecheck
+    - wsl
+    - gochecknoinits

@@ -1,37 +1,76 @@
 package service
 
-// WARNING about hash tags on Service type and its inner types:
-// * never change the name attr of hash tag. use an incremented value for
-// name attr when a new configuration field added to Service.
-// * don't increment the value of name attr if corresponding field's name
-// changed but its behavior remains the same.
-// * this is required for not breaking Service IDs unless there is a behavioral
-// change.
+import (
+	"fmt"
 
-// Service represents a MESG service.
-type Service struct {
-	// ID is the unique id of service.
-	ID string `hash:"-" yaml:"-"`
+	"github.com/mesg-foundation/engine/protobuf/types"
+)
 
-	// Name is the service name.
-	Name string `hash:"name:1" yaml:"name"`
+// MainServiceKey is key for main service.
+const MainServiceKey = "service"
 
-	// Description is service description.
-	Description string `hash:"name:2" yaml:"description"`
+// GetDependency returns dependency dependencyKey or a not found error.
+func (s *Service) GetDependency(dependencyKey string) (*Service_Dependency, error) {
+	for _, dep := range s.Dependencies {
+		if dep.Key == dependencyKey {
+			return dep, nil
+		}
+	}
+	return nil, fmt.Errorf("service %q - dependency %s does not exist", s.Name, dependencyKey)
+}
 
-	// Tasks are the list of tasks that service can execute.
-	Tasks map[string]*Task `hash:"name:3" yaml:"tasks"`
+// GetTask returns task taskKey of service.
+func (s *Service) GetTask(taskKey string) (*Service_Task, error) {
+	for _, task := range s.Tasks {
+		if task.Key == taskKey {
+			return task, nil
+		}
+	}
+	return nil, fmt.Errorf("service %q - task %q not found", s.Name, taskKey)
+}
 
-	// Events are the list of events that service can emit.
-	Events map[string]*Event `hash:"name:4" yaml:"events"`
+// GetEvent returns event eventKey of service.
+func (s *Service) GetEvent(eventKey string) (*Service_Event, error) {
+	for _, event := range s.Events {
+		if event.Key == eventKey {
+			return event, nil
+		}
+	}
+	return nil, fmt.Errorf("service %q - event %q not found", s.Name, eventKey)
+}
 
-	// Dependencies are the Docker containers that service can depend on.
-	Dependencies map[string]*Dependency `hash:"name:5" yaml:"dependencies"`
+// RequireTaskInputs requires task inputs to match with parameter schemas.
+func (s *Service) RequireTaskInputs(taskKey string, inputs *types.Struct) error {
+	t, err := s.GetTask(taskKey)
+	if err != nil {
+		return err
+	}
+	if err := validateServiceParameters(t.Inputs, inputs); err != nil {
+		return fmt.Errorf("service %q - inputs of task %q are invalid: %s", s.Name, taskKey, err)
+	}
+	return nil
+}
 
-	// Configuration is the Docker container that service runs inside.
-	Configuration *Dependency `hash:"name:6" yaml:"configuration"`
+// RequireTaskOutputs requires task outputs to match with parameter schemas.
+func (s *Service) RequireTaskOutputs(taskKey string, outputs *types.Struct) error {
+	t, err := s.GetTask(taskKey)
+	if err != nil {
+		return err
+	}
+	if err := validateServiceParameters(t.Outputs, outputs); err != nil {
+		return fmt.Errorf("service %q - outputs of task %q are invalid: %s", s.Name, taskKey, err)
+	}
+	return nil
+}
 
-	// Repository holds the service's repository url if it's living on
-	// a Git host.
-	Repository string `hash:"name:7" yaml:"repository"`
+// RequireEventData requires event datas to be matched with parameter schemas.
+func (s *Service) RequireEventData(eventKey string, data *types.Struct) error {
+	e, err := s.GetEvent(eventKey)
+	if err != nil {
+		return err
+	}
+	if err := validateServiceParameters(e.Data, data); err != nil {
+		return fmt.Errorf("service %q - data of event %q are invalid: %s", s.Name, eventKey, err)
+	}
+	return nil
 }

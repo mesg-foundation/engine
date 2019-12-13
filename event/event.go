@@ -1,39 +1,17 @@
 package event
 
 import (
-	"time"
-
-	"github.com/mesg-foundation/core/pubsub"
-	"github.com/mesg-foundation/core/service"
+	"github.com/mesg-foundation/engine/hash"
+	"github.com/mesg-foundation/engine/protobuf/types"
 )
 
-// Event stores all informations about Events.
-type Event struct {
-	Service   *service.Service
-	Key       string
-	Data      interface{}
-	CreatedAt time.Time
-}
-
 // Create creates an event eventKey with eventData for service s.
-func Create(s *service.Service, eventKey string, eventData map[string]interface{}) (*Event, error) {
-	event, err := s.GetEvent(eventKey)
-	if err != nil {
-		return nil, err
+func Create(instanceHash hash.Hash, eventKey string, eventData *types.Struct) *Event {
+	e := &Event{
+		InstanceHash: instanceHash,
+		Key:          eventKey,
+		Data:         eventData,
 	}
-	if err := event.RequireData(eventData); err != nil {
-		return nil, err
-	}
-	return &Event{
-		Service:   s,
-		Key:       eventKey,
-		Data:      eventData,
-		CreatedAt: time.Now(),
-	}, nil
-}
-
-// Publish publishes an event for every listener.
-func (event *Event) Publish() {
-	channel := event.Service.EventSubscriptionChannel()
-	go pubsub.Publish(channel, event)
+	e.Hash = hash.Dump(e)
+	return e
 }
