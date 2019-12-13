@@ -20,11 +20,7 @@ func NewServiceServer(sdk *sdk.SDK) *ServiceServer {
 
 // Create creates a new service from definition.
 func (s *ServiceServer) Create(ctx context.Context, req *protobuf_api.CreateServiceRequest) (*protobuf_api.CreateServiceResponse, error) {
-	credUsername, credPassphrase, err := GetCredentialFromContext(ctx)
-	if err != nil {
-		return nil, err
-	}
-	srv, err := s.sdk.Service.Create(req, credUsername, credPassphrase)
+	srv, err := s.sdk.Service.Create(req)
 	if err != nil {
 		return nil, err
 	}

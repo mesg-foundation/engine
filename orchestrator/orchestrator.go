@@ -17,15 +17,13 @@ import (
 )
 
 // New creates a new Process instance
-func New(event EventSDK, execution ExecutionSDK, process ProcessSDK, runner RunnerSDK, accountName, accountPassword string) *Orchestrator {
+func New(event EventSDK, execution ExecutionSDK, process ProcessSDK, runner RunnerSDK) *Orchestrator {
 	return &Orchestrator{
-		event:           event,
-		execution:       execution,
-		process:         process,
-		runner:          runner,
-		ErrC:            make(chan error),
-		accountName:     accountName,
-		accountPassword: accountPassword,
+		event:     event,
+		execution: execution,
+		process:   process,
+		runner:    runner,
+		ErrC:      make(chan error),
 	}
 }
 
@@ -257,7 +255,7 @@ func (s *Orchestrator) processTask(nodeKey string, task *process.Process_Node_Ta
 		Inputs:       data,
 		ExecutorHash: executor.Hash,
 		Tags:         nil,
-	}, s.accountName, s.accountPassword)
+	})
 	return err
 }
 

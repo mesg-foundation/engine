@@ -39,7 +39,7 @@ func TestGenesis(t *testing.T) {
 	)
 	// init account
 	mnemonic, _ := kb.NewMnemonic()
-	kb.CreateAccount(name, mnemonic, "", password, 0, 0)
+	kb.CreateAccount(name, mnemonic, "", password, AccNumber, AccIndex)
 	// start tests
 	t.Run("generate validator", func(t *testing.T) {
 		v, err := NewGenesisValidator(kb, name, password, privValidatorKeyFile, privValidatorStateFile, nodeKeyFile)
