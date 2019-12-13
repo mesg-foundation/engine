@@ -13,12 +13,12 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func testOrchestratorEventTaskMapTaskMapTask(executionStream pb.Execution_StreamClient, instanceHash hash.Hash) func(t *testing.T) {
+func testOrchestratorRefTask(executionStream pb.Execution_StreamClient, instanceHash hash.Hash) func(t *testing.T) {
 	return func(t *testing.T) {
 		var processHash hash.Hash
 		t.Run("create process", func(t *testing.T) {
 			respProc, err := client.ProcessClient.Create(context.Background(), &pb.CreateProcessRequest{
-				Name: "result-map-task-map-task-process",
+				Name: "ref-task",
 				Nodes: []*process.Process_Node{
 					{
 						Key: "n0",

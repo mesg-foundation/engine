@@ -13,13 +13,13 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func testOrchestratorEventMapTask(executionStream pb.Execution_StreamClient, instanceHash hash.Hash) func(t *testing.T) {
+func testOrchestratorRefNode(executionStream pb.Execution_StreamClient, instanceHash hash.Hash) func(t *testing.T) {
 	return func(t *testing.T) {
 		var processHash hash.Hash
 
 		t.Run("create process", func(t *testing.T) {
 			respProc, err := client.ProcessClient.Create(context.Background(), &pb.CreateProcessRequest{
-				Name: "event-map-task-process",
+				Name: "ref-node",
 				Nodes: []*process.Process_Node{
 					{
 						Key: "n0",
@@ -36,8 +36,10 @@ func testOrchestratorEventMapTask(executionStream pb.Execution_StreamClient, ins
 							Map: &process.Process_Node_Map{
 								Outputs: map[string]*process.Process_Node_Map_Output{
 									"msg": {
-										Value: &process.Process_Node_Map_Output_StringConst{
-											StringConst: "itsAConstant",
+										Value: &process.Process_Node_Map_Output_Ref{
+											Ref: &process.Process_Node_Map_Output_Reference{
+												NodeKey: "n0",
+											},
 										},
 									},
 								},
@@ -49,7 +51,7 @@ func testOrchestratorEventMapTask(executionStream pb.Execution_StreamClient, ins
 						Type: &process.Process_Node_Task_{
 							Task: &process.Process_Node_Task{
 								InstanceHash: instanceHash,
-								TaskKey:      "task1",
+								TaskKey:      "task_complex",
 							},
 						},
 					},
@@ -62,6 +64,9 @@ func testOrchestratorEventMapTask(executionStream pb.Execution_StreamClient, ins
 			require.NoError(t, err)
 			processHash = respProc.Hash
 		})
+		var (
+			timestamp = float64(time.Now().Unix())
+		)
 		t.Run("trigger process", func(t *testing.T) {
 			_, err := client.EventClient.Create(context.Background(), &pb.CreateEventRequest{
 				InstanceHash: instanceHash,
@@ -75,7 +80,7 @@ func testOrchestratorEventMapTask(executionStream pb.Execution_StreamClient, ins
 						},
 						"timestamp": {
 							Kind: &types.Value_NumberValue{
-								NumberValue: float64(time.Now().Unix()),
+								NumberValue: timestamp,
 							},
 						},
 					},
@@ -86,21 +91,23 @@ func testOrchestratorEventMapTask(executionStream pb.Execution_StreamClient, ins
 		t.Run("check in progress execution", func(t *testing.T) {
 			exec, err := executionStream.Recv()
 			require.NoError(t, err)
-			require.Equal(t, "task1", exec.TaskKey)
+			require.Equal(t, "task_complex", exec.TaskKey)
 			require.Equal(t, "n2", exec.NodeKey)
 			require.True(t, processHash.Equal(exec.ProcessHash))
 			require.Equal(t, execution.Status_InProgress, exec.Status)
-			require.Equal(t, "itsAConstant", exec.Inputs.Fields["msg"].GetStringValue())
+			require.Equal(t, "whatever", exec.Inputs.Fields["msg"].GetStructValue().Fields["msg"].GetStringValue())
+			require.Equal(t, timestamp, exec.Inputs.Fields["msg"].GetStructValue().Fields["timestamp"].GetNumberValue())
 		})
 		t.Run("check completed execution", func(t *testing.T) {
 			exec, err := executionStream.Recv()
 			require.NoError(t, err)
-			require.Equal(t, "task1", exec.TaskKey)
+			require.Equal(t, "task_complex", exec.TaskKey)
 			require.Equal(t, "n2", exec.NodeKey)
 			require.True(t, processHash.Equal(exec.ProcessHash))
 			require.Equal(t, execution.Status_Completed, exec.Status)
-			require.Equal(t, "itsAConstant", exec.Outputs.Fields["msg"].GetStringValue())
-			require.NotEmpty(t, exec.Outputs.Fields["timestamp"].GetNumberValue())
+			require.Equal(t, "whatever", exec.Outputs.Fields["msg"].GetStructValue().Fields["msg"].GetStringValue())
+			require.Nil(t, exec.Outputs.Fields["msg"].GetStructValue().Fields["array"])
+			require.NotEmpty(t, exec.Outputs.Fields["msg"].GetStructValue().Fields["timestamp"].GetNumberValue())
 		})
 		t.Run("delete process", func(t *testing.T) {
 			_, err := client.ProcessClient.Delete(context.Background(), &pb.DeleteProcessRequest{Hash: processHash})
