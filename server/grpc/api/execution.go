@@ -21,11 +21,7 @@ func NewExecutionServer(sdk *sdk.SDK) *ExecutionServer {
 
 // Create creates an execution.
 func (s *ExecutionServer) Create(ctx context.Context, req *api.CreateExecutionRequest) (*api.CreateExecutionResponse, error) {
-	credUsername, credPassphrase, err := GetCredentialFromContext(ctx)
-	if err != nil {
-		return nil, err
-	}
-	exec, err := s.sdk.Execution.Create(req, credUsername, credPassphrase)
+	exec, err := s.sdk.Execution.Create(req)
 	if err != nil {
 		return nil, err
 	}
@@ -70,11 +66,7 @@ func (s *ExecutionServer) Stream(req *api.StreamExecutionRequest, resp api.Execu
 
 // Update updates execution from given hash.
 func (s *ExecutionServer) Update(ctx context.Context, req *api.UpdateExecutionRequest) (*api.UpdateExecutionResponse, error) {
-	credUsername, credPassphrase, err := GetCredentialFromContext(ctx)
-	if err != nil {
-		return nil, err
-	}
-	if _, err := s.sdk.Execution.Update(req, credUsername, credPassphrase); err != nil {
+	if _, err := s.sdk.Execution.Update(req); err != nil {
 		return nil, err
 	}
 	return &api.UpdateExecutionResponse{}, nil

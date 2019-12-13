@@ -88,7 +88,7 @@ func main() {
 		if err != nil {
 			logrus.Fatalln(err)
 		}
-		acc, err := kb.CreateAccount(valName, mnemonic, "", passwords[i], 0, 0)
+		acc, err := kb.CreateAccount(valName, mnemonic, "", passwords[i], cosmos.AccNumber, cosmos.AccIndex)
 		if err != nil {
 			logrus.Fatalln(err)
 		}

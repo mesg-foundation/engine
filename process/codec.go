@@ -29,6 +29,9 @@ func init() {
 	codec.RegisterConcrete(&Process_Node_Map{}, "mesg.types.Process_Node_Map", nil)
 	codec.RegisterConcrete(&Process_Node_Filter_{}, "mesg.types.Process_Node_Filter_", nil)
 	codec.RegisterConcrete(&Process_Node_Filter{}, "mesg.types.Process_Node_Filter", nil)
+	codec.RegisterInterface((*isProcess_Node_Map_Output_Reference_Path_Selector)(nil), nil)
+	codec.RegisterConcrete(&Process_Node_Map_Output_Reference_Path_Key{}, "mesg.types.Process_Node_Map_Output_Reference_Path_Key", nil)
+	codec.RegisterConcrete(&Process_Node_Map_Output_Reference_Path_Index{}, "mesg.types.Process_Node_Map_Output_Reference_Path_Index", nil)
 }
 
 // KeyOutput is a simple key/value representation of one output of a Process_Node_Map.

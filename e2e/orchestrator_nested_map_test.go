@@ -12,7 +12,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func testOrchestratorEventMapTaskMapTaskComplexData(executionStream pb.Execution_StreamClient, instanceHash hash.Hash) func(t *testing.T) {
+func testOrchestratorNestedMap(executionStream pb.Execution_StreamClient, instanceHash hash.Hash) func(t *testing.T) {
 	return func(t *testing.T) {
 		var (
 			processHash hash.Hash
@@ -50,7 +50,7 @@ func testOrchestratorEventMapTaskMapTaskComplexData(executionStream pb.Execution
 		)
 		t.Run("create process", func(t *testing.T) {
 			respProc, err := client.ProcessClient.Create(context.Background(), &pb.CreateProcessRequest{
-				Name: "event-map-task-map-task-complex-data-process",
+				Name: "nested-map",
 				Nodes: []*process.Process_Node{
 					{
 						Key: "n0",

@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"testing"
-	"time"
 
 	"github.com/mesg-foundation/engine/execution"
 	"github.com/mesg-foundation/engine/hash"
@@ -13,20 +12,20 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func testOrchestratorEventMapTaskMapTask(executionStream pb.Execution_StreamClient, instanceHash hash.Hash) func(t *testing.T) {
+func testOrchestratorRefResult(executionStream pb.Execution_StreamClient, runnerHash hash.Hash, instanceHash hash.Hash) func(t *testing.T) {
 	return func(t *testing.T) {
 		var processHash hash.Hash
-		t.Skip("this test doesn't work as map cannot access the trigger event")
+		t.Skip("this test doesn't work as map cannot access the trigger result")
 		t.Run("create process", func(t *testing.T) {
 			respProc, err := client.ProcessClient.Create(context.Background(), &pb.CreateProcessRequest{
-				Name: "result-map-task-map-task-process",
+				Name: "ref-result",
 				Nodes: []*process.Process_Node{
 					{
 						Key: "n0",
-						Type: &process.Process_Node_Event_{
-							Event: &process.Process_Node_Event{
+						Type: &process.Process_Node_Result_{
+							Result: &process.Process_Node_Result{
 								InstanceHash: instanceHash,
-								EventKey:     "test_event",
+								TaskKey:      "task2",
 							},
 						},
 					},
@@ -61,8 +60,12 @@ func testOrchestratorEventMapTaskMapTask(executionStream pb.Execution_StreamClie
 									"msg": {
 										Value: &process.Process_Node_Map_Output_Ref{
 											Ref: &process.Process_Node_Map_Output_Reference{
+												Path: &process.Process_Node_Map_Output_Reference_Path{
+													Selector: &process.Process_Node_Map_Output_Reference_Path_Key{
+														Key: "msg",
+													},
+												},
 												NodeKey: "n0",
-												Key:     "msg",
 											},
 										},
 									},
@@ -91,25 +94,50 @@ func testOrchestratorEventMapTaskMapTask(executionStream pb.Execution_StreamClie
 			processHash = respProc.Hash
 		})
 		t.Run("trigger process", func(t *testing.T) {
-			_, err := client.EventClient.Create(context.Background(), &pb.CreateEventRequest{
-				InstanceHash: instanceHash,
-				Key:          "test_event",
-				Data: &types.Struct{
+			_, err := client.ExecutionClient.Create(context.Background(), &pb.CreateExecutionRequest{
+				TaskKey:      "task2",
+				EventHash:    hash.Int(11010101011),
+				ExecutorHash: runnerHash,
+				Inputs: &types.Struct{
 					Fields: map[string]*types.Value{
 						"msg": {
 							Kind: &types.Value_StringValue{
-								StringValue: "foo_event",
-							},
-						},
-						"timestamp": {
-							Kind: &types.Value_NumberValue{
-								NumberValue: float64(time.Now().Unix()),
+								StringValue: "foo_result",
 							},
 						},
 					},
 				},
 			})
 			require.NoError(t, err)
+		})
+		t.Run("check trigger process execution", func(t *testing.T) {
+			t.Run("in progress", func(t *testing.T) {
+				exec, err := executionStream.Recv()
+				require.NoError(t, err)
+				require.Equal(t, "task2", exec.TaskKey)
+				require.Equal(t, "", exec.NodeKey)
+				require.True(t, hash.Int(11010101011).Equal(exec.EventHash))
+				require.Equal(t, execution.Status_InProgress, exec.Status)
+				require.True(t, exec.Inputs.Equal(&types.Struct{
+					Fields: map[string]*types.Value{
+						"msg": {
+							Kind: &types.Value_StringValue{
+								StringValue: "foo_result",
+							},
+						},
+					},
+				}))
+			})
+			t.Run("completed", func(t *testing.T) {
+				exec, err := executionStream.Recv()
+				require.NoError(t, err)
+				require.Equal(t, "task2", exec.TaskKey)
+				require.Equal(t, "", exec.NodeKey)
+				require.True(t, hash.Int(11010101011).Equal(exec.EventHash))
+				require.Equal(t, execution.Status_Completed, exec.Status)
+				require.Equal(t, "foo_result", exec.Outputs.Fields["msg"].GetStringValue())
+				require.NotEmpty(t, exec.Outputs.Fields["timestamp"].GetNumberValue())
+			})
 		})
 		t.Run("check first task", func(t *testing.T) {
 			t.Run("check in progress execution", func(t *testing.T) {
@@ -140,7 +168,7 @@ func testOrchestratorEventMapTaskMapTask(executionStream pb.Execution_StreamClie
 				require.Equal(t, "task1", exec.TaskKey)
 				require.True(t, processHash.Equal(exec.ProcessHash))
 				require.Equal(t, execution.Status_InProgress, exec.Status)
-				require.Equal(t, "foo_event", exec.Inputs.Fields["msg"].GetStringValue())
+				require.Equal(t, "foo_result", exec.Inputs.Fields["msg"].GetStringValue())
 			})
 			t.Run("check completed execution", func(t *testing.T) {
 				exec, err := executionStream.Recv()
@@ -149,7 +177,7 @@ func testOrchestratorEventMapTaskMapTask(executionStream pb.Execution_StreamClie
 				require.Equal(t, "task1", exec.TaskKey)
 				require.True(t, processHash.Equal(exec.ProcessHash))
 				require.Equal(t, execution.Status_Completed, exec.Status)
-				require.Equal(t, "foo_event", exec.Outputs.Fields["msg"].GetStringValue())
+				require.Equal(t, "foo_result", exec.Outputs.Fields["msg"].GetStringValue())
 				require.NotEmpty(t, exec.Outputs.Fields["timestamp"].GetNumberValue())
 			})
 		})
