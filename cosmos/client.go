@@ -20,12 +20,6 @@ import (
 	tenderminttypes "github.com/tendermint/tendermint/types"
 )
 
-var (
-	// sequence is a local in-memory cache of sequence.
-	sequence         uint64
-	getSequenceMutex sync.Mutex
-)
-
 // Client is a tendermint client with helper functions.
 type Client struct {
 	rpcclient.Client
@@ -158,41 +152,53 @@ func (c *Client) Stream(ctx context.Context, query string) (chan hash.Hash, chan
 	return hashC, errC, nil
 }
 
-// GetAccount returns the keybase's account.
-func (c *Client) GetAccount() (keys.Info, error) {
-	return c.kb.Get(c.accName)
-}
+var (
+	acc             auth.Account
+	getAccountMutex sync.Mutex
+	accSetSeqMutex  sync.Mutex
+)
 
-// GetAccountNumberSequenceAndIncrement returns the account number and sequence but also increment the sequence.
-func (c *Client) getAccountSequenceAndIncrement() (uint64, error) {
-	getSequenceMutex.Lock()
-	defer getSequenceMutex.Unlock()
-	accKb, err := c.GetAccount()
-	if err != nil {
-		return 0, err
+// GetAccount returns the local account.
+func (c *Client) GetAccount() (auth.Account, error) {
+	getAccountMutex.Lock()
+	defer getAccountMutex.Unlock()
+	if acc == nil {
+		accKb, err := c.kb.Get(c.accName)
+		if err != nil {
+			return nil, err
+		}
+		acc = auth.NewBaseAccount(
+			accKb.GetAddress(),
+			nil,
+			accKb.GetPubKey(),
+			AccNumber,
+			0,
+		)
 	}
-	// get local seq
-	seq := sequence
-	// get remote seq
-	if acc, err := auth.NewAccountRetriever(c).GetAccount(accKb.GetAddress()); err == nil {
+	localSeq := acc.GetSequence()
+	if accR, err := auth.NewAccountRetriever(c).GetAccount(acc.GetAddress()); err == nil {
+		acc = accR
 		// replace seq if sup
-		if acc.GetSequence() > seq {
-			seq = acc.GetSequence()
+		if localSeq > acc.GetSequence() {
+			acc.SetSequence(localSeq)
 		}
 	}
-	// increment local sequence
-	sequence = seq + 1
-	return seq, nil
+	return acc, nil
 }
 
 // Sign signs a msg and return a tendermint tx.
 func (c *Client) Sign(msg sdktypes.Msg) (tenderminttypes.Tx, error) {
-	accSeq, err := c.getAccountSequenceAndIncrement()
+	acc, err := c.GetAccount()
 	if err != nil {
 		return nil, err
 	}
 
-	txBuilder := NewTxBuilder(accSeq, c.kb, c.chainID)
+	accSetSeqMutex.Lock()
+	sequence := acc.GetSequence()
+	acc.SetSequence(acc.GetSequence() + 1)
+	accSetSeqMutex.Unlock()
+
+	txBuilder := NewTxBuilder(sequence, c.kb, c.chainID)
 	signedTx, err := txBuilder.BuildAndSignStdTx(msg, c.accName, c.accPassword)
 	if err != nil {
 		return nil, err
