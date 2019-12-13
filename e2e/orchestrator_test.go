@@ -23,6 +23,7 @@ func testOrchestrator(t *testing.T) {
 	t.Run("nested data", testOrchestratorNestedData(executionStream, testInstanceHash))
 	t.Run("ref node", testOrchestratorRefNode(executionStream, testInstanceHash))
 	t.Run("nested map", testOrchestratorNestedMap(executionStream, testInstanceHash))
+	t.Run("ref nested", testOrchestratorRefNested(executionStream, testInstanceHash))
 
 	// to execute last because of go routine leak. See fixme in following function
 	t.Run("filter", testOrchestratorFilter(executionStream, testInstanceHash))
