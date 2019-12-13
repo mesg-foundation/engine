@@ -17,11 +17,9 @@ docker-build: check-version
 		-t mesg/engine:$(MAJOR_VERSION) \
 		-t mesg/engine:$(MINOR_VERSION) \
 		-t mesg/engine:$(PATCH_VERSION) \
+		-t mesg/engine:dev \
 		-t mesg/engine:latest \
 		.
-
-docker-dev: dep
-	./scripts/build-engine.sh
 
 docker-publish: docker-build
 	docker push mesg/engine:$(MAJOR_VERSION)
@@ -29,14 +27,16 @@ docker-publish: docker-build
 	docker push mesg/engine:$(PATCH_VERSION)
 	docker push mesg/engine:latest
 
-docker-publish-dev: check-version
-	docker build -t mesg/engine:dev --build-arg version=$(version) .
+docker-build-dev:
+	docker build --build-arg version=dev -t mesg/engine:dev .
+
+docker-publish-dev: docker-build-dev
 	docker push mesg/engine:dev
 
 docker-tools:
 	docker build -t mesg/tools:local -f Dockerfile.tools .
 
-dev: docker-dev
+dev: docker-build-dev
 	- ./scripts/dev.sh
 
 dev-start: docker-dev
@@ -51,7 +51,7 @@ dep:
 build: check-version dep
 	go build -mod=readonly -o ./bin/engine -ldflags="-s -w -X 'github.com/mesg-foundation/engine/version.Version=$(version)'" core/main.go
 
-e2e: docker-dev
+e2e: docker-build-dev
 	./scripts/run-e2e.sh
 
 test: dep

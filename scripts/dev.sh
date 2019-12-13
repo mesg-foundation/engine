@@ -53,7 +53,7 @@ function start_engine {
     --name $MESG_NAME \
     --tty \
     --label com.docker.stack.namespace=$MESG_NAME \
-    --label com.docker.stack.image=mesg/engine:local \
+    --label com.docker.stack.image=mesg/engine:dev \
     --env MESG_NAME=$MESG_NAME \
     --mount type=bind,source=/var/run/docker.sock,destination=/var/run/docker.sock \
     --mount type=bind,source=$MESG_PATH,destination=/root/.mesg \
@@ -61,7 +61,7 @@ function start_engine {
     --network name=$MESG_TENDERMINT_NETWORK \
     --publish $MESG_SERVER_PORT:50052 \
     --publish $MESG_TENDERMINT_PORT:26656 \
-    mesg/engine:local
+    mesg/engine:dev
 }
 
 function stop_engine {
