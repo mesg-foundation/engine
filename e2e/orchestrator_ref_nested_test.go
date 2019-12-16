@@ -142,6 +142,7 @@ func testOrchestratorRefNested(executionStream pb.Execution_StreamClient, instan
 						Key: "n2",
 						Type: &process.Process_Node_Task_{
 							Task: &process.Process_Node_Task{
+								RefKey:       "n2",
 								InstanceHash: instanceHash,
 								TaskKey:      "task_complex",
 							},
@@ -177,6 +178,7 @@ func testOrchestratorRefNested(executionStream pb.Execution_StreamClient, instan
 						Key: "n4",
 						Type: &process.Process_Node_Task_{
 							Task: &process.Process_Node_Task{
+								RefKey:       "n4",
 								InstanceHash: instanceHash,
 								TaskKey:      "task1",
 							},

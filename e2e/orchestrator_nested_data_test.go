@@ -34,6 +34,7 @@ func testOrchestratorNestedData(executionStream pb.Execution_StreamClient, insta
 						Key: "n1",
 						Type: &process.Process_Node_Task_{
 							Task: &process.Process_Node_Task{
+								RefKey:       "n1",
 								InstanceHash: instanceHash,
 								TaskKey:      "task_complex",
 							},

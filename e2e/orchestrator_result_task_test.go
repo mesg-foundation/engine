@@ -33,6 +33,7 @@ func testOrchestratorResultTask(executionStream pb.Execution_StreamClient, runne
 						Key: "n1",
 						Type: &process.Process_Node_Task_{
 							Task: &process.Process_Node_Task{
+								RefKey:       "n1",
 								InstanceHash: instanceHash,
 								TaskKey:      "task2",
 							},

@@ -47,6 +47,7 @@ func testOrchestratorRefResult(executionStream pb.Execution_StreamClient, runner
 						Key: "n2",
 						Type: &process.Process_Node_Task_{
 							Task: &process.Process_Node_Task{
+								RefKey:       "n2",
 								InstanceHash: instanceHash,
 								TaskKey:      "task1",
 							},
@@ -77,6 +78,7 @@ func testOrchestratorRefResult(executionStream pb.Execution_StreamClient, runner
 						Key: "n4",
 						Type: &process.Process_Node_Task_{
 							Task: &process.Process_Node_Task{
+								RefKey:       "n4",
 								InstanceHash: instanceHash,
 								TaskKey:      "task1",
 							},

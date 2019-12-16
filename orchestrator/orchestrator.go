@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log"
 	"math/rand"
 
 	"github.com/mesg-foundation/engine/event"
@@ -129,7 +130,7 @@ func (s *Orchestrator) executeNode(wf *process.Process, n *process.Process_Node,
 		return s.processTask(n.Key, task, wf, exec, event, data)
 	} else if m := n.GetMap(); m != nil {
 		var err error
-		data, err = s.processMap(m.Outputs, wf, exec, data)
+		data, err = s.processMap(m.Outputs, wf, exec, event, data)
 		if err != nil {
 			return err
 		}
@@ -153,12 +154,12 @@ func (s *Orchestrator) executeNode(wf *process.Process, n *process.Process_Node,
 	return nil
 }
 
-func (s *Orchestrator) processMap(outputs map[string]*process.Process_Node_Map_Output, wf *process.Process, exec *execution.Execution, data *types.Struct) (*types.Struct, error) {
+func (s *Orchestrator) processMap(outputs map[string]*process.Process_Node_Map_Output, wf *process.Process, exec *execution.Execution, event *event.Event, data *types.Struct) (*types.Struct, error) {
 	result := &types.Struct{
 		Fields: make(map[string]*types.Value),
 	}
 	for key, output := range outputs {
-		value, err := s.outputToValue(output, wf, exec, data)
+		value, err := s.outputToValue(output, wf, exec, event, data)
 		if err != nil {
 			return nil, err
 		}
@@ -167,7 +168,7 @@ func (s *Orchestrator) processMap(outputs map[string]*process.Process_Node_Map_O
 	return result, nil
 }
 
-func (s *Orchestrator) outputToValue(output *process.Process_Node_Map_Output, wf *process.Process, exec *execution.Execution, data *types.Struct) (*types.Value, error) {
+func (s *Orchestrator) outputToValue(output *process.Process_Node_Map_Output, wf *process.Process, exec *execution.Execution, event *event.Event, data *types.Struct) (*types.Value, error) {
 	switch v := output.GetValue().(type) {
 	case *process.Process_Node_Map_Output_Null_:
 		return &types.Value{Kind: &types.Value_NullValue{NullValue: types.NullValue_NULL_VALUE}}, nil
@@ -178,7 +179,7 @@ func (s *Orchestrator) outputToValue(output *process.Process_Node_Map_Output, wf
 	case *process.Process_Node_Map_Output_BoolConst:
 		return &types.Value{Kind: &types.Value_BoolValue{BoolValue: v.BoolConst}}, nil
 	case *process.Process_Node_Map_Output_Map_:
-		out, err := s.processMap(v.Map.Outputs, wf, exec, data)
+		out, err := s.processMap(v.Map.Outputs, wf, exec, event, data)
 		if err != nil {
 			return nil, err
 		}
@@ -186,7 +187,7 @@ func (s *Orchestrator) outputToValue(output *process.Process_Node_Map_Output, wf
 	case *process.Process_Node_Map_Output_List_:
 		var values []*types.Value
 		for i := range v.List.Outputs {
-			value, err := s.outputToValue(v.List.Outputs[i], wf, exec, data)
+			value, err := s.outputToValue(v.List.Outputs[i], wf, exec, event, data)
 			if err != nil {
 				return nil, err
 			}
@@ -201,12 +202,25 @@ func (s *Orchestrator) outputToValue(output *process.Process_Node_Map_Output, wf
 			},
 		}, nil
 	case *process.Process_Node_Map_Output_Ref:
+		// XXX: HERE: we need previous node to compare key == refkey (we only have a event and exec)
+		// if event != nil && event.Key == v.Ref.RefKey {
+		// 	return resolveRef(event.Data, v.Ref.Path)
+		// }
+		// if exec != nil && exec.RefKey == v.Ref.RefKey {
+		// 	return resolveRef(exec.Outputs, v.Ref.Path)
+		// }
+
 		nodes := wf.FindNodes(func(n *process.Process_Node) bool {
 			task := n.GetTask()
+			log.Println("getting task", n.Key)
+			if task != nil {
+				log.Println("found task", n.Key, task.RefKey, v.Ref.RefKey, task != nil && task.RefKey == v.Ref.RefKey)
+			}
 			return task != nil && task.RefKey == v.Ref.RefKey
 		})
+		log.Println("found n nodes", len(nodes))
 		if len(nodes) != 1 {
-			return nil, fmt.Errorf("reference's key not found")
+			return nil, fmt.Errorf("node with reference's key %s not found", v.Ref.RefKey)
 		}
 		return s.resolveInput(wf.Hash, exec, v.Ref.RefKey, v.Ref.Path)
 	default:
@@ -216,7 +230,7 @@ func (s *Orchestrator) outputToValue(output *process.Process_Node_Map_Output, wf
 
 func (s *Orchestrator) resolveInput(wfHash hash.Hash, exec *execution.Execution, refKey string, path *process.Process_Node_Map_Output_Reference_Path) (*types.Value, error) {
 	if !wfHash.Equal(exec.ProcessHash) {
-		return nil, fmt.Errorf("reference's refKey not found")
+		return nil, fmt.Errorf("process with reference's key not found")
 	}
 	if exec.RefKey != refKey {
 		parent, err := s.execution.Get(exec.ParentHash)

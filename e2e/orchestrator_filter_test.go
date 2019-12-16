@@ -49,6 +49,7 @@ func testOrchestratorFilter(executionStream pb.Execution_StreamClient, instanceH
 						Key: "n2",
 						Type: &process.Process_Node_Task_{
 							Task: &process.Process_Node_Task{
+								RefKey:       "n2",
 								InstanceHash: instanceHash,
 								TaskKey:      "task1",
 							},

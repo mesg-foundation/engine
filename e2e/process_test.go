@@ -32,6 +32,7 @@ func testProcess(t *testing.T) {
 					Key: "n1",
 					Type: &process.Process_Node_Task_{
 						Task: &process.Process_Node_Task{
+							RefKey:       "n1",
 							InstanceHash: testInstanceHash,
 							TaskKey:      "test_service_ready",
 						},

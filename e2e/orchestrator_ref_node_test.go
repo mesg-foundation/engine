@@ -39,6 +39,11 @@ func testOrchestratorRefNode(executionStream pb.Execution_StreamClient, instance
 										Value: &process.Process_Node_Map_Output_Ref{
 											Ref: &process.Process_Node_Map_Output_Reference{
 												RefKey: "n0",
+												Path: &process.Process_Node_Map_Output_Reference_Path{
+													Selector: &process.Process_Node_Map_Output_Reference_Path_Key{
+														Key: "msg",
+													},
+												},
 											},
 										},
 									},
@@ -50,6 +55,7 @@ func testOrchestratorRefNode(executionStream pb.Execution_StreamClient, instance
 						Key: "n2",
 						Type: &process.Process_Node_Task_{
 							Task: &process.Process_Node_Task{
+								RefKey:       "n2",
 								InstanceHash: instanceHash,
 								TaskKey:      "task_complex",
 							},
