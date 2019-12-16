@@ -1,6 +1,6 @@
 # Changelog
 
-## [v0.18](https://github.com/mesg-foundation/engine/releases/tag/v0.18)
+## [v0.18.0](https://github.com/mesg-foundation/engine/releases/tag/v0.18.0)
 
 #### Breaking Changes
 
