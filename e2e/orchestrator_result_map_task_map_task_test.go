@@ -111,7 +111,7 @@ func testOrchestratorResultMapTaskMapTask(executionStream pb.Execution_StreamCli
 				exec, err := executionStream.Recv()
 				require.NoError(t, err)
 				require.Equal(t, "task2", exec.TaskKey)
-				require.Equal(t, "", exec.NodeKey)
+				require.Equal(t, "", exec.RefKey)
 				require.True(t, hash.Int(11010101011).Equal(exec.EventHash))
 				require.Equal(t, execution.Status_InProgress, exec.Status)
 				require.True(t, exec.Inputs.Equal(&types.Struct{
@@ -128,7 +128,7 @@ func testOrchestratorResultMapTaskMapTask(executionStream pb.Execution_StreamCli
 				exec, err := executionStream.Recv()
 				require.NoError(t, err)
 				require.Equal(t, "task2", exec.TaskKey)
-				require.Equal(t, "", exec.NodeKey)
+				require.Equal(t, "", exec.RefKey)
 				require.True(t, hash.Int(11010101011).Equal(exec.EventHash))
 				require.Equal(t, execution.Status_Completed, exec.Status)
 				require.Equal(t, "foo_result", exec.Outputs.Fields["msg"].GetStringValue())
@@ -139,7 +139,7 @@ func testOrchestratorResultMapTaskMapTask(executionStream pb.Execution_StreamCli
 			t.Run("check in progress execution", func(t *testing.T) {
 				exec, err := executionStream.Recv()
 				require.NoError(t, err)
-				require.Equal(t, "n2", exec.NodeKey)
+				require.Equal(t, "n2", exec.RefKey)
 				require.Equal(t, "task1", exec.TaskKey)
 				require.True(t, processHash.Equal(exec.ProcessHash))
 				require.Equal(t, execution.Status_InProgress, exec.Status)
@@ -148,7 +148,7 @@ func testOrchestratorResultMapTaskMapTask(executionStream pb.Execution_StreamCli
 			t.Run("check completed execution", func(t *testing.T) {
 				exec, err := executionStream.Recv()
 				require.NoError(t, err)
-				require.Equal(t, "n2", exec.NodeKey)
+				require.Equal(t, "n2", exec.RefKey)
 				require.Equal(t, "task1", exec.TaskKey)
 				require.True(t, processHash.Equal(exec.ProcessHash))
 				require.Equal(t, execution.Status_Completed, exec.Status)
@@ -160,7 +160,7 @@ func testOrchestratorResultMapTaskMapTask(executionStream pb.Execution_StreamCli
 			t.Run("check in progress execution", func(t *testing.T) {
 				exec, err := executionStream.Recv()
 				require.NoError(t, err)
-				require.Equal(t, "n4", exec.NodeKey)
+				require.Equal(t, "n4", exec.RefKey)
 				require.Equal(t, "task1", exec.TaskKey)
 				require.True(t, processHash.Equal(exec.ProcessHash))
 				require.Equal(t, execution.Status_InProgress, exec.Status)
@@ -169,7 +169,7 @@ func testOrchestratorResultMapTaskMapTask(executionStream pb.Execution_StreamCli
 			t.Run("check completed execution", func(t *testing.T) {
 				exec, err := executionStream.Recv()
 				require.NoError(t, err)
-				require.Equal(t, "n4", exec.NodeKey)
+				require.Equal(t, "n4", exec.RefKey)
 				require.Equal(t, "task1", exec.TaskKey)
 				require.True(t, processHash.Equal(exec.ProcessHash))
 				require.Equal(t, execution.Status_Completed, exec.Status)

@@ -63,7 +63,9 @@ message CreateExecutionRequest {
     (gogoproto.nullable) = false
   ];
 
-  string nodeKey = 8;
+  string refKey = 8 [
+    (gogoproto.moretags) = 'validate:"printascii"'
+  ];
 
   bytes executorHash = 9 [
     (gogoproto.moretags) = 'validate:"omitempty,hash"',

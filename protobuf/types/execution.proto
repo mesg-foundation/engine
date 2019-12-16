@@ -98,9 +98,9 @@ message Execution {
     (gogoproto.nullable) = false
   ];
 
-  // node key of the process.
-  string nodeKey = 12 [
-    (gogoproto.moretags) = 'hash:"name:12"'
+  // ref key of the process.
+  string refKey = 12 [
+    (gogoproto.moretags) = 'hash:"name:12", validate:"printascii"'
   ];
 
   // runner that should execute this execution.

@@ -91,7 +91,7 @@ func (s *Orchestrator) dependencyFilter(exec *execution.Execution) func(wf *proc
 		if len(parents) > 1 {
 			return false, fmt.Errorf("multi parents not supported")
 		}
-		return parents[0] == exec.NodeKey, nil
+		return parents[0] == exec.RefKey, nil
 	}
 }
 
@@ -215,21 +215,21 @@ func (s *Orchestrator) outputToValue(output *process.Process_Node_Map_Output, wf
 	}
 }
 
-func (s *Orchestrator) resolveInput(wfHash hash.Hash, exec *execution.Execution, nodeKey string, outputKey string) (*types.Value, error) {
+func (s *Orchestrator) resolveInput(wfHash hash.Hash, exec *execution.Execution, refKey, outputKey string) (*types.Value, error) {
 	if !wfHash.Equal(exec.ProcessHash) {
-		return nil, fmt.Errorf("reference's nodeKey not found")
+		return nil, fmt.Errorf("reference's refKey not found")
 	}
-	if exec.NodeKey != nodeKey {
+	if exec.RefKey != refKey {
 		parent, err := s.execution.Get(exec.ParentHash)
 		if err != nil {
 			return nil, err
 		}
-		return s.resolveInput(wfHash, parent, nodeKey, outputKey)
+		return s.resolveInput(wfHash, parent, refKey, outputKey)
 	}
 	return exec.Outputs.Fields[outputKey], nil
 }
 
-func (s *Orchestrator) processTask(nodeKey string, task *process.Process_Node_Task, wf *process.Process, exec *execution.Execution, event *event.Event, data *types.Struct) error {
+func (s *Orchestrator) processTask(refKey string, task *process.Process_Node_Task, wf *process.Process, exec *execution.Execution, event *event.Event, data *types.Struct) error {
 	var eventHash, execHash hash.Hash
 	if event != nil {
 		eventHash = event.Hash
@@ -251,7 +251,7 @@ func (s *Orchestrator) processTask(nodeKey string, task *process.Process_Node_Ta
 		ProcessHash:  wf.Hash,
 		EventHash:    eventHash,
 		ParentHash:   execHash,
-		NodeKey:      nodeKey,
+		RefKey:       refKey,
 		TaskKey:      task.TaskKey,
 		Inputs:       data,
 		ExecutorHash: executor.Hash,
