@@ -130,7 +130,7 @@ func (s *Orchestrator) executeNode(wf *process.Process, n *process.Process_Node,
 		return s.processTask(n.Key, task, wf, exec, event, data)
 	} else if m := n.GetMap(); m != nil {
 		var err error
-		data, err = s.processMap(m.Outputs, wf, exec, event, data)
+		data, err = s.processMap(m.Outputs, wf, exec, data)
 		if err != nil {
 			return err
 		}
@@ -154,12 +154,12 @@ func (s *Orchestrator) executeNode(wf *process.Process, n *process.Process_Node,
 	return nil
 }
 
-func (s *Orchestrator) processMap(outputs map[string]*process.Process_Node_Map_Output, wf *process.Process, exec *execution.Execution, event *event.Event, data *types.Struct) (*types.Struct, error) {
+func (s *Orchestrator) processMap(outputs map[string]*process.Process_Node_Map_Output, wf *process.Process, exec *execution.Execution, data *types.Struct) (*types.Struct, error) {
 	result := &types.Struct{
 		Fields: make(map[string]*types.Value),
 	}
 	for key, output := range outputs {
-		value, err := s.outputToValue(output, wf, exec, event, data)
+		value, err := s.outputToValue(output, wf, exec, data)
 		if err != nil {
 			return nil, err
 		}
@@ -168,7 +168,7 @@ func (s *Orchestrator) processMap(outputs map[string]*process.Process_Node_Map_O
 	return result, nil
 }
 
-func (s *Orchestrator) outputToValue(output *process.Process_Node_Map_Output, wf *process.Process, exec *execution.Execution, event *event.Event, data *types.Struct) (*types.Value, error) {
+func (s *Orchestrator) outputToValue(output *process.Process_Node_Map_Output, wf *process.Process, exec *execution.Execution, data *types.Struct) (*types.Value, error) {
 	switch v := output.GetValue().(type) {
 	case *process.Process_Node_Map_Output_Null_:
 		return &types.Value{Kind: &types.Value_NullValue{NullValue: types.NullValue_NULL_VALUE}}, nil
@@ -179,7 +179,7 @@ func (s *Orchestrator) outputToValue(output *process.Process_Node_Map_Output, wf
 	case *process.Process_Node_Map_Output_BoolConst:
 		return &types.Value{Kind: &types.Value_BoolValue{BoolValue: v.BoolConst}}, nil
 	case *process.Process_Node_Map_Output_Map_:
-		out, err := s.processMap(v.Map.Outputs, wf, exec, event, data)
+		out, err := s.processMap(v.Map.Outputs, wf, exec, data)
 		if err != nil {
 			return nil, err
 		}
@@ -187,7 +187,7 @@ func (s *Orchestrator) outputToValue(output *process.Process_Node_Map_Output, wf
 	case *process.Process_Node_Map_Output_List_:
 		var values []*types.Value
 		for i := range v.List.Outputs {
-			value, err := s.outputToValue(v.List.Outputs[i], wf, exec, event, data)
+			value, err := s.outputToValue(v.List.Outputs[i], wf, exec, data)
 			if err != nil {
 				return nil, err
 			}
@@ -202,18 +202,10 @@ func (s *Orchestrator) outputToValue(output *process.Process_Node_Map_Output, wf
 			},
 		}, nil
 	case *process.Process_Node_Map_Output_Ref:
-		// XXX: HERE: we need previous node to compare key == refkey (we only have a event and exec)
-		// if event != nil && event.Key == v.Ref.RefKey {
-		// 	return resolveRef(event.Data, v.Ref.Path)
-		// }
-		// if exec != nil && exec.RefKey == v.Ref.RefKey {
-		// 	return resolveRef(exec.Outputs, v.Ref.Path)
-		// }
-
 		if v.Ref.RefKey == "" {
 			return resolveRef(data, v.Ref.Path)
 		}
-		// TODO: the following code is only for catching checking the node exist.
+		// the following code is only for catching checking the node exist.
 		nodes := wf.FindNodes(func(n *process.Process_Node) bool {
 			task := n.GetTask()
 			log.Println("getting task", n.Key)
@@ -234,7 +226,7 @@ func (s *Orchestrator) outputToValue(output *process.Process_Node_Map_Output, wf
 
 func (s *Orchestrator) resolveInput(wfHash hash.Hash, exec *execution.Execution, refKey string, path *process.Process_Node_Map_Output_Reference_Path) (*types.Value, error) {
 	if !wfHash.Equal(exec.ProcessHash) {
-		return nil, fmt.Errorf("process with reference's key not found")
+		return nil, fmt.Errorf("reference's nodeKey not found")
 	}
 	if exec.RefKey != refKey {
 		parent, err := s.execution.Get(exec.ParentHash)
