@@ -237,6 +237,7 @@ func testExecution(t *testing.T) {
 			exec1, err := streamCompleted.Recv()
 			require.NoError(t, err)
 			exec2, err := streamCompleted.Recv()
+			require.NoError(t, err)
 			require.False(t, exec1.Hash.Equal(exec2.Hash))
 			require.Contains(t, executions, exec1.Hash)
 			require.Contains(t, executions, exec2.Hash)
