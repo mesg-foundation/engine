@@ -51,7 +51,7 @@ dep:
 build: check-version dep
 	go build -mod=readonly -o ./bin/engine -ldflags="-s -w -X 'github.com/mesg-foundation/engine/version.Version=$(version)'" core/main.go
 
-e2e: docker-build-dev
+e2e: docker-build
 	./scripts/run-e2e.sh
 
 test: dep
