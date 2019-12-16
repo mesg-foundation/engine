@@ -210,6 +210,10 @@ func (s *Orchestrator) outputToValue(output *process.Process_Node_Map_Output, wf
 		// 	return resolveRef(exec.Outputs, v.Ref.Path)
 		// }
 
+		if v.Ref.RefKey == "" {
+			return resolveRef(data, v.Ref.Path)
+		}
+		// TODO: the following code is only for catching checking the node exist.
 		nodes := wf.FindNodes(func(n *process.Process_Node) bool {
 			task := n.GetTask()
 			log.Println("getting task", n.Key)
