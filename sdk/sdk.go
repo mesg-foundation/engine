@@ -4,7 +4,6 @@ import (
 	"github.com/cskr/pubsub"
 	"github.com/mesg-foundation/engine/container"
 	"github.com/mesg-foundation/engine/cosmos"
-	accountsdk "github.com/mesg-foundation/engine/sdk/account"
 	eventsdk "github.com/mesg-foundation/engine/sdk/event"
 	executionsdk "github.com/mesg-foundation/engine/sdk/execution"
 	instancesdk "github.com/mesg-foundation/engine/sdk/instance"
@@ -21,21 +20,19 @@ type SDK struct {
 	Execution *executionsdk.SDK
 	Event     *eventsdk.Event
 	Process   *processesdk.SDK
-	Account   *accountsdk.SDK
 	Ownership *ownershipsdk.SDK
 	Runner    *runnersdk.SDK
 }
 
 // New creates a new SDK with given options.
-func New(client *cosmos.Client, kb *cosmos.Keybase, container container.Container, engineName, port string, ipfsEndpoint string) *SDK {
+func New(client *cosmos.Client, kb *cosmos.Keybase, container container.Container, engineName, port, ipfsEndpoint string) *SDK {
 	ps := pubsub.New(0)
-	accountSDK := accountsdk.NewSDK(kb)
-	serviceSDK := servicesdk.New(client, accountSDK)
+	serviceSDK := servicesdk.New(client)
 	ownershipSDK := ownershipsdk.New(client)
 	instanceSDK := instancesdk.New(client)
-	runnerSDK := runnersdk.New(client, accountSDK, serviceSDK, instanceSDK, container, engineName, port, ipfsEndpoint)
-	processSDK := processesdk.New(client, kb)
-	executionSDK := executionsdk.New(client, kb, serviceSDK, instanceSDK, runnerSDK)
+	runnerSDK := runnersdk.New(client, serviceSDK, instanceSDK, container, engineName, port, ipfsEndpoint)
+	processSDK := processesdk.New(client)
+	executionSDK := executionsdk.New(client, serviceSDK, instanceSDK, runnerSDK)
 	eventSDK := eventsdk.New(ps, serviceSDK, instanceSDK)
 	return &SDK{
 		Service:   serviceSDK,
@@ -43,7 +40,6 @@ func New(client *cosmos.Client, kb *cosmos.Keybase, container container.Containe
 		Execution: executionSDK,
 		Event:     eventSDK,
 		Process:   processSDK,
-		Account:   accountSDK,
 		Ownership: ownershipSDK,
 		Runner:    runnerSDK,
 	}

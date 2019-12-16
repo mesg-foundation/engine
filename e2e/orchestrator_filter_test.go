@@ -14,13 +14,13 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func testOrchestratorEventFilterTask(executionStream pb.Execution_StreamClient, instanceHash hash.Hash) func(t *testing.T) {
+func testOrchestratorFilter(executionStream pb.Execution_StreamClient, instanceHash hash.Hash) func(t *testing.T) {
 	return func(t *testing.T) {
 		var processHash hash.Hash
 
 		t.Run("create process", func(t *testing.T) {
 			respProc, err := client.ProcessClient.Create(context.Background(), &pb.CreateProcessRequest{
-				Name: "event-filter-task-process",
+				Name: "filter",
 				Nodes: []*process.Process_Node{
 					{
 						Key: "n0",

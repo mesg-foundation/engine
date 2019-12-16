@@ -16,7 +16,7 @@ import (
 )
 
 func TestFilter(t *testing.T) {
-	o := New(&mocks.EventSDK{}, &mocks.ExecutionSDK{}, &mocks.ProcessSDK{}, &mocks.RunnerSDK{}, "", "")
+	o := New(&mocks.EventSDK{}, &mocks.ExecutionSDK{}, &mocks.ProcessSDK{}, &mocks.RunnerSDK{})
 	p := process.Process{
 		Hash: hash.Int(1),
 		Nodes: []*process.Process_Node{
@@ -112,28 +112,28 @@ func TestFilter(t *testing.T) {
 			err:    nil,
 		},
 		{
-			filter: o.dependencyFilter(&execution.Execution{InstanceHash: hash.Int(3), TaskKey: "2", ProcessHash: hash.Int(1), NodeKey: "2"}),
+			filter: o.dependencyFilter(&execution.Execution{InstanceHash: hash.Int(3), TaskKey: "2", ProcessHash: hash.Int(1), RefKey: "2"}),
 			p:      &p,
 			n:      p.Nodes[2],
 			res:    true,
 			err:    nil,
 		},
 		{
-			filter: o.dependencyFilter(&execution.Execution{InstanceHash: hash.Int(3), TaskKey: "2", ProcessHash: hash.Int(2), NodeKey: "2"}),
+			filter: o.dependencyFilter(&execution.Execution{InstanceHash: hash.Int(3), TaskKey: "2", ProcessHash: hash.Int(2), RefKey: "2"}),
 			p:      &p,
 			n:      p.Nodes[2],
 			res:    false,
 			err:    nil,
 		},
 		{
-			filter: o.dependencyFilter(&execution.Execution{InstanceHash: hash.Int(3), TaskKey: "2", ProcessHash: hash.Int(1), NodeKey: "1"}),
+			filter: o.dependencyFilter(&execution.Execution{InstanceHash: hash.Int(3), TaskKey: "2", ProcessHash: hash.Int(1), RefKey: "1"}),
 			p:      &p,
 			n:      p.Nodes[2],
 			res:    false,
 			err:    nil,
 		},
 		{
-			filter: o.dependencyFilter(&execution.Execution{InstanceHash: hash.Int(3), TaskKey: "2", ProcessHash: hash.Int(1), NodeKey: "2"}),
+			filter: o.dependencyFilter(&execution.Execution{InstanceHash: hash.Int(3), TaskKey: "2", ProcessHash: hash.Int(1), RefKey: "2"}),
 			p:      &p,
 			n:      p.Nodes[0],
 			res:    false,
@@ -151,7 +151,7 @@ func TestFilter(t *testing.T) {
 }
 
 func TestFindNode(t *testing.T) {
-	o := New(&mocks.EventSDK{}, &mocks.ExecutionSDK{}, &mocks.ProcessSDK{}, &mocks.RunnerSDK{}, "", "")
+	o := New(&mocks.EventSDK{}, &mocks.ExecutionSDK{}, &mocks.ProcessSDK{}, &mocks.RunnerSDK{})
 	data := &process.Process{
 		Hash: hash.Int(1),
 		Nodes: []*process.Process_Node{
@@ -179,7 +179,7 @@ func TestFindNode(t *testing.T) {
 // 	o := New(&mocks.EventSDK{}, e, &mocks.ProcessSDK{})
 // 	exec := &execution.Execution{
 // 		ProcessHash: hash.Int(1),
-// 		NodeKey:      "1",
+// 		RefKey:      "1",
 // 		ParentHash:  hash.Int(2),
 // 		Outputs: &types.Struct{
 // 			Fields: map[string]*types.Value{
@@ -196,10 +196,10 @@ func TestFindNode(t *testing.T) {
 
 func TestResolveInput(t *testing.T) {
 	e := &mocks.ExecutionSDK{}
-	o := New(&mocks.EventSDK{}, e, &mocks.ProcessSDK{}, &mocks.RunnerSDK{}, "", "")
+	o := New(&mocks.EventSDK{}, e, &mocks.ProcessSDK{}, &mocks.RunnerSDK{})
 	exec := &execution.Execution{
 		ProcessHash: hash.Int(2),
-		NodeKey:     "2",
+		RefKey:     "2",
 		ParentHash:  hash.Int(3),
 		Outputs: &types.Struct{
 			Fields: map[string]*types.Value{
@@ -210,19 +210,19 @@ func TestResolveInput(t *testing.T) {
 		},
 	}
 	// Different processes
-	_, err := o.resolveInput(hash.Int(1), exec, "2", "xxx")
+	_, err := o.resolveInput(hash.Int(1), exec, "2", &process.Process_Node_Map_Output_Reference_Path{Selector: &process.Process_Node_Map_Output_Reference_Path_Key{Key: "xxx"}})
 	require.Error(t, err)
 	// Different steps, should return the value of the data
-	val, err := o.resolveInput(hash.Int(2), exec, "2", "xxx")
+	val, err := o.resolveInput(hash.Int(2), exec, "2", &process.Process_Node_Map_Output_Reference_Path{Selector: &process.Process_Node_Map_Output_Reference_Path_Key{Key: "xxx"}})
 	require.NoError(t, err)
 	require.Equal(t, val, exec.Outputs.Fields["xxx"])
 	// Invalid execution parent hash
 	e.On("Get", mock.Anything).Once().Return(nil, fmt.Errorf("err"))
-	_, err = o.resolveInput(hash.Int(2), exec, "-", "xxx")
+	_, err = o.resolveInput(hash.Int(2), exec, "-", &process.Process_Node_Map_Output_Reference_Path{Selector: &process.Process_Node_Map_Output_Reference_Path_Key{Key: "xxx"}})
 	require.Error(t, err)
 	// Output from a previous exec
 	execMock := &execution.Execution{
-		NodeKey:     "3",
+		RefKey:     "3",
 		ProcessHash: hash.Int(2),
 		Outputs: &types.Struct{
 			Fields: map[string]*types.Value{
@@ -233,7 +233,7 @@ func TestResolveInput(t *testing.T) {
 		},
 	}
 	e.On("Get", mock.Anything).Once().Return(execMock, nil)
-	val, err = o.resolveInput(hash.Int(2), exec, "3", "yyy")
+	val, err = o.resolveInput(hash.Int(2), exec, "3", &process.Process_Node_Map_Output_Reference_Path{Selector: &process.Process_Node_Map_Output_Reference_Path_Key{Key: "yyy"}})
 	require.NoError(t, err)
 	require.Equal(t, val, execMock.Outputs.Fields["yyy"])
 }
@@ -243,7 +243,7 @@ func TestProcessTask(t *testing.T) {
 	e.On("Create", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Once().Return(nil, nil)
 	r := &mocks.RunnerSDK{}
 	r.On("List", mock.Anything).Once().Return([]*runner.Runner{{Hash: hash.Int(1)}}, nil)
-	o := New(&mocks.EventSDK{}, e, &mocks.ProcessSDK{}, r, "", "")
+	o := New(&mocks.EventSDK{}, e, &mocks.ProcessSDK{}, r)
 	err := o.processTask("-", &process.Process_Node_Task{
 		InstanceHash: hash.Int(1),
 		TaskKey:      "-",

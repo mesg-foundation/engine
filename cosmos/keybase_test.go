@@ -26,7 +26,7 @@ func TestKeybase(t *testing.T) {
 	})
 
 	t.Run("Create", func(t *testing.T) {
-		acc, err := kb.CreateAccount(name, mnemonic, "", password, 0, 0)
+		acc, err := kb.CreateAccount(name, mnemonic, "", password, AccNumber, AccIndex)
 		require.NoError(t, err)
 		require.Equal(t, name, acc.GetName())
 	})

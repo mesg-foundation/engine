@@ -13,13 +13,13 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func testOrchestratorEventMapTask(executionStream pb.Execution_StreamClient, instanceHash hash.Hash) func(t *testing.T) {
+func testOrchestratorMapConst(executionStream pb.Execution_StreamClient, instanceHash hash.Hash) func(t *testing.T) {
 	return func(t *testing.T) {
 		var processHash hash.Hash
 
 		t.Run("create process", func(t *testing.T) {
 			respProc, err := client.ProcessClient.Create(context.Background(), &pb.CreateProcessRequest{
-				Name: "event-map-task-process",
+				Name: "map-const",
 				Nodes: []*process.Process_Node{
 					{
 						Key: "n0",
