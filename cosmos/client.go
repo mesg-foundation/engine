@@ -31,7 +31,7 @@ type Client struct {
 	// Local state
 	acc             auth.Account
 	getAccountMutex sync.Mutex
-	accSetSeqMutex  sync.Mutex
+	broadcastMutex  sync.Mutex
 }
 
 // NewClient returns a rpc tendermint client.
@@ -79,12 +79,15 @@ func (c *Client) QueryWithData(path string, data []byte) ([]byte, int64, error) 
 
 // BuildAndBroadcastMsg builds and signs message and broadcast it to node.
 func (c *Client) BuildAndBroadcastMsg(msg sdktypes.Msg) (*abci.ResponseDeliverTx, error) {
-	signedTx, err := c.Sign(msg)
+	c.broadcastMutex.Lock() // Lock the whole signature + broadcast of the transaction
+	signedTx, err := c.sign(msg)
 	if err != nil {
+		c.broadcastMutex.Unlock()
 		return nil, err
 	}
 
 	txres, err := c.BroadcastTxSync(signedTx)
+	c.broadcastMutex.Unlock()
 	if err != nil {
 		return nil, err
 	}
@@ -186,16 +189,14 @@ func (c *Client) GetAccount() (auth.Account, error) {
 }
 
 // Sign signs a msg and return a tendermint tx.
-func (c *Client) Sign(msg sdktypes.Msg) (tenderminttypes.Tx, error) {
+func (c *Client) sign(msg sdktypes.Msg) (tenderminttypes.Tx, error) {
 	acc, err := c.GetAccount()
 	if err != nil {
 		return nil, err
 	}
 
-	c.accSetSeqMutex.Lock()
 	sequence := acc.GetSequence()
 	acc.SetSequence(acc.GetSequence() + 1)
-	c.accSetSeqMutex.Unlock()
 
 	txBuilder := NewTxBuilder(sequence, c.kb, c.chainID)
 	signedTx, err := txBuilder.BuildAndSignStdTx(msg, c.accName, c.accPassword)
