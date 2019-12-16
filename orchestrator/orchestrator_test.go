@@ -199,7 +199,7 @@ func TestResolveInput(t *testing.T) {
 	o := New(&mocks.EventSDK{}, e, &mocks.ProcessSDK{}, &mocks.RunnerSDK{})
 	exec := &execution.Execution{
 		ProcessHash: hash.Int(2),
-		RefKey:     "2",
+		RefKey:      "2",
 		ParentHash:  hash.Int(3),
 		Outputs: &types.Struct{
 			Fields: map[string]*types.Value{
@@ -222,7 +222,7 @@ func TestResolveInput(t *testing.T) {
 	require.Error(t, err)
 	// Output from a previous exec
 	execMock := &execution.Execution{
-		RefKey:     "3",
+		RefKey:      "3",
 		ProcessHash: hash.Int(2),
 		Outputs: &types.Struct{
 			Fields: map[string]*types.Value{
