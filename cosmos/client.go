@@ -27,6 +27,11 @@ type Client struct {
 	chainID     string
 	accName     string
 	accPassword string
+
+	// Local state
+	acc             auth.Account
+	getAccountMutex sync.Mutex
+	accSetSeqMutex  sync.Mutex
 }
 
 // NewClient returns a rpc tendermint client.
@@ -152,22 +157,16 @@ func (c *Client) Stream(ctx context.Context, query string) (chan hash.Hash, chan
 	return hashC, errC, nil
 }
 
-var (
-	acc             auth.Account
-	getAccountMutex sync.Mutex
-	accSetSeqMutex  sync.Mutex
-)
-
 // GetAccount returns the local account.
 func (c *Client) GetAccount() (auth.Account, error) {
-	getAccountMutex.Lock()
-	defer getAccountMutex.Unlock()
-	if acc == nil {
+	c.getAccountMutex.Lock()
+	defer c.getAccountMutex.Unlock()
+	if c.acc == nil {
 		accKb, err := c.kb.Get(c.accName)
 		if err != nil {
 			return nil, err
 		}
-		acc = auth.NewBaseAccount(
+		c.acc = auth.NewBaseAccount(
 			accKb.GetAddress(),
 			nil,
 			accKb.GetPubKey(),
@@ -175,15 +174,15 @@ func (c *Client) GetAccount() (auth.Account, error) {
 			0,
 		)
 	}
-	localSeq := acc.GetSequence()
-	if accR, err := auth.NewAccountRetriever(c).GetAccount(acc.GetAddress()); err == nil {
-		acc = accR
+	localSeq := c.acc.GetSequence()
+	if accR, err := auth.NewAccountRetriever(c).GetAccount(c.acc.GetAddress()); err == nil {
+		c.acc = accR
 		// replace seq if sup
-		if localSeq > acc.GetSequence() {
-			acc.SetSequence(localSeq)
+		if localSeq > c.acc.GetSequence() {
+			c.acc.SetSequence(localSeq)
 		}
 	}
-	return acc, nil
+	return c.acc, nil
 }
 
 // Sign signs a msg and return a tendermint tx.
@@ -193,10 +192,10 @@ func (c *Client) Sign(msg sdktypes.Msg) (tenderminttypes.Tx, error) {
 		return nil, err
 	}
 
-	accSetSeqMutex.Lock()
+	c.accSetSeqMutex.Lock()
 	sequence := acc.GetSequence()
 	acc.SetSequence(acc.GetSequence() + 1)
-	accSetSeqMutex.Unlock()
+	c.accSetSeqMutex.Unlock()
 
 	txBuilder := NewTxBuilder(sequence, c.kb, c.chainID)
 	signedTx, err := txBuilder.BuildAndSignStdTx(msg, c.accName, c.accPassword)
