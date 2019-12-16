@@ -7,6 +7,7 @@
 - ([#1536](https://github.com/mesg-foundation/engine/pull/1536)) Update process structure: rename process's key to name and move node.*.key into node.
 - ([#1540](https://github.com/mesg-foundation/engine/pull/1540)) Implement nested data map in process and change process map structure.
 - ([#1545](https://github.com/mesg-foundation/engine/pull/1545)) Add path system to reference nested data in process.
+- ([#1558](https://github.com/mesg-foundation/engine/pull/1558)) Add refKey to tasks and rename nodeKey in reference.
 
 #### Added
 
@@ -25,6 +26,7 @@
 
 - ([#1532](https://github.com/mesg-foundation/engine/pull/1532)) Fix blocked logs by forcing to a maximum 10,000 lines in dev script.
 - ([#1543](https://github.com/mesg-foundation/engine/pull/1543)) Fix concurrent transaction signing by adding a mutex to the keybase.
+- ([#1556](https://github.com/mesg-foundation/engine/pull/1556)) Fix account sequence when signing multiple transactions.
 
 #### Removed
 
