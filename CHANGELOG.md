@@ -1,5 +1,35 @@
 # Changelog
 
+## [v0.18](https://github.com/mesg-foundation/engine/releases/tag/v0.18)
+
+#### Breaking Changes
+
+- ([#1536](https://github.com/mesg-foundation/engine/pull/1536)) Update process structure: rename process's key to name and move node.*.key into node.
+- ([#1540](https://github.com/mesg-foundation/engine/pull/1540)) Implement nested data map in process and change process map structure.
+- ([#1545](https://github.com/mesg-foundation/engine/pull/1545)) Add path system to reference nested data in process.
+
+#### Added
+
+- ([#1501](https://github.com/mesg-foundation/engine/pull/1501)) Add e2e process test.
+- ([#1519](https://github.com/mesg-foundation/engine/pull/1519)) Add data validation to all resources.
+- ([#1544](https://github.com/mesg-foundation/engine/pull/1544)) Add two e2e orchestrator tests.
+- ([#1546](https://github.com/mesg-foundation/engine/pull/1546)) Add e2e orchestrator behavior tests on process maps and filters.
+- ([#1547](https://github.com/mesg-foundation/engine/pull/1547)) Add e2e tests on process nested data feature.
+
+#### Changed
+
+- ([#1490](https://github.com/mesg-foundation/engine/pull/1490)) More verbose error in service backend.
+- ([#1527](https://github.com/mesg-foundation/engine/pull/1527)) Decentralization of the processes.
+
+#### Fixed
+
+- ([#1532](https://github.com/mesg-foundation/engine/pull/1532)) Fix blocked logs by forcing to a maximum 10,000 lines in dev script.
+- ([#1543](https://github.com/mesg-foundation/engine/pull/1543)) Fix concurrent transaction signing by adding a mutex to the keybase.
+
+#### Removed
+
+- ([#1555](https://github.com/mesg-foundation/engine/pull/1555)) Remove account sdk and credential system.
+
 ## [v0.17.0](https://github.com/mesg-foundation/engine/releases/tag/v0.17.0)
 
 #### Breaking Changes
