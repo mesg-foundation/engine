@@ -1,5 +1,5 @@
 # base Go image version.
-FROM golang:1.13.5-alpine AS build
+FROM golang:1.13.5-alpine3.10 AS build
 WORKDIR /app
 
 RUN apk add build-base gcc abuild binutils binutils-doc gcc-doc
