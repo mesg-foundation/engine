@@ -13,13 +13,13 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func testOrchestratorRefNested(executionStream pb.Execution_StreamClient, instanceHash hash.Hash) func(t *testing.T) {
+func testOrchestratorRefPathNested(executionStream pb.Execution_StreamClient, instanceHash hash.Hash) func(t *testing.T) {
 	return func(t *testing.T) {
 		var processHash hash.Hash
 
 		t.Run("create process", func(t *testing.T) {
 			respProc, err := client.ProcessClient.Create(context.Background(), &pb.CreateProcessRequest{
-				Name: "nested-data",
+				Name: "ref-path-nested-data",
 				Nodes: []*process.Process_Node{
 					{
 						Key: "n0",
@@ -42,7 +42,6 @@ func testOrchestratorRefNested(executionStream pb.Execution_StreamClient, instan
 													"msg": {
 														Value: &process.Process_Node_Map_Output_Ref{
 															Ref: &process.Process_Node_Map_Output_Reference{
-																RefKey: "n0",
 																Path: &process.Process_Node_Map_Output_Reference_Path{
 																	Selector: &process.Process_Node_Map_Output_Reference_Path_Key{
 																		Key: "msg",
@@ -63,7 +62,6 @@ func testOrchestratorRefNested(executionStream pb.Execution_StreamClient, instan
 																	{
 																		Value: &process.Process_Node_Map_Output_Ref{
 																			Ref: &process.Process_Node_Map_Output_Reference{
-																				RefKey: "n0",
 																				Path: &process.Process_Node_Map_Output_Reference_Path{
 																					Selector: &process.Process_Node_Map_Output_Reference_Path_Key{
 																						Key: "msg",
@@ -85,7 +83,6 @@ func testOrchestratorRefNested(executionStream pb.Execution_StreamClient, instan
 																	{
 																		Value: &process.Process_Node_Map_Output_Ref{
 																			Ref: &process.Process_Node_Map_Output_Reference{
-																				RefKey: "n0",
 																				Path: &process.Process_Node_Map_Output_Reference_Path{
 																					Selector: &process.Process_Node_Map_Output_Reference_Path_Key{
 																						Key: "msg",
@@ -107,7 +104,6 @@ func testOrchestratorRefNested(executionStream pb.Execution_StreamClient, instan
 																	{
 																		Value: &process.Process_Node_Map_Output_Ref{
 																			Ref: &process.Process_Node_Map_Output_Reference{
-																				RefKey: "n0",
 																				Path: &process.Process_Node_Map_Output_Reference_Path{
 																					Selector: &process.Process_Node_Map_Output_Reference_Path_Key{
 																						Key: "msg",
@@ -142,7 +138,6 @@ func testOrchestratorRefNested(executionStream pb.Execution_StreamClient, instan
 						Key: "n2",
 						Type: &process.Process_Node_Task_{
 							Task: &process.Process_Node_Task{
-								RefKey:       "n2",
 								InstanceHash: instanceHash,
 								TaskKey:      "task_complex",
 							},
@@ -156,7 +151,6 @@ func testOrchestratorRefNested(executionStream pb.Execution_StreamClient, instan
 									"msg": {
 										Value: &process.Process_Node_Map_Output_Ref{
 											Ref: &process.Process_Node_Map_Output_Reference{
-												RefKey: "n2",
 												Path: &process.Process_Node_Map_Output_Reference_Path{
 													Selector: &process.Process_Node_Map_Output_Reference_Path_Key{
 														Key: "msg",
@@ -178,7 +172,6 @@ func testOrchestratorRefNested(executionStream pb.Execution_StreamClient, instan
 						Key: "n4",
 						Type: &process.Process_Node_Task_{
 							Task: &process.Process_Node_Task{
-								RefKey:       "n4",
 								InstanceHash: instanceHash,
 								TaskKey:      "task1",
 							},
@@ -239,7 +232,6 @@ func testOrchestratorRefNested(executionStream pb.Execution_StreamClient, instan
 				exec, err := executionStream.Recv()
 				require.NoError(t, err)
 				require.Equal(t, "task_complex", exec.TaskKey)
-				require.Equal(t, "n2", exec.RefKey)
 				require.True(t, processHash.Equal(exec.ProcessHash))
 				require.Equal(t, execution.Status_InProgress, exec.Status)
 				require.Equal(t, "complex", exec.Inputs.Fields["msg"].GetStructValue().Fields["msg"].GetStringValue())
@@ -252,7 +244,6 @@ func testOrchestratorRefNested(executionStream pb.Execution_StreamClient, instan
 				exec, err := executionStream.Recv()
 				require.NoError(t, err)
 				require.Equal(t, "task_complex", exec.TaskKey)
-				require.Equal(t, "n2", exec.RefKey)
 				require.True(t, processHash.Equal(exec.ProcessHash))
 				require.Equal(t, execution.Status_Completed, exec.Status)
 				require.Equal(t, "complex", exec.Outputs.Fields["msg"].GetStructValue().Fields["msg"].GetStringValue())
@@ -268,7 +259,6 @@ func testOrchestratorRefNested(executionStream pb.Execution_StreamClient, instan
 				exec, err := executionStream.Recv()
 				require.NoError(t, err)
 				require.Equal(t, "task1", exec.TaskKey)
-				require.Equal(t, "n4", exec.RefKey)
 				require.True(t, processHash.Equal(exec.ProcessHash))
 				require.Equal(t, execution.Status_InProgress, exec.Status)
 				require.Equal(t, "complex", exec.Inputs.Fields["msg"].GetStringValue())
@@ -277,7 +267,6 @@ func testOrchestratorRefNested(executionStream pb.Execution_StreamClient, instan
 				exec, err := executionStream.Recv()
 				require.NoError(t, err)
 				require.Equal(t, "task1", exec.TaskKey)
-				require.Equal(t, "n4", exec.RefKey)
 				require.True(t, processHash.Equal(exec.ProcessHash))
 				require.Equal(t, execution.Status_Completed, exec.Status)
 				require.Equal(t, "complex", exec.Outputs.Fields["msg"].GetStringValue())

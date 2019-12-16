@@ -34,7 +34,6 @@ func testOrchestratorEventTask(executionStream pb.Execution_StreamClient, instan
 						Key: "n1",
 						Type: &process.Process_Node_Task_{
 							Task: &process.Process_Node_Task{
-								RefKey:       "n1",
 								InstanceHash: instanceHash,
 								TaskKey:      "task1",
 							},
@@ -73,7 +72,6 @@ func testOrchestratorEventTask(executionStream pb.Execution_StreamClient, instan
 			exec, err := executionStream.Recv()
 			require.NoError(t, err)
 			require.Equal(t, "task1", exec.TaskKey)
-			require.Equal(t, "n1", exec.RefKey)
 			require.True(t, processHash.Equal(exec.ProcessHash))
 			require.Equal(t, execution.Status_InProgress, exec.Status)
 			require.Equal(t, "foo_1", exec.Inputs.Fields["msg"].GetStringValue())
@@ -82,7 +80,6 @@ func testOrchestratorEventTask(executionStream pb.Execution_StreamClient, instan
 			exec, err := executionStream.Recv()
 			require.NoError(t, err)
 			require.Equal(t, "task1", exec.TaskKey)
-			require.Equal(t, "n1", exec.RefKey)
 			require.True(t, processHash.Equal(exec.ProcessHash))
 			require.Equal(t, execution.Status_Completed, exec.Status)
 			require.Equal(t, "foo_1", exec.Outputs.Fields["msg"].GetStringValue())

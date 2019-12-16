@@ -33,7 +33,6 @@ func testOrchestratorResultTask(executionStream pb.Execution_StreamClient, runne
 						Key: "n1",
 						Type: &process.Process_Node_Task_{
 							Task: &process.Process_Node_Task{
-								RefKey:       "n1",
 								InstanceHash: instanceHash,
 								TaskKey:      "task2",
 							},
@@ -69,7 +68,6 @@ func testOrchestratorResultTask(executionStream pb.Execution_StreamClient, runne
 				exec, err := executionStream.Recv()
 				require.NoError(t, err)
 				require.Equal(t, "task1", exec.TaskKey)
-				require.Equal(t, "", exec.RefKey)
 				require.True(t, hash.Int(11010101011).Equal(exec.EventHash))
 				require.Equal(t, execution.Status_InProgress, exec.Status)
 				require.True(t, exec.Inputs.Equal(&types.Struct{
@@ -86,7 +84,6 @@ func testOrchestratorResultTask(executionStream pb.Execution_StreamClient, runne
 				exec, err := executionStream.Recv()
 				require.NoError(t, err)
 				require.Equal(t, "task1", exec.TaskKey)
-				require.Equal(t, "", exec.RefKey)
 				require.True(t, hash.Int(11010101011).Equal(exec.EventHash))
 				require.Equal(t, execution.Status_Completed, exec.Status)
 				require.Equal(t, "foo_2", exec.Outputs.Fields["msg"].GetStringValue())
@@ -97,7 +94,6 @@ func testOrchestratorResultTask(executionStream pb.Execution_StreamClient, runne
 			exec, err := executionStream.Recv()
 			require.NoError(t, err)
 			require.Equal(t, "task2", exec.TaskKey)
-			require.Equal(t, "n1", exec.RefKey)
 			require.Equal(t, processHash, exec.ProcessHash)
 			require.Equal(t, execution.Status_InProgress, exec.Status)
 			require.Equal(t, "foo_2", exec.Inputs.Fields["msg"].GetStringValue())
@@ -106,7 +102,6 @@ func testOrchestratorResultTask(executionStream pb.Execution_StreamClient, runne
 			exec, err := executionStream.Recv()
 			require.NoError(t, err)
 			require.Equal(t, "task2", exec.TaskKey)
-			require.Equal(t, "n1", exec.RefKey)
 			require.Equal(t, processHash, exec.ProcessHash)
 			require.Equal(t, execution.Status_Completed, exec.Status)
 			require.Equal(t, "foo_2", exec.Outputs.Fields["msg"].GetStringValue())
