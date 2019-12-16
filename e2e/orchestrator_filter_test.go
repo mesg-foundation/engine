@@ -49,7 +49,6 @@ func testOrchestratorFilter(executionStream pb.Execution_StreamClient, instanceH
 						Key: "n2",
 						Type: &process.Process_Node_Task_{
 							Task: &process.Process_Node_Task{
-								RefKey:       "n2",
 								InstanceHash: instanceHash,
 								TaskKey:      "task1",
 							},
@@ -90,7 +89,6 @@ func testOrchestratorFilter(executionStream pb.Execution_StreamClient, instanceH
 				exec, err := executionStream.Recv()
 				require.NoError(t, err)
 				require.Equal(t, "task1", exec.TaskKey)
-				require.Equal(t, "n2", exec.RefKey)
 				require.True(t, processHash.Equal(exec.ProcessHash))
 				require.Equal(t, execution.Status_InProgress, exec.Status)
 				require.Equal(t, "shouldMatch", exec.Inputs.Fields["msg"].GetStringValue())
@@ -99,7 +97,6 @@ func testOrchestratorFilter(executionStream pb.Execution_StreamClient, instanceH
 				exec, err := executionStream.Recv()
 				require.NoError(t, err)
 				require.Equal(t, "task1", exec.TaskKey)
-				require.Equal(t, "n2", exec.RefKey)
 				require.True(t, processHash.Equal(exec.ProcessHash))
 				require.Equal(t, execution.Status_Completed, exec.Status)
 				require.Equal(t, "shouldMatch", exec.Outputs.Fields["msg"].GetStringValue())

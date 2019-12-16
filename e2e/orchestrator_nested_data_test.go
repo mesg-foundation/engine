@@ -34,7 +34,6 @@ func testOrchestratorNestedData(executionStream pb.Execution_StreamClient, insta
 						Key: "n1",
 						Type: &process.Process_Node_Task_{
 							Task: &process.Process_Node_Task{
-								RefKey:       "n1",
 								InstanceHash: instanceHash,
 								TaskKey:      "task_complex",
 							},
@@ -91,7 +90,6 @@ func testOrchestratorNestedData(executionStream pb.Execution_StreamClient, insta
 			exec, err := executionStream.Recv()
 			require.NoError(t, err)
 			require.Equal(t, "task_complex", exec.TaskKey)
-			require.Equal(t, "n1", exec.RefKey)
 			require.True(t, processHash.Equal(exec.ProcessHash))
 			require.Equal(t, execution.Status_InProgress, exec.Status)
 			require.True(t, data.Equal(exec.Inputs))
@@ -100,7 +98,6 @@ func testOrchestratorNestedData(executionStream pb.Execution_StreamClient, insta
 			exec, err := executionStream.Recv()
 			require.NoError(t, err)
 			require.Equal(t, "task_complex", exec.TaskKey)
-			require.Equal(t, "n1", exec.RefKey)
 			require.True(t, processHash.Equal(exec.ProcessHash))
 			require.Equal(t, execution.Status_Completed, exec.Status)
 			require.True(t, data.Equal(exec.Inputs))

@@ -91,7 +91,6 @@ func testOrchestratorNestedMap(executionStream pb.Execution_StreamClient, instan
 						Key: "n2",
 						Type: &process.Process_Node_Task_{
 							Task: &process.Process_Node_Task{
-								RefKey:       "n2",
 								InstanceHash: instanceHash,
 								TaskKey:      "task_complex",
 							},
@@ -119,7 +118,6 @@ func testOrchestratorNestedMap(executionStream pb.Execution_StreamClient, instan
 				exec, err := executionStream.Recv()
 				require.NoError(t, err)
 				require.Equal(t, "task_complex", exec.TaskKey)
-				require.Equal(t, "n2", exec.RefKey)
 				require.True(t, processHash.Equal(exec.ProcessHash))
 				require.Equal(t, execution.Status_InProgress, exec.Status)
 				require.Equal(t, "isAConstant", exec.Inputs.Fields["msg"].GetStructValue().Fields["msg"].GetStringValue())
@@ -133,7 +131,6 @@ func testOrchestratorNestedMap(executionStream pb.Execution_StreamClient, instan
 				exec, err := executionStream.Recv()
 				require.NoError(t, err)
 				require.Equal(t, "task_complex", exec.TaskKey)
-				require.Equal(t, "n2", exec.RefKey)
 				require.True(t, processHash.Equal(exec.ProcessHash))
 				require.Equal(t, execution.Status_Completed, exec.Status)
 				require.Equal(t, "isAConstant", exec.Outputs.Fields["msg"].GetStructValue().Fields["msg"].GetStringValue())

@@ -48,7 +48,6 @@ func testOrchestratorMapConst(executionStream pb.Execution_StreamClient, instanc
 						Key: "n2",
 						Type: &process.Process_Node_Task_{
 							Task: &process.Process_Node_Task{
-								RefKey:       "n2",
 								InstanceHash: instanceHash,
 								TaskKey:      "task1",
 							},
@@ -88,7 +87,6 @@ func testOrchestratorMapConst(executionStream pb.Execution_StreamClient, instanc
 			exec, err := executionStream.Recv()
 			require.NoError(t, err)
 			require.Equal(t, "task1", exec.TaskKey)
-			require.Equal(t, "n2", exec.RefKey)
 			require.True(t, processHash.Equal(exec.ProcessHash))
 			require.Equal(t, execution.Status_InProgress, exec.Status)
 			require.Equal(t, "itsAConstant", exec.Inputs.Fields["msg"].GetStringValue())
@@ -97,7 +95,6 @@ func testOrchestratorMapConst(executionStream pb.Execution_StreamClient, instanc
 			exec, err := executionStream.Recv()
 			require.NoError(t, err)
 			require.Equal(t, "task1", exec.TaskKey)
-			require.Equal(t, "n2", exec.RefKey)
 			require.True(t, processHash.Equal(exec.ProcessHash))
 			require.Equal(t, execution.Status_Completed, exec.Status)
 			require.Equal(t, "itsAConstant", exec.Outputs.Fields["msg"].GetStringValue())
