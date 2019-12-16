@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log"
 	"math/rand"
 
 	"github.com/mesg-foundation/engine/event"
@@ -208,13 +207,8 @@ func (s *Orchestrator) outputToValue(output *process.Process_Node_Map_Output, wf
 		// the following code is only for catching checking the node exist.
 		nodes := wf.FindNodes(func(n *process.Process_Node) bool {
 			task := n.GetTask()
-			log.Println("getting task", n.Key)
-			if task != nil {
-				log.Println("found task", n.Key, task.RefKey, v.Ref.RefKey, task != nil && task.RefKey == v.Ref.RefKey)
-			}
 			return task != nil && task.RefKey == v.Ref.RefKey
 		})
-		log.Println("found n nodes", len(nodes))
 		if len(nodes) != 1 {
 			return nil, fmt.Errorf("node with reference's key %s not found", v.Ref.RefKey)
 		}
