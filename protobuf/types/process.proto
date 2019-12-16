@@ -43,7 +43,7 @@ message Process {
     message Task {
       // RefKey of this execution's node. Must to set to reference an output of this task from a map node.
       string refKey = 1 [
-        (gogoproto.moretags) = 'hash:"name:1" validate:"required"'
+        (gogoproto.moretags) = 'hash:"name:1" validate:"printascii"'
       ];
 
       // Hash of the instance to execute.
@@ -82,7 +82,7 @@ message Process {
         message Reference {
           // RefKey of the execution's node in the graph.
           string refKey = 1 [
-            (gogoproto.moretags) = 'hash:"name:1" validate:"required"'
+            (gogoproto.moretags) = 'hash:"name:1" validate:"printascii"'
           ];
 
           // Key of a specific parameter of the referenced node's output data.
