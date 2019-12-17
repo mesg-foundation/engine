@@ -182,71 +182,6 @@ func testExecution(t *testing.T) {
 		})
 	})
 
-	t.Run("many executions in parallel", func(t *testing.T) {
-		var (
-			n          = 10
-			executions = make([]hash.Hash, 0)
-			taskKey    = "task1"
-			inputs     = &types.Struct{
-				Fields: map[string]*types.Value{
-					"msg": {
-						Kind: &types.Value_StringValue{
-							StringValue: "test",
-						},
-					},
-				},
-			}
-		)
-		t.Run("create executions", func(t *testing.T) {
-			wg := sync.WaitGroup{}
-			var mutex sync.Mutex
-			wg.Add(n)
-			for i := 1; i <= n; i++ {
-				go func(i int) {
-					defer wg.Done()
-					resp, err := client.ExecutionClient.Create(context.Background(), &pb.CreateExecutionRequest{
-						TaskKey:      taskKey,
-						EventHash:    hash.Int(1111 + i),
-						ExecutorHash: executorHash,
-						Inputs:       inputs,
-					})
-					require.NoError(t, err)
-					mutex.Lock()
-					defer mutex.Unlock()
-					require.NotContains(t, executions, resp.Hash)
-					executions = append(executions, resp.Hash)
-					fmt.Printf("execution %d created\n", i)
-				}(i)
-			}
-			wg.Wait()
-			require.Len(t, executions, n)
-		})
-		t.Run("check in progress", func(t *testing.T) {
-			execs := make([]hash.Hash, 0)
-			for i := 1; i <= n; i++ {
-				exec, err := streamInProgress.Recv()
-				require.NoError(t, err)
-				require.Contains(t, executions, exec.Hash)
-				require.NotContains(t, execs, exec.Hash)
-				execs = append(execs, exec.Hash)
-				fmt.Printf("execution %d in progress\n", i)
-			}
-			require.Len(t, execs, n)
-		})
-		t.Run("check completed", func(t *testing.T) {
-			execs := make([]hash.Hash, 0)
-			for i := 1; i <= n; i++ {
-				exec, err := streamCompleted.Recv()
-				require.NoError(t, err)
-				require.Contains(t, executions, exec.Hash)
-				require.NotContains(t, execs, exec.Hash)
-				execs = append(execs, exec.Hash)
-				fmt.Printf("execution %d completed\n", i)
-			}
-			require.Len(t, execs, n)
-		})
-	})
-
 	t.Run("complex execution", func(t *testing.T) {
 		var (
 			executionHash hash.Hash
@@ -326,6 +261,71 @@ func testExecution(t *testing.T) {
 	t.Run("list", func(t *testing.T) {
 		resp, err := client.ExecutionClient.List(context.Background(), &pb.ListExecutionRequest{})
 		require.NoError(t, err)
-		require.Len(t, resp.Executions, 6)
+		require.Len(t, resp.Executions, 4)
+	})
+
+	t.Run("many executions in parallel", func(t *testing.T) {
+		var (
+			n          = 10
+			executions = make([]hash.Hash, 0)
+			taskKey    = "task1"
+			inputs     = &types.Struct{
+				Fields: map[string]*types.Value{
+					"msg": {
+						Kind: &types.Value_StringValue{
+							StringValue: "test",
+						},
+					},
+				},
+			}
+		)
+		t.Run("create executions", func(t *testing.T) {
+			wg := sync.WaitGroup{}
+			var mutex sync.Mutex
+			wg.Add(n)
+			for i := 1; i <= n; i++ {
+				go func(i int) {
+					defer wg.Done()
+					resp, err := client.ExecutionClient.Create(context.Background(), &pb.CreateExecutionRequest{
+						TaskKey:      taskKey,
+						EventHash:    hash.Int(1111 + i),
+						ExecutorHash: executorHash,
+						Inputs:       inputs,
+					})
+					require.NoError(t, err)
+					mutex.Lock()
+					defer mutex.Unlock()
+					require.NotContains(t, executions, resp.Hash)
+					executions = append(executions, resp.Hash)
+					fmt.Printf("execution %d created\n", i)
+				}(i)
+			}
+			wg.Wait()
+			require.Len(t, executions, n)
+		})
+		t.Run("check in progress", func(t *testing.T) {
+			execs := make([]hash.Hash, 0)
+			for i := 1; i <= n; i++ {
+				exec, err := streamInProgress.Recv()
+				require.NoError(t, err)
+				require.Contains(t, executions, exec.Hash)
+				require.NotContains(t, execs, exec.Hash)
+				execs = append(execs, exec.Hash)
+				fmt.Printf("execution %d in progress\n", i)
+			}
+			require.Len(t, execs, n)
+		})
+		t.Run("check completed", func(t *testing.T) {
+			execs := make([]hash.Hash, 0)
+			for i := 1; i <= n; i++ {
+				exec, err := streamCompleted.Recv()
+				require.NoError(t, err)
+				require.Contains(t, executions, exec.Hash)
+				require.NotContains(t, execs, exec.Hash)
+				execs = append(execs, exec.Hash)
+				fmt.Printf("execution %d completed\n", i)
+			}
+			require.Len(t, execs, n)
+		})
 	})
 }
