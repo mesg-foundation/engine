@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"sync"
 	"testing"
 
@@ -181,8 +182,9 @@ func testExecution(t *testing.T) {
 		})
 	})
 
-	t.Run("double execution in parallel", func(t *testing.T) {
+	t.Run("many executions in parallel", func(t *testing.T) {
 		var (
+			n          = 10
 			executions = make([]hash.Hash, 0)
 			taskKey    = "task1"
 			inputs     = &types.Struct{
@@ -197,50 +199,51 @@ func testExecution(t *testing.T) {
 		)
 		t.Run("create executions", func(t *testing.T) {
 			wg := sync.WaitGroup{}
-			wg.Add(2)
-			go func() {
-				defer wg.Done()
-				resp, err := client.ExecutionClient.Create(context.Background(), &pb.CreateExecutionRequest{
-					TaskKey:      taskKey,
-					EventHash:    hash.Int(4),
-					ExecutorHash: executorHash,
-					Inputs:       inputs,
-				})
-				require.NoError(t, err)
-				executions = append(executions, resp.Hash)
-			}()
-			go func() {
-				defer wg.Done()
-				resp, err := client.ExecutionClient.Create(context.Background(), &pb.CreateExecutionRequest{
-					TaskKey:      taskKey,
-					EventHash:    hash.Int(5),
-					ExecutorHash: executorHash,
-					Inputs:       inputs,
-				})
-				require.NoError(t, err)
-				executions = append(executions, resp.Hash)
-			}()
+			var mutex sync.Mutex
+			wg.Add(n)
+			for i := 1; i <= n; i++ {
+				go func(i int) {
+					defer wg.Done()
+					resp, err := client.ExecutionClient.Create(context.Background(), &pb.CreateExecutionRequest{
+						TaskKey:      taskKey,
+						EventHash:    hash.Int(1111 + i),
+						ExecutorHash: executorHash,
+						Inputs:       inputs,
+					})
+					require.NoError(t, err)
+					mutex.Lock()
+					defer mutex.Unlock()
+					require.NotContains(t, executions, resp.Hash)
+					executions = append(executions, resp.Hash)
+					fmt.Printf("execution %d created\n", i)
+				}(i)
+			}
 			wg.Wait()
-			require.Len(t, executions, 2)
-			require.False(t, executions[0].Equal(executions[1]))
+			require.Len(t, executions, n)
 		})
 		t.Run("check in progress", func(t *testing.T) {
-			execInProgress1, err := streamInProgress.Recv()
-			require.NoError(t, err)
-			execInProgress2, err := streamInProgress.Recv()
-			require.NoError(t, err)
-			require.False(t, execInProgress1.Hash.Equal(execInProgress2.Hash))
-			require.Contains(t, executions, execInProgress1.Hash)
-			require.Contains(t, executions, execInProgress2.Hash)
+			execs := make([]hash.Hash, 0)
+			for i := 1; i <= n; i++ {
+				exec, err := streamInProgress.Recv()
+				require.NoError(t, err)
+				require.Contains(t, executions, exec.Hash)
+				require.NotContains(t, execs, exec.Hash)
+				execs = append(execs, exec.Hash)
+				fmt.Printf("execution %d in progress\n", i)
+			}
+			require.Len(t, execs, n)
 		})
 		t.Run("check completed", func(t *testing.T) {
-			exec1, err := streamCompleted.Recv()
-			require.NoError(t, err)
-			exec2, err := streamCompleted.Recv()
-			require.NoError(t, err)
-			require.False(t, exec1.Hash.Equal(exec2.Hash))
-			require.Contains(t, executions, exec1.Hash)
-			require.Contains(t, executions, exec2.Hash)
+			execs := make([]hash.Hash, 0)
+			for i := 1; i <= n; i++ {
+				exec, err := streamCompleted.Recv()
+				require.NoError(t, err)
+				require.Contains(t, executions, exec.Hash)
+				require.NotContains(t, execs, exec.Hash)
+				execs = append(execs, exec.Hash)
+				fmt.Printf("execution %d completed\n", i)
+			}
+			require.Len(t, execs, n)
 		})
 	})
 
