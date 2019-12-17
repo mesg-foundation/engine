@@ -25,7 +25,7 @@ func TestValidateProcess(t *testing.T) {
 			Type: &Process_Node_Task_{&Process_Node_Task{
 				InstanceHash: hash.Int(2),
 				TaskKey:      "-",
-				RefKey:       "-",
+				RefKey:       "refX",
 			}},
 		},
 		{
@@ -192,7 +192,7 @@ func TestValidateProcess(t *testing.T) {
 					},
 				}},
 			}),
-		}, err: "node \"invalid\" not found"},
+		}, err: "\"invalid\" reference not found"},
 		{w: &Process{
 			Hash: hash.Int(1),
 			Name: "inputs-with-valid-ref",
@@ -202,7 +202,7 @@ func TestValidateProcess(t *testing.T) {
 					Outputs: map[string]*Process_Node_Map_Output{
 						"key": {
 							Value: &Process_Node_Map_Output_Ref{
-								Ref: &Process_Node_Map_Output_Reference{RefKey: "nodeKey1"},
+								Ref: &Process_Node_Map_Output_Reference{RefKey: "refX"},
 							},
 						},
 					},

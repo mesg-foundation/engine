@@ -22,8 +22,12 @@ func (w *Process) Validate() error {
 		if mapNode != nil {
 			for _, output := range mapNode.Outputs {
 				if ref := output.GetRef(); ref != nil && ref.RefKey != "" {
-					if _, err := w.FindNode(ref.RefKey); err != nil {
+					refNode, err := w.FindTaskNodeFromRef(node.Key, ref.RefKey)
+					if err != nil {
 						return err
+					}
+					if refNode == nil {
+						return fmt.Errorf("%q reference not found", ref.RefKey)
 					}
 				}
 			}
@@ -44,4 +48,26 @@ func (w *Process) Trigger() (*Process_Node, error) {
 		return nil, fmt.Errorf("should contain exactly one trigger (result or event)")
 	}
 	return triggers[0], nil
+}
+
+// FindTaskNodeFromRef returns the node associated to a reference in the nodeKey's parents, returns an nil if not found
+func (w *Process) FindTaskNodeFromRef(nodeKey string, refKey string) (*Process_Node, error) {
+	node, err := w.FindNode(nodeKey)
+	if err != nil {
+		return nil, err
+	}
+	if node.GetTask() != nil && node.GetTask().RefKey == refKey {
+		return node, nil
+	}
+	var refNode *Process_Node
+	for _, parent := range w.ParentKeys(nodeKey) {
+		r, err := w.FindTaskNodeFromRef(parent, refKey)
+		if err != nil {
+			return nil, err
+		}
+		if refNode == nil && r != nil {
+			refNode = r
+		}
+	}
+	return refNode, nil
 }
