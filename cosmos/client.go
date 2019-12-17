@@ -15,6 +15,7 @@ import (
 	"github.com/mesg-foundation/engine/x/xreflect"
 	"github.com/mesg-foundation/engine/x/xstrings"
 	abci "github.com/tendermint/tendermint/abci/types"
+	tmquery "github.com/tendermint/tendermint/libs/pubsub/query"
 	"github.com/tendermint/tendermint/node"
 	rpcclient "github.com/tendermint/tendermint/rpc/client"
 	tenderminttypes "github.com/tendermint/tendermint/types"
@@ -22,7 +23,7 @@ import (
 
 // Client is a tendermint client with helper functions.
 type Client struct {
-	rpcclient.Client
+	*rpcclient.Local
 	kb          keys.Keybase
 	chainID     string
 	accName     string
@@ -37,7 +38,7 @@ type Client struct {
 // NewClient returns a rpc tendermint client.
 func NewClient(node *node.Node, kb keys.Keybase, chainID, accName, accPassword string) *Client {
 	return &Client{
-		Client:      rpcclient.NewLocal(node),
+		Local:       rpcclient.NewLocal(node),
 		kb:          kb,
 		chainID:     chainID,
 		accName:     accName,
@@ -96,6 +97,7 @@ func (c *Client) BuildAndBroadcastMsg(msg sdktypes.Msg) (*abci.ResponseDeliverTx
 		return nil, fmt.Errorf("transaction returned with invalid code %d", txres.Code)
 	}
 
+	// TODO: 20*time.Second should not be hardcoded here
 	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
 	defer cancel()
 
@@ -125,19 +127,22 @@ func (c *Client) BuildAndBroadcastMsg(msg sdktypes.Msg) (*abci.ResponseDeliverTx
 // Stream subscribes to the provided query and returns the hash of the matching ressources.
 func (c *Client) Stream(ctx context.Context, query string) (chan hash.Hash, chan error, error) {
 	subscriber := xstrings.RandASCIILetters(8)
-	eventStream, err := c.Subscribe(context.Background(), subscriber, query)
+	q, err := tmquery.New(query)
 	if err != nil {
 		return nil, nil, err
 	}
-
+	eventStream, err := c.EventBus.SubscribeUnbuffered(ctx, subscriber, q)
+	if err != nil {
+		return nil, nil, err
+	}
 	hashC := make(chan hash.Hash)
 	errC := make(chan error)
 	go func() {
 	loop:
 		for {
 			select {
-			case event := <-eventStream:
-				tags := event.Events[EventHashType]
+			case event := <-eventStream.Out():
+				tags := event.Events()[EventHashType]
 				if len(tags) != 1 {
 					errC <- fmt.Errorf("event %s has %d tag(s), but only 1 is expected", EventHashType, len(tags))
 					break
@@ -149,6 +154,8 @@ func (c *Client) Stream(ctx context.Context, query string) (chan hash.Hash, chan
 				} else {
 					hashC <- hash
 				}
+			case <-eventStream.Cancelled():
+				errC <- eventStream.Err()
 			case <-ctx.Done():
 				break loop
 			}
