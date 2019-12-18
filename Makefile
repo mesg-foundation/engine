@@ -1,4 +1,4 @@
-.PHONY: all e2e check-version docker-publish docker-publish-dev docker-tools dev dev-stop dev-start lint dep build test mock protobuf changelog clean genesis clean-build clean-docker
+.PHONY: all e2e check-version docker-publish docker-publish-dev docker-tools dev dev-stop dev-start lint dep build test mock protobuf changelog clean genesis clean-build clean-docker build-cmd-cosmos publish-cmd-cosmos-prod publish-cmd-cosmos-dev get-ghr
 
 MAJOR_VERSION := $(shell echo $(version) | cut -d . -f 1)	
 MINOR_VERSION := $(shell echo $(version) | cut -d . -f 1-2)
@@ -51,8 +51,20 @@ dep:
 build: check-version dep
 	go build -mod=readonly -o ./bin/engine -ldflags="-X 'github.com/mesg-foundation/engine/version.Version=$(version)'" core/main.go
 
+get-ghr:
+	go get -u github.com/tcnksm/ghr
+
 build-cmd-cosmos: dep
 	go build -mod=readonly -o ./bin/mesg-cosmos ./cmd/mesg-cosmos/main.go
+
+publish-cmd-cosmos-dev: get-ghr
+	ghr -u mesg-foundation -r engine -delete -prerelease -n "Developer Release" -b "Warning - this is a developer release, use it only if you know what are doing. Make sure to pull the latest \`mesg/engine:dev\` image. \`\`\`docker pull mesg/engine:dev\`\`\`" release-dev ./bin/mesg-cosmos
+
+publish-cmd-cosmos-prod: get-ghr
+ifndef tag
+	$(error tag is undefined)
+endif
+	ghr -u mesg-foundation -r engine -delete $(tag) ./bin/mesg-cosmos
 
 e2e: docker-dev
 	./scripts/run-e2e.sh

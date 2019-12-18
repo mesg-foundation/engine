@@ -24,6 +24,10 @@ save_go_path: &save_go_path
 
 go_cache_dir: &go_cache_dir /tmp/go/cache
 
+go_environment: &go_environment
+  - GOPATH : *go_path
+  - GOCACHE: *go_cache_dir
+
 restore_go_cache: &restore_go_cache
   - restore_cache:
       keys:
@@ -83,15 +87,32 @@ jobs:
 
   "build-cmd-cosmos":
     <<: *run_on_docker
-    environment:
-      - GOPATH : *go_path
-      - GOCACHE: *go_cache_dir
+    <<: *go_environment
     steps:
       - checkout
-      - run: docker swarm init
       - <<: *restore_go_cache
       - <<: *restore_go_path
       - run: make build-cmd-cosmos
+      - persist_to_workspace:
+          root: ./
+          paths:
+            - bin/
+
+  "publish-cmd-cosmos-dev":
+    <<: *run_on_docker
+    <<: *go_environment
+    steps:
+      - attach_workspace:
+        at: ./
+      - run: make publish-cmd-cosmos-dev
+
+  "publish-cmd-cosmos-prod":
+    <<: *run_on_docker
+    <<: *go_environment
+    steps:
+      - attach_workspace:
+        at: ./
+      - run: make publish-cmd-cosmos-prod tag=$CIRCLE_TAG
 
   "publish_docker_dev":
     <<: *run_on_machine
@@ -151,6 +172,22 @@ workflows:
           requires:
             - "test"
             - "lint"
+      - "build-cmd-cosmos":
+          filters:
+            tags:
+              ignore: /.*/
+            branches:
+              only: dev
+          requires:
+            - "test_e2e"
+      - "publish-cmd-cosmos-dev":
+          filters:
+            tags:
+              ignore: /.*/
+            branches:
+              only: dev
+          requires:
+            - "build-cmd-cosmos"
       - "publish_docker_dev":
           requires:
             - "test_e2e"
@@ -197,6 +234,22 @@ workflows:
           requires:
             - "test"
             - "lint"
+      - "build-cmd-cosmos":
+          filters:
+            tags:
+              only: /^v.*/
+            branches:
+              ignore: /.*/
+          requires:
+            - "test_e2e"
+      - "publish-cmd-cosmos-prod":
+          filters:
+            tags:
+              only: /^v.*/
+            branches:
+              ignore: /.*/
+          requires:
+            - "build-cmd-cosmos"
       - "publish_docker_prod":
           filters:
             tags:
