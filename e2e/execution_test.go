@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"sync"
 	"testing"
 
@@ -180,7 +179,7 @@ func testExecution(t *testing.T) {
 	t.Run("list", func(t *testing.T) {
 		resp, err := client.ExecutionClient.List(context.Background(), &pb.ListExecutionRequest{})
 		require.NoError(t, err)
-		require.Len(t, resp.Executions, 4)
+		require.Len(t, resp.Executions, 2)
 	})
 
 	t.Run("many executions in parallel", func(t *testing.T) {
@@ -205,9 +204,11 @@ func testExecution(t *testing.T) {
 			for i := 1; i <= n; i++ {
 				go func(i int) {
 					defer wg.Done()
+					hash, err := hash.Random()
+					require.Nil(t, err)
 					resp, err := client.ExecutionClient.Create(context.Background(), &pb.CreateExecutionRequest{
 						TaskKey:      taskKey,
-						EventHash:    hash.Int(1111 + i),
+						EventHash:    hash,
 						ExecutorHash: executorHash,
 						Inputs:       inputs,
 					})
@@ -216,7 +217,6 @@ func testExecution(t *testing.T) {
 					defer mutex.Unlock()
 					require.NotContains(t, executions, resp.Hash)
 					executions = append(executions, resp.Hash)
-					fmt.Printf("execution %d created\n", i)
 				}(i)
 			}
 			wg.Wait()
@@ -230,7 +230,6 @@ func testExecution(t *testing.T) {
 				require.Contains(t, executions, exec.Hash)
 				require.NotContains(t, execs, exec.Hash)
 				execs = append(execs, exec.Hash)
-				fmt.Printf("execution %d in progress\n", i)
 			}
 			require.Len(t, execs, n)
 		})
@@ -242,7 +241,6 @@ func testExecution(t *testing.T) {
 				require.Contains(t, executions, exec.Hash)
 				require.NotContains(t, execs, exec.Hash)
 				execs = append(execs, exec.Hash)
-				fmt.Printf("execution %d completed\n", i)
 			}
 			require.Len(t, execs, n)
 		})
