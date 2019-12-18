@@ -81,6 +81,18 @@ jobs:
       - checkout
       - run: make lint
 
+  "build-cmd-cosmos":
+    <<: *run_on_docker
+    environment:
+      - GOPATH : *go_path
+      - GOCACHE: *go_cache_dir
+    steps:
+      - checkout
+      - run: docker swarm init
+      - <<: *restore_go_cache
+      - <<: *restore_go_path
+      - run: make build-cmd-cosmos
+
   "publish_docker_dev":
     <<: *run_on_machine
     steps:
