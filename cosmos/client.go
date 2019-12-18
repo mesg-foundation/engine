@@ -145,9 +145,7 @@ func (c *Client) Stream(ctx context.Context, query string) (chan hash.Hash, chan
 				tags := event.Events()[EventHashType]
 				if len(tags) != 1 {
 					errC <- fmt.Errorf("event %s has %d tag(s), but only 1 is expected", EventHashType, len(tags))
-					break
 				}
-
 				hash, err := hash.Decode(tags[0])
 				if err != nil {
 					errC <- err
@@ -156,6 +154,7 @@ func (c *Client) Stream(ctx context.Context, query string) (chan hash.Hash, chan
 				}
 			case <-eventStream.Cancelled():
 				errC <- eventStream.Err()
+				break loop
 			case <-ctx.Done():
 				break loop
 			}
