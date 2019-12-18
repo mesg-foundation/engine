@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"sync"
 	"testing"
 
 	"github.com/mesg-foundation/engine/execution"
@@ -14,9 +15,10 @@ import (
 
 func testExecution(t *testing.T) {
 	var (
-		stream       pb.Execution_StreamClient
-		err          error
-		executorHash = testRunnerHash
+		streamInProgress pb.Execution_StreamClient
+		streamCompleted  pb.Execution_StreamClient
+		err              error
+		executorHash     = testRunnerHash
 	)
 
 	t.Run("create stream nil filter", func(t *testing.T) {
@@ -25,13 +27,22 @@ func testExecution(t *testing.T) {
 	})
 
 	t.Run("create stream", func(t *testing.T) {
-		stream, err = client.ExecutionClient.Stream(context.Background(), &pb.StreamExecutionRequest{
+		streamInProgress, err = client.ExecutionClient.Stream(context.Background(), &pb.StreamExecutionRequest{
 			Filter: &pb.StreamExecutionRequest_Filter{
 				ExecutorHash: executorHash,
+				Statuses:     []execution.Status{execution.Status_InProgress},
 			},
 		})
 		require.NoError(t, err)
-		acknowledgement.WaitForStreamToBeReady(stream)
+		streamCompleted, err = client.ExecutionClient.Stream(context.Background(), &pb.StreamExecutionRequest{
+			Filter: &pb.StreamExecutionRequest_Filter{
+				ExecutorHash: executorHash,
+				Statuses:     []execution.Status{execution.Status_Completed},
+			},
+		})
+		require.NoError(t, err)
+		acknowledgement.WaitForStreamToBeReady(streamInProgress)
+		acknowledgement.WaitForStreamToBeReady(streamCompleted)
 	})
 
 	t.Run("simple execution", func(t *testing.T) {
@@ -61,7 +72,7 @@ func testExecution(t *testing.T) {
 			executionHash = resp.Hash
 		})
 		t.Run("in progress", func(t *testing.T) {
-			execInProgress, err := stream.Recv()
+			execInProgress, err := streamInProgress.Recv()
 			require.NoError(t, err)
 			require.Equal(t, executionHash, execInProgress.Hash)
 			require.Equal(t, taskKey, execInProgress.TaskKey)
@@ -71,7 +82,7 @@ func testExecution(t *testing.T) {
 			require.True(t, inputs.Equal(execInProgress.Inputs))
 		})
 		t.Run("completed", func(t *testing.T) {
-			exec, err = stream.Recv()
+			exec, err = streamCompleted.Recv()
 			require.NoError(t, err)
 			require.Equal(t, executionHash, exec.Hash)
 			require.Equal(t, taskKey, exec.TaskKey)
@@ -133,7 +144,7 @@ func testExecution(t *testing.T) {
 			executionHash = resp.Hash
 		})
 		t.Run("in progress", func(t *testing.T) {
-			execInProgress, err := stream.Recv()
+			execInProgress, err := streamInProgress.Recv()
 			require.NoError(t, err)
 			require.Equal(t, executionHash, execInProgress.Hash)
 			require.Equal(t, taskKey, execInProgress.TaskKey)
@@ -143,7 +154,7 @@ func testExecution(t *testing.T) {
 			require.True(t, inputs.Equal(execInProgress.Inputs))
 		})
 		t.Run("completed", func(t *testing.T) {
-			exec, err = stream.Recv()
+			exec, err = streamCompleted.Recv()
 			require.NoError(t, err)
 			require.Equal(t, executionHash, exec.Hash)
 			require.Equal(t, taskKey, exec.TaskKey)
@@ -169,5 +180,69 @@ func testExecution(t *testing.T) {
 		resp, err := client.ExecutionClient.List(context.Background(), &pb.ListExecutionRequest{})
 		require.NoError(t, err)
 		require.Len(t, resp.Executions, 2)
+	})
+
+	t.Run("many executions in parallel", func(t *testing.T) {
+		var (
+			n          = 10
+			executions = make([]hash.Hash, 0)
+			taskKey    = "task1"
+			inputs     = &types.Struct{
+				Fields: map[string]*types.Value{
+					"msg": {
+						Kind: &types.Value_StringValue{
+							StringValue: "test",
+						},
+					},
+				},
+			}
+		)
+		t.Run("create executions", func(t *testing.T) {
+			wg := sync.WaitGroup{}
+			var mutex sync.Mutex
+			wg.Add(n)
+			for i := 1; i <= n; i++ {
+				go func() {
+					defer wg.Done()
+					hash, err := hash.Random()
+					require.Nil(t, err)
+					resp, err := client.ExecutionClient.Create(context.Background(), &pb.CreateExecutionRequest{
+						TaskKey:      taskKey,
+						EventHash:    hash,
+						ExecutorHash: executorHash,
+						Inputs:       inputs,
+					})
+					require.NoError(t, err)
+					mutex.Lock()
+					defer mutex.Unlock()
+					require.NotContains(t, executions, resp.Hash)
+					executions = append(executions, resp.Hash)
+				}()
+			}
+			wg.Wait()
+			require.Len(t, executions, n)
+		})
+		t.Run("check in progress", func(t *testing.T) {
+			execs := make([]hash.Hash, 0)
+			for i := 1; i <= n; i++ {
+				exec, err := streamInProgress.Recv()
+				require.NoError(t, err)
+				require.Contains(t, executions, exec.Hash)
+				require.NotContains(t, execs, exec.Hash)
+				execs = append(execs, exec.Hash)
+			}
+			require.Len(t, execs, n)
+		})
+		t.Run("check completed", func(t *testing.T) {
+			execs := make([]hash.Hash, 0)
+			for i := 1; i <= n; i++ {
+				exec, err := streamCompleted.Recv()
+				require.NoError(t, err)
+				require.Contains(t, executions, exec.Hash)
+				require.NotContains(t, execs, exec.Hash)
+				execs = append(execs, exec.Hash)
+			}
+			require.Len(t, execs, n)
+		})
 	})
 }

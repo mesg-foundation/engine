@@ -1,11 +1,2 @@
-log:
-  level: warn
-
 account:
   mnemonic: glimpse upon body vast economy give taxi yellow rabbit come click ranch chronic hammer sport near rotate charge lumber chicken cloud base thing forum
-
-
-tendermint:
-  config:
-    consensus:
-      timeoutcommit: 100ms
