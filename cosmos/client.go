@@ -166,34 +166,6 @@ func (c *Client) Stream(ctx context.Context, query string) (chan hash.Hash, chan
 	return hashC, errC, nil
 }
 
-// GetAccount returns the local account.
-func (c *Client) GetAccount() (auth.Account, error) {
-	c.getAccountMutex.Lock()
-	defer c.getAccountMutex.Unlock()
-	if c.acc == nil {
-		accKb, err := c.kb.Get(c.accName)
-		if err != nil {
-			return nil, err
-		}
-		c.acc = auth.NewBaseAccount(
-			accKb.GetAddress(),
-			nil,
-			accKb.GetPubKey(),
-			AccNumber,
-			0,
-		)
-	}
-	localSeq := c.acc.GetSequence()
-	if accR, err := auth.NewAccountRetriever(c).GetAccount(c.acc.GetAddress()); err == nil {
-		c.acc = accR
-		// replace seq if sup
-		if localSeq > c.acc.GetSequence() {
-			c.acc.SetSequence(localSeq)
-		}
-	}
-	return c.acc, nil
-}
-
 // Sign signs a msg and return a tendermint tx.
 func (c *Client) sign(msg sdktypes.Msg) (tenderminttypes.Tx, error) {
 	acc, err := c.GetAccount()
