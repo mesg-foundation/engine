@@ -188,3 +188,102 @@ func initConfig(cmd *cobra.Command) error {
 	}
 	return viper.BindPFlag(cli.OutputFlag, cmd.PersistentFlags().Lookup(cli.OutputFlag))
 }
+
+/*
+List of commands that could be used in this cli
+
+distribution/client/cli/tx.go
+func GetTxCmd(storeKey string, cdc *codec.Codec) *cobra.Command {
+func GetCmdWithdrawRewards(cdc *codec.Codec) *cobra.Command {
+func GetCmdWithdrawAllRewards(cdc *codec.Codec, queryRoute string) *cobra.Command {
+func GetCmdSetWithdrawAddr(cdc *codec.Codec) *cobra.Command {
+func GetCmdSubmitProposal(cdc *codec.Codec) *cobra.Command {
+
+distribution/client/cli/query.go
+func GetQueryCmd(queryRoute string, cdc *codec.Codec) *cobra.Command {
+func GetCmdQueryParams(queryRoute string, cdc *codec.Codec) *cobra.Command {
+func GetCmdQueryValidatorOutstandingRewards(queryRoute string, cdc *codec.Codec) *cobra.Command {
+func GetCmdQueryValidatorCommission(queryRoute string, cdc *codec.Codec) *cobra.Command {
+func GetCmdQueryValidatorSlashes(queryRoute string, cdc *codec.Codec) *cobra.Command {
+func GetCmdQueryDelegatorRewards(queryRoute string, cdc *codec.Codec) *cobra.Command {
+func GetCmdQueryCommunityPool(queryRoute string, cdc *codec.Codec) *cobra.Command {
+
+gov/client/cli/query.go
+func GetQueryCmd(queryRoute string, cdc *codec.Codec) *cobra.Command {
+func GetCmdQueryProposal(queryRoute string, cdc *codec.Codec) *cobra.Command {
+func GetCmdQueryProposals(queryRoute string, cdc *codec.Codec) *cobra.Command {
+func GetCmdQueryVote(queryRoute string, cdc *codec.Codec) *cobra.Command {
+func GetCmdQueryVotes(queryRoute string, cdc *codec.Codec) *cobra.Command {
+func GetCmdQueryDeposit(queryRoute string, cdc *codec.Codec) *cobra.Command {
+func GetCmdQueryDeposits(queryRoute string, cdc *codec.Codec) *cobra.Command {
+func GetCmdQueryTally(queryRoute string, cdc *codec.Codec) *cobra.Command {
+func GetCmdQueryParams(queryRoute string, cdc *codec.Codec) *cobra.Command {
+func GetCmdQueryParam(queryRoute string, cdc *codec.Codec) *cobra.Command {
+func GetCmdQueryProposer(queryRoute string, cdc *codec.Codec) *cobra.Command {
+
+gov/client/cli/tx.go
+func GetTxCmd(storeKey string, cdc *codec.Codec, pcmds []*cobra.Command) *cobra.Command {
+func GetCmdSubmitProposal(cdc *codec.Codec) *cobra.Command {
+func GetCmdDeposit(cdc *codec.Codec) *cobra.Command {
+func GetCmdVote(cdc *codec.Codec) *cobra.Command {
+
+bank/client/cli/tx.go
+func GetTxCmd(cdc *codec.Codec) *cobra.Command {
+
+params/client/cli/tx.go
+func GetCmdSubmitProposal(cdc *codec.Codec) *cobra.Command {
+
+auth/client/cli/query.go
+func GetQueryCmd(cdc *codec.Codec) *cobra.Command {
+func GetAccountCmd(cdc *codec.Codec) *cobra.Command {
+
+staking/client/cli/query.go
+func GetQueryCmd(queryRoute string, cdc *codec.Codec) *cobra.Command {
+func GetCmdQueryValidator(storeName string, cdc *codec.Codec) *cobra.Command {
+func GetCmdQueryValidators(storeName string, cdc *codec.Codec) *cobra.Command {
+func GetCmdQueryValidatorUnbondingDelegations(queryRoute string, cdc *codec.Codec) *cobra.Command {
+func GetCmdQueryValidatorRedelegations(queryRoute string, cdc *codec.Codec) *cobra.Command {
+func GetCmdQueryDelegation(queryRoute string, cdc *codec.Codec) *cobra.Command {
+func GetCmdQueryDelegations(queryRoute string, cdc *codec.Codec) *cobra.Command {
+func GetCmdQueryValidatorDelegations(queryRoute string, cdc *codec.Codec) *cobra.Command {
+func GetCmdQueryUnbondingDelegation(queryRoute string, cdc *codec.Codec) *cobra.Command {
+func GetCmdQueryUnbondingDelegations(queryRoute string, cdc *codec.Codec) *cobra.Command {
+func GetCmdQueryRedelegation(queryRoute string, cdc *codec.Codec) *cobra.Command {
+func GetCmdQueryRedelegations(queryRoute string, cdc *codec.Codec) *cobra.Command {
+func GetCmdQueryPool(storeName string, cdc *codec.Codec) *cobra.Command {
+func GetCmdQueryParams(storeName string, cdc *codec.Codec) *cobra.Command {
+
+staking/client/cli/tx.go
+func GetTxCmd(storeKey string, cdc *codec.Codec) *cobra.Command {
+func GetCmdCreateValidator(cdc *codec.Codec) *cobra.Command {
+func GetCmdEditValidator(cdc *codec.Codec) *cobra.Command {
+func GetCmdDelegate(cdc *codec.Codec) *cobra.Command {
+func GetCmdRedelegate(storeName string, cdc *codec.Codec) *cobra.Command {
+func GetCmdUnbond(storeName string, cdc *codec.Codec) *cobra.Command {
+
+crisis/client/cli/tx.go
+func GetCmdInvariantBroken(cdc *codec.Codec) *cobra.Command {
+func GetTxCmd(cdc *codec.Codec) *cobra.Command {
+
+supply/client/cli/query.go
+func GetQueryCmd(cdc *codec.Codec) *cobra.Command {
+func GetCmdQueryTotalSupply(cdc *codec.Codec) *cobra.Command {
+
+slashing/client/cli/query.go
+func GetQueryCmd(queryRoute string, cdc *codec.Codec) *cobra.Command {
+func GetCmdQuerySigningInfo(storeName string, cdc *codec.Codec) *cobra.Command {
+func GetCmdQueryParams(cdc *codec.Codec) *cobra.Command {
+
+slashing/client/cli/tx.go
+func GetTxCmd(cdc *codec.Codec) *cobra.Command {
+func GetCmdUnjail(cdc *codec.Codec) *cobra.Command {
+
+mint/client/cli/query.go
+func GetQueryCmd(cdc *codec.Codec) *cobra.Command {
+func GetCmdQueryParams(cdc *codec.Codec) *cobra.Command {
+func GetCmdQueryInflation(cdc *codec.Codec) *cobra.Command {
+func GetCmdQueryAnnualProvisions(cdc *codec.Codec) *cobra.Command {
+
+auth/client/cli/tx.go
+func GetTxCmd(cdc *codec.Codec) *cobra.Command {
+*/
