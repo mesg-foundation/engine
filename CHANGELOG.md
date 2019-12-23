@@ -7,7 +7,6 @@
 - ([#1536](https://github.com/mesg-foundation/engine/pull/1536)) Update process structure: rename process's key to name and move node.*.key into node.
 - ([#1540](https://github.com/mesg-foundation/engine/pull/1540)) Implement nested data map in process and change process map structure.
 - ([#1545](https://github.com/mesg-foundation/engine/pull/1545)) Add path system to reference nested data in process.
-- ([#1558](https://github.com/mesg-foundation/engine/pull/1558)) Add refKey to tasks and rename nodeKey in reference.
 
 #### Added
 
@@ -16,6 +15,7 @@
 - ([#1544](https://github.com/mesg-foundation/engine/pull/1544)) Add two e2e orchestrator tests.
 - ([#1546](https://github.com/mesg-foundation/engine/pull/1546)) Add e2e orchestrator behavior tests on process maps and filters.
 - ([#1547](https://github.com/mesg-foundation/engine/pull/1547)) Add e2e tests on process nested data feature.
+- ([#1567](https://github.com/mesg-foundation/engine/pull/1567)) Add validation on process node to check reference to non-task node.
 
 #### Changed
 
