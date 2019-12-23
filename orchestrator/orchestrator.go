@@ -129,7 +129,7 @@ func (s *Orchestrator) executeNode(wf *process.Process, n *process.Process_Node,
 		return s.processTask(n.Key, task, wf, exec, event, data)
 	} else if m := n.GetMap(); m != nil {
 		var err error
-		data, err = s.processMap(m.Outputs, wf, exec, data)
+		data, err = s.processMap(n.Key, m.Outputs, wf, exec, data)
 		if err != nil {
 			return err
 		}
@@ -153,12 +153,12 @@ func (s *Orchestrator) executeNode(wf *process.Process, n *process.Process_Node,
 	return nil
 }
 
-func (s *Orchestrator) processMap(outputs map[string]*process.Process_Node_Map_Output, wf *process.Process, exec *execution.Execution, data *types.Struct) (*types.Struct, error) {
+func (s *Orchestrator) processMap(nodeKey string, outputs map[string]*process.Process_Node_Map_Output, wf *process.Process, exec *execution.Execution, data *types.Struct) (*types.Struct, error) {
 	result := &types.Struct{
 		Fields: make(map[string]*types.Value),
 	}
 	for key, output := range outputs {
-		value, err := s.outputToValue(output, wf, exec, data)
+		value, err := s.outputToValue(nodeKey, output, wf, exec, data)
 		if err != nil {
 			return nil, err
 		}
@@ -167,7 +167,7 @@ func (s *Orchestrator) processMap(outputs map[string]*process.Process_Node_Map_O
 	return result, nil
 }
 
-func (s *Orchestrator) outputToValue(output *process.Process_Node_Map_Output, wf *process.Process, exec *execution.Execution, data *types.Struct) (*types.Value, error) {
+func (s *Orchestrator) outputToValue(nodeKey string, output *process.Process_Node_Map_Output, wf *process.Process, exec *execution.Execution, data *types.Struct) (*types.Value, error) {
 	switch v := output.GetValue().(type) {
 	case *process.Process_Node_Map_Output_Null_:
 		return &types.Value{Kind: &types.Value_NullValue{NullValue: types.NullValue_NULL_VALUE}}, nil
@@ -178,7 +178,7 @@ func (s *Orchestrator) outputToValue(output *process.Process_Node_Map_Output, wf
 	case *process.Process_Node_Map_Output_BoolConst:
 		return &types.Value{Kind: &types.Value_BoolValue{BoolValue: v.BoolConst}}, nil
 	case *process.Process_Node_Map_Output_Map_:
-		out, err := s.processMap(v.Map.Outputs, wf, exec, data)
+		out, err := s.processMap(nodeKey, v.Map.Outputs, wf, exec, data)
 		if err != nil {
 			return nil, err
 		}
@@ -186,7 +186,7 @@ func (s *Orchestrator) outputToValue(output *process.Process_Node_Map_Output, wf
 	case *process.Process_Node_Map_Output_List_:
 		var values []*types.Value
 		for i := range v.List.Outputs {
-			value, err := s.outputToValue(v.List.Outputs[i], wf, exec, data)
+			value, err := s.outputToValue(nodeKey, v.List.Outputs[i], wf, exec, data)
 			if err != nil {
 				return nil, err
 			}
@@ -207,6 +207,18 @@ func (s *Orchestrator) outputToValue(output *process.Process_Node_Map_Output, wf
 		}
 		if node.GetTask() != nil {
 			return s.resolveInput(wf.Hash, exec, v.Ref.NodeKey, v.Ref.Path)
+		}
+		// check that the parent nodeKey == ref.NodeKey
+		// this ensures that we can use directly the data of the previous node
+		refToParent := false
+		for _, parent := range wf.ParentKeys(nodeKey) {
+			if parent == v.Ref.NodeKey {
+				refToParent = true
+				break
+			}
+		}
+		if !refToParent {
+			return nil, fmt.Errorf("ref can only reference a parent node for non task nodes")
 		}
 		return resolveRef(data, v.Ref.Path)
 	default:
