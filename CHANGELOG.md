@@ -10,17 +10,14 @@
 
 #### Added
 
-- ([#1501](https://github.com/mesg-foundation/engine/pull/1501)) Add e2e process test.
+- ([#1527](https://github.com/mesg-foundation/engine/pull/1527)) Decentralization of the processes.
 - ([#1519](https://github.com/mesg-foundation/engine/pull/1519)) Add data validation to all resources.
-- ([#1544](https://github.com/mesg-foundation/engine/pull/1544)) Add two e2e orchestrator tests.
-- ([#1546](https://github.com/mesg-foundation/engine/pull/1546)) Add e2e orchestrator behavior tests on process maps and filters.
-- ([#1547](https://github.com/mesg-foundation/engine/pull/1547)) Add e2e tests on process nested data feature.
 - ([#1567](https://github.com/mesg-foundation/engine/pull/1567)) Add validation on process node to check reference to non-task node.
+- ([#1501](https://github.com/mesg-foundation/engine/pull/1501)) Add e2e tests on process and orchestrator. ([#1544](https://github.com/mesg-foundation/engine/pull/1544)). ([#1546](https://github.com/mesg-foundation/engine/pull/1546)). ([#1547](https://github.com/mesg-foundation/engine/pull/1547)). ([#1575](https://github.com/mesg-foundation/engine/pull/1575)).
 
 #### Changed
 
 - ([#1490](https://github.com/mesg-foundation/engine/pull/1490)) More verbose error in service backend.
-- ([#1527](https://github.com/mesg-foundation/engine/pull/1527)) Decentralization of the processes.
 
 #### Fixed
 
