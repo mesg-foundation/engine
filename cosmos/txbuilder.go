@@ -16,11 +16,11 @@ type TxBuilder struct {
 }
 
 // NewTxBuilder returns a new initialized TxBuilder.
-func NewTxBuilder(accNumber, accSeq uint64, kb keys.Keybase, chainID string) TxBuilder {
+func NewTxBuilder(accSeq uint64, kb keys.Keybase, chainID string) TxBuilder {
 	return TxBuilder{
 		authtypes.NewTxBuilder(
 			authutils.GetTxEncoder(codec.Codec),
-			accNumber,
+			AccNumber,
 			accSeq,
 			1000000,
 			flags.DefaultGasAdjustment,

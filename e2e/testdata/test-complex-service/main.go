@@ -83,7 +83,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Printf("connect to %s\n", os.Getenv(envMesgEndpoint))
+	log.Printf("connected to %s\n", os.Getenv(envMesgEndpoint))
 
 	// give some time to nginx to start
 	time.Sleep(10 * time.Second)

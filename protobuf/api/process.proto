@@ -30,9 +30,16 @@ service Process {
 
 // The request's data for the `Create` API.
 message CreateProcessRequest {
-  string key = 2;           // Process's key
-  repeated types.Process.Node nodes = 4;  // List of nodes of the process.
-  repeated types.Process.Edge edges = 5;  // List of edges of the process.
+  // Process's name
+  string name = 2 [
+    (gogoproto.moretags) = 'validate:"required,printascii"'
+  ];
+
+  // List of nodes of the process.
+  repeated types.Process.Node nodes = 4;
+
+  // List of edges of the process.
+  repeated types.Process.Edge edges = 5;
 }
 
 // The response's data for the `Create` API.
@@ -48,6 +55,7 @@ message CreateProcessResponse {
 message DeleteProcessRequest {
   // The process's hash to delete.
   bytes hash = 1 [
+    (gogoproto.moretags) = 'validate:"required,hash"',
     (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
     (gogoproto.nullable) = false
   ];

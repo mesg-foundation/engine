@@ -12,6 +12,7 @@ import (
 	"github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/mesg-foundation/engine/protobuf/types"
 	instancesdk "github.com/mesg-foundation/engine/sdk/instance"
+	processsdk "github.com/mesg-foundation/engine/sdk/process"
 	runnersdk "github.com/mesg-foundation/engine/sdk/runner"
 	servicesdk "github.com/mesg-foundation/engine/sdk/service"
 	abci "github.com/tendermint/tendermint/abci/types"
@@ -25,15 +26,17 @@ type Backend struct {
 	serviceBack  *servicesdk.Backend
 	instanceBack *instancesdk.Backend
 	runnerBack   *runnersdk.Backend
+	processBack  *processsdk.Backend
 }
 
 // NewBackend returns the backend of the execution sdk.
-func NewBackend(appFactory *cosmos.AppFactory, serviceBack *servicesdk.Backend, instanceBack *instancesdk.Backend, runnerBack *runnersdk.Backend) *Backend {
+func NewBackend(appFactory *cosmos.AppFactory, serviceBack *servicesdk.Backend, instanceBack *instancesdk.Backend, runnerBack *runnersdk.Backend, processBack *processsdk.Backend) *Backend {
 	backend := &Backend{
 		storeKey:     cosmostypes.NewKVStoreKey(backendName),
 		serviceBack:  serviceBack,
 		instanceBack: instanceBack,
 		runnerBack:   runnerBack,
+		processBack:  processBack,
 	}
 	appBackendBasic := cosmos.NewAppModuleBasic(backendName)
 	appBackend := cosmos.NewAppModule(appBackendBasic, backend.handler, backend.querier)
@@ -92,12 +95,11 @@ func (s *Backend) Create(request cosmostypes.Request, msg msgCreateExecution) (*
 	if err != nil {
 		return nil, err
 	}
-	// TODO: to re-implement when process is on cosmos
-	// if !msg.Request.ProcessHash.IsZero() {
-	// 	if _, err := s.processSDK.Get(msg.Request.ProcessHash); err != nil {
-	// 		return nil, err
-	// 	}
-	// }
+	if !msg.Request.ProcessHash.IsZero() {
+		if _, err := s.processBack.Get(request, msg.Request.ProcessHash); err != nil {
+			return nil, err
+		}
+	}
 	if err := srv.RequireTaskInputs(msg.Request.TaskKey, msg.Request.Inputs); err != nil {
 		return nil, err
 	}
@@ -106,7 +108,7 @@ func (s *Backend) Create(request cosmostypes.Request, msg msgCreateExecution) (*
 		run.InstanceHash,
 		msg.Request.ParentHash,
 		msg.Request.EventHash,
-		msg.Request.StepID,
+		msg.Request.NodeKey,
 		msg.Request.TaskKey,
 		msg.Request.Inputs,
 		msg.Request.Tags,

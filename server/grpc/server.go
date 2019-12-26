@@ -11,10 +11,10 @@ import (
 	protobuf_api "github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/mesg-foundation/engine/sdk"
 	"github.com/mesg-foundation/engine/server/grpc/api"
+	"github.com/mesg-foundation/engine/x/xvalidator"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/keepalive"
-	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/reflection"
 )
 
@@ -49,14 +49,7 @@ func (s *Server) Serve(address string) error {
 		)),
 		grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
 			grpc_logrus.UnaryServerInterceptor(logrus.StandardLogger().WithField("module", "grpc")),
-			func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp interface{}, err error) {
-				// inject credentials from config
-				ctx = metadata.NewIncomingContext(ctx, map[string][]string{
-					"credential_username":   {s.cfg.Account.Name},
-					"credential_passphrase": {s.cfg.Account.Password},
-				})
-				return handler(ctx, req)
-			},
+			validateInterceptor,
 		)),
 	)
 	s.register()
@@ -69,6 +62,13 @@ func (s *Server) Close() {
 	s.instance.GracefulStop()
 }
 
+func validateInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
+	if err := xvalidator.Validate.Struct(req); err != nil {
+		return nil, err
+	}
+	return handler(ctx, req)
+}
+
 // register all server
 func (s *Server) register() {
 	protobuf_api.RegisterEventServer(s.instance, api.NewEventServer(s.sdk))
@@ -76,7 +76,6 @@ func (s *Server) register() {
 	protobuf_api.RegisterInstanceServer(s.instance, api.NewInstanceServer(s.sdk))
 	protobuf_api.RegisterServiceServer(s.instance, api.NewServiceServer(s.sdk))
 	protobuf_api.RegisterProcessServer(s.instance, api.NewProcessServer(s.sdk))
-	protobuf_api.RegisterAccountServer(s.instance, api.NewAccountServer(s.sdk))
 	protobuf_api.RegisterOwnershipServer(s.instance, api.NewOwnershipServer(s.sdk))
 	protobuf_api.RegisterRunnerServer(s.instance, api.NewRunnerServer(s.sdk))
 

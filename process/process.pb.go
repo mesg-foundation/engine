@@ -9,7 +9,6 @@ import (
 	_ "github.com/gogo/protobuf/gogoproto"
 	proto "github.com/gogo/protobuf/proto"
 	github_com_mesg_foundation_engine_hash "github.com/mesg-foundation/engine/hash"
-	types "github.com/mesg-foundation/engine/protobuf/types"
 	math "math"
 )
 
@@ -23,6 +22,28 @@ var _ = math.Inf
 // A compilation error at this line likely means your copy of the
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
+
+type Process_Node_Map_Output_Null int32
+
+const (
+	Process_Node_Map_Output_NULL_VALUE Process_Node_Map_Output_Null = 0
+)
+
+var Process_Node_Map_Output_Null_name = map[int32]string{
+	0: "NULL_VALUE",
+}
+
+var Process_Node_Map_Output_Null_value = map[string]int32{
+	"NULL_VALUE": 0,
+}
+
+func (x Process_Node_Map_Output_Null) String() string {
+	return proto.EnumName(Process_Node_Map_Output_Null_name, int32(x))
+}
+
+func (Process_Node_Map_Output_Null) EnumDescriptor() ([]byte, []int) {
+	return fileDescriptor_54c4d0e8c0aaf5c3, []int{0, 0, 3, 0, 0}
+}
 
 // Type of condition available to compare the values.
 type Process_Node_Filter_Condition_Predicate int32
@@ -56,8 +77,8 @@ func (Process_Node_Filter_Condition_Predicate) EnumDescriptor() ([]byte, []int) 
 type Process struct {
 	// Process's hash
 	Hash github_com_mesg_foundation_engine_hash.Hash `protobuf:"bytes,1,opt,name=hash,proto3,customtype=github.com/mesg-foundation/engine/hash.Hash" json:"hash" hash:"-" validate:"required"`
-	// Process's key
-	Key string `protobuf:"bytes,2,opt,name=key,proto3" json:"key,omitempty" hash:"name:2" validate:"required"`
+	// Process's name
+	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty" hash:"name:2" validate:"required"`
 	// Nodes with information related to the execution to trigger.
 	Nodes []*Process_Node `protobuf:"bytes,4,rep,name=nodes,proto3" json:"nodes,omitempty" hash:"name:4" validate:"dive,required"`
 	// Edges to create the link between the nodes.
@@ -93,6 +114,8 @@ var xxx_messageInfo_Process proto.InternalMessageInfo
 
 // Node of the process
 type Process_Node struct {
+	// Key that identifies the node.
+	Key string `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty" hash:"name:1" validate:"required"`
 	// Types that are valid to be assigned to Type:
 	//	*Process_Node_Result_
 	//	*Process_Node_Event_
@@ -135,19 +158,19 @@ type isProcess_Node_Type interface {
 }
 
 type Process_Node_Result_ struct {
-	Result *Process_Node_Result `protobuf:"bytes,1,opt,name=result,proto3,oneof" json:"result,omitempty" hash:"name:1"`
+	Result *Process_Node_Result `protobuf:"bytes,2,opt,name=result,proto3,oneof" json:"result,omitempty" hash:"name:2"`
 }
 type Process_Node_Event_ struct {
-	Event *Process_Node_Event `protobuf:"bytes,2,opt,name=event,proto3,oneof" json:"event,omitempty" hash:"name:2"`
+	Event *Process_Node_Event `protobuf:"bytes,3,opt,name=event,proto3,oneof" json:"event,omitempty" hash:"name:3"`
 }
 type Process_Node_Task_ struct {
-	Task *Process_Node_Task `protobuf:"bytes,3,opt,name=task,proto3,oneof" json:"task,omitempty" hash:"name:3"`
+	Task *Process_Node_Task `protobuf:"bytes,4,opt,name=task,proto3,oneof" json:"task,omitempty" hash:"name:4"`
 }
 type Process_Node_Map_ struct {
-	Map *Process_Node_Map `protobuf:"bytes,4,opt,name=map,proto3,oneof" json:"map,omitempty" hash:"name:4"`
+	Map *Process_Node_Map `protobuf:"bytes,5,opt,name=map,proto3,oneof" json:"map,omitempty" hash:"name:5"`
 }
 type Process_Node_Filter_ struct {
-	Filter *Process_Node_Filter `protobuf:"bytes,5,opt,name=filter,proto3,oneof" json:"filter,omitempty" hash:"name:5"`
+	Filter *Process_Node_Filter `protobuf:"bytes,6,opt,name=filter,proto3,oneof" json:"filter,omitempty" hash:"name:6"`
 }
 
 func (*Process_Node_Result_) isProcess_Node_Type() {}
@@ -210,8 +233,6 @@ func (*Process_Node) XXX_OneofWrappers() []interface{} {
 }
 
 type Process_Node_Result struct {
-	// Key that identifies the node.
-	Key string `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty" hash:"name:1" validate:"required"`
 	// Hash of the instance that triggers the process.
 	InstanceHash github_com_mesg_foundation_engine_hash.Hash `protobuf:"bytes,2,opt,name=instanceHash,proto3,customtype=github.com/mesg-foundation/engine/hash.Hash" json:"instanceHash" hash:"name:2" validate:"required"`
 	// Key of the task that triggers the process.
@@ -246,8 +267,6 @@ func (m *Process_Node_Result) XXX_DiscardUnknown() {
 var xxx_messageInfo_Process_Node_Result proto.InternalMessageInfo
 
 type Process_Node_Event struct {
-	// Key that identifies the node.
-	Key string `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty" hash:"name:1" validate:"required"`
 	// Hash of the instance that triggers the process.
 	InstanceHash github_com_mesg_foundation_engine_hash.Hash `protobuf:"bytes,2,opt,name=instanceHash,proto3,customtype=github.com/mesg-foundation/engine/hash.Hash" json:"instanceHash" hash:"name:2" validate:"required"`
 	// Key of the event that triggers the process.
@@ -282,8 +301,6 @@ func (m *Process_Node_Event) XXX_DiscardUnknown() {
 var xxx_messageInfo_Process_Node_Event proto.InternalMessageInfo
 
 type Process_Node_Task struct {
-	// Key that identifies the node.
-	Key string `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty" hash:"name:1" validate:"required"`
 	// Hash of the instance to execute.
 	InstanceHash github_com_mesg_foundation_engine_hash.Hash `protobuf:"bytes,2,opt,name=instanceHash,proto3,customtype=github.com/mesg-foundation/engine/hash.Hash" json:"instanceHash" hash:"name:2" validate:"required"`
 	// Task of the instance to execute.
@@ -318,13 +335,11 @@ func (m *Process_Node_Task) XXX_DiscardUnknown() {
 var xxx_messageInfo_Process_Node_Task proto.InternalMessageInfo
 
 type Process_Node_Map struct {
-	// Key of the mapping.
-	Key string `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty" hash:"name:1" validate:"required"`
 	// Outputs of the mapping.
-	Outputs              []*Process_Node_Map_Output `protobuf:"bytes,2,rep,name=outputs,proto3" json:"outputs,omitempty" hash:"name:2" validate:"dive,required"`
-	XXX_NoUnkeyedLiteral struct{}                   `json:"-"`
-	XXX_unrecognized     []byte                     `json:"-"`
-	XXX_sizecache        int32                      `json:"-"`
+	Outputs              map[string]*Process_Node_Map_Output `protobuf:"bytes,1,rep,name=outputs,proto3" json:"outputs,omitempty" hash:"name:1" validate:"dive,required" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
+	XXX_NoUnkeyedLiteral struct{}                            `json:"-"`
+	XXX_unrecognized     []byte                              `json:"-"`
+	XXX_sizecache        int32                               `json:"-"`
 }
 
 func (m *Process_Node_Map) Reset()         { *m = Process_Node_Map{} }
@@ -352,11 +367,14 @@ func (m *Process_Node_Map) XXX_DiscardUnknown() {
 var xxx_messageInfo_Process_Node_Map proto.InternalMessageInfo
 
 type Process_Node_Map_Output struct {
-	// Key of the output.
-	Key string `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty" hash:"name:1" validate:"required"`
 	// Types that are valid to be assigned to Value:
+	//	*Process_Node_Map_Output_Null_
+	//	*Process_Node_Map_Output_StringConst
+	//	*Process_Node_Map_Output_DoubleConst
+	//	*Process_Node_Map_Output_BoolConst
 	//	*Process_Node_Map_Output_Ref
-	//	*Process_Node_Map_Output_Constant
+	//	*Process_Node_Map_Output_List_
+	//	*Process_Node_Map_Output_Map_
 	Value                isProcess_Node_Map_Output_Value `protobuf_oneof:"value"`
 	XXX_NoUnkeyedLiteral struct{}                        `json:"-"`
 	XXX_unrecognized     []byte                          `json:"-"`
@@ -392,21 +410,69 @@ type isProcess_Node_Map_Output_Value interface {
 	Equal(interface{}) bool
 }
 
-type Process_Node_Map_Output_Ref struct {
-	Ref *Process_Node_Map_Output_Reference `protobuf:"bytes,2,opt,name=ref,proto3,oneof" json:"ref,omitempty" hash:"name:2" validate:"required_without=Constant"`
+type Process_Node_Map_Output_Null_ struct {
+	Null Process_Node_Map_Output_Null `protobuf:"varint,1,opt,name=null,proto3,enum=mesg.types.Process_Node_Map_Output_Null,oneof" json:"null,omitempty" hash:"name:1"`
 }
-type Process_Node_Map_Output_Constant struct {
-	Constant *types.Value `protobuf:"bytes,3,opt,name=constant,proto3,oneof" json:"constant,omitempty" hash:"name:3" validate:"required_without=Ref"`
+type Process_Node_Map_Output_StringConst struct {
+	StringConst string `protobuf:"bytes,2,opt,name=string_const,json=stringConst,proto3,oneof" json:"string_const,omitempty" hash:"name:2"`
+}
+type Process_Node_Map_Output_DoubleConst struct {
+	DoubleConst float64 `protobuf:"fixed64,3,opt,name=double_const,json=doubleConst,proto3,oneof" json:"double_const,omitempty" hash:"name:3" amino:"unsafe"`
+}
+type Process_Node_Map_Output_BoolConst struct {
+	BoolConst bool `protobuf:"varint,4,opt,name=bool_const,json=boolConst,proto3,oneof" json:"bool_const,omitempty" hash:"name:4"`
+}
+type Process_Node_Map_Output_Ref struct {
+	Ref *Process_Node_Map_Output_Reference `protobuf:"bytes,5,opt,name=ref,proto3,oneof" json:"ref,omitempty" hash:"name:5"`
+}
+type Process_Node_Map_Output_List_ struct {
+	List *Process_Node_Map_Output_List `protobuf:"bytes,6,opt,name=list,proto3,oneof" json:"list,omitempty" hash:"name:6"`
+}
+type Process_Node_Map_Output_Map_ struct {
+	Map *Process_Node_Map_Output_Map `protobuf:"bytes,7,opt,name=map,proto3,oneof" json:"map,omitempty" hash:"name:7"`
 }
 
-func (*Process_Node_Map_Output_Ref) isProcess_Node_Map_Output_Value()      {}
-func (*Process_Node_Map_Output_Constant) isProcess_Node_Map_Output_Value() {}
+func (*Process_Node_Map_Output_Null_) isProcess_Node_Map_Output_Value()       {}
+func (*Process_Node_Map_Output_StringConst) isProcess_Node_Map_Output_Value() {}
+func (*Process_Node_Map_Output_DoubleConst) isProcess_Node_Map_Output_Value() {}
+func (*Process_Node_Map_Output_BoolConst) isProcess_Node_Map_Output_Value()   {}
+func (*Process_Node_Map_Output_Ref) isProcess_Node_Map_Output_Value()         {}
+func (*Process_Node_Map_Output_List_) isProcess_Node_Map_Output_Value()       {}
+func (*Process_Node_Map_Output_Map_) isProcess_Node_Map_Output_Value()        {}
 
 func (m *Process_Node_Map_Output) GetValue() isProcess_Node_Map_Output_Value {
 	if m != nil {
 		return m.Value
 	}
 	return nil
+}
+
+func (m *Process_Node_Map_Output) GetNull() Process_Node_Map_Output_Null {
+	if x, ok := m.GetValue().(*Process_Node_Map_Output_Null_); ok {
+		return x.Null
+	}
+	return Process_Node_Map_Output_NULL_VALUE
+}
+
+func (m *Process_Node_Map_Output) GetStringConst() string {
+	if x, ok := m.GetValue().(*Process_Node_Map_Output_StringConst); ok {
+		return x.StringConst
+	}
+	return ""
+}
+
+func (m *Process_Node_Map_Output) GetDoubleConst() float64 {
+	if x, ok := m.GetValue().(*Process_Node_Map_Output_DoubleConst); ok {
+		return x.DoubleConst
+	}
+	return 0
+}
+
+func (m *Process_Node_Map_Output) GetBoolConst() bool {
+	if x, ok := m.GetValue().(*Process_Node_Map_Output_BoolConst); ok {
+		return x.BoolConst
+	}
+	return false
 }
 
 func (m *Process_Node_Map_Output) GetRef() *Process_Node_Map_Output_Reference {
@@ -416,9 +482,16 @@ func (m *Process_Node_Map_Output) GetRef() *Process_Node_Map_Output_Reference {
 	return nil
 }
 
-func (m *Process_Node_Map_Output) GetConstant() *types.Value {
-	if x, ok := m.GetValue().(*Process_Node_Map_Output_Constant); ok {
-		return x.Constant
+func (m *Process_Node_Map_Output) GetList() *Process_Node_Map_Output_List {
+	if x, ok := m.GetValue().(*Process_Node_Map_Output_List_); ok {
+		return x.List
+	}
+	return nil
+}
+
+func (m *Process_Node_Map_Output) GetMap() *Process_Node_Map_Output_Map {
+	if x, ok := m.GetValue().(*Process_Node_Map_Output_Map_); ok {
+		return x.Map
 	}
 	return nil
 }
@@ -426,26 +499,93 @@ func (m *Process_Node_Map_Output) GetConstant() *types.Value {
 // XXX_OneofWrappers is for the internal use of the proto package.
 func (*Process_Node_Map_Output) XXX_OneofWrappers() []interface{} {
 	return []interface{}{
+		(*Process_Node_Map_Output_Null_)(nil),
+		(*Process_Node_Map_Output_StringConst)(nil),
+		(*Process_Node_Map_Output_DoubleConst)(nil),
+		(*Process_Node_Map_Output_BoolConst)(nil),
 		(*Process_Node_Map_Output_Ref)(nil),
-		(*Process_Node_Map_Output_Constant)(nil),
+		(*Process_Node_Map_Output_List_)(nil),
+		(*Process_Node_Map_Output_Map_)(nil),
 	}
 }
 
+// List is a list of output as message, so it can be used in oneof.
+type Process_Node_Map_Output_List struct {
+	Outputs              []*Process_Node_Map_Output `protobuf:"bytes,1,rep,name=outputs,proto3" json:"outputs,omitempty" hash:"name:1" validate:"dive,required"`
+	XXX_NoUnkeyedLiteral struct{}                   `json:"-"`
+	XXX_unrecognized     []byte                     `json:"-"`
+	XXX_sizecache        int32                      `json:"-"`
+}
+
+func (m *Process_Node_Map_Output_List) Reset()         { *m = Process_Node_Map_Output_List{} }
+func (m *Process_Node_Map_Output_List) String() string { return proto.CompactTextString(m) }
+func (*Process_Node_Map_Output_List) ProtoMessage()    {}
+func (*Process_Node_Map_Output_List) Descriptor() ([]byte, []int) {
+	return fileDescriptor_54c4d0e8c0aaf5c3, []int{0, 0, 3, 0, 0}
+}
+func (m *Process_Node_Map_Output_List) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_Process_Node_Map_Output_List.Unmarshal(m, b)
+}
+func (m *Process_Node_Map_Output_List) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_Process_Node_Map_Output_List.Marshal(b, m, deterministic)
+}
+func (m *Process_Node_Map_Output_List) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Process_Node_Map_Output_List.Merge(m, src)
+}
+func (m *Process_Node_Map_Output_List) XXX_Size() int {
+	return xxx_messageInfo_Process_Node_Map_Output_List.Size(m)
+}
+func (m *Process_Node_Map_Output_List) XXX_DiscardUnknown() {
+	xxx_messageInfo_Process_Node_Map_Output_List.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_Process_Node_Map_Output_List proto.InternalMessageInfo
+
+// Map is a map of output as message, so it can be used in oneof.
+type Process_Node_Map_Output_Map struct {
+	Outputs              map[string]*Process_Node_Map_Output `protobuf:"bytes,1,rep,name=outputs,proto3" json:"outputs,omitempty" hash:"name:1" validate:"dive,required" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
+	XXX_NoUnkeyedLiteral struct{}                            `json:"-"`
+	XXX_unrecognized     []byte                              `json:"-"`
+	XXX_sizecache        int32                               `json:"-"`
+}
+
+func (m *Process_Node_Map_Output_Map) Reset()         { *m = Process_Node_Map_Output_Map{} }
+func (m *Process_Node_Map_Output_Map) String() string { return proto.CompactTextString(m) }
+func (*Process_Node_Map_Output_Map) ProtoMessage()    {}
+func (*Process_Node_Map_Output_Map) Descriptor() ([]byte, []int) {
+	return fileDescriptor_54c4d0e8c0aaf5c3, []int{0, 0, 3, 0, 1}
+}
+func (m *Process_Node_Map_Output_Map) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_Process_Node_Map_Output_Map.Unmarshal(m, b)
+}
+func (m *Process_Node_Map_Output_Map) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_Process_Node_Map_Output_Map.Marshal(b, m, deterministic)
+}
+func (m *Process_Node_Map_Output_Map) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Process_Node_Map_Output_Map.Merge(m, src)
+}
+func (m *Process_Node_Map_Output_Map) XXX_Size() int {
+	return xxx_messageInfo_Process_Node_Map_Output_Map.Size(m)
+}
+func (m *Process_Node_Map_Output_Map) XXX_DiscardUnknown() {
+	xxx_messageInfo_Process_Node_Map_Output_Map.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_Process_Node_Map_Output_Map proto.InternalMessageInfo
+
 type Process_Node_Map_Output_Reference struct {
-	// Key of the node in the graph. If empty, will be using the src of the edge.
-	NodeKey string `protobuf:"bytes,1,opt,name=nodeKey,proto3" json:"nodeKey,omitempty" hash:"name:1" validate:"required"`
-	// Key of a specific parameter of the referenced node's output data.
-	Key                  string   `protobuf:"bytes,2,opt,name=key,proto3" json:"key,omitempty" hash:"name:2" validate:"required"`
-	XXX_NoUnkeyedLiteral struct{} `json:"-"`
-	XXX_unrecognized     []byte   `json:"-"`
-	XXX_sizecache        int32    `json:"-"`
+	NodeKey              string                                  `protobuf:"bytes,1,opt,name=nodeKey,proto3" json:"nodeKey,omitempty" hash:"name:1" validate:"required"`
+	Path                 *Process_Node_Map_Output_Reference_Path `protobuf:"bytes,2,opt,name=path,proto3" json:"path,omitempty" hash:"name:2"`
+	XXX_NoUnkeyedLiteral struct{}                                `json:"-"`
+	XXX_unrecognized     []byte                                  `json:"-"`
+	XXX_sizecache        int32                                   `json:"-"`
 }
 
 func (m *Process_Node_Map_Output_Reference) Reset()         { *m = Process_Node_Map_Output_Reference{} }
 func (m *Process_Node_Map_Output_Reference) String() string { return proto.CompactTextString(m) }
 func (*Process_Node_Map_Output_Reference) ProtoMessage()    {}
 func (*Process_Node_Map_Output_Reference) Descriptor() ([]byte, []int) {
-	return fileDescriptor_54c4d0e8c0aaf5c3, []int{0, 0, 3, 0, 0}
+	return fileDescriptor_54c4d0e8c0aaf5c3, []int{0, 0, 3, 0, 2}
 }
 func (m *Process_Node_Map_Output_Reference) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Process_Node_Map_Output_Reference.Unmarshal(m, b)
@@ -465,9 +605,91 @@ func (m *Process_Node_Map_Output_Reference) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_Process_Node_Map_Output_Reference proto.InternalMessageInfo
 
+type Process_Node_Map_Output_Reference_Path struct {
+	// Types that are valid to be assigned to Selector:
+	//	*Process_Node_Map_Output_Reference_Path_Key
+	//	*Process_Node_Map_Output_Reference_Path_Index
+	Selector isProcess_Node_Map_Output_Reference_Path_Selector `protobuf_oneof:"selector"`
+	// Path can be nil if on the leaf
+	Path                 *Process_Node_Map_Output_Reference_Path `protobuf:"bytes,3,opt,name=path,proto3" json:"path,omitempty" hash:"name:3"`
+	XXX_NoUnkeyedLiteral struct{}                                `json:"-"`
+	XXX_unrecognized     []byte                                  `json:"-"`
+	XXX_sizecache        int32                                   `json:"-"`
+}
+
+func (m *Process_Node_Map_Output_Reference_Path) Reset() {
+	*m = Process_Node_Map_Output_Reference_Path{}
+}
+func (m *Process_Node_Map_Output_Reference_Path) String() string { return proto.CompactTextString(m) }
+func (*Process_Node_Map_Output_Reference_Path) ProtoMessage()    {}
+func (*Process_Node_Map_Output_Reference_Path) Descriptor() ([]byte, []int) {
+	return fileDescriptor_54c4d0e8c0aaf5c3, []int{0, 0, 3, 0, 2, 0}
+}
+func (m *Process_Node_Map_Output_Reference_Path) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_Process_Node_Map_Output_Reference_Path.Unmarshal(m, b)
+}
+func (m *Process_Node_Map_Output_Reference_Path) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_Process_Node_Map_Output_Reference_Path.Marshal(b, m, deterministic)
+}
+func (m *Process_Node_Map_Output_Reference_Path) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Process_Node_Map_Output_Reference_Path.Merge(m, src)
+}
+func (m *Process_Node_Map_Output_Reference_Path) XXX_Size() int {
+	return xxx_messageInfo_Process_Node_Map_Output_Reference_Path.Size(m)
+}
+func (m *Process_Node_Map_Output_Reference_Path) XXX_DiscardUnknown() {
+	xxx_messageInfo_Process_Node_Map_Output_Reference_Path.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_Process_Node_Map_Output_Reference_Path proto.InternalMessageInfo
+
+type isProcess_Node_Map_Output_Reference_Path_Selector interface {
+	isProcess_Node_Map_Output_Reference_Path_Selector()
+	Equal(interface{}) bool
+}
+
+type Process_Node_Map_Output_Reference_Path_Key struct {
+	Key string `protobuf:"bytes,1,opt,name=key,proto3,oneof" json:"key,omitempty" hash:"name:1" validate:"printascii"`
+}
+type Process_Node_Map_Output_Reference_Path_Index struct {
+	Index uint64 `protobuf:"varint,2,opt,name=index,proto3,oneof" json:"index,omitempty" hash:"name:2"`
+}
+
+func (*Process_Node_Map_Output_Reference_Path_Key) isProcess_Node_Map_Output_Reference_Path_Selector() {
+}
+func (*Process_Node_Map_Output_Reference_Path_Index) isProcess_Node_Map_Output_Reference_Path_Selector() {
+}
+
+func (m *Process_Node_Map_Output_Reference_Path) GetSelector() isProcess_Node_Map_Output_Reference_Path_Selector {
+	if m != nil {
+		return m.Selector
+	}
+	return nil
+}
+
+func (m *Process_Node_Map_Output_Reference_Path) GetKey() string {
+	if x, ok := m.GetSelector().(*Process_Node_Map_Output_Reference_Path_Key); ok {
+		return x.Key
+	}
+	return ""
+}
+
+func (m *Process_Node_Map_Output_Reference_Path) GetIndex() uint64 {
+	if x, ok := m.GetSelector().(*Process_Node_Map_Output_Reference_Path_Index); ok {
+		return x.Index
+	}
+	return 0
+}
+
+// XXX_OneofWrappers is for the internal use of the proto package.
+func (*Process_Node_Map_Output_Reference_Path) XXX_OneofWrappers() []interface{} {
+	return []interface{}{
+		(*Process_Node_Map_Output_Reference_Path_Key)(nil),
+		(*Process_Node_Map_Output_Reference_Path_Index)(nil),
+	}
+}
+
 type Process_Node_Filter struct {
-	// Key for the filter
-	Key string `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty" hash:"name:1" validate:"required"`
 	// List of condition to apply for this filter
 	Conditions           []Process_Node_Filter_Condition `protobuf:"bytes,2,rep,name=conditions,proto3" json:"conditions" hash:"name:2"`
 	XXX_NoUnkeyedLiteral struct{}                        `json:"-"`
@@ -570,6 +792,7 @@ func (m *Process_Edge) XXX_DiscardUnknown() {
 var xxx_messageInfo_Process_Edge proto.InternalMessageInfo
 
 func init() {
+	proto.RegisterEnum("mesg.types.Process_Node_Map_Output_Null", Process_Node_Map_Output_Null_name, Process_Node_Map_Output_Null_value)
 	proto.RegisterEnum("mesg.types.Process_Node_Filter_Condition_Predicate", Process_Node_Filter_Condition_Predicate_name, Process_Node_Filter_Condition_Predicate_value)
 	proto.RegisterType((*Process)(nil), "mesg.types.Process")
 	proto.RegisterType((*Process_Node)(nil), "mesg.types.Process.Node")
@@ -577,8 +800,13 @@ func init() {
 	proto.RegisterType((*Process_Node_Event)(nil), "mesg.types.Process.Node.Event")
 	proto.RegisterType((*Process_Node_Task)(nil), "mesg.types.Process.Node.Task")
 	proto.RegisterType((*Process_Node_Map)(nil), "mesg.types.Process.Node.Map")
+	proto.RegisterMapType((map[string]*Process_Node_Map_Output)(nil), "mesg.types.Process.Node.Map.OutputsEntry")
 	proto.RegisterType((*Process_Node_Map_Output)(nil), "mesg.types.Process.Node.Map.Output")
+	proto.RegisterType((*Process_Node_Map_Output_List)(nil), "mesg.types.Process.Node.Map.Output.List")
+	proto.RegisterType((*Process_Node_Map_Output_Map)(nil), "mesg.types.Process.Node.Map.Output.Map")
+	proto.RegisterMapType((map[string]*Process_Node_Map_Output)(nil), "mesg.types.Process.Node.Map.Output.Map.OutputsEntry")
 	proto.RegisterType((*Process_Node_Map_Output_Reference)(nil), "mesg.types.Process.Node.Map.Output.Reference")
+	proto.RegisterType((*Process_Node_Map_Output_Reference_Path)(nil), "mesg.types.Process.Node.Map.Output.Reference.Path")
 	proto.RegisterType((*Process_Node_Filter)(nil), "mesg.types.Process.Node.Filter")
 	proto.RegisterType((*Process_Node_Filter_Condition)(nil), "mesg.types.Process.Node.Filter.Condition")
 	proto.RegisterType((*Process_Edge)(nil), "mesg.types.Process.Edge")
@@ -587,62 +815,75 @@ func init() {
 func init() { proto.RegisterFile("process.proto", fileDescriptor_54c4d0e8c0aaf5c3) }
 
 var fileDescriptor_54c4d0e8c0aaf5c3 = []byte{
-	// 867 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xec, 0x96, 0xcd, 0x8e, 0xdb, 0x54,
-	0x14, 0xc7, 0x93, 0xd8, 0x49, 0x9a, 0x93, 0x29, 0x6a, 0x2d, 0x2a, 0x59, 0xa6, 0x8c, 0x83, 0x11,
-	0x30, 0x85, 0x89, 0xc3, 0x38, 0x2d, 0x48, 0x23, 0x21, 0x24, 0x8f, 0xa6, 0x2a, 0xb4, 0x85, 0x12,
-	0x3e, 0x84, 0xba, 0x01, 0x8f, 0x7d, 0xe2, 0x58, 0x49, 0x6c, 0xe3, 0x7b, 0x9d, 0x36, 0x12, 0x5b,
-	0x16, 0x08, 0x96, 0x3c, 0x04, 0x12, 0x5b, 0x56, 0x3c, 0x41, 0x25, 0xde, 0x80, 0x85, 0x05, 0x3c,
-	0x42, 0x9e, 0x00, 0xdd, 0x6b, 0x3b, 0xc9, 0xe0, 0xc9, 0xc7, 0x84, 0x15, 0x52, 0x77, 0x71, 0x7c,
-	0xff, 0xbf, 0x73, 0xee, 0xff, 0x9c, 0x7b, 0xae, 0xe1, 0x6a, 0x18, 0x05, 0x36, 0x12, 0xa2, 0x87,
-	0x51, 0x40, 0x03, 0x09, 0xc6, 0x48, 0x5c, 0x9d, 0x4e, 0x43, 0x24, 0x8a, 0xe6, 0x06, 0x6e, 0xd0,
-	0xe1, 0xff, 0x9f, 0xc5, 0xfd, 0x0e, 0x7b, 0xe2, 0x0f, 0xfc, 0x57, 0xba, 0x5e, 0x79, 0x69, 0xfe,
-	0x9a, 0x6b, 0x3a, 0x84, 0x46, 0xb1, 0x4d, 0xd3, 0x97, 0xda, 0x2f, 0x37, 0xa0, 0xfe, 0x28, 0xc5,
-	0x4b, 0x2e, 0x88, 0x03, 0x8b, 0x0c, 0xe4, 0x72, 0xab, 0x7c, 0xb0, 0x67, 0x7e, 0xfa, 0x2c, 0x51,
-	0x4b, 0x7f, 0x24, 0xea, 0x5b, 0xae, 0x47, 0x07, 0xf1, 0x99, 0x6e, 0x07, 0xe3, 0x0e, 0x8b, 0xdc,
-	0xee, 0x07, 0xb1, 0xef, 0x58, 0xd4, 0x0b, 0xfc, 0x0e, 0xfa, 0xae, 0xe7, 0x63, 0x87, 0xa9, 0xf4,
-	0x7b, 0x16, 0x19, 0xcc, 0x12, 0xf5, 0x26, 0x7b, 0x38, 0xd6, 0xda, 0x5a, 0x6b, 0x62, 0x8d, 0x3c,
-	0xc7, 0xa2, 0x78, 0xac, 0x45, 0xf8, 0x4d, 0xec, 0x45, 0xe8, 0x68, 0x3d, 0x1e, 0x40, 0x7a, 0x17,
-	0x84, 0x21, 0x4e, 0xe5, 0x4a, 0xab, 0x7c, 0xd0, 0x30, 0x5f, 0x9b, 0x25, 0xea, 0x2b, 0xa9, 0xc8,
-	0xb7, 0xc6, 0x78, 0x6c, 0x5c, 0xac, 0x64, 0x0a, 0xe9, 0x31, 0x54, 0xfd, 0xc0, 0x41, 0x22, 0x8b,
-	0x2d, 0xe1, 0xa0, 0x69, 0xc8, 0xfa, 0xc2, 0x0a, 0x3d, 0xdb, 0x85, 0xfe, 0x51, 0xe0, 0xa0, 0xf9,
-	0xe6, 0x2c, 0x51, 0x5f, 0x5f, 0x82, 0xde, 0x5e, 0x86, 0x3a, 0xde, 0x04, 0x0f, 0x17, 0xe4, 0x14,
-	0xc9, 0xd8, 0xe8, 0xb8, 0x48, 0xe4, 0xea, 0x6a, 0xf6, 0xa9, 0xe3, 0x16, 0xd9, 0x77, 0xd6, 0xb1,
-	0x39, 0x52, 0xf9, 0xfd, 0x3a, 0x88, 0x2c, 0x2f, 0xe9, 0x01, 0xd4, 0x22, 0x24, 0xf1, 0x88, 0x72,
-	0x93, 0x9b, 0x86, 0xba, 0x6a, 0x07, 0x7a, 0x8f, 0x2f, 0x33, 0xaf, 0xcf, 0x12, 0xf5, 0xea, 0x52,
-	0xb0, 0x23, 0xed, 0x5e, 0xa9, 0x97, 0x31, 0xa4, 0x0f, 0xa0, 0x8a, 0x13, 0xf4, 0x29, 0x77, 0xb2,
-	0x69, 0xec, 0xaf, 0x84, 0x9d, 0xb2, 0x55, 0x05, 0x96, 0xc1, 0x58, 0x29, 0x41, 0xba, 0x0b, 0x22,
-	0xb5, 0xc8, 0x50, 0x16, 0x38, 0xe9, 0xe5, 0x95, 0xa4, 0xcf, 0x2c, 0x32, 0x2c, 0x80, 0xba, 0x0c,
-	0xc4, 0xf5, 0xd2, 0x09, 0x08, 0x63, 0x2b, 0x94, 0x45, 0x8e, 0xb9, 0xb9, 0x12, 0xf3, 0xd0, 0x0a,
-	0x0b, 0x94, 0xdb, 0x8c, 0xc2, 0xd4, 0xcc, 0xa5, 0xbe, 0x37, 0xa2, 0x18, 0xc9, 0xd5, 0x0d, 0x2e,
-	0xdd, 0xe5, 0xcb, 0x0a, 0xa8, 0x3b, 0xdc, 0xa5, 0x94, 0xa1, 0xfc, 0x50, 0x81, 0x5a, 0xea, 0x66,
-	0xde, 0x78, 0xe5, 0x0b, 0x1b, 0xef, 0x68, 0x4d, 0xe3, 0x7d, 0x0b, 0x7b, 0x9e, 0x4f, 0xa8, 0xe5,
-	0xdb, 0xc8, 0xfa, 0x9c, 0x1b, 0xbe, 0x67, 0x7e, 0xb9, 0xdb, 0x11, 0xd9, 0xa2, 0xdb, 0xcf, 0x45,
-	0x93, 0x3e, 0x84, 0x3a, 0x33, 0xf7, 0x3e, 0x4e, 0x79, 0x7d, 0x1a, 0xe6, 0xdb, 0xb3, 0x44, 0x3d,
-	0x3c, 0x57, 0x80, 0x25, 0x4a, 0x18, 0x79, 0x3e, 0xb5, 0x88, 0xed, 0x79, 0x4b, 0x8d, 0x98, 0x03,
-	0x94, 0x1f, 0x2b, 0x50, 0xe5, 0xed, 0xf0, 0x7f, 0x35, 0xe3, 0x01, 0x5c, 0xe1, 0x2d, 0xfb, 0x5f,
-	0xdc, 0x98, 0x13, 0x94, 0xef, 0x2b, 0x20, 0xb2, 0x9e, 0x7e, 0xde, 0x1a, 0x53, 0xe5, 0x4f, 0x11,
-	0x84, 0x87, 0x56, 0xb8, 0xbb, 0x15, 0x1e, 0xd4, 0x83, 0x98, 0x86, 0x31, 0x25, 0x72, 0x85, 0x0f,
-	0xd1, 0x57, 0xd7, 0x0d, 0x00, 0xfd, 0x63, 0xbe, 0xb6, 0x30, 0x4f, 0x8d, 0x35, 0xf3, 0x34, 0xe7,
-	0x2b, 0xbf, 0x0a, 0x50, 0x4b, 0xf5, 0xbb, 0xa7, 0x3b, 0x05, 0x21, 0xc2, 0x7e, 0x36, 0x3c, 0xdb,
-	0x5b, 0xa4, 0xaa, 0xf7, 0xb0, 0x8f, 0x11, 0xfa, 0x36, 0x9a, 0xef, 0xcc, 0x12, 0xd5, 0xd8, 0x54,
-	0xac, 0xaf, 0x9e, 0x78, 0x74, 0x10, 0xc4, 0xf4, 0xbd, 0x93, 0x80, 0xd7, 0x8c, 0xf2, 0x09, 0x17,
-	0x61, 0x5f, 0x42, 0xb8, 0x62, 0x67, 0xff, 0x65, 0x23, 0xf7, 0xc5, 0x34, 0x7e, 0x7e, 0x57, 0xeb,
-	0x5f, 0x58, 0xa3, 0x18, 0xcd, 0xa3, 0x59, 0xa2, 0xb6, 0x57, 0x55, 0xb3, 0x10, 0xa6, 0x87, 0x7d,
-	0x16, 0x61, 0x8e, 0x56, 0xbe, 0x2b, 0x43, 0x63, 0x9e, 0xb3, 0xf4, 0x3e, 0xd4, 0xd9, 0x55, 0x77,
-	0xff, 0xb2, 0x66, 0xe5, 0xaa, 0x9d, 0xef, 0x6d, 0xb3, 0x0e, 0xd5, 0x09, 0xdb, 0x8f, 0xf2, 0x9b,
-	0x00, 0xb5, 0x74, 0x66, 0xef, 0x5e, 0xb6, 0xaf, 0x01, 0xec, 0xc0, 0x77, 0x3c, 0x76, 0x86, 0xf2,
-	0x46, 0xbb, 0xb5, 0xe1, 0x86, 0xd0, 0x4f, 0x72, 0x85, 0x79, 0x83, 0x9d, 0xcc, 0xc2, 0x4d, 0xd8,
-	0x5b, 0x62, 0x2a, 0x3f, 0x55, 0xa0, 0x31, 0x17, 0x48, 0xe6, 0x72, 0xa2, 0xff, 0x3e, 0x5e, 0x17,
-	0x26, 0x7a, 0xb8, 0x38, 0x67, 0x59, 0xce, 0x4f, 0xa1, 0x11, 0x46, 0xe8, 0x78, 0xb6, 0x45, 0x91,
-	0xfb, 0xf7, 0x82, 0xd1, 0xdd, 0x3a, 0x65, 0xfd, 0x51, 0x2e, 0xdd, 0xd6, 0xf4, 0x45, 0x30, 0xe9,
-	0x8d, 0xcc, 0xfa, 0x6c, 0x3c, 0x14, 0xaf, 0xee, 0x5e, 0xfa, 0x5e, 0x6b, 0x41, 0x63, 0x1e, 0x47,
-	0x6a, 0x42, 0xfd, 0x73, 0x7f, 0xe8, 0x07, 0x4f, 0xfc, 0x6b, 0x25, 0xa9, 0x06, 0x95, 0xd3, 0x4f,
-	0xae, 0x95, 0xcd, 0x1a, 0x88, 0x2c, 0x5b, 0xe5, 0x29, 0x88, 0xec, 0x43, 0x88, 0x55, 0x90, 0x44,
-	0xf6, 0x25, 0x2b, 0x48, 0x22, 0x9b, 0x09, 0x1d, 0x42, 0x2f, 0xd9, 0x47, 0x0e, 0xa1, 0x66, 0xf7,
-	0xd9, 0x5f, 0xfb, 0xa5, 0x9f, 0xff, 0xde, 0x2f, 0x3f, 0xbe, 0xb5, 0x79, 0xae, 0x66, 0x5f, 0xcd,
-	0x67, 0x35, 0x7e, 0xa6, 0xba, 0xff, 0x04, 0x00, 0x00, 0xff, 0xff, 0x71, 0xe8, 0xa7, 0x00, 0x47,
-	0x0b, 0x00, 0x00,
+	// 1086 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xdc, 0x97, 0xdd, 0x6e, 0x1b, 0x45,
+	0x14, 0xc7, 0xb3, 0xf6, 0xda, 0x8e, 0x4f, 0xdc, 0x28, 0x8c, 0x04, 0xac, 0x56, 0x25, 0x36, 0xae,
+	0x20, 0x09, 0x24, 0x1b, 0x62, 0xa7, 0x2d, 0x0d, 0x17, 0x88, 0x8d, 0x5c, 0x15, 0xea, 0x86, 0xd4,
+	0x34, 0x08, 0x7a, 0x13, 0x36, 0xbb, 0x63, 0x7b, 0x95, 0xcd, 0x8c, 0xbb, 0x33, 0x1b, 0x12, 0xc4,
+	0x0d, 0x3c, 0x03, 0x97, 0x3c, 0x00, 0x8f, 0xd2, 0x4b, 0x04, 0xe2, 0x06, 0x21, 0x4b, 0xf4, 0x11,
+	0xfc, 0x00, 0x80, 0x66, 0x66, 0xfd, 0x91, 0xd8, 0x4e, 0x36, 0xa5, 0x08, 0xa9, 0x77, 0xb1, 0x73,
+	0xce, 0x6f, 0xe6, 0xfc, 0xcf, 0x99, 0x73, 0x8e, 0xe1, 0x5a, 0x27, 0xa4, 0x2e, 0x66, 0xcc, 0xea,
+	0x84, 0x94, 0x53, 0x04, 0x47, 0x98, 0xb5, 0x2c, 0x7e, 0xda, 0xc1, 0xcc, 0x2c, 0xb7, 0x68, 0x8b,
+	0xae, 0xcb, 0xef, 0x0f, 0xa2, 0xe6, 0xba, 0xf8, 0x24, 0x3f, 0xc8, 0xbf, 0x94, 0x7d, 0xf9, 0x2f,
+	0x13, 0x72, 0xbb, 0x8a, 0x80, 0x5a, 0xa0, 0xb7, 0x1d, 0xd6, 0x36, 0xb4, 0x92, 0xb6, 0x5c, 0xb0,
+	0x3f, 0x7b, 0xda, 0x2d, 0xce, 0xfc, 0xde, 0x2d, 0xbe, 0xdb, 0xf2, 0x79, 0x3b, 0x3a, 0xb0, 0x5c,
+	0x7a, 0xb4, 0x2e, 0xe0, 0x6b, 0x4d, 0x1a, 0x11, 0xcf, 0xe1, 0x3e, 0x25, 0xeb, 0x98, 0xb4, 0x7c,
+	0x82, 0xd7, 0x85, 0x97, 0x75, 0xcf, 0x61, 0xed, 0x5e, 0xb7, 0x78, 0x5d, 0x7c, 0xd8, 0x2a, 0xaf,
+	0x95, 0x4b, 0xc7, 0x4e, 0xe0, 0x7b, 0x0e, 0xc7, 0x5b, 0xe5, 0x10, 0x3f, 0x89, 0xfc, 0x10, 0x7b,
+	0xe5, 0x86, 0x3c, 0x00, 0xdd, 0x01, 0x9d, 0x38, 0x47, 0xd8, 0x48, 0x95, 0xb4, 0xe5, 0xbc, 0xfd,
+	0x56, 0xaf, 0x5b, 0x7c, 0x53, 0x79, 0x89, 0x6f, 0xb7, 0x2a, 0x53, 0x5c, 0xc5, 0x3f, 0xd1, 0x63,
+	0xc8, 0x10, 0xea, 0x61, 0x66, 0xe8, 0xa5, 0xf4, 0xf2, 0x5c, 0xc5, 0xb0, 0x86, 0xf1, 0x5a, 0x71,
+	0x1c, 0xd6, 0x0e, 0xf5, 0xb0, 0xfd, 0x4e, 0xaf, 0x5b, 0x7c, 0x7b, 0x84, 0xba, 0x39, 0x4a, 0xf5,
+	0xfc, 0x63, 0xbc, 0x3a, 0x44, 0x2b, 0xa4, 0x60, 0x63, 0xaf, 0x85, 0x99, 0x91, 0x99, 0xce, 0xae,
+	0x79, 0xad, 0x71, 0xf6, 0xcd, 0x8b, 0xd8, 0x12, 0x69, 0xfe, 0xf8, 0x3a, 0xe8, 0xe2, 0x5e, 0xe8,
+	0x36, 0xa4, 0x0f, 0xf1, 0xa9, 0xd4, 0x78, 0x3c, 0xf4, 0x8d, 0xc9, 0xa1, 0x0b, 0x0f, 0x54, 0x87,
+	0x6c, 0x88, 0x59, 0x14, 0x70, 0x29, 0xdb, 0x5c, 0xa5, 0x38, 0x2d, 0x74, 0xab, 0x21, 0xcd, 0xec,
+	0x57, 0x7a, 0xdd, 0xe2, 0xb5, 0x33, 0xba, 0xde, 0x9b, 0x69, 0xc4, 0x0c, 0xf4, 0x31, 0x64, 0xf0,
+	0x31, 0x26, 0xdc, 0x48, 0x4b, 0xd8, 0xe2, 0x54, 0x58, 0x4d, 0x58, 0x8d, 0xb1, 0xaa, 0x82, 0xa5,
+	0x08, 0xe8, 0x2e, 0xe8, 0xdc, 0x61, 0x87, 0x86, 0x2e, 0x49, 0x6f, 0x4c, 0x25, 0x3d, 0x72, 0xd8,
+	0xe1, 0x18, 0x68, 0x53, 0x80, 0xa4, 0x3f, 0xda, 0x86, 0xf4, 0x91, 0xd3, 0x31, 0x32, 0x12, 0x73,
+	0x7d, 0x2a, 0xe6, 0x81, 0xd3, 0x19, 0xa3, 0xdc, 0x14, 0x14, 0xe1, 0x2d, 0x54, 0x6a, 0xfa, 0x01,
+	0xc7, 0xa1, 0x91, 0xbd, 0x44, 0xa5, 0xbb, 0xd2, 0x6c, 0x0c, 0x75, 0x4b, 0xaa, 0xa4, 0x18, 0xe6,
+	0x2f, 0x1a, 0x64, 0x95, 0x9a, 0xe8, 0x5b, 0x28, 0xf8, 0x84, 0x71, 0x87, 0xb8, 0x58, 0x54, 0xba,
+	0x4c, 0x42, 0xc1, 0xfe, 0xe2, 0xf9, 0x1e, 0x49, 0x82, 0x72, 0x3f, 0x73, 0x1a, 0xfa, 0x04, 0x72,
+	0x42, 0xa3, 0xfb, 0xf8, 0x54, 0x26, 0x2c, 0x6f, 0xbf, 0xd7, 0xeb, 0x16, 0x57, 0xcf, 0x24, 0x64,
+	0x84, 0xd2, 0x09, 0x7d, 0xc2, 0x1d, 0xe6, 0xfa, 0xfe, 0x48, 0x21, 0xf6, 0x01, 0xe6, 0xaf, 0x1a,
+	0x64, 0x64, 0x56, 0xff, 0xe7, 0x98, 0xea, 0x30, 0x2b, 0x0b, 0xe8, 0xdf, 0x04, 0x35, 0x20, 0x98,
+	0x3f, 0x6b, 0xa0, 0x8b, 0x0a, 0x7b, 0x89, 0x12, 0xf5, 0xc7, 0x1c, 0xa4, 0x1f, 0x38, 0x1d, 0x44,
+	0x21, 0x47, 0x23, 0xde, 0x89, 0x38, 0x33, 0x34, 0xd9, 0x99, 0x56, 0x2e, 0x7a, 0x1c, 0xd6, 0xa7,
+	0xca, 0xb6, 0x46, 0x78, 0x78, 0x3a, 0xd6, 0xaa, 0x36, 0x2e, 0x68, 0x55, 0xfd, 0x53, 0xcc, 0xef,
+	0x01, 0xb2, 0x8a, 0x82, 0x1e, 0x82, 0x4e, 0xa2, 0x20, 0x90, 0xfd, 0x6a, 0xbe, 0xb2, 0x9c, 0xe0,
+	0x60, 0x6b, 0x27, 0x0a, 0x82, 0xb1, 0x67, 0xb5, 0x21, 0xdf, 0xb9, 0x40, 0xa1, 0x5b, 0x50, 0x60,
+	0x3c, 0xf4, 0x49, 0x6b, 0xdf, 0xa5, 0x84, 0xf1, 0x78, 0x0a, 0x4c, 0xec, 0x56, 0x73, 0xca, 0x70,
+	0x5b, 0xd8, 0xa1, 0x1a, 0x14, 0x3c, 0x1a, 0x1d, 0x04, 0x38, 0xf6, 0x13, 0xfa, 0x6a, 0x76, 0x69,
+	0x38, 0x73, 0xfa, 0xfa, 0x3a, 0x47, 0x3e, 0xa1, 0x5b, 0xe5, 0x88, 0x30, 0xa7, 0x89, 0x25, 0x46,
+	0xf9, 0x29, 0x4c, 0x05, 0xe0, 0x80, 0xd2, 0x20, 0x86, 0x88, 0xa6, 0x35, 0x3b, 0xb9, 0x2b, 0xe5,
+	0x85, 0x99, 0xf2, 0x79, 0x04, 0xe9, 0x10, 0x37, 0xe3, 0xd6, 0xb4, 0x96, 0x44, 0x84, 0x06, 0x6e,
+	0xe2, 0x10, 0x13, 0x17, 0x4f, 0xe9, 0x55, 0x21, 0x6e, 0x0a, 0x6d, 0x03, 0x9f, 0xf1, 0xb8, 0x53,
+	0x25, 0xd2, 0xb6, 0xee, 0x33, 0x3e, 0xb9, 0x65, 0x49, 0x14, 0xda, 0x51, 0x3d, 0x34, 0x27, 0x89,
+	0x4b, 0x49, 0x88, 0x93, 0xda, 0xe9, 0xed, 0x7e, 0x3b, 0x35, 0x9f, 0x80, 0x2e, 0x8e, 0x44, 0xfe,
+	0xf9, 0x12, 0xbc, 0x91, 0x80, 0xfd, 0x7c, 0xc5, 0xf7, 0x4c, 0x53, 0x55, 0xff, 0xcd, 0xf9, 0x23,
+	0x37, 0x13, 0x86, 0xf3, 0x02, 0x1e, 0xc0, 0x3e, 0x14, 0x46, 0x21, 0x68, 0x61, 0x64, 0x68, 0xab,
+	0x69, 0x7c, 0x07, 0x32, 0xc7, 0x4e, 0x10, 0xe1, 0x78, 0x18, 0x27, 0x91, 0xa3, 0xa1, 0x3c, 0xb6,
+	0x52, 0xef, 0x6b, 0xe6, 0xdf, 0x29, 0xc8, 0x0f, 0x4a, 0x04, 0x7d, 0x08, 0x39, 0xb1, 0x81, 0xdc,
+	0xbf, 0xea, 0x5e, 0xd0, 0xf7, 0x42, 0x5f, 0x82, 0xde, 0x71, 0x78, 0x3b, 0xbe, 0x4c, 0xe5, 0x4a,
+	0x05, 0x6a, 0xed, 0x3a, 0xbc, 0x3d, 0xe1, 0xf9, 0x35, 0x24, 0xd2, 0xfc, 0x4d, 0x03, 0x5d, 0x58,
+	0xa0, 0x0f, 0x46, 0x17, 0x97, 0xa5, 0x5e, 0xb7, 0x78, 0x63, 0xda, 0x05, 0x87, 0x5d, 0x4d, 0xd6,
+	0x91, 0x90, 0x6b, 0x05, 0x32, 0x3e, 0xf1, 0xf0, 0x89, 0xbc, 0xa1, 0x3e, 0xf9, 0xb1, 0x2b, 0x8b,
+	0x41, 0x2c, 0xe9, 0x17, 0x16, 0x4b, 0x35, 0x8e, 0xc5, 0x06, 0x98, 0x65, 0x38, 0xc0, 0x2e, 0xa7,
+	0x61, 0xf9, 0x35, 0xd0, 0x45, 0xa3, 0x42, 0xf3, 0x00, 0x3b, 0x7b, 0xf5, 0xfa, 0xfe, 0xe7, 0x1f,
+	0xd5, 0xf7, 0x6a, 0x0b, 0x33, 0x76, 0x2e, 0x4e, 0xec, 0x7f, 0x5f, 0x03, 0xdf, 0xa5, 0x21, 0xab,
+	0x96, 0x10, 0xf4, 0x15, 0x80, 0x4b, 0x89, 0xe7, 0x8b, 0x31, 0xc4, 0x8c, 0xd4, 0x25, 0x4d, 0x5e,
+	0x39, 0x59, 0xdb, 0x7d, 0x0f, 0xfb, 0x55, 0x31, 0xdc, 0xc6, 0x13, 0x38, 0xc2, 0x34, 0x7f, 0x48,
+	0x41, 0x7e, 0xe0, 0x80, 0xec, 0xd1, 0x5c, 0x9e, 0x9f, 0x50, 0x13, 0x8b, 0x6d, 0x75, 0x24, 0xa9,
+	0x2a, 0xfa, 0x13, 0xc8, 0x77, 0x42, 0xec, 0xf9, 0xae, 0xc3, 0x95, 0x02, 0xf3, 0x95, 0x6a, 0xe2,
+	0x2b, 0x5b, 0xbb, 0x7d, 0xd7, 0xa4, 0xeb, 0xff, 0xf0, 0x30, 0xb4, 0xd4, 0xd7, 0x3d, 0x3d, 0x71,
+	0x72, 0x54, 0xcb, 0xb1, 0xca, 0xe5, 0x12, 0xe4, 0x07, 0xe7, 0xa0, 0x39, 0xc8, 0xed, 0x91, 0x43,
+	0x42, 0xbf, 0x26, 0x0b, 0x33, 0x28, 0x0b, 0xa9, 0xda, 0xc3, 0x05, 0xcd, 0xce, 0x82, 0x2e, 0x6e,
+	0x6b, 0x9e, 0x80, 0x2e, 0x36, 0x7b, 0xb1, 0x9d, 0xb3, 0xd0, 0xbd, 0xe2, 0x76, 0xce, 0x42, 0x57,
+	0x38, 0x7a, 0x83, 0x59, 0x96, 0x30, 0x24, 0xe1, 0x61, 0x57, 0x9f, 0xfe, 0xb9, 0x38, 0xf3, 0xd3,
+	0xb3, 0x45, 0xed, 0xf1, 0xca, 0xe5, 0xab, 0x49, 0xfc, 0x5b, 0xef, 0x20, 0x2b, 0x7f, 0xbc, 0x55,
+	0xff, 0x09, 0x00, 0x00, 0xff, 0xff, 0x93, 0x1b, 0x0e, 0x45, 0xfd, 0x0d, 0x00, 0x00,
 }
 
 func (this *Process) Equal(that interface{}) bool {
@@ -667,7 +908,7 @@ func (this *Process) Equal(that interface{}) bool {
 	if !this.Hash.Equal(that1.Hash) {
 		return false
 	}
-	if this.Key != that1.Key {
+	if this.Name != that1.Name {
 		return false
 	}
 	if len(this.Nodes) != len(that1.Nodes) {
@@ -708,6 +949,9 @@ func (this *Process_Node) Equal(that interface{}) bool {
 	if that1 == nil {
 		return this == nil
 	} else if this == nil {
+		return false
+	}
+	if this.Key != that1.Key {
 		return false
 	}
 	if that1.Type == nil {
@@ -863,9 +1107,6 @@ func (this *Process_Node_Result) Equal(that interface{}) bool {
 	} else if this == nil {
 		return false
 	}
-	if this.Key != that1.Key {
-		return false
-	}
 	if !this.InstanceHash.Equal(that1.InstanceHash) {
 		return false
 	}
@@ -894,9 +1135,6 @@ func (this *Process_Node_Event) Equal(that interface{}) bool {
 	if that1 == nil {
 		return this == nil
 	} else if this == nil {
-		return false
-	}
-	if this.Key != that1.Key {
 		return false
 	}
 	if !this.InstanceHash.Equal(that1.InstanceHash) {
@@ -929,9 +1167,6 @@ func (this *Process_Node_Task) Equal(that interface{}) bool {
 	} else if this == nil {
 		return false
 	}
-	if this.Key != that1.Key {
-		return false
-	}
 	if !this.InstanceHash.Equal(that1.InstanceHash) {
 		return false
 	}
@@ -960,9 +1195,6 @@ func (this *Process_Node_Map) Equal(that interface{}) bool {
 	if that1 == nil {
 		return this == nil
 	} else if this == nil {
-		return false
-	}
-	if this.Key != that1.Key {
 		return false
 	}
 	if len(this.Outputs) != len(that1.Outputs) {
@@ -997,9 +1229,6 @@ func (this *Process_Node_Map_Output) Equal(that interface{}) bool {
 	} else if this == nil {
 		return false
 	}
-	if this.Key != that1.Key {
-		return false
-	}
 	if that1.Value == nil {
 		if this.Value != nil {
 			return false
@@ -1010,6 +1239,102 @@ func (this *Process_Node_Map_Output) Equal(that interface{}) bool {
 		return false
 	}
 	if !bytes.Equal(this.XXX_unrecognized, that1.XXX_unrecognized) {
+		return false
+	}
+	return true
+}
+func (this *Process_Node_Map_Output_Null_) Equal(that interface{}) bool {
+	if that == nil {
+		return this == nil
+	}
+
+	that1, ok := that.(*Process_Node_Map_Output_Null_)
+	if !ok {
+		that2, ok := that.(Process_Node_Map_Output_Null_)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		return this == nil
+	} else if this == nil {
+		return false
+	}
+	if this.Null != that1.Null {
+		return false
+	}
+	return true
+}
+func (this *Process_Node_Map_Output_StringConst) Equal(that interface{}) bool {
+	if that == nil {
+		return this == nil
+	}
+
+	that1, ok := that.(*Process_Node_Map_Output_StringConst)
+	if !ok {
+		that2, ok := that.(Process_Node_Map_Output_StringConst)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		return this == nil
+	} else if this == nil {
+		return false
+	}
+	if this.StringConst != that1.StringConst {
+		return false
+	}
+	return true
+}
+func (this *Process_Node_Map_Output_DoubleConst) Equal(that interface{}) bool {
+	if that == nil {
+		return this == nil
+	}
+
+	that1, ok := that.(*Process_Node_Map_Output_DoubleConst)
+	if !ok {
+		that2, ok := that.(Process_Node_Map_Output_DoubleConst)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		return this == nil
+	} else if this == nil {
+		return false
+	}
+	if this.DoubleConst != that1.DoubleConst {
+		return false
+	}
+	return true
+}
+func (this *Process_Node_Map_Output_BoolConst) Equal(that interface{}) bool {
+	if that == nil {
+		return this == nil
+	}
+
+	that1, ok := that.(*Process_Node_Map_Output_BoolConst)
+	if !ok {
+		that2, ok := that.(Process_Node_Map_Output_BoolConst)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		return this == nil
+	} else if this == nil {
+		return false
+	}
+	if this.BoolConst != that1.BoolConst {
 		return false
 	}
 	return true
@@ -1038,14 +1363,14 @@ func (this *Process_Node_Map_Output_Ref) Equal(that interface{}) bool {
 	}
 	return true
 }
-func (this *Process_Node_Map_Output_Constant) Equal(that interface{}) bool {
+func (this *Process_Node_Map_Output_List_) Equal(that interface{}) bool {
 	if that == nil {
 		return this == nil
 	}
 
-	that1, ok := that.(*Process_Node_Map_Output_Constant)
+	that1, ok := that.(*Process_Node_Map_Output_List_)
 	if !ok {
-		that2, ok := that.(Process_Node_Map_Output_Constant)
+		that2, ok := that.(Process_Node_Map_Output_List_)
 		if ok {
 			that1 = &that2
 		} else {
@@ -1057,7 +1382,95 @@ func (this *Process_Node_Map_Output_Constant) Equal(that interface{}) bool {
 	} else if this == nil {
 		return false
 	}
-	if !this.Constant.Equal(that1.Constant) {
+	if !this.List.Equal(that1.List) {
+		return false
+	}
+	return true
+}
+func (this *Process_Node_Map_Output_Map_) Equal(that interface{}) bool {
+	if that == nil {
+		return this == nil
+	}
+
+	that1, ok := that.(*Process_Node_Map_Output_Map_)
+	if !ok {
+		that2, ok := that.(Process_Node_Map_Output_Map_)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		return this == nil
+	} else if this == nil {
+		return false
+	}
+	if !this.Map.Equal(that1.Map) {
+		return false
+	}
+	return true
+}
+func (this *Process_Node_Map_Output_List) Equal(that interface{}) bool {
+	if that == nil {
+		return this == nil
+	}
+
+	that1, ok := that.(*Process_Node_Map_Output_List)
+	if !ok {
+		that2, ok := that.(Process_Node_Map_Output_List)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		return this == nil
+	} else if this == nil {
+		return false
+	}
+	if len(this.Outputs) != len(that1.Outputs) {
+		return false
+	}
+	for i := range this.Outputs {
+		if !this.Outputs[i].Equal(that1.Outputs[i]) {
+			return false
+		}
+	}
+	if !bytes.Equal(this.XXX_unrecognized, that1.XXX_unrecognized) {
+		return false
+	}
+	return true
+}
+func (this *Process_Node_Map_Output_Map) Equal(that interface{}) bool {
+	if that == nil {
+		return this == nil
+	}
+
+	that1, ok := that.(*Process_Node_Map_Output_Map)
+	if !ok {
+		that2, ok := that.(Process_Node_Map_Output_Map)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		return this == nil
+	} else if this == nil {
+		return false
+	}
+	if len(this.Outputs) != len(that1.Outputs) {
+		return false
+	}
+	for i := range this.Outputs {
+		if !this.Outputs[i].Equal(that1.Outputs[i]) {
+			return false
+		}
+	}
+	if !bytes.Equal(this.XXX_unrecognized, that1.XXX_unrecognized) {
 		return false
 	}
 	return true
@@ -1084,10 +1497,94 @@ func (this *Process_Node_Map_Output_Reference) Equal(that interface{}) bool {
 	if this.NodeKey != that1.NodeKey {
 		return false
 	}
-	if this.Key != that1.Key {
+	if !this.Path.Equal(that1.Path) {
 		return false
 	}
 	if !bytes.Equal(this.XXX_unrecognized, that1.XXX_unrecognized) {
+		return false
+	}
+	return true
+}
+func (this *Process_Node_Map_Output_Reference_Path) Equal(that interface{}) bool {
+	if that == nil {
+		return this == nil
+	}
+
+	that1, ok := that.(*Process_Node_Map_Output_Reference_Path)
+	if !ok {
+		that2, ok := that.(Process_Node_Map_Output_Reference_Path)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		return this == nil
+	} else if this == nil {
+		return false
+	}
+	if that1.Selector == nil {
+		if this.Selector != nil {
+			return false
+		}
+	} else if this.Selector == nil {
+		return false
+	} else if !this.Selector.Equal(that1.Selector) {
+		return false
+	}
+	if !this.Path.Equal(that1.Path) {
+		return false
+	}
+	if !bytes.Equal(this.XXX_unrecognized, that1.XXX_unrecognized) {
+		return false
+	}
+	return true
+}
+func (this *Process_Node_Map_Output_Reference_Path_Key) Equal(that interface{}) bool {
+	if that == nil {
+		return this == nil
+	}
+
+	that1, ok := that.(*Process_Node_Map_Output_Reference_Path_Key)
+	if !ok {
+		that2, ok := that.(Process_Node_Map_Output_Reference_Path_Key)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		return this == nil
+	} else if this == nil {
+		return false
+	}
+	if this.Key != that1.Key {
+		return false
+	}
+	return true
+}
+func (this *Process_Node_Map_Output_Reference_Path_Index) Equal(that interface{}) bool {
+	if that == nil {
+		return this == nil
+	}
+
+	that1, ok := that.(*Process_Node_Map_Output_Reference_Path_Index)
+	if !ok {
+		that2, ok := that.(Process_Node_Map_Output_Reference_Path_Index)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		return this == nil
+	} else if this == nil {
+		return false
+	}
+	if this.Index != that1.Index {
 		return false
 	}
 	return true
@@ -1109,9 +1606,6 @@ func (this *Process_Node_Filter) Equal(that interface{}) bool {
 	if that1 == nil {
 		return this == nil
 	} else if this == nil {
-		return false
-	}
-	if this.Key != that1.Key {
 		return false
 	}
 	if len(this.Conditions) != len(that1.Conditions) {

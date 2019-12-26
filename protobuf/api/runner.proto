@@ -30,6 +30,7 @@ service Runner {
 // The request's data for the `Get` API.
 message GetRunnerRequest {
   bytes hash = 1 [
+    (gogoproto.moretags) = 'validate:"required,hash"',
     (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
     (gogoproto.nullable) = false
   ];
@@ -41,12 +42,15 @@ message ListRunnerRequest {
   message Filter {
     // Filter by instance hash.
     bytes instanceHash = 1 [
+      (gogoproto.moretags) = 'validate:"hash"',
       (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
       (gogoproto.nullable) = false
     ];
 
     // Filter by address
-    string address = 2;
+    string address = 2 [
+      (gogoproto.moretags) = 'validate:"accaddress"'
+    ];
   }
 
   // Filter used to filter runners.
@@ -63,12 +67,15 @@ message ListRunnerResponse {
 message CreateRunnerRequest {
   // Service's hash to start the runner with.
   bytes serviceHash = 1 [
+    (gogoproto.moretags) = 'validate:"hash"',
     (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
     (gogoproto.nullable) = false
   ];
 
   // Environmental variables to start the runner with.
-  repeated string env = 2;
+  repeated string env = 2 [
+    (gogoproto.moretags) = 'validate:"unique,dive,env"'
+  ];
 }
 
 // The response's data for the `Create` API.
@@ -84,6 +91,7 @@ message CreateRunnerResponse {
 message DeleteRunnerRequest {
   // Runner's hash
   bytes hash = 1 [
+    (gogoproto.moretags) = 'validate:"required,hash"',
     (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
     (gogoproto.nullable) = false
   ];
@@ -94,4 +102,3 @@ message DeleteRunnerRequest {
 
 // The response's data for the `Delete` API.
 message DeleteRunnerResponse {}
-

@@ -6,26 +6,6 @@ import (
 	validator "gopkg.in/go-playground/validator.v9"
 )
 
-// ID is the ID of the Result's node
-func (r *Process_Node) ID() string {
-	if event := r.GetEvent(); event != nil {
-		return event.Key
-	}
-	if filter := r.GetFilter(); filter != nil {
-		return filter.Key
-	}
-	if mapping := r.GetMap(); mapping != nil {
-		return mapping.Key
-	}
-	if result := r.GetResult(); result != nil {
-		return result.Key
-	}
-	if task := r.GetTask(); task != nil {
-		return task.Key
-	}
-	panic("not implemented")
-}
-
 // Validate returns an error if the process is invalid for whatever reason
 func (w *Process) Validate() error {
 	if err := validator.New().Struct(w); err != nil {
