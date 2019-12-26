@@ -68,10 +68,13 @@ func testProcess(t *testing.T) {
 	t.Run("check ownership creation", func(t *testing.T) {
 		ownerships, err := client.OwnershipClient.List(context.Background(), &pb.ListOwnershipRequest{})
 		require.NoError(t, err)
-		require.Len(t, ownerships.Ownerships, 2)
-		require.NotEmpty(t, ownerships.Ownerships[0].Owner)
-		require.Equal(t, ownership.Ownership_Process, ownerships.Ownerships[0].Resource)
-		require.Equal(t, processHash, ownerships.Ownerships[0].ResourceHash)
+		owners := make([]*ownership.Ownership, 0)
+		for _, o := range ownerships.Ownerships {
+			if o.ResourceHash.Equal(processHash) && o.Resource == ownership.Ownership_Process && o.Owner != "" {
+				owners = append(owners, o)
+			}
+		}
+		require.Len(t, owners, 1)
 	})
 
 	t.Run("list", func(t *testing.T) {
