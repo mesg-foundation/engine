@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/mesg-foundation/engine/hash"
+	"github.com/mesg-foundation/engine/ownership"
 	pb "github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/stretchr/testify/require"
 )
@@ -46,5 +47,14 @@ func testService(t *testing.T) {
 		resp, err := client.ServiceClient.Hash(context.Background(), req)
 		require.NoError(t, err)
 		require.Equal(t, testServiceHash, resp.Hash)
+	})
+
+	t.Run("check ownership creation", func(t *testing.T) {
+		ownerships, err := client.OwnershipClient.List(context.Background(), &pb.ListOwnershipRequest{})
+		require.NoError(t, err)
+		require.Len(t, ownerships.Ownerships, 1)
+		require.NotEmpty(t, ownerships.Ownerships[0].Owner)
+		require.Equal(t, ownership.Ownership_Service, ownerships.Ownerships[0].Resource)
+		require.Equal(t, testServiceHash, ownerships.Ownerships[0].ResourceHash)
 	})
 }

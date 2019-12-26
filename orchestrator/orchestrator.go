@@ -2,6 +2,7 @@ package orchestrator
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"math/rand"
 
@@ -16,15 +17,13 @@ import (
 )
 
 // New creates a new Process instance
-func New(event EventSDK, execution ExecutionSDK, process ProcessSDK, runner RunnerSDK, accountName, accountPassword string) *Orchestrator {
+func New(event EventSDK, execution ExecutionSDK, process ProcessSDK, runner RunnerSDK) *Orchestrator {
 	return &Orchestrator{
-		event:           event,
-		execution:       execution,
-		process:         process,
-		runner:          runner,
-		ErrC:            make(chan error),
-		accountName:     accountName,
-		accountPassword: accountPassword,
+		event:     event,
+		execution: execution,
+		process:   process,
+		runner:    runner,
+		ErrC:      make(chan error),
 	}
 }
 
@@ -38,6 +37,7 @@ func (s *Orchestrator) Start() error {
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
+
 	executionStream, errC, err := s.execution.Stream(ctx, &api.StreamExecutionRequest{
 		Filter: &api.StreamExecutionRequest_Filter{
 			Statuses: []execution.Status{execution.Status_Completed},
@@ -129,7 +129,7 @@ func (s *Orchestrator) executeNode(wf *process.Process, n *process.Process_Node,
 		return s.processTask(n.Key, task, wf, exec, event, data)
 	} else if m := n.GetMap(); m != nil {
 		var err error
-		data, err = s.processMap(m, wf, exec, data)
+		data, err = s.processMap(n.Key, m.Outputs, wf, exec, data)
 		if err != nil {
 			return err
 		}
@@ -153,33 +153,80 @@ func (s *Orchestrator) executeNode(wf *process.Process, n *process.Process_Node,
 	return nil
 }
 
-func (s *Orchestrator) processMap(mapping *process.Process_Node_Map, wf *process.Process, exec *execution.Execution, data *types.Struct) (*types.Struct, error) {
+func (s *Orchestrator) processMap(nodeKey string, outputs map[string]*process.Process_Node_Map_Output, wf *process.Process, exec *execution.Execution, data *types.Struct) (*types.Struct, error) {
 	result := &types.Struct{
 		Fields: make(map[string]*types.Value),
 	}
-	for _, output := range mapping.Outputs {
-		if ref := output.GetRef(); ref != nil {
-			node, err := wf.FindNode(ref.NodeKey)
-			if err != nil {
-				return nil, err
-			}
-			if node.GetTask() != nil {
-				value, err := s.resolveInput(wf.Hash, exec, ref.NodeKey, ref.Key)
-				if err != nil {
-					return nil, err
-				}
-				result.Fields[output.Key] = value
-			} else {
-				result.Fields[output.Key] = data.Fields[ref.Key]
-			}
-		} else if constant := output.GetConstant(); constant != nil {
-			result.Fields[output.Key] = constant
+	for key, output := range outputs {
+		value, err := s.outputToValue(nodeKey, output, wf, exec, data)
+		if err != nil {
+			return nil, err
 		}
+		result.Fields[key] = value
 	}
 	return result, nil
 }
 
-func (s *Orchestrator) resolveInput(wfHash hash.Hash, exec *execution.Execution, nodeKey string, outputKey string) (*types.Value, error) {
+func (s *Orchestrator) outputToValue(nodeKey string, output *process.Process_Node_Map_Output, wf *process.Process, exec *execution.Execution, data *types.Struct) (*types.Value, error) {
+	switch v := output.GetValue().(type) {
+	case *process.Process_Node_Map_Output_Null_:
+		return &types.Value{Kind: &types.Value_NullValue{NullValue: types.NullValue_NULL_VALUE}}, nil
+	case *process.Process_Node_Map_Output_StringConst:
+		return &types.Value{Kind: &types.Value_StringValue{StringValue: v.StringConst}}, nil
+	case *process.Process_Node_Map_Output_DoubleConst:
+		return &types.Value{Kind: &types.Value_NumberValue{NumberValue: v.DoubleConst}}, nil
+	case *process.Process_Node_Map_Output_BoolConst:
+		return &types.Value{Kind: &types.Value_BoolValue{BoolValue: v.BoolConst}}, nil
+	case *process.Process_Node_Map_Output_Map_:
+		out, err := s.processMap(nodeKey, v.Map.Outputs, wf, exec, data)
+		if err != nil {
+			return nil, err
+		}
+		return &types.Value{Kind: &types.Value_StructValue{StructValue: out}}, nil
+	case *process.Process_Node_Map_Output_List_:
+		var values []*types.Value
+		for i := range v.List.Outputs {
+			value, err := s.outputToValue(nodeKey, v.List.Outputs[i], wf, exec, data)
+			if err != nil {
+				return nil, err
+			}
+
+			values = append(values, value)
+		}
+		return &types.Value{
+			Kind: &types.Value_ListValue{
+				ListValue: &types.ListValue{
+					Values: values,
+				},
+			},
+		}, nil
+	case *process.Process_Node_Map_Output_Ref:
+		node, err := wf.FindNode(v.Ref.NodeKey)
+		if err != nil {
+			return nil, err
+		}
+		if node.GetTask() != nil {
+			return s.resolveInput(wf.Hash, exec, v.Ref.NodeKey, v.Ref.Path)
+		}
+		// check that the parent nodeKey == ref.NodeKey
+		// this ensures that we can use directly the data of the previous node
+		refToParent := false
+		for _, parent := range wf.ParentKeys(nodeKey) {
+			if parent == v.Ref.NodeKey {
+				refToParent = true
+				break
+			}
+		}
+		if !refToParent {
+			return nil, fmt.Errorf("ref can only reference a parent node for non task nodes")
+		}
+		return resolveRef(data, v.Ref.Path)
+	default:
+		return nil, errors.New("unknown output")
+	}
+}
+
+func (s *Orchestrator) resolveInput(wfHash hash.Hash, exec *execution.Execution, nodeKey string, path *process.Process_Node_Map_Output_Reference_Path) (*types.Value, error) {
 	if !wfHash.Equal(exec.ProcessHash) {
 		return nil, fmt.Errorf("reference's nodeKey not found")
 	}
@@ -188,9 +235,9 @@ func (s *Orchestrator) resolveInput(wfHash hash.Hash, exec *execution.Execution,
 		if err != nil {
 			return nil, err
 		}
-		return s.resolveInput(wfHash, parent, nodeKey, outputKey)
+		return s.resolveInput(wfHash, parent, nodeKey, path)
 	}
-	return exec.Outputs.Fields[outputKey], nil
+	return resolveRef(exec.Outputs, path)
 }
 
 func (s *Orchestrator) processTask(nodeKey string, task *process.Process_Node_Task, wf *process.Process, exec *execution.Execution, event *event.Event, data *types.Struct) error {
@@ -220,6 +267,54 @@ func (s *Orchestrator) processTask(nodeKey string, task *process.Process_Node_Ta
 		Inputs:       data,
 		ExecutorHash: executor.Hash,
 		Tags:         nil,
-	}, s.accountName, s.accountPassword)
+	})
 	return err
+}
+
+func resolveRef(data *types.Struct, path *process.Process_Node_Map_Output_Reference_Path) (*types.Value, error) {
+	if path == nil {
+		return &types.Value{Kind: &types.Value_StructValue{StructValue: data}}, nil
+	}
+
+	var v *types.Value
+	key, ok := path.Selector.(*process.Process_Node_Map_Output_Reference_Path_Key)
+	if !ok {
+		return nil, fmt.Errorf("orchestrator: first selector in the path must be a key")
+	}
+
+	v, ok = data.Fields[key.Key]
+	if !ok {
+		return nil, fmt.Errorf("orchestrator: key %s not found", key.Key)
+	}
+
+	for p := path.Path; p != nil; p = p.Path {
+		switch s := p.Selector.(type) {
+		case *process.Process_Node_Map_Output_Reference_Path_Key:
+			str, ok := v.GetKind().(*types.Value_StructValue)
+			if !ok {
+				return nil, fmt.Errorf("orchestrator: can't get key from non-struct value")
+			}
+			if str.StructValue.GetFields() == nil {
+				return nil, fmt.Errorf("orchestrator: can't get key from nil-struct")
+			}
+			v, ok = str.StructValue.Fields[s.Key]
+			if !ok {
+				return nil, fmt.Errorf("orchestrator: key %s not found", s.Key)
+			}
+		case *process.Process_Node_Map_Output_Reference_Path_Index:
+			list, ok := v.GetKind().(*types.Value_ListValue)
+			if !ok {
+				return nil, fmt.Errorf("orchestrator: can't get index from non-list value")
+			}
+
+			if len(list.ListValue.GetValues()) <= int(s.Index) {
+				return nil, fmt.Errorf("orchestrator: index %d out of range", s.Index)
+			}
+			v = list.ListValue.Values[s.Index]
+		default:
+			return nil, fmt.Errorf("orchestrator: unknown selector type %T", v)
+		}
+	}
+
+	return v, nil
 }

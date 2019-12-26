@@ -13,13 +13,13 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func testOrchestratorEventMapTask(executionStream pb.Execution_StreamClient, instanceHash hash.Hash) func(t *testing.T) {
+func testOrchestratorMapConst(executionStream pb.Execution_StreamClient, instanceHash hash.Hash) func(t *testing.T) {
 	return func(t *testing.T) {
 		var processHash hash.Hash
 
 		t.Run("create process", func(t *testing.T) {
 			respProc, err := client.ProcessClient.Create(context.Background(), &pb.CreateProcessRequest{
-				Name: "event-map-task-process",
+				Name: "map-const",
 				Nodes: []*process.Process_Node{
 					{
 						Key: "n0",
@@ -34,11 +34,10 @@ func testOrchestratorEventMapTask(executionStream pb.Execution_StreamClient, ins
 						Key: "n1",
 						Type: &process.Process_Node_Map_{
 							Map: &process.Process_Node_Map{
-								Outputs: []*process.Process_Node_Map_Output{
-									{
-										Key: "msg",
-										Value: &process.Process_Node_Map_Output_Constant{
-											Constant: &types.Value{Kind: &types.Value_StringValue{StringValue: "itsAConstant"}},
+								Outputs: map[string]*process.Process_Node_Map_Output{
+									"msg": {
+										Value: &process.Process_Node_Map_Output_StringConst{
+											StringConst: "itsAConstant",
 										},
 									},
 								},
@@ -88,6 +87,7 @@ func testOrchestratorEventMapTask(executionStream pb.Execution_StreamClient, ins
 			exec, err := executionStream.Recv()
 			require.NoError(t, err)
 			require.Equal(t, "task1", exec.TaskKey)
+			require.Equal(t, "n2", exec.NodeKey)
 			require.True(t, processHash.Equal(exec.ProcessHash))
 			require.Equal(t, execution.Status_InProgress, exec.Status)
 			require.Equal(t, "itsAConstant", exec.Inputs.Fields["msg"].GetStringValue())
@@ -96,6 +96,7 @@ func testOrchestratorEventMapTask(executionStream pb.Execution_StreamClient, ins
 			exec, err := executionStream.Recv()
 			require.NoError(t, err)
 			require.Equal(t, "task1", exec.TaskKey)
+			require.Equal(t, "n2", exec.NodeKey)
 			require.True(t, processHash.Equal(exec.ProcessHash))
 			require.Equal(t, execution.Status_Completed, exec.Status)
 			require.Equal(t, "itsAConstant", exec.Outputs.Fields["msg"].GetStringValue())

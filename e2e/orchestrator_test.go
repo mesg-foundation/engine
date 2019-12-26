@@ -17,9 +17,12 @@ func testOrchestrator(t *testing.T) {
 	// running orchestrator tests
 	t.Run("event task", testOrchestratorEventTask(executionStream, testInstanceHash))
 	t.Run("result task", testOrchestratorResultTask(executionStream, testRunnerHash, testInstanceHash))
-	t.Run("event map task", testOrchestratorEventMapTask(executionStream, testInstanceHash))
-	t.Run("result map task map task", testOrchestratorResultMapTaskMapTask(executionStream, testRunnerHash, testInstanceHash))
-	t.Run("event map task map task", testOrchestratorEventMapTaskMapTask(executionStream, testInstanceHash))
-	t.Run("event task complex data", testOrchestratorEventTaskComplexData(executionStream, testInstanceHash))
-	t.Run("event filter task", testOrchestratorEventFilterTask(executionStream, testInstanceHash))
+	t.Run("map const", testOrchestratorMapConst(executionStream, testInstanceHash))
+	t.Run("ref grand parent task", testOrchestratorRefGrandParentTask(executionStream, testInstanceHash))
+	t.Run("nested data", testOrchestratorNestedData(executionStream, testInstanceHash))
+	t.Run("nested map", testOrchestratorNestedMap(executionStream, testInstanceHash))
+	t.Run("ref path nested", testOrchestratorRefPathNested(executionStream, testInstanceHash))
+
+	// to execute last because of go routine leak. See fixme in following function
+	t.Run("filter", testOrchestratorFilter(executionStream, testInstanceHash))
 }

@@ -14,13 +14,13 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func testOrchestratorEventFilterTask(executionStream pb.Execution_StreamClient, instanceHash hash.Hash) func(t *testing.T) {
+func testOrchestratorFilter(executionStream pb.Execution_StreamClient, instanceHash hash.Hash) func(t *testing.T) {
 	return func(t *testing.T) {
 		var processHash hash.Hash
 
 		t.Run("create process", func(t *testing.T) {
 			respProc, err := client.ProcessClient.Create(context.Background(), &pb.CreateProcessRequest{
-				Name: "event-filter-task-process",
+				Name: "filter",
 				Nodes: []*process.Process_Node{
 					{
 						Key: "n0",
@@ -89,6 +89,7 @@ func testOrchestratorEventFilterTask(executionStream pb.Execution_StreamClient, 
 				exec, err := executionStream.Recv()
 				require.NoError(t, err)
 				require.Equal(t, "task1", exec.TaskKey)
+				require.Equal(t, "n2", exec.NodeKey)
 				require.True(t, processHash.Equal(exec.ProcessHash))
 				require.Equal(t, execution.Status_InProgress, exec.Status)
 				require.Equal(t, "shouldMatch", exec.Inputs.Fields["msg"].GetStringValue())
@@ -97,6 +98,7 @@ func testOrchestratorEventFilterTask(executionStream pb.Execution_StreamClient, 
 				exec, err := executionStream.Recv()
 				require.NoError(t, err)
 				require.Equal(t, "task1", exec.TaskKey)
+				require.Equal(t, "n2", exec.NodeKey)
 				require.True(t, processHash.Equal(exec.ProcessHash))
 				require.Equal(t, execution.Status_Completed, exec.Status)
 				require.Equal(t, "shouldMatch", exec.Outputs.Fields["msg"].GetStringValue())

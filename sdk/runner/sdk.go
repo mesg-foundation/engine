@@ -4,14 +4,12 @@ import (
 	"errors"
 	"fmt"
 
-	cosmostypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/mesg-foundation/engine/container"
 	"github.com/mesg-foundation/engine/cosmos"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/instance"
 	"github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/mesg-foundation/engine/runner"
-	accountsdk "github.com/mesg-foundation/engine/sdk/account"
 	instancesdk "github.com/mesg-foundation/engine/sdk/instance"
 	servicesdk "github.com/mesg-foundation/engine/sdk/service"
 	"github.com/mesg-foundation/engine/x/xos"
@@ -19,7 +17,6 @@ import (
 
 // SDK is the runner sdk.
 type SDK struct {
-	accountSDK   *accountsdk.SDK
 	serviceSDK   *servicesdk.SDK
 	instanceSDK  *instancesdk.SDK
 	client       *cosmos.Client
@@ -36,10 +33,9 @@ type Filter struct {
 }
 
 // New returns the runner sdk.
-func New(client *cosmos.Client, accountSDK *accountsdk.SDK, serviceSDK *servicesdk.SDK, instanceSDK *instancesdk.SDK, container container.Container, engineName, port, ipfsEndpoint string) *SDK {
+func New(client *cosmos.Client, serviceSDK *servicesdk.SDK, instanceSDK *instancesdk.SDK, container container.Container, engineName, port, ipfsEndpoint string) *SDK {
 	sdk := &SDK{
 		container:    container,
-		accountSDK:   accountSDK,
 		serviceSDK:   serviceSDK,
 		instanceSDK:  instanceSDK,
 		client:       client,
@@ -51,17 +47,7 @@ func New(client *cosmos.Client, accountSDK *accountsdk.SDK, serviceSDK *services
 }
 
 // Create creates a new runner.
-func (s *SDK) Create(req *api.CreateRunnerRequest, accountName, accountPassword string) (*runner.Runner, error) {
-	account, err := s.accountSDK.Get(accountName)
-	if err != nil {
-		return nil, err
-	}
-	// TODO: pass account by parameters
-	user, err := cosmostypes.AccAddressFromBech32(account.Address)
-	if err != nil {
-		return nil, err
-	}
-
+func (s *SDK) Create(req *api.CreateRunnerRequest) (*runner.Runner, error) {
 	// calculate instance's hash.
 	// TODO: this should be merged with the same logic currently in instance sdk
 	srv, err := s.serviceSDK.Get(req.ServiceHash)
@@ -75,8 +61,12 @@ func (s *SDK) Create(req *api.CreateRunnerRequest, accountName, accountPassword 
 		ServiceHash: srv.Hash,
 		EnvHash:     envHash,
 	})
+	acc, err := s.client.GetAccount()
+	if err != nil {
+		return nil, err
+	}
 	expRunnerHash := hash.Dump(&runner.Runner{
-		Address:      user.String(),
+		Address:      acc.GetAddress().String(),
 		InstanceHash: instanceHash,
 	})
 
@@ -97,8 +87,8 @@ func (s *SDK) Create(req *api.CreateRunnerRequest, accountName, accountPassword 
 		stop(s.container, expRunnerHash, srv.Dependencies)
 	}
 
-	msg := newMsgCreateRunner(user, req.ServiceHash, envHash)
-	tx, err := s.client.BuildAndBroadcastMsg(msg, accountName, accountPassword)
+	msg := newMsgCreateRunner(acc.GetAddress(), req.ServiceHash, envHash)
+	tx, err := s.client.BuildAndBroadcastMsg(msg)
 	if err != nil {
 		onError()
 		return nil, err
@@ -116,25 +106,18 @@ func (s *SDK) Create(req *api.CreateRunnerRequest, accountName, accountPassword 
 }
 
 // Delete deletes an existing runner.
-func (s *SDK) Delete(req *api.DeleteRunnerRequest, accountName, accountPassword string) error {
-	account, err := s.accountSDK.Get(accountName)
-	if err != nil {
-		return err
-	}
-	// TODO: pass account by parameters
-	user, err := cosmostypes.AccAddressFromBech32(account.Address)
-	if err != nil {
-		return err
-	}
-
+func (s *SDK) Delete(req *api.DeleteRunnerRequest) error {
 	// get runner before deleting it
 	runner, err := s.Get(req.Hash)
 	if err != nil {
 		return err
 	}
-
-	msg := newMsgDeleteRunner(user, req.Hash)
-	_, err = s.client.BuildAndBroadcastMsg(msg, accountName, accountPassword)
+	acc, err := s.client.GetAccount()
+	if err != nil {
+		return err
+	}
+	msg := newMsgDeleteRunner(acc.GetAddress(), req.Hash)
+	_, err = s.client.BuildAndBroadcastMsg(msg)
 	if err != nil {
 		return err
 	}

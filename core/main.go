@@ -10,7 +10,6 @@ import (
 	"github.com/mesg-foundation/engine/config"
 	"github.com/mesg-foundation/engine/container"
 	"github.com/mesg-foundation/engine/cosmos"
-	"github.com/mesg-foundation/engine/database"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/logger"
 	"github.com/mesg-foundation/engine/orchestrator"
@@ -28,12 +27,7 @@ import (
 	db "github.com/tendermint/tm-db"
 )
 
-func initDatabases(cfg *config.Config) (*database.LevelDBProcessDB, error) {
-	// init process db.
-	return database.NewProcessDB(filepath.Join(cfg.Path, cfg.Database.ProcessRelativePath))
-}
-
-func stopRunningServices(sdk *enginesdk.SDK, cfg *config.Config, address string) error {
+func stopRunningServices(sdk *enginesdk.SDK, address string) error {
 	runners, err := sdk.Runner.List(&runnersdk.Filter{Address: address})
 	if err != nil {
 		return err
@@ -50,7 +44,7 @@ func stopRunningServices(sdk *enginesdk.SDK, cfg *config.Config, address string)
 			err := sdk.Runner.Delete(&api.DeleteRunnerRequest{
 				Hash:       hash,
 				DeleteData: false,
-			}, cfg.Account.Name, cfg.Account.Password)
+			})
 			if err != nil {
 				errC <- err
 			}
@@ -68,7 +62,7 @@ func stopRunningServices(sdk *enginesdk.SDK, cfg *config.Config, address string)
 func loadOrGenConfigAccount(kb *cosmos.Keybase, cfg *config.Config) (keys.Info, error) {
 	if cfg.Account.Mnemonic != "" {
 		logrus.WithField("module", "main").Warn("Config account mnemonic presents. Generating account with it...")
-		return kb.CreateAccount(cfg.Account.Name, cfg.Account.Mnemonic, "", cfg.Account.Password, 0, 0)
+		return kb.CreateAccount(cfg.Account.Name, cfg.Account.Mnemonic, "", cfg.Account.Password, cosmos.AccNumber, cosmos.AccIndex)
 	}
 
 	exist, err := kb.Exist(cfg.Account.Name)
@@ -88,7 +82,7 @@ func loadOrGenConfigAccount(kb *cosmos.Keybase, cfg *config.Config) (keys.Info, 
 		"password": cfg.Account.Password,
 		"mnemonic": mnemonic,
 	}).Warn("Account")
-	return kb.CreateAccount(cfg.Account.Name, mnemonic, "", cfg.Account.Password, 0, 0)
+	return kb.CreateAccount(cfg.Account.Name, mnemonic, "", cfg.Account.Password, cosmos.AccNumber, cosmos.AccIndex)
 }
 
 func loadOrGenDevGenesis(app *cosmos.App, kb *cosmos.Keybase, cfg *config.Config) (*tmtypes.GenesisDoc, error) {
@@ -124,12 +118,6 @@ func main() {
 
 	// init logger.
 	logger.Init(cfg.Log.Format, cfg.Log.Level, cfg.Log.ForceColors)
-
-	// init databases
-	processDB, err := initDatabases(cfg)
-	if err != nil {
-		logrus.WithField("module", "main").Fatalln(err)
-	}
 
 	// init container.
 	container, err := container.New(cfg.Name)
@@ -183,10 +171,10 @@ func main() {
 	}
 
 	// create cosmos client
-	client := cosmos.NewClient(node, kb, genesis.ChainID)
+	client := cosmos.NewClient(node, kb, genesis.ChainID, cfg.Account.Name, cfg.Account.Password)
 
 	// init sdk
-	sdk := enginesdk.New(client, kb, processDB, container, cfg.Name, strconv.Itoa(port), cfg.IpfsEndpoint)
+	sdk := enginesdk.New(client, kb, container, cfg.Name, strconv.Itoa(port), cfg.IpfsEndpoint)
 
 	// start tendermint node
 	logrus.WithField("module", "main").WithField("seeds", cfg.Tendermint.Config.P2P.Seeds).Info("starting tendermint node")
@@ -206,7 +194,7 @@ func main() {
 	}()
 
 	logrus.WithField("module", "main").Info("starting process engine")
-	s := orchestrator.New(sdk.Event, sdk.Execution, sdk.Process, sdk.Runner, cfg.Account.Name, cfg.Account.Password)
+	s := orchestrator.New(sdk.Event, sdk.Execution, sdk.Process, sdk.Runner)
 	go func() {
 		if err := s.Start(); err != nil {
 			logrus.WithField("module", "main").Fatalln(err)
@@ -219,7 +207,7 @@ func main() {
 	}()
 
 	<-xsignal.WaitForInterrupt()
-	if err := stopRunningServices(sdk, cfg, acc.GetAddress().String()); err != nil {
+	if err := stopRunningServices(sdk, acc.GetAddress().String()); err != nil {
 		logrus.WithField("module", "main").Fatalln(err)
 	}
 

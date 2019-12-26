@@ -15,7 +15,6 @@ import (
 // SDK is the execution sdk.
 type SDK struct {
 	client *cosmos.Client
-	kb     *cosmos.Keybase
 
 	serviceSDK  *servicesdk.SDK
 	instanceSDK *instancesdk.SDK
@@ -23,10 +22,9 @@ type SDK struct {
 }
 
 // New returns the execution sdk.
-func New(client *cosmos.Client, kb *cosmos.Keybase, serviceSDK *servicesdk.SDK, instanceSDK *instancesdk.SDK, runnerSDK *runnersdk.SDK) *SDK {
+func New(client *cosmos.Client, serviceSDK *servicesdk.SDK, instanceSDK *instancesdk.SDK, runnerSDK *runnersdk.SDK) *SDK {
 	sdk := &SDK{
 		client:      client,
-		kb:          kb,
 		serviceSDK:  serviceSDK,
 		instanceSDK: instanceSDK,
 		runnerSDK:   runnerSDK,
@@ -35,14 +33,13 @@ func New(client *cosmos.Client, kb *cosmos.Keybase, serviceSDK *servicesdk.SDK, 
 }
 
 // Create creates a new execution.
-func (s *SDK) Create(req *api.CreateExecutionRequest, accountName, accountPassword string) (*execution.Execution, error) {
-	acc, err := s.kb.Get(accountName)
+func (s *SDK) Create(req *api.CreateExecutionRequest) (*execution.Execution, error) {
+	acc, err := s.client.GetAccount()
 	if err != nil {
 		return nil, err
 	}
-
 	msg := newMsgCreateExecution(req, acc.GetAddress())
-	tx, err := s.client.BuildAndBroadcastMsg(msg, accountName, accountPassword)
+	tx, err := s.client.BuildAndBroadcastMsg(msg)
 	if err != nil {
 		return nil, err
 	}
@@ -50,13 +47,13 @@ func (s *SDK) Create(req *api.CreateExecutionRequest, accountName, accountPasswo
 }
 
 // Update updates a execution.
-func (s *SDK) Update(req *api.UpdateExecutionRequest, accountName, accountPassword string) (*execution.Execution, error) {
-	acc, err := s.kb.Get(accountName)
+func (s *SDK) Update(req *api.UpdateExecutionRequest) (*execution.Execution, error) {
+	acc, err := s.client.GetAccount()
 	if err != nil {
 		return nil, err
 	}
 	msg := newMsgUpdateExecution(req, acc.GetAddress())
-	tx, err := s.client.BuildAndBroadcastMsg(msg, accountName, accountPassword)
+	tx, err := s.client.BuildAndBroadcastMsg(msg)
 	if err != nil {
 		return nil, err
 	}
