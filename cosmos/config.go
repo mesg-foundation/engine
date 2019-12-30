@@ -6,7 +6,7 @@ const (
 	// CoinType is a mesg coin type.
 	CoinType = 50000
 
-	// Bech32PrefixAccAddr defines the Bech32 prefix of an account's address
+	// Bech32MainPrefix defines the main Bech32 prefix
 	Bech32MainPrefix = "mesgtest"
 
 	// PrefixAccount is the prefix for account keys
