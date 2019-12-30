@@ -26,7 +26,6 @@ func TestDefaultConfig(t *testing.T) {
 	require.Equal(t, "info", c.Log.Level)
 	require.Equal(t, false, c.Log.ForceColors)
 	require.Equal(t, filepath.Join(home, ".mesg"), c.Path)
-	require.Equal(t, filepath.Join("database", "executions", executionDBVersion), c.Database.ExecutionRelativePath)
 	require.Equal(t, "engine", c.Name)
 	require.Equal(t, "engine", c.Account.Name)
 	require.Equal(t, "pass", c.Account.Password)
