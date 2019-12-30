@@ -37,6 +37,7 @@ const (
 	Bech32PrefixConsPub = Bech32MainPrefix + PrefixValidator + PrefixConsensus + PrefixPublic
 )
 
+// CustomizeConfig customizes the cosmos application like addresses prefixes and coin type
 func CustomizeConfig() {
 	config := sdktypes.GetConfig()
 	config.SetBech32PrefixForAccount(Bech32PrefixAccAddr, Bech32PrefixAccPub)
