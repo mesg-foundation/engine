@@ -125,7 +125,13 @@ func New() (*Config, error) {
 	if err := c.validate(); err != nil {
 		return nil, err
 	}
-	return c, nil
+
+	res, err := yaml.Marshal(c)
+	if err != nil {
+		return nil, err
+	}
+
+	return c, ioutil.WriteFile(filepath.Join(c.Path, defaultConfigFileName), res, 0644)
 }
 
 // load reads config from environmental variables.
