@@ -39,6 +39,7 @@ func (s *SDK) Create(req *api.CreateExecutionRequest) (*execution.Execution, err
 	if err != nil {
 		return nil, err
 	}
+	m.PreSigned.Add(1)
 	msg := newMsgCreateExecution(req, acc.GetAddress())
 	tx, err := s.client.BuildAndBroadcastMsg(msg)
 	m.Signed.Add(1)
