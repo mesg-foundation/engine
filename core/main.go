@@ -132,6 +132,9 @@ func main() {
 	if err != nil {
 		logrus.WithField("module", "main").Fatalln(err)
 	}
+
+	cosmos.CustomizeConfig()
+
 	// TODO: rename NewAppFactory to something else
 	appFactory := cosmos.NewAppFactory(logger.TendermintLogger(), db)
 
