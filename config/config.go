@@ -19,10 +19,6 @@ const (
 	defaultConfigFileName = "config.yml"
 	envPathKey            = "MESG_PATH"
 	envNameKey            = "MESG_NAME"
-
-	executionDBVersion = "v3"
-	instanceDBVersion  = "v2"
-	processDBVersion   = "v2"
 )
 
 // Config contains all the configuration needed.
@@ -40,12 +36,6 @@ type Config struct {
 		Format      string `validate:"required,oneof=json text"`
 		ForceColors bool
 		Level       string `validate:"required"`
-	}
-
-	Database struct {
-		InstanceRelativePath  string `validate:"required"`
-		ExecutionRelativePath string `validate:"required"`
-		ProcessRelativePath   string `validate:"required"`
 	}
 
 	Tendermint struct {
@@ -86,10 +76,6 @@ func defaultConfig() (*Config, error) {
 	c.Log.Format = "text"
 	c.Log.Level = "info"
 	c.Log.ForceColors = false
-
-	c.Database.InstanceRelativePath = filepath.Join("database", "instance", instanceDBVersion)
-	c.Database.ExecutionRelativePath = filepath.Join("database", "executions", executionDBVersion)
-	c.Database.ProcessRelativePath = filepath.Join("database", "processes", processDBVersion)
 
 	c.Tendermint.RelativePath = "tendermint"
 	c.Tendermint.Config = tmconfig.DefaultConfig()
