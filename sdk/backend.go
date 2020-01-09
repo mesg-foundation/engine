@@ -151,6 +151,8 @@ func initDefaultCosmosModules(app *cosmos.AppFactory) {
 		auth.ModuleName,
 		bank.ModuleName,
 		slashing.ModuleName,
+		supply.ModuleName,
+		// TODO: the app's module should be here!!
 		genutil.ModuleName,
 	)
 }
