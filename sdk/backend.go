@@ -67,6 +67,19 @@ func initDefaultCosmosModules(app *cosmos.AppFactory) {
 	slashingStoreKey := cosmostypes.NewKVStoreKey(slashing.StoreKey)
 	app.RegisterStoreKey(slashingStoreKey)
 
+	// account permissions
+	maccPerms := map[string][]string{
+		auth.FeeCollectorName:     nil,
+		distribution.ModuleName:   nil,
+		staking.BondedPoolName:    {supply.Burner, supply.Staking},
+		staking.NotBondedPoolName: {supply.Burner, supply.Staking},
+	}
+	// Module Accounts Addresses
+	modAccAddrs := make(map[string]bool)
+	for acc := range maccPerms {
+		modAccAddrs[supply.NewModuleAddress(acc).String()] = true
+	}
+
 	// init cosmos keepers
 	paramsKeeper := params.NewKeeper(
 		codec.Codec,
@@ -84,19 +97,14 @@ func initDefaultCosmosModules(app *cosmos.AppFactory) {
 		accountKeeper,
 		paramsKeeper.Subspace(bank.DefaultParamspace),
 		bank.DefaultCodespace,
-		nil,
+		modAccAddrs,
 	)
 	supplyKeeper := supply.NewKeeper(
 		codec.Codec,
 		supplyStoreKey,
 		accountKeeper,
 		bankKeeper,
-		map[string][]string{
-			auth.FeeCollectorName:     nil,
-			distribution.ModuleName:   nil,
-			staking.BondedPoolName:    {supply.Burner, supply.Staking},
-			staking.NotBondedPoolName: {supply.Burner, supply.Staking},
-		},
+		maccPerms,
 	)
 	stakingKeeper := staking.NewKeeper(
 		codec.Codec,
@@ -114,7 +122,7 @@ func initDefaultCosmosModules(app *cosmos.AppFactory) {
 		supplyKeeper,
 		distribution.DefaultCodespace,
 		auth.FeeCollectorName,
-		nil,
+		modAccAddrs,
 	)
 	slashingKeeper := slashing.NewKeeper(
 		codec.Codec,
@@ -151,6 +159,8 @@ func initDefaultCosmosModules(app *cosmos.AppFactory) {
 		auth.ModuleName,
 		bank.ModuleName,
 		slashing.ModuleName,
+		supply.ModuleName,
+		// TODO: the app's module should be here!!
 		genutil.ModuleName,
 	)
 }
