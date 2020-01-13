@@ -61,7 +61,7 @@ log:
 account:
   mnemonic: glimpse upon body vast economy give taxi yellow rabbit come click ranch chronic hammer sport near rotate charge lumber chicken cloud base thing forum
 cosmos:
-	mingasprices: 2.0mesg
+  mingasprices: 2.0mesg
 tendermint:
   config:
     consensus:
