@@ -61,7 +61,7 @@ log:
 account:
   mnemonic: glimpse upon body vast economy give taxi yellow rabbit come click ranch chronic hammer sport near rotate charge lumber chicken cloud base thing forum
 cosmos:
-  mingasprices: 2.0mesg
+  mingasprices: 2.0019294mesg
 tendermint:
   config:
     consensus:
@@ -76,6 +76,6 @@ tendermint:
 		require.Equal(t, "tcp://0.0.0.0:26657", c.Tendermint.Config.RPC.ListenAddress)
 		require.Equal(t, tempPath, c.Path)
 		require.Equal(t, "engine", c.Name)
-		require.Equal(t, "2.0mesg", c.Cosmos.MinGasPrices)
+		require.Equal(t, "2.0019294mesg", c.Cosmos.MinGasPrices)
 	})
 }

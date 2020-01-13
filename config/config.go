@@ -89,7 +89,7 @@ func defaultConfig() (*Config, error) {
 	c.Tendermint.Config.Instrumentation.PrometheusListenAddr = "0.0.0.0:26660"
 
 	c.Cosmos.RelativePath = "cosmos"
-	c.Cosmos.MinGasPrices = "1.0mesg"
+	c.Cosmos.MinGasPrices = "0.000000000000000001mesg"
 
 	c.DevGenesis.ChainID = "mesg-dev-chain"
 
