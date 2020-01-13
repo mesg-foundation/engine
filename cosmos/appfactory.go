@@ -27,12 +27,12 @@ type AppFactory struct {
 }
 
 // NewAppFactory returns a new AppFactory.
-func NewAppFactory(logger log.Logger, db dbm.DB) *AppFactory {
+func NewAppFactory(logger log.Logger, db dbm.DB, minGasPrices string) *AppFactory {
 	sdk.RegisterCodec(codec.Codec)
 	cosmoscodec.RegisterCrypto(codec.Codec)
 
 	return &AppFactory{
-		baseApp: bam.NewBaseApp("engine", logger, db, auth.DefaultTxDecoder(codec.Codec)),
+		baseApp: bam.NewBaseApp("engine", logger, db, auth.DefaultTxDecoder(codec.Codec), baseapp.SetMinGasPrices(minGasPrices)),
 		modules: []module.AppModule{},
 		storeKeys: map[string]*sdk.KVStoreKey{
 			bam.MainStoreKey: sdk.NewKVStoreKey(bam.MainStoreKey),

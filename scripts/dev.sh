@@ -94,7 +94,7 @@ case $cmd in
     start_engine
     if ! $quiet; then
       trap onexit EXIT
-      docker service logs --tail 10000 --follow --raw $MESG_NAME
+      docker service logs --tail 1000 --follow --raw $MESG_NAME
     fi
     ;;
   stop)

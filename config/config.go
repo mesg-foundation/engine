@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"time"
 
+	sdkcosmos "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/go-bip39"
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/sirupsen/logrus"
@@ -45,10 +46,12 @@ type Config struct {
 
 	Cosmos struct {
 		RelativePath string `validate:"required"`
+		MinGasPrices string `validate:"required"`
 	}
 
 	DevGenesis struct {
-		ChainID string `validate:"required"`
+		ChainID         string `validate:"required"`
+		InitialBalances string `validate:"required"`
 	}
 
 	Account struct {
@@ -87,8 +90,10 @@ func defaultConfig() (*Config, error) {
 	c.Tendermint.Config.Instrumentation.PrometheusListenAddr = "0.0.0.0:26660"
 
 	c.Cosmos.RelativePath = "cosmos"
+	c.Cosmos.MinGasPrices = "1.0amesg"
 
 	c.DevGenesis.ChainID = "mesg-dev-chain"
+	c.DevGenesis.InitialBalances = "1000000000000000000000000amesg" // 1 000 000 * 10^18
 
 	c.Account.Name = "engine"
 	c.Account.Password = "pass"
@@ -156,14 +161,19 @@ func (c *Config) prepare() error {
 // validate checks values and return an error if any validation failed.
 func (c *Config) validate() error {
 	if _, err := logrus.ParseLevel(c.Log.Level); err != nil {
-		return fmt.Errorf("config.Log.Level error: %w", err)
+		return fmt.Errorf("config log.level error: %w", err)
 	}
 	if c.Account.Mnemonic != "" && !bip39.IsMnemonicValid(c.Account.Mnemonic) {
-		return fmt.Errorf("config.Account.Mnemonic error: mnemonic is not valid")
+		return fmt.Errorf("config account.mnemonic error: mnemonic is not valid")
 	}
 	if err := c.Tendermint.Config.ValidateBasic(); err != nil {
-		return fmt.Errorf("config.Tendermint error: %w", err)
+		return fmt.Errorf("config tendermint error: %w", err)
 	}
-
+	if _, err := sdkcosmos.ParseDecCoins(c.Cosmos.MinGasPrices); err != nil {
+		return fmt.Errorf("config cosmos.mingasprices error: %w", err)
+	}
+	if _, err := sdkcosmos.ParseCoins(c.DevGenesis.InitialBalances); err != nil {
+		return fmt.Errorf("config devgenesis.initialbalances error: %w", err)
+	}
 	return validator.New().Struct(c)
 }

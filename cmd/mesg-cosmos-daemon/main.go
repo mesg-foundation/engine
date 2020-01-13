@@ -41,7 +41,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	appFactory := cosmos.NewAppFactory(logger.TendermintLogger(), db)
+	appFactory := cosmos.NewAppFactory(logger.TendermintLogger(), db, cfg.Cosmos.MinGasPrices)
 	enginesdk.NewBackend(appFactory)
 	app, err = cosmos.NewApp(appFactory)
 	if err != nil {
