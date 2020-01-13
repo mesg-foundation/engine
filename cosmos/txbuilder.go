@@ -16,19 +16,19 @@ type TxBuilder struct {
 }
 
 // NewTxBuilder returns a new initialized TxBuilder.
-func NewTxBuilder(accSeq uint64, kb keys.Keybase, chainID string) TxBuilder {
+func NewTxBuilder(accSeq uint64, kb keys.Keybase, chainID string, minGasPrices sdktypes.DecCoins) TxBuilder {
 	return TxBuilder{
 		authtypes.NewTxBuilder(
 			authutils.GetTxEncoder(codec.Codec),
 			AccNumber,
 			accSeq,
-			1000000,
+			flags.DefaultGasLimit,
 			flags.DefaultGasAdjustment,
 			true,
 			chainID,
 			"",
 			sdktypes.NewCoins(),
-			sdktypes.DecCoins{},
+			minGasPrices,
 		).WithKeybase(kb),
 	}
 }

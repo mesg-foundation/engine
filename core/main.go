@@ -105,7 +105,7 @@ func loadOrGenDevGenesis(app *cosmos.App, kb *cosmos.Keybase, cfg *config.Config
 		"nodeID": validator.NodeID,
 		"peer":   fmt.Sprintf("%s@%s:26656", validator.NodeID, validator.Name),
 	}).Warnln("Validator")
-	return cosmos.GenGenesis(kb, app.DefaultGenesis(), cfg.DevGenesis.ChainID, cfg.Tendermint.Config.GenesisFile(), []cosmos.GenesisValidator{validator})
+	return cosmos.GenGenesis(kb, app.DefaultGenesis(), cfg.DevGenesis.ChainID, cfg.Cosmos.MinGasPrices, cfg.Tendermint.Config.GenesisFile(), []cosmos.GenesisValidator{validator})
 }
 
 func main() {
@@ -159,6 +159,7 @@ func main() {
 	if err != nil {
 		logrus.WithField("module", "main").Fatalln(err)
 	}
+	logrus.WithField("address", acc.GetAddress().String()).Info("engine account")
 
 	// load or gen genesis
 	genesis, err := loadOrGenDevGenesis(app, kb, cfg)
@@ -173,7 +174,7 @@ func main() {
 	}
 
 	// create cosmos client
-	client := cosmos.NewClient(node, kb, genesis.ChainID, cfg.Account.Name, cfg.Account.Password)
+	client := cosmos.NewClient(node, kb, genesis.ChainID, cfg.Account.Name, cfg.Account.Password, cfg.Cosmos.MinGasPrices)
 
 	// init sdk
 	sdk := enginesdk.New(client, kb, container, cfg.Name, strconv.Itoa(port), cfg.IpfsEndpoint)
