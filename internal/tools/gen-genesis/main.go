@@ -31,9 +31,10 @@ func randompassword() string {
 }
 
 var (
-	validators = flag.String("validators", "engine", "list of validator names separated with a comma")
-	chainid    = flag.String("chain-id", "mesg-chain", "chain id")
-	path       = flag.String("path", ".genesis/", "genesis folder path")
+	validators   = flag.String("validators", "engine", "list of validator names separated with a comma")
+	chainid      = flag.String("chain-id", "mesg-chain", "chain id")
+	minGasPrices = flag.String("minGasPrices", "1.0mesg", "min gas price")
+	path         = flag.String("path", ".genesis/", "genesis folder path")
 )
 
 const (
@@ -122,7 +123,7 @@ func main() {
 	}
 
 	// generate and save genesis
-	_, err = cosmos.GenGenesis(kb, app.DefaultGenesis(), *chainid, filepath.Join(*path, "genesis.json"), vals)
+	_, err = cosmos.GenGenesis(kb, app.DefaultGenesis(), *chainid, *minGasPrices, filepath.Join(*path, "genesis.json"), vals)
 	if err != nil {
 		logrus.Fatalln(err)
 	}
