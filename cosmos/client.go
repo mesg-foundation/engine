@@ -187,12 +187,14 @@ func (c *Client) GetAccount() (auth.Account, error) {
 		)
 	}
 	localSeq := c.acc.GetSequence()
-	if accR, err := auth.NewAccountRetriever(c).GetAccount(c.acc.GetAddress()); err == nil {
-		c.acc = accR
-		// replace seq if sup
-		if localSeq > c.acc.GetSequence() {
-			c.acc.SetSequence(localSeq)
-		}
+	accR, err := auth.NewAccountRetriever(c).GetAccount(c.acc.GetAddress())
+	if err != nil {
+		return nil, err
+	}
+	c.acc = accR
+	// replace seq if sup
+	if localSeq > c.acc.GetSequence() {
+		c.acc.SetSequence(localSeq)
 	}
 	return c.acc, nil
 }
