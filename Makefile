@@ -1,4 +1,4 @@
-.PHONY: all e2e check-version docker-publish docker-publish-dev docker-tools dev dev-stop dev-start lint dep build test mock protobuf changelog clean genesis clean-build clean-docker
+.PHONY: all e2e check-version docker-publish docker-publish-dev docker-tools dev dev-stop dev-start lint dep build test mock protobuf changelog clean genesis clean-build clean-docker build-cmd-cosmos
 
 MAJOR_VERSION := $(shell echo $(version) | cut -d . -f 1)	
 MINOR_VERSION := $(shell echo $(version) | cut -d . -f 1-2)
@@ -50,6 +50,10 @@ dep:
 
 build: check-version dep
 	go build -mod=readonly -o ./bin/engine -ldflags="-X 'github.com/mesg-foundation/engine/version.Version=$(version)'" core/main.go
+
+build-cmd-cosmos: dep
+	go build -mod=readonly -o ./bin/mesg-cosmos ./cmd/mesg-cosmos/main.go
+	go build -mod=readonly -o ./bin/mesg-cosmos-daemon ./cmd/mesg-cosmos-daemon/main.go
 
 e2e: docker-dev
 	./scripts/run-e2e.sh

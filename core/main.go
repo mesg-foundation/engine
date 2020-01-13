@@ -159,6 +159,7 @@ func main() {
 	if err != nil {
 		logrus.WithField("module", "main").Fatalln(err)
 	}
+	logrus.WithField("address", acc.GetAddress().String()).Info("engine account")
 
 	// load or gen genesis
 	genesis, err := loadOrGenDevGenesis(app, kb, cfg)
