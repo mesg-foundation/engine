@@ -50,7 +50,8 @@ type Config struct {
 	}
 
 	DevGenesis struct {
-		ChainID string `validate:"required"`
+		ChainID         string `validate:"required"`
+		InitialBalances string `validate:"required"`
 	}
 
 	Account struct {
@@ -89,9 +90,10 @@ func defaultConfig() (*Config, error) {
 	c.Tendermint.Config.Instrumentation.PrometheusListenAddr = "0.0.0.0:26660"
 
 	c.Cosmos.RelativePath = "cosmos"
-	c.Cosmos.MinGasPrices = "0.000000000000000001mesg"
+	c.Cosmos.MinGasPrices = "1.0amesg"
 
 	c.DevGenesis.ChainID = "mesg-dev-chain"
+	c.DevGenesis.InitialBalances = "1000000000000000000000000amesg" // 1 000 000 * 10^18
 
 	c.Account.Name = "engine"
 	c.Account.Password = "pass"
@@ -167,10 +169,11 @@ func (c *Config) validate() error {
 	if err := c.Tendermint.Config.ValidateBasic(); err != nil {
 		return fmt.Errorf("config tendermint error: %w", err)
 	}
-
 	if _, err := sdkcosmos.ParseDecCoins(c.Cosmos.MinGasPrices); err != nil {
 		return fmt.Errorf("config cosmos.mingasprices error: %w", err)
 	}
-
+	if _, err := sdkcosmos.ParseCoins(c.DevGenesis.InitialBalances); err != nil {
+		return fmt.Errorf("config devgenesis.initialbalances error: %w", err)
+	}
 	return validator.New().Struct(c)
 }

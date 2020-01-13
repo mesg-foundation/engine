@@ -31,10 +31,10 @@ func randompassword() string {
 }
 
 var (
-	validators   = flag.String("validators", "engine", "list of validator names separated with a comma")
-	chainid      = flag.String("chain-id", "mesg-chain", "chain id")
-	minGasPrices = flag.String("minGasPrices", "1.0mesg", "min gas price")
-	path         = flag.String("path", ".genesis/", "genesis folder path")
+	validators      = flag.String("validators", "engine", "list of validator names separated with a comma")
+	chainid         = flag.String("chain-id", "mesg-chain", "chain id")
+	initialBalances = flag.String("initialBalances", "1000000000amesg", "min gas price")
+	path            = flag.String("path", ".genesis/", "genesis folder path")
 )
 
 const (
@@ -62,7 +62,7 @@ func main() {
 	if err != nil {
 		logrus.Fatalln(err)
 	}
-	appFactory := cosmos.NewAppFactory(logger.TendermintLogger(), db, ecfg.Cosmos.MinGasPrices)
+	appFactory := cosmos.NewAppFactory(logger.TendermintLogger(), db, ecfg.Cosmos.initialBalances)
 
 	// register the backend modules to the app factory.
 	enginesdk.NewBackend(appFactory)
@@ -123,7 +123,7 @@ func main() {
 	}
 
 	// generate and save genesis
-	_, err = cosmos.GenGenesis(kb, app.DefaultGenesis(), *chainid, *minGasPrices, filepath.Join(*path, "genesis.json"), vals)
+	_, err = cosmos.GenGenesis(kb, app.DefaultGenesis(), *chainid, *initialBalances, filepath.Join(*path, "genesis.json"), vals)
 	if err != nil {
 		logrus.Fatalln(err)
 	}

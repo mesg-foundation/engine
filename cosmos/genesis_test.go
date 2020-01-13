@@ -28,7 +28,7 @@ func TestGenesis(t *testing.T) {
 	// variables
 	var (
 		chainID                = "test-chainID"
-		minGasPrices           = "1.0mesg"
+		initialBalances        = "1.0amesg"
 		name                   = "name"
 		password               = "pass"
 		privValidatorKeyFile   = filepath.Join(path, "privValidatorKeyFile.json")
@@ -58,7 +58,7 @@ func TestGenesis(t *testing.T) {
 		require.False(t, GenesisExist(genesisPath))
 	})
 	t.Run("generate genesis", func(t *testing.T) {
-		genesis, err := GenGenesis(kb, defaultGenesisState, chainID, minGasPrices, genesisPath, validators)
+		genesis, err := GenGenesis(kb, defaultGenesisState, chainID, initialBalances, genesisPath, validators)
 		require.NoError(t, err)
 		require.NotEmpty(t, genesis)
 	})

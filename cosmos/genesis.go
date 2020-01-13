@@ -53,7 +53,7 @@ func LoadGenesis(genesisFile string) (*tmtypes.GenesisDoc, error) {
 }
 
 // GenGenesis generates a new genesis and save it.
-func GenGenesis(kb *Keybase, defaultGenesisŚtate map[string]json.RawMessage, chainID, minGasPrices, genesisFile string, validators []GenesisValidator) (*tmtypes.GenesisDoc, error) {
+func GenGenesis(kb *Keybase, defaultGenesisŚtate map[string]json.RawMessage, chainID, initialBalances, genesisFile string, validators []GenesisValidator) (*tmtypes.GenesisDoc, error) {
 	msgs := []sdktypes.Msg{}
 	for _, validator := range validators {
 		// get account
@@ -79,11 +79,7 @@ func GenGenesis(kb *Keybase, defaultGenesisŚtate map[string]json.RawMessage, ch
 		}
 	}
 	// generate genesis
-	minGasPricesP, err := sdktypes.ParseDecCoins(minGasPrices)
-	if err != nil {
-		return nil, err
-	}
-	appState, err := genGenesisAppState(defaultGenesisŚtate, validatorTx, minGasPricesP)
+	appState, err := genGenesisAppState(defaultGenesisŚtate, validatorTx, initialBalances)
 	if err != nil {
 		return nil, err
 	}
@@ -112,12 +108,15 @@ func genGenesisDoc(appState map[string]json.RawMessage, chainID string, genesisT
 	return genesis, genesis.ValidateAndComplete()
 }
 
-func genGenesisAppState(defaultGenesisŚtate map[string]json.RawMessage, signedStdTx authtypes.StdTx, minGasPrices sdktypes.DecCoins) (map[string]json.RawMessage, error) {
+func genGenesisAppState(defaultGenesisŚtate map[string]json.RawMessage, signedStdTx authtypes.StdTx, initialBalances string) (map[string]json.RawMessage, error) {
 	genAccs := []genaccounts.GenesisAccount{}
 	for _, signer := range signedStdTx.GetSigners() {
 		stakes := sdktypes.NewCoin(sdktypes.DefaultBondDenom, sdktypes.NewInt(100000000))
-		gasCoins, _ := minGasPrices.MulDec(sdktypes.NewDec(1000000000)).TruncateDecimal()
-		genAcc := genaccounts.NewGenesisAccountRaw(signer, gasCoins.Add(sdktypes.NewCoins(stakes)), sdktypes.NewCoins(), 0, 0, "", "")
+		initialB, err := sdktypes.ParseCoin(initialBalances)
+		if err != nil {
+			return nil, err
+		}
+		genAcc := genaccounts.NewGenesisAccountRaw(signer, sdktypes.NewCoins(stakes, initialB), sdktypes.NewCoins(), 0, 0, "", "")
 		if err := genAcc.Validate(); err != nil {
 			return nil, err
 		}
