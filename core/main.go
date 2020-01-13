@@ -136,7 +136,7 @@ func main() {
 	cosmos.CustomizeConfig()
 
 	// TODO: rename NewAppFactory to something else
-	appFactory := cosmos.NewAppFactory(logger.TendermintLogger(), db)
+	appFactory := cosmos.NewAppFactory(logger.TendermintLogger(), db, cfg.Cosmos.MinGasPrices)
 
 	// register the backend modules to the app factory.
 	// TODO: this is a mandatory call so it should return a new types required by cosmos.NewApp

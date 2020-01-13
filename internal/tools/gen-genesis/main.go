@@ -11,6 +11,7 @@ import (
 	"strings"
 	"time"
 
+	enginecfg "github.com/mesg-foundation/engine/config"
 	"github.com/mesg-foundation/engine/cosmos"
 	"github.com/mesg-foundation/engine/logger"
 	enginesdk "github.com/mesg-foundation/engine/sdk"
@@ -55,7 +56,12 @@ func main() {
 	if err != nil {
 		logrus.Fatalln(err)
 	}
-	appFactory := cosmos.NewAppFactory(logger.TendermintLogger(), db)
+
+	ecfg, err := enginecfg.New()
+	if err != nil {
+		logrus.Fatalln(err)
+	}
+	appFactory := cosmos.NewAppFactory(logger.TendermintLogger(), db, ecfg.Cosmos.MinGasPrices)
 
 	// register the backend modules to the app factory.
 	enginesdk.NewBackend(appFactory)
