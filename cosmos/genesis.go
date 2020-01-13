@@ -65,8 +65,9 @@ func GenGenesis(kb *Keybase, defaultGenesisŚtate map[string]json.RawMessage, ch
 		msgs = append(msgs, genCreateValidatorMsg(acc.GetAddress(), validator.Name, validator.ValPubKey))
 	}
 	// generate genesis transaction
+	accNumber := uint64(0)
 	sequence := uint64(0)
-	b := NewTxBuilder(sequence, kb, chainID, sdktypes.DecCoins{})
+	b := NewTxBuilder(accNumber, sequence, kb, chainID, sdktypes.DecCoins{})
 	signedMsg, err := b.BuildSignMsg(msgs)
 	if err != nil {
 		return nil, err

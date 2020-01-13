@@ -182,7 +182,7 @@ func (c *Client) GetAccount() (auth.Account, error) {
 			accKb.GetAddress(),
 			nil,
 			accKb.GetPubKey(),
-			AccNumber,
+			0,
 			0,
 		)
 	}
@@ -212,7 +212,7 @@ func (c *Client) sign(msg sdktypes.Msg) (tenderminttypes.Tx, error) {
 		return nil, err
 	}
 
-	txBuilder := NewTxBuilder(sequence, c.kb, c.chainID, minGasPrices)
+	txBuilder := NewTxBuilder(acc.GetAccountNumber(), sequence, c.kb, c.chainID, minGasPrices)
 
 	// simulate tx to estimate the gas
 	if txBuilder.SimulateAndExecute() {
