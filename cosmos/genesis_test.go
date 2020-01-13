@@ -28,7 +28,7 @@ func TestGenesis(t *testing.T) {
 	// variables
 	var (
 		chainID                = "test-chainID"
-		initialBalances        = "1.0amesg"
+		initialBalances        = "100amesg"
 		name                   = "name"
 		password               = "pass"
 		privValidatorKeyFile   = filepath.Join(path, "privValidatorKeyFile.json")
