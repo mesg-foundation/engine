@@ -33,6 +33,12 @@ func NewTxBuilder(accSeq uint64, kb keys.Keybase, chainID string, minGasPrices s
 	}
 }
 
+// WithGas returns a copy of the context with an updated gas.
+func (b TxBuilder) WithGas(gas uint64) TxBuilder {
+	b.TxBuilder = b.TxBuilder.WithGas(gas)
+	return b
+}
+
 // BuildAndSignStdTx a signed transaction from a message.
 func (b TxBuilder) BuildAndSignStdTx(msg sdktypes.Msg, accountName, accountPassword string) (authtypes.StdTx, error) {
 	signedMsg, err := b.BuildSignMsg([]sdktypes.Msg{msg})

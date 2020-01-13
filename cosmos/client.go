@@ -213,6 +213,20 @@ func (c *Client) sign(msg sdktypes.Msg) (tenderminttypes.Tx, error) {
 	}
 
 	txBuilder := NewTxBuilder(sequence, c.kb, c.chainID, minGasPrices)
+
+	// simulate tx to estimate the gas
+	if txBuilder.SimulateAndExecute() {
+		txBytes, err := txBuilder.BuildTxForSim([]sdktypes.Msg{msg})
+		if err != nil {
+			return nil, err
+		}
+		_, adjusted, err := authutils.CalculateGas(c.QueryWithData, codec.Codec, txBytes, txBuilder.GasAdjustment())
+		if err != nil {
+			return nil, err
+		}
+		txBuilder = txBuilder.WithGas(adjusted)
+	}
+
 	signedTx, err := txBuilder.BuildAndSignStdTx(msg, c.accName, c.accPassword)
 	if err != nil {
 		return nil, err
