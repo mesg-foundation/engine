@@ -125,6 +125,7 @@ func (s *Backend) Create(request cosmostypes.Request, msg msgCreateExecution) (*
 	if err != nil {
 		return nil, err
 	}
+	m.InProgress.Add(1)
 	store.Set(exec.Hash, value)
 	return exec, nil
 }
@@ -159,6 +160,7 @@ func (s *Backend) Update(request cosmostypes.Request, msg msgUpdateExecution) (*
 	if err != nil {
 		return nil, err
 	}
+	m.Completed.Add(1)
 	store.Set(exec.Hash, value)
 	return exec, nil
 }
