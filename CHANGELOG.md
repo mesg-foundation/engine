@@ -1,5 +1,28 @@
 # Changelog
 
+## [v0.18.1](https://github.com/mesg-foundation/engine/releases/tag/v0.18.1)
+
+#### Added
+
+- ([#1553](https://github.com/mesg-foundation/engine/pull/1553)) Add fees and estimation of tx's gas.
+- ([#1580](https://github.com/mesg-foundation/engine/pull/1580)) Add execution metrics.
+- ([#1595](https://github.com/mesg-foundation/engine/pull/1595)) Add cosmos cli for low-level utility functionality.
+
+#### Changed
+
+- ([#1572](https://github.com/mesg-foundation/engine/pull/1572)) Customize cosmos address prefix.
+- ([#1601](https://github.com/mesg-foundation/engine/pull/1601)) Change default block time to 5sec and some token config.
+- ([#1602](https://github.com/mesg-foundation/engine/pull/1602)) Change the mesg coin type to the registered one (470).
+
+#### Fixed
+
+- ([#1588](https://github.com/mesg-foundation/engine/pull/1588)) Fix supply module init.
+- ([#1598](https://github.com/mesg-foundation/engine/pull/1598)) Fix account number used for signing tx.
+
+#### Removed
+
+- ([#1579](https://github.com/mesg-foundation/engine/pull/1579)) Remove useless database config.
+
 ## [v0.18.0](https://github.com/mesg-foundation/engine/releases/tag/v0.18.0)
 
 #### Breaking Changes
