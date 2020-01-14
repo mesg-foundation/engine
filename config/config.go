@@ -57,6 +57,8 @@ type Config struct {
 	Account struct {
 		Name     string `validate:"required"`
 		Password string `validate:"required"`
+		Number   uint32
+		Index    uint32
 		Mnemonic string
 	}
 }
@@ -97,6 +99,8 @@ func defaultConfig() (*Config, error) {
 
 	c.Account.Name = "engine"
 	c.Account.Password = "pass"
+	c.Account.Number = uint32(0)
+	c.Account.Index = uint32(0)
 
 	return &c, nil
 }

@@ -12,14 +12,7 @@ import (
 	"github.com/tendermint/tendermint/crypto"
 )
 
-const (
-	// AccNumber is the account number of the account in keybase.
-	AccNumber = 0
-	// AccIndex is the account index of the account in keybase.
-	AccIndex = 0
-
-	mnemonicEntropySize = 256
-)
+const mnemonicEntropySize = 256
 
 // Keybase is a standard cosmos keybase.
 type Keybase struct {
