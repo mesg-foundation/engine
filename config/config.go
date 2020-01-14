@@ -87,15 +87,15 @@ func defaultConfig() (*Config, error) {
 	c.Tendermint.Config.RPC.ListenAddress = "tcp://0.0.0.0:26657"
 	c.Tendermint.Config.P2P.AddrBookStrict = false
 	c.Tendermint.Config.P2P.AllowDuplicateIP = true
-	c.Tendermint.Config.Consensus.TimeoutCommit = 1 * time.Second
+	c.Tendermint.Config.Consensus.TimeoutCommit = 5 * time.Second
 	c.Tendermint.Config.Instrumentation.Prometheus = true
 	c.Tendermint.Config.Instrumentation.PrometheusListenAddr = "0.0.0.0:26660"
 
 	c.Cosmos.RelativePath = "cosmos"
-	c.Cosmos.MinGasPrices = "1.0amesg"
+	c.Cosmos.MinGasPrices = "1.0atto"
 
 	c.DevGenesis.ChainID = "mesg-dev-chain"
-	c.DevGenesis.InitialBalances = "1000000000000000000000000amesg" // 1 000 000 * 10^18
+	c.DevGenesis.InitialBalances = "1000000000000000000000000atto" // 1 000 000 * 10^18
 
 	c.Account.Name = "engine"
 	c.Account.Password = "pass"
