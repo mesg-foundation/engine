@@ -29,6 +29,8 @@ func TestDefaultConfig(t *testing.T) {
 	require.Equal(t, "engine", c.Name)
 	require.Equal(t, "engine", c.Account.Name)
 	require.Equal(t, "pass", c.Account.Password)
+	require.Equal(t, uint32(0), c.Account.Number)
+	require.Equal(t, uint32(0), c.Account.Index)
 }
 
 func TestEnv(t *testing.T) {

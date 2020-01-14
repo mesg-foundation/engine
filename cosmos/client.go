@@ -182,17 +182,19 @@ func (c *Client) GetAccount() (auth.Account, error) {
 			accKb.GetAddress(),
 			nil,
 			accKb.GetPubKey(),
-			AccNumber,
+			0,
 			0,
 		)
 	}
 	localSeq := c.acc.GetSequence()
-	if accR, err := auth.NewAccountRetriever(c).GetAccount(c.acc.GetAddress()); err == nil {
-		c.acc = accR
-		// replace seq if sup
-		if localSeq > c.acc.GetSequence() {
-			c.acc.SetSequence(localSeq)
-		}
+	accR, err := auth.NewAccountRetriever(c).GetAccount(c.acc.GetAddress())
+	if err != nil {
+		return nil, err
+	}
+	c.acc = accR
+	// replace seq if sup
+	if localSeq > c.acc.GetSequence() {
+		c.acc.SetSequence(localSeq)
 	}
 	return c.acc, nil
 }
@@ -212,7 +214,7 @@ func (c *Client) sign(msg sdktypes.Msg) (tenderminttypes.Tx, error) {
 		return nil, err
 	}
 
-	txBuilder := NewTxBuilder(sequence, c.kb, c.chainID, minGasPrices)
+	txBuilder := NewTxBuilder(acc.GetAccountNumber(), sequence, c.kb, c.chainID, minGasPrices)
 
 	// simulate tx to estimate the gas
 	if txBuilder.SimulateAndExecute() {
