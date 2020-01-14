@@ -4,7 +4,6 @@
 
 #### Added
 
-- ([#1553](https://github.com/mesg-foundation/engine/pull/1553)) Add fees and estimation of tx's gas.
 - ([#1580](https://github.com/mesg-foundation/engine/pull/1580)) Add execution metrics.
 - ([#1595](https://github.com/mesg-foundation/engine/pull/1595)) Add cosmos cli for low-level utility functionality.
 
@@ -18,6 +17,7 @@
 
 - ([#1588](https://github.com/mesg-foundation/engine/pull/1588)) Fix supply module init.
 - ([#1598](https://github.com/mesg-foundation/engine/pull/1598)) Fix account number used for signing tx.
+- ([#1553](https://github.com/mesg-foundation/engine/pull/1553)) Add fees and estimation of tx's gas.
 
 #### Removed
 
