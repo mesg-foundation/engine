@@ -62,7 +62,7 @@ func stopRunningServices(sdk *enginesdk.SDK, address string) error {
 func loadOrGenConfigAccount(kb *cosmos.Keybase, cfg *config.Config) (keys.Info, error) {
 	if cfg.Account.Mnemonic != "" {
 		logrus.WithField("module", "main").Warn("Config account mnemonic presents. Generating account with it...")
-		return kb.CreateAccount(cfg.Account.Name, cfg.Account.Mnemonic, "", cfg.Account.Password, cosmos.AccNumber, cosmos.AccIndex)
+		return kb.CreateAccount(cfg.Account.Name, cfg.Account.Mnemonic, "", cfg.Account.Password, cfg.Account.Number, cfg.Account.Index)
 	}
 
 	exist, err := kb.Exist(cfg.Account.Name)
@@ -82,7 +82,7 @@ func loadOrGenConfigAccount(kb *cosmos.Keybase, cfg *config.Config) (keys.Info, 
 		"password": cfg.Account.Password,
 		"mnemonic": mnemonic,
 	}).Warn("Account")
-	return kb.CreateAccount(cfg.Account.Name, mnemonic, "", cfg.Account.Password, cosmos.AccNumber, cosmos.AccIndex)
+	return kb.CreateAccount(cfg.Account.Name, mnemonic, "", cfg.Account.Password, cfg.Account.Number, cfg.Account.Index)
 }
 
 func loadOrGenDevGenesis(app *cosmos.App, kb *cosmos.Keybase, cfg *config.Config) (*tmtypes.GenesisDoc, error) {
