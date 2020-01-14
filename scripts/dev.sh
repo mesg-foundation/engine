@@ -9,6 +9,8 @@ MESG_PATH=${MESG_PATH:-"$HOME/.mesg"}
 MESG_SERVER_PORT=${MESG_SERVER_PORT:-"50052"}
 MESG_TENDERMINT_NETWORK="mesg-tendermint"
 MESG_TENDERMINT_PORT=${MESG_TENDERMINT_PORT:-"26656"}
+MESG_TENDERMINT_RPC_PORT=${MESG_TENDERMINT_RPC_PORT:-"26657"}
+MESG_PROMETHEUS_RPC_PORT=${MESG_PROMETHEUS_RPC_PORT:-"26660"}
 
 function onexit {
   set +e
@@ -61,6 +63,8 @@ function start_engine {
     --network name=$MESG_TENDERMINT_NETWORK \
     --publish $MESG_SERVER_PORT:50052 \
     --publish $MESG_TENDERMINT_PORT:26656 \
+    --publish $MESG_TENDERMINT_RPC_PORT:26657 \
+    --publish $MESG_PROMETHEUS_RPC_PORT:26660 \
     mesg/engine:local
 }
 
@@ -90,7 +94,7 @@ case $cmd in
     start_engine
     if ! $quiet; then
       trap onexit EXIT
-      docker service logs --tail 10000 --follow --raw $MESG_NAME
+      docker service logs --tail 1000 --follow --raw $MESG_NAME
     fi
     ;;
   stop)

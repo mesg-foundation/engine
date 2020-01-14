@@ -10,6 +10,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/keys"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth"
+	authutils "github.com/cosmos/cosmos-sdk/x/auth/client/utils"
 	"github.com/mesg-foundation/engine/codec"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/x/xreflect"
@@ -24,10 +25,11 @@ import (
 // Client is a tendermint client with helper functions.
 type Client struct {
 	*rpcclient.Local
-	kb          keys.Keybase
-	chainID     string
-	accName     string
-	accPassword string
+	kb           keys.Keybase
+	chainID      string
+	accName      string
+	accPassword  string
+	minGasPrices string
 
 	// Local state
 	acc             auth.Account
@@ -36,13 +38,14 @@ type Client struct {
 }
 
 // NewClient returns a rpc tendermint client.
-func NewClient(node *node.Node, kb keys.Keybase, chainID, accName, accPassword string) *Client {
+func NewClient(node *node.Node, kb keys.Keybase, chainID, accName, accPassword, minGasPrices string) *Client {
 	return &Client{
-		Local:       rpcclient.NewLocal(node),
-		kb:          kb,
-		chainID:     chainID,
-		accName:     accName,
-		accPassword: accPassword,
+		Local:        rpcclient.NewLocal(node),
+		kb:           kb,
+		chainID:      chainID,
+		accName:      accName,
+		accPassword:  accPassword,
+		minGasPrices: minGasPrices,
 	}
 }
 
@@ -179,17 +182,19 @@ func (c *Client) GetAccount() (auth.Account, error) {
 			accKb.GetAddress(),
 			nil,
 			accKb.GetPubKey(),
-			AccNumber,
+			0,
 			0,
 		)
 	}
 	localSeq := c.acc.GetSequence()
-	if accR, err := auth.NewAccountRetriever(c).GetAccount(c.acc.GetAddress()); err == nil {
-		c.acc = accR
-		// replace seq if sup
-		if localSeq > c.acc.GetSequence() {
-			c.acc.SetSequence(localSeq)
-		}
+	accR, err := auth.NewAccountRetriever(c).GetAccount(c.acc.GetAddress())
+	if err != nil {
+		return nil, err
+	}
+	c.acc = accR
+	// replace seq if sup
+	if localSeq > c.acc.GetSequence() {
+		c.acc.SetSequence(localSeq)
 	}
 	return c.acc, nil
 }
@@ -204,7 +209,26 @@ func (c *Client) sign(msg sdktypes.Msg) (tenderminttypes.Tx, error) {
 	sequence := acc.GetSequence()
 	acc.SetSequence(acc.GetSequence() + 1)
 
-	txBuilder := NewTxBuilder(sequence, c.kb, c.chainID)
+	minGasPrices, err := sdktypes.ParseDecCoins(c.minGasPrices)
+	if err != nil {
+		return nil, err
+	}
+
+	txBuilder := NewTxBuilder(acc.GetAccountNumber(), sequence, c.kb, c.chainID, minGasPrices)
+
+	// simulate tx to estimate the gas
+	if txBuilder.SimulateAndExecute() {
+		txBytes, err := txBuilder.BuildTxForSim([]sdktypes.Msg{msg})
+		if err != nil {
+			return nil, err
+		}
+		_, adjusted, err := authutils.CalculateGas(c.QueryWithData, codec.Codec, txBytes, txBuilder.GasAdjustment())
+		if err != nil {
+			return nil, err
+		}
+		txBuilder = txBuilder.WithGas(adjusted)
+	}
+
 	signedTx, err := txBuilder.BuildAndSignStdTx(msg, c.accName, c.accPassword)
 	if err != nil {
 		return nil, err

@@ -34,12 +34,15 @@ func New(client *cosmos.Client, serviceSDK *servicesdk.SDK, instanceSDK *instanc
 
 // Create creates a new execution.
 func (s *SDK) Create(req *api.CreateExecutionRequest) (*execution.Execution, error) {
+	m.Created.Add(1)
 	acc, err := s.client.GetAccount()
 	if err != nil {
 		return nil, err
 	}
+	m.PreSigned.Add(1)
 	msg := newMsgCreateExecution(req, acc.GetAddress())
 	tx, err := s.client.BuildAndBroadcastMsg(msg)
+	m.Signed.Add(1)
 	if err != nil {
 		return nil, err
 	}

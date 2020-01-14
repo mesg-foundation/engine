@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"time"
 
+	sdkcosmos "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/go-bip39"
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/sirupsen/logrus"
@@ -19,10 +20,6 @@ const (
 	defaultConfigFileName = "config.yml"
 	envPathKey            = "MESG_PATH"
 	envNameKey            = "MESG_NAME"
-
-	executionDBVersion = "v3"
-	instanceDBVersion  = "v2"
-	processDBVersion   = "v2"
 )
 
 // Config contains all the configuration needed.
@@ -42,12 +39,6 @@ type Config struct {
 		Level       string `validate:"required"`
 	}
 
-	Database struct {
-		InstanceRelativePath  string `validate:"required"`
-		ExecutionRelativePath string `validate:"required"`
-		ProcessRelativePath   string `validate:"required"`
-	}
-
 	Tendermint struct {
 		Config       *tmconfig.Config `validate:"required"`
 		RelativePath string           `validate:"required"`
@@ -55,15 +46,19 @@ type Config struct {
 
 	Cosmos struct {
 		RelativePath string `validate:"required"`
+		MinGasPrices string `validate:"required"`
 	}
 
 	DevGenesis struct {
-		ChainID string `validate:"required"`
+		ChainID         string `validate:"required"`
+		InitialBalances string `validate:"required"`
 	}
 
 	Account struct {
 		Name     string `validate:"required"`
 		Password string `validate:"required"`
+		Number   uint32
+		Index    uint32
 		Mnemonic string
 	}
 }
@@ -87,25 +82,25 @@ func defaultConfig() (*Config, error) {
 	c.Log.Level = "info"
 	c.Log.ForceColors = false
 
-	c.Database.InstanceRelativePath = filepath.Join("database", "instance", instanceDBVersion)
-	c.Database.ExecutionRelativePath = filepath.Join("database", "executions", executionDBVersion)
-	c.Database.ProcessRelativePath = filepath.Join("database", "processes", processDBVersion)
-
 	c.Tendermint.RelativePath = "tendermint"
 	c.Tendermint.Config = tmconfig.DefaultConfig()
 	c.Tendermint.Config.RPC.ListenAddress = "tcp://0.0.0.0:26657"
 	c.Tendermint.Config.P2P.AddrBookStrict = false
 	c.Tendermint.Config.P2P.AllowDuplicateIP = true
-	c.Tendermint.Config.Consensus.TimeoutCommit = 1 * time.Second
+	c.Tendermint.Config.Consensus.TimeoutCommit = 5 * time.Second
 	c.Tendermint.Config.Instrumentation.Prometheus = true
 	c.Tendermint.Config.Instrumentation.PrometheusListenAddr = "0.0.0.0:26660"
 
 	c.Cosmos.RelativePath = "cosmos"
+	c.Cosmos.MinGasPrices = "1.0atto"
 
 	c.DevGenesis.ChainID = "mesg-dev-chain"
+	c.DevGenesis.InitialBalances = "1000000000000000000000000atto" // 1 000 000 * 10^18
 
 	c.Account.Name = "engine"
 	c.Account.Password = "pass"
+	c.Account.Number = uint32(0)
+	c.Account.Index = uint32(0)
 
 	return &c, nil
 }
@@ -170,14 +165,19 @@ func (c *Config) prepare() error {
 // validate checks values and return an error if any validation failed.
 func (c *Config) validate() error {
 	if _, err := logrus.ParseLevel(c.Log.Level); err != nil {
-		return fmt.Errorf("config.Log.Level error: %w", err)
+		return fmt.Errorf("config log.level error: %w", err)
 	}
 	if c.Account.Mnemonic != "" && !bip39.IsMnemonicValid(c.Account.Mnemonic) {
-		return fmt.Errorf("config.Account.Mnemonic error: mnemonic is not valid")
+		return fmt.Errorf("config account.mnemonic error: mnemonic is not valid")
 	}
 	if err := c.Tendermint.Config.ValidateBasic(); err != nil {
-		return fmt.Errorf("config.Tendermint error: %w", err)
+		return fmt.Errorf("config tendermint error: %w", err)
 	}
-
+	if _, err := sdkcosmos.ParseDecCoins(c.Cosmos.MinGasPrices); err != nil {
+		return fmt.Errorf("config cosmos.mingasprices error: %w", err)
+	}
+	if _, err := sdkcosmos.ParseCoins(c.DevGenesis.InitialBalances); err != nil {
+		return fmt.Errorf("config devgenesis.initialbalances error: %w", err)
+	}
 	return validator.New().Struct(c)
 }

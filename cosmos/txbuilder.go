@@ -16,21 +16,27 @@ type TxBuilder struct {
 }
 
 // NewTxBuilder returns a new initialized TxBuilder.
-func NewTxBuilder(accSeq uint64, kb keys.Keybase, chainID string) TxBuilder {
+func NewTxBuilder(accNumber, accSeq uint64, kb keys.Keybase, chainID string, minGasPrices sdktypes.DecCoins) TxBuilder {
 	return TxBuilder{
 		authtypes.NewTxBuilder(
 			authutils.GetTxEncoder(codec.Codec),
-			AccNumber,
+			accNumber,
 			accSeq,
-			1000000,
+			flags.DefaultGasLimit,
 			flags.DefaultGasAdjustment,
 			true,
 			chainID,
 			"",
 			sdktypes.NewCoins(),
-			sdktypes.DecCoins{},
+			minGasPrices,
 		).WithKeybase(kb),
 	}
+}
+
+// WithGas returns a copy of the context with an updated gas.
+func (b TxBuilder) WithGas(gas uint64) TxBuilder {
+	b.TxBuilder = b.TxBuilder.WithGas(gas)
+	return b
 }
 
 // BuildAndSignStdTx a signed transaction from a message.

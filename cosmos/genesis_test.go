@@ -28,6 +28,7 @@ func TestGenesis(t *testing.T) {
 	// variables
 	var (
 		chainID                = "test-chainID"
+		initialBalances        = "100amesg"
 		name                   = "name"
 		password               = "pass"
 		privValidatorKeyFile   = filepath.Join(path, "privValidatorKeyFile.json")
@@ -39,7 +40,7 @@ func TestGenesis(t *testing.T) {
 	)
 	// init account
 	mnemonic, _ := kb.NewMnemonic()
-	kb.CreateAccount(name, mnemonic, "", password, AccNumber, AccIndex)
+	kb.CreateAccount(name, mnemonic, "", password, 0, 0)
 	// start tests
 	t.Run("generate validator", func(t *testing.T) {
 		v, err := NewGenesisValidator(kb, name, password, privValidatorKeyFile, privValidatorStateFile, nodeKeyFile)
@@ -57,7 +58,7 @@ func TestGenesis(t *testing.T) {
 		require.False(t, GenesisExist(genesisPath))
 	})
 	t.Run("generate genesis", func(t *testing.T) {
-		genesis, err := GenGenesis(kb, defaultGenesisState, chainID, genesisPath, validators)
+		genesis, err := GenGenesis(kb, defaultGenesisState, chainID, initialBalances, genesisPath, validators)
 		require.NoError(t, err)
 		require.NotEmpty(t, genesis)
 	})

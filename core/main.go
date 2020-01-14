@@ -62,7 +62,7 @@ func stopRunningServices(sdk *enginesdk.SDK, address string) error {
 func loadOrGenConfigAccount(kb *cosmos.Keybase, cfg *config.Config) (keys.Info, error) {
 	if cfg.Account.Mnemonic != "" {
 		logrus.WithField("module", "main").Warn("Config account mnemonic presents. Generating account with it...")
-		return kb.CreateAccount(cfg.Account.Name, cfg.Account.Mnemonic, "", cfg.Account.Password, cosmos.AccNumber, cosmos.AccIndex)
+		return kb.CreateAccount(cfg.Account.Name, cfg.Account.Mnemonic, "", cfg.Account.Password, cfg.Account.Number, cfg.Account.Index)
 	}
 
 	exist, err := kb.Exist(cfg.Account.Name)
@@ -82,7 +82,7 @@ func loadOrGenConfigAccount(kb *cosmos.Keybase, cfg *config.Config) (keys.Info, 
 		"password": cfg.Account.Password,
 		"mnemonic": mnemonic,
 	}).Warn("Account")
-	return kb.CreateAccount(cfg.Account.Name, mnemonic, "", cfg.Account.Password, cosmos.AccNumber, cosmos.AccIndex)
+	return kb.CreateAccount(cfg.Account.Name, mnemonic, "", cfg.Account.Password, cfg.Account.Number, cfg.Account.Index)
 }
 
 func loadOrGenDevGenesis(app *cosmos.App, kb *cosmos.Keybase, cfg *config.Config) (*tmtypes.GenesisDoc, error) {
@@ -105,7 +105,7 @@ func loadOrGenDevGenesis(app *cosmos.App, kb *cosmos.Keybase, cfg *config.Config
 		"nodeID": validator.NodeID,
 		"peer":   fmt.Sprintf("%s@%s:26656", validator.NodeID, validator.Name),
 	}).Warnln("Validator")
-	return cosmos.GenGenesis(kb, app.DefaultGenesis(), cfg.DevGenesis.ChainID, cfg.Tendermint.Config.GenesisFile(), []cosmos.GenesisValidator{validator})
+	return cosmos.GenGenesis(kb, app.DefaultGenesis(), cfg.DevGenesis.ChainID, cfg.DevGenesis.InitialBalances, cfg.Tendermint.Config.GenesisFile(), []cosmos.GenesisValidator{validator})
 }
 
 func main() {
@@ -132,8 +132,11 @@ func main() {
 	if err != nil {
 		logrus.WithField("module", "main").Fatalln(err)
 	}
+
+	cosmos.CustomizeConfig()
+
 	// TODO: rename NewAppFactory to something else
-	appFactory := cosmos.NewAppFactory(logger.TendermintLogger(), db)
+	appFactory := cosmos.NewAppFactory(logger.TendermintLogger(), db, cfg.Cosmos.MinGasPrices)
 
 	// register the backend modules to the app factory.
 	// TODO: this is a mandatory call so it should return a new types required by cosmos.NewApp
@@ -156,6 +159,7 @@ func main() {
 	if err != nil {
 		logrus.WithField("module", "main").Fatalln(err)
 	}
+	logrus.WithField("address", acc.GetAddress().String()).Info("engine account")
 
 	// load or gen genesis
 	genesis, err := loadOrGenDevGenesis(app, kb, cfg)
@@ -170,7 +174,7 @@ func main() {
 	}
 
 	// create cosmos client
-	client := cosmos.NewClient(node, kb, genesis.ChainID, cfg.Account.Name, cfg.Account.Password)
+	client := cosmos.NewClient(node, kb, genesis.ChainID, cfg.Account.Name, cfg.Account.Password, cfg.Cosmos.MinGasPrices)
 
 	// init sdk
 	sdk := enginesdk.New(client, kb, container, cfg.Name, strconv.Itoa(port), cfg.IpfsEndpoint)
