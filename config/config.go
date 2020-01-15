@@ -118,7 +118,7 @@ func defaultConfig() (*Config, error) {
 	c.Cosmos.PowerReduction = 18
 
 	c.DevGenesis.ChainID = "mesg-dev-chain"
-	c.DevGenesis.InitialBalances = "250000000000000000000000000atto"       // 1 000 000 * 10^18
+	c.DevGenesis.InitialBalances = "250000000000000000000000000atto"       // 250 000 000 * 10^18
 	c.DevGenesis.ValidatorDelegationCoin = "1000000000000000000000000atto" // 1 000 000 * 10^18
 
 	c.Account.Name = "engine"
