@@ -53,7 +53,11 @@ func LoadGenesis(genesisFile string) (*tmtypes.GenesisDoc, error) {
 }
 
 // GenGenesis generates a new genesis and save it.
-func GenGenesis(kb *Keybase, defaultGenesisŚtate map[string]json.RawMessage, chainID, initialBalances, genesisFile string, validators []GenesisValidator) (*tmtypes.GenesisDoc, error) {
+func GenGenesis(kb *Keybase, defaultGenesisŚtate map[string]json.RawMessage, chainID, initialBalances, validatorDelegationCoin, genesisFile string, validators []GenesisValidator) (*tmtypes.GenesisDoc, error) {
+	valDelCoin, err := sdktypes.ParseCoin(validatorDelegationCoin)
+	if err != nil {
+		return nil, err
+	}
 	msgs := []sdktypes.Msg{}
 	for _, validator := range validators {
 		// get account
@@ -62,7 +66,7 @@ func GenGenesis(kb *Keybase, defaultGenesisŚtate map[string]json.RawMessage, ch
 			return nil, err
 		}
 		// generate msg to add this validator
-		msgs = append(msgs, genCreateValidatorMsg(acc.GetAddress(), validator.Name, validator.ValPubKey))
+		msgs = append(msgs, genCreateValidatorMsg(acc.GetAddress(), validator.Name, valDelCoin, validator.ValPubKey))
 	}
 	// generate genesis transaction
 	accNumber := uint64(0)
@@ -112,12 +116,11 @@ func genGenesisDoc(appState map[string]json.RawMessage, chainID string, genesisT
 func genGenesisAppState(defaultGenesisŚtate map[string]json.RawMessage, signedStdTx authtypes.StdTx, initialBalances string) (map[string]json.RawMessage, error) {
 	genAccs := []genaccounts.GenesisAccount{}
 	for _, signer := range signedStdTx.GetSigners() {
-		stakes := sdktypes.NewCoin(sdktypes.DefaultBondDenom, sdktypes.NewInt(100000000))
-		initialB, err := sdktypes.ParseCoin(initialBalances)
+		initialB, err := sdktypes.ParseCoins(initialBalances)
 		if err != nil {
 			return nil, err
 		}
-		genAcc := genaccounts.NewGenesisAccountRaw(signer, sdktypes.NewCoins(stakes, initialB), sdktypes.NewCoins(), 0, 0, "", "")
+		genAcc := genaccounts.NewGenesisAccountRaw(signer, initialB, sdktypes.NewCoins(), 0, 0, "", "")
 		if err := genAcc.Validate(); err != nil {
 			return nil, err
 		}
@@ -131,11 +134,11 @@ func genGenesisAppState(defaultGenesisŚtate map[string]json.RawMessage, signedS
 	return genutil.SetGenTxsInAppGenesisState(codec.Codec, defaultGenesisŚtate, []authtypes.StdTx{signedStdTx})
 }
 
-func genCreateValidatorMsg(accAddress sdktypes.AccAddress, accName string, valPubKey crypto.PubKey) stakingtypes.MsgCreateValidator {
+func genCreateValidatorMsg(accAddress sdktypes.AccAddress, accName string, validatorDelegationCoin sdktypes.Coin, valPubKey crypto.PubKey) stakingtypes.MsgCreateValidator {
 	return stakingtypes.NewMsgCreateValidator(
 		sdktypes.ValAddress(accAddress),
 		valPubKey,
-		sdktypes.NewCoin(sdktypes.DefaultBondDenom, sdktypes.TokensFromConsensusPower(100)),
+		validatorDelegationCoin,
 		stakingtypes.Description{
 			Moniker: accName,
 			Details: "init-validator",

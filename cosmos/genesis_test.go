@@ -27,16 +27,17 @@ func TestGenesis(t *testing.T) {
 	stakingtypes.RegisterCodec(codec.Codec)
 	// variables
 	var (
-		chainID                = "test-chainID"
-		initialBalances        = "100amesg"
-		name                   = "name"
-		password               = "pass"
-		privValidatorKeyFile   = filepath.Join(path, "privValidatorKeyFile.json")
-		privValidatorStateFile = filepath.Join(path, "privValidatorStateFile.json")
-		nodeKeyFile            = filepath.Join(path, "nodeKeyFile.json")
-		genesisPath            = filepath.Join(path, "genesis.json")
-		validators             = []GenesisValidator{}
-		defaultGenesisState    = map[string]json.RawMessage{}
+		chainID                 = "test-chainID"
+		initialBalances         = "100amesg"
+		validatorDelegationCoin = "1amesg"
+		name                    = "name"
+		password                = "pass"
+		privValidatorKeyFile    = filepath.Join(path, "privValidatorKeyFile.json")
+		privValidatorStateFile  = filepath.Join(path, "privValidatorStateFile.json")
+		nodeKeyFile             = filepath.Join(path, "nodeKeyFile.json")
+		genesisPath             = filepath.Join(path, "genesis.json")
+		validators              = []GenesisValidator{}
+		defaultGenesisState     = map[string]json.RawMessage{}
 	)
 	// init account
 	mnemonic, _ := kb.NewMnemonic()
@@ -58,7 +59,7 @@ func TestGenesis(t *testing.T) {
 		require.False(t, GenesisExist(genesisPath))
 	})
 	t.Run("generate genesis", func(t *testing.T) {
-		genesis, err := GenGenesis(kb, defaultGenesisState, chainID, initialBalances, genesisPath, validators)
+		genesis, err := GenGenesis(kb, defaultGenesisState, chainID, initialBalances, validatorDelegationCoin, genesisPath, validators)
 		require.NoError(t, err)
 		require.NotEmpty(t, genesis)
 	})

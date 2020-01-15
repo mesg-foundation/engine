@@ -1,5 +1,11 @@
 # Changelog
 
+## [v0.18.2](https://github.com/mesg-foundation/engine/releases/tag/v0.18.2)
+
+#### Fixed
+
+- ([#1605](https://github.com/mesg-foundation/engine/pull/1605)) Override default staking module config.
+
 ## [v0.18.1](https://github.com/mesg-foundation/engine/releases/tag/v0.18.1)
 
 #### Added

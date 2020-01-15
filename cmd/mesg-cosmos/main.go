@@ -45,7 +45,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	cosmos.CustomizeConfig()
+	cosmos.CustomizeConfig(cfg)
 	cdc := codec.Codec
 
 	rootCmd := &cobra.Command{
