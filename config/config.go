@@ -46,12 +46,30 @@ type Config struct {
 
 	Cosmos struct {
 		RelativePath string `validate:"required"`
+
+		// Minimum gas prices for transactions.
 		MinGasPrices string `validate:"required"`
+
+		// Token name to use in the staking module.
+		StakeTokenDenom string `validate:"required"`
+
+		// Bech32MainPrefix defines the main Bech32 prefix.
+		Bech32MainPrefix string `validate:"required"`
+
+		// CoinType is the mesg registered coin type from https://github.com/satoshilabs/slips/blob/master/slip-0044.md.
+		CoinType uint32 `validate:"required"`
+
+		// BIP44Prefix is the parts of the BIP44 HD path that are fixed by what we used during the fundraiser.
+		FullFundraiserPath string `validate:"required"`
+
+		// Power reduction between the staking token and the voting power on tendermint.
+		PowerReduction int64 `validate:"required"`
 	}
 
 	DevGenesis struct {
-		ChainID         string `validate:"required"`
-		InitialBalances string `validate:"required"`
+		ChainID                 string `validate:"required"`
+		InitialBalances         string `validate:"required"`
+		ValidatorDelegationCoin string `validate:"required"`
 	}
 
 	Account struct {
@@ -93,9 +111,15 @@ func defaultConfig() (*Config, error) {
 
 	c.Cosmos.RelativePath = "cosmos"
 	c.Cosmos.MinGasPrices = "1.0atto"
+	c.Cosmos.StakeTokenDenom = "atto"
+	c.Cosmos.Bech32MainPrefix = "mesgtest"
+	c.Cosmos.CoinType = 470
+	c.Cosmos.FullFundraiserPath = "44'/470'/0'/0/0"
+	c.Cosmos.PowerReduction = 18
 
 	c.DevGenesis.ChainID = "mesg-dev-chain"
-	c.DevGenesis.InitialBalances = "1000000000000000000000000atto" // 1 000 000 * 10^18
+	c.DevGenesis.InitialBalances = "250000000000000000000000000atto"       // 1 000 000 * 10^18
+	c.DevGenesis.ValidatorDelegationCoin = "1000000000000000000000000atto" // 1 000 000 * 10^18
 
 	c.Account.Name = "engine"
 	c.Account.Password = "pass"
@@ -178,6 +202,9 @@ func (c *Config) validate() error {
 	}
 	if _, err := sdkcosmos.ParseCoins(c.DevGenesis.InitialBalances); err != nil {
 		return fmt.Errorf("config devgenesis.initialbalances error: %w", err)
+	}
+	if _, err := sdkcosmos.ParseCoin(c.DevGenesis.ValidatorDelegationCoin); err != nil {
+		return fmt.Errorf("config devgenesis.validatordelegationcoin error: %w", err)
 	}
 	return validator.New().Struct(c)
 }
