@@ -4,7 +4,7 @@ set -e
 
 # mesg config variables
 MESG_NAME=${MESG_NAME:-"engine"}
-MESG_PATH=${MESG_PATH:-"$HOME/.mesg"}
+MESG_PATH=${MESG_PATH:-"$HOME/.mesg/mesg-dev-chain"}
 
 MESG_SERVER_PORT=${MESG_SERVER_PORT:-"50052"}
 MESG_TENDERMINT_NETWORK="mesg-tendermint"
