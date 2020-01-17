@@ -84,7 +84,7 @@ func (s *Backend) Create(request cosmostypes.Request, msg *msgCreateRunner) (*ru
 	if store.Has(run.Hash) {
 		return nil, fmt.Errorf("runner %q already exists", run.Hash)
 	}
-	value, err := codec.MarshalBinaryBare(run)
+	value, err := codec.MarshalJSON(run)
 	if err != nil {
 		return nil, err
 	}
@@ -97,7 +97,7 @@ func (s *Backend) Delete(request cosmostypes.Request, msg *msgDeleteRunner) erro
 	store := request.KVStore(s.storeKey)
 	run := runner.Runner{}
 	value := store.Get(msg.RunnerHash)
-	if err := codec.UnmarshalBinaryBare(value, &run); err != nil {
+	if err := codec.UnmarshalJSON(value, &run); err != nil {
 		return err
 	}
 	if run.Address != msg.Address.String() {
@@ -115,7 +115,7 @@ func (s *Backend) Get(request cosmostypes.Request, hash hash.Hash) (*runner.Runn
 	}
 	value := store.Get(hash)
 	var run *runner.Runner
-	return run, codec.UnmarshalBinaryBare(value, &run)
+	return run, codec.UnmarshalJSON(value, &run)
 }
 
 // List returns all runners.
@@ -127,7 +127,7 @@ func (s *Backend) List(request cosmostypes.Request) ([]*runner.Runner, error) {
 	for iter.Valid() {
 		var run *runner.Runner
 		value := iter.Value()
-		if err := codec.UnmarshalBinaryBare(value, &run); err != nil {
+		if err := codec.UnmarshalJSON(value, &run); err != nil {
 			return nil, err
 		}
 		runners = append(runners, run)

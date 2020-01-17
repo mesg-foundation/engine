@@ -64,7 +64,7 @@ func (s *Backend) querier(request cosmostypes.Request, path []string, req abci.R
 		return s.List(request)
 	case "hash":
 		var createServiceRequest api.CreateServiceRequest
-		if err := codec.UnmarshalBinaryBare(req.Data, &createServiceRequest); err != nil {
+		if err := codec.UnmarshalJSON(req.Data, &createServiceRequest); err != nil {
 			return nil, err
 		}
 		return s.Hash(&createServiceRequest), nil
@@ -105,7 +105,7 @@ func (s *Backend) Create(request cosmostypes.Request, msg *msgCreateService) (*s
 		return nil, err
 	}
 
-	value, err := codec.MarshalBinaryBare(srv)
+	value, err := codec.MarshalJSON(srv)
 	if err != nil {
 		return nil, err
 	}
@@ -121,7 +121,7 @@ func (s *Backend) Get(request cosmostypes.Request, hash hash.Hash) (*service.Ser
 		return nil, fmt.Errorf("service %q not found", hash)
 	}
 	value := store.Get(hash)
-	return sv, codec.UnmarshalBinaryBare(value, &sv)
+	return sv, codec.UnmarshalJSON(value, &sv)
 }
 
 // Exists returns true if a specific set of data exists in the database, false otherwise
@@ -142,7 +142,7 @@ func (s *Backend) List(request cosmostypes.Request) ([]*service.Service, error) 
 	)
 	for iter.Valid() {
 		var sv *service.Service
-		if err := codec.UnmarshalBinaryBare(iter.Value(), &sv); err != nil {
+		if err := codec.UnmarshalJSON(iter.Value(), &sv); err != nil {
 			return nil, err
 		}
 		services = append(services, sv)

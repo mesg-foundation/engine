@@ -151,7 +151,7 @@ func (m AppModule) NewQuerierHandler() cosmostypes.Querier {
 			}
 			return nil, NewMesgWrapError(CodeInternal, err)
 		}
-		res, err := codec.MarshalBinaryBare(data)
+		res, err := codec.MarshalJSON(data)
 		if err != nil {
 			return nil, NewMesgWrapError(CodeInternal, err)
 		}

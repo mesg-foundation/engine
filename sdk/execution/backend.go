@@ -121,7 +121,7 @@ func (s *Backend) Create(request cosmostypes.Request, msg msgCreateExecution) (*
 	if err := exec.Execute(); err != nil {
 		return nil, err
 	}
-	value, err := codec.MarshalBinaryBare(exec)
+	value, err := codec.MarshalJSON(exec)
 	if err != nil {
 		return nil, err
 	}
@@ -137,7 +137,7 @@ func (s *Backend) Update(request cosmostypes.Request, msg msgUpdateExecution) (*
 		return nil, fmt.Errorf("execution %q doesn't exist", msg.Request.Hash)
 	}
 	var exec *execution.Execution
-	if err := codec.UnmarshalBinaryBare(store.Get(msg.Request.Hash), &exec); err != nil {
+	if err := codec.UnmarshalJSON(store.Get(msg.Request.Hash), &exec); err != nil {
 		return nil, err
 	}
 	switch res := msg.Request.Result.(type) {
@@ -156,7 +156,7 @@ func (s *Backend) Update(request cosmostypes.Request, msg msgUpdateExecution) (*
 	default:
 		return nil, errors.New("no execution result supplied")
 	}
-	value, err := codec.MarshalBinaryBare(exec)
+	value, err := codec.MarshalJSON(exec)
 	if err != nil {
 		return nil, err
 	}
@@ -184,7 +184,7 @@ func (s *Backend) Get(request cosmostypes.Request, hash hash.Hash) (*execution.E
 	if !store.Has(hash) {
 		return nil, fmt.Errorf("execution %q not found", hash)
 	}
-	return exec, codec.UnmarshalBinaryBare(store.Get(hash), &exec)
+	return exec, codec.UnmarshalJSON(store.Get(hash), &exec)
 }
 
 // List returns all executions.
@@ -196,7 +196,7 @@ func (s *Backend) List(request cosmostypes.Request) ([]*execution.Execution, err
 	for iter.Valid() {
 		var exec *execution.Execution
 		value := iter.Value()
-		if err := codec.UnmarshalBinaryBare(value, &exec); err != nil {
+		if err := codec.UnmarshalJSON(value, &exec); err != nil {
 			return nil, err
 		}
 		execs = append(execs, exec)

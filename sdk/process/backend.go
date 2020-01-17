@@ -99,7 +99,7 @@ func (s *Backend) Create(req cosmostypes.Request, msg *msgCreateProcess) (*proce
 		}
 	}
 
-	value, err := codec.MarshalBinaryBare(p)
+	value, err := codec.MarshalJSON(p)
 	if err != nil {
 		return nil, err
 	}
@@ -129,7 +129,7 @@ func (s *Backend) Get(req cosmostypes.Request, hash hash.Hash) (*process.Process
 	}
 
 	var p *process.Process
-	return p, codec.UnmarshalBinaryBare(store.Get(hash), &p)
+	return p, codec.UnmarshalJSON(store.Get(hash), &p)
 }
 
 // List returns all services.
@@ -140,7 +140,7 @@ func (s *Backend) List(req cosmostypes.Request) ([]*process.Process, error) {
 	)
 	for iter.Valid() {
 		var p *process.Process
-		if err := codec.UnmarshalBinaryBare(iter.Value(), &p); err != nil {
+		if err := codec.UnmarshalJSON(iter.Value(), &p); err != nil {
 			return nil, err
 		}
 		processes = append(processes, p)

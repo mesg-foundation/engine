@@ -53,7 +53,7 @@ func NewClient(node *node.Node, kb keys.Keybase, chainID, accName, accPassword, 
 func (c *Client) Query(path string, qdata, ptr interface{}) error {
 	var data []byte
 	if !xreflect.IsNil(qdata) {
-		b, err := codec.MarshalBinaryBare(qdata)
+		b, err := codec.MarshalJSON(qdata)
 		if err != nil {
 			return err
 		}
@@ -63,7 +63,7 @@ func (c *Client) Query(path string, qdata, ptr interface{}) error {
 	if err != nil {
 		return err
 	}
-	return codec.UnmarshalBinaryBare(result, ptr)
+	return codec.UnmarshalJSON(result, ptr)
 }
 
 // QueryWithData performs a query to a Tendermint node with the provided path

@@ -47,7 +47,7 @@ func (s *Backend) querier(request cosmostypes.Request, path []string, req abci.R
 		return s.Get(request, hash)
 	case "list":
 		var f api.ListInstanceRequest_Filter
-		if err := codec.UnmarshalBinaryBare(req.Data, &f); err != nil {
+		if err := codec.UnmarshalJSON(req.Data, &f); err != nil {
 			return nil, err
 		}
 		return s.List(request, &f)
@@ -71,7 +71,7 @@ func (s *Backend) FetchOrCreate(request cosmostypes.Request, serviceHash hash.Ha
 	inst.Hash = hash.Dump(inst)
 
 	if store := request.KVStore(s.storeKey); !store.Has(inst.Hash) {
-		value, err := codec.MarshalBinaryBare(inst)
+		value, err := codec.MarshalJSON(inst)
 		if err != nil {
 			return nil, err
 		}
@@ -89,7 +89,7 @@ func (s *Backend) Get(request cosmostypes.Request, hash hash.Hash) (*instance.In
 		return nil, fmt.Errorf("instance %q not found", hash)
 	}
 	value := store.Get(hash)
-	return i, codec.UnmarshalBinaryBare(value, &i)
+	return i, codec.UnmarshalJSON(value, &i)
 }
 
 // Exists returns true if a specific set of data exists in the database, false otherwise
@@ -107,7 +107,7 @@ func (s *Backend) List(request cosmostypes.Request, f *api.ListInstanceRequest_F
 	// filter results
 	for iter.Valid() {
 		var i *instance.Instance
-		if err := codec.UnmarshalBinaryBare(iter.Value(), &i); err != nil {
+		if err := codec.UnmarshalJSON(iter.Value(), &i); err != nil {
 			return nil, err
 		}
 		if f == nil || f.ServiceHash.IsZero() || i.ServiceHash.Equal(f.ServiceHash) {

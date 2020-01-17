@@ -60,7 +60,7 @@ func (s *Backend) Create(req cosmostypes.Request, owner cosmostypes.AccAddress, 
 	}
 	ownership.Hash = hash.Dump(ownership)
 
-	value, err := codec.MarshalBinaryBare(ownership)
+	value, err := codec.MarshalJSON(ownership)
 	if err != nil {
 		return nil, err
 	}
@@ -93,7 +93,7 @@ func (s *Backend) List(req cosmostypes.Request) ([]*ownership.Ownership, error) 
 
 	for iter.Valid() {
 		var o *ownership.Ownership
-		if err := codec.UnmarshalBinaryBare(iter.Value(), &o); err != nil {
+		if err := codec.UnmarshalJSON(iter.Value(), &o); err != nil {
 			return nil, err
 		}
 		ownerships = append(ownerships, o)
@@ -110,7 +110,7 @@ func (s *Backend) findOwnerships(store cosmostypes.KVStore, owner string, resour
 
 	for iter.Valid() {
 		var o *ownership.Ownership
-		if err := codec.UnmarshalBinaryBare(iter.Value(), &o); err == nil {
+		if err := codec.UnmarshalJSON(iter.Value(), &o); err == nil {
 			if (owner == "" || o.Owner == owner) && o.ResourceHash.Equal(resourceHash) {
 				ownerships = append(ownerships, o.Hash)
 			}
