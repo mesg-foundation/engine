@@ -27,15 +27,18 @@ func MarshalJSON(o interface{}) ([]byte, error) {
 
 // UnmarshalJSON https://godoc.org/github.com/tendermint/go-amino#Codec.UnmarshalJSON
 func UnmarshalJSON(bz []byte, ptr interface{}) error {
+	if len(bz) == 0 {
+		return nil
+	}
 	return Codec.UnmarshalJSON(bz, ptr)
 }
 
 // UnmarshalBinaryBare https://godoc.org/github.com/tendermint/go-amino#Codec.UnmarshalBinaryBare
 func UnmarshalBinaryBare(bz []byte, ptr interface{}) error {
-	return Codec.UnmarshalBinaryBare(bz, ptr)
+	return UnmarshalJSON(bz, ptr)
 }
 
 // MarshalBinaryBare https://godoc.org/github.com/tendermint/go-amino#Codec.MarshalBinaryBare
 func MarshalBinaryBare(o interface{}) ([]byte, error) {
-	return Codec.MarshalBinaryBare(o)
+	return MarshalJSON(o)
 }
