@@ -105,6 +105,7 @@ func (m AppModule) Route() string {
 // NewHandler returns the handler used to apply transactions.
 func (m AppModule) NewHandler() cosmostypes.Handler {
 	return func(request cosmostypes.Request, msg cosmostypes.Msg) cosmostypes.Result {
+		request = request.WithEventManager(cosmostypes.NewEventManager())
 		hash, err := m.handler(request, msg)
 		if err != nil {
 			if errsdk, ok := err.(cosmostypes.Error); ok {
@@ -113,25 +114,20 @@ func (m AppModule) NewHandler() cosmostypes.Handler {
 			return cosmostypes.ErrInternal(err.Error()).Result()
 		}
 
-		events := request.EventManager().Events()
-		events = events.AppendEvent(
-			cosmostypes.NewEvent(
-				cosmostypes.EventTypeMessage,
-				cosmostypes.NewAttribute(cosmostypes.AttributeKeyModule, m.name),
-			),
-		)
+		request.EventManager().EmitEvent(cosmostypes.NewEvent(
+			cosmostypes.EventTypeMessage,
+			cosmostypes.NewAttribute(cosmostypes.AttributeKeyModule, m.name),
+		))
 
 		if hash != nil {
-			events = events.AppendEvent(
-				cosmostypes.NewEvent(
-					cosmostypes.EventTypeMessage,
-					cosmostypes.NewAttribute(AttributeKeyHash, hash.String()),
-				),
-			)
+			request.EventManager().EmitEvent(cosmostypes.NewEvent(
+				cosmostypes.EventTypeMessage,
+				cosmostypes.NewAttribute(AttributeKeyHash, hash.String()),
+			))
 		}
 		return cosmostypes.Result{
 			Data:   hash,
-			Events: events,
+			Events: request.EventManager().Events(),
 		}
 	}
 }
