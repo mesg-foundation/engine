@@ -134,7 +134,7 @@ func (c *Client) Stream(ctx context.Context, query string) (chan hash.Hash, chan
 	if err != nil {
 		return nil, nil, err
 	}
-	eventStream, err := c.EventBus.SubscribeUnbuffered(ctx, subscriber, q)
+	msgStream, err := c.EventBus.SubscribeUnbuffered(ctx, subscriber, q)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -144,19 +144,22 @@ func (c *Client) Stream(ctx context.Context, query string) (chan hash.Hash, chan
 	loop:
 		for {
 			select {
-			case event := <-eventStream.Out():
-				tags := event.Events()[EventHashType]
-				if len(tags) != 1 {
-					errC <- fmt.Errorf("event %s has %d tag(s), but only 1 is expected", EventHashType, len(tags))
+			case msg := <-msgStream.Out():
+				attrs := msg.Events()[EventHashType]
+				// The following error might be too much as MAYBE if one transaction contains many messages, the events will be merged accross the whole transaction
+				if len(attrs) != 1 {
+					errC <- fmt.Errorf("event %s has %d tag(s), but only 1 is expected", EventHashType, len(attrs))
 				}
-				hash, err := hash.Decode(tags[0])
-				if err != nil {
-					errC <- err
-				} else {
-					hashC <- hash
+				for _, attr := range attrs {
+					hash, err := hash.Decode(attr)
+					if err != nil {
+						errC <- err
+					} else {
+						hashC <- hash
+					}
 				}
-			case <-eventStream.Cancelled():
-				errC <- eventStream.Err()
+			case <-msgStream.Cancelled():
+				errC <- msgStream.Err()
 				break loop
 			case <-ctx.Done():
 				break loop
