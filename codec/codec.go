@@ -1,9 +1,18 @@
 package codec
 
-import "github.com/tendermint/go-amino"
+import (
+	cosmoscodec "github.com/cosmos/cosmos-sdk/codec"
+	cosmostypes "github.com/cosmos/cosmos-sdk/types"
+	"github.com/tendermint/go-amino"
+)
 
 // Codec is a general codec where every data structs needs to register to
 var Codec = amino.NewCodec()
+
+func init() {
+	cosmostypes.RegisterCodec(Codec)
+	cosmoscodec.RegisterCrypto(Codec)
+}
 
 // RegisterConcrete https://godoc.org/github.com/tendermint/go-amino#Codec.RegisterConcrete
 func RegisterConcrete(o interface{}, name string, copts *amino.ConcreteOptions) {
