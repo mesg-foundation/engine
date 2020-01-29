@@ -23,7 +23,7 @@ func newMsgCreateService(req *api.CreateServiceRequest, owner cosmostypes.AccAdd
 
 // Route should return the name of the module.
 func (msg msgCreateService) Route() string {
-	return backendName
+	return ModuleName
 }
 
 // Type returns the action.

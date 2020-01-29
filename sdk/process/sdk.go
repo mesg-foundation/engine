@@ -47,7 +47,7 @@ func (s *SDK) Delete(req *api.DeleteProcessRequest) error {
 // Get returns the process that matches given hash.
 func (s *SDK) Get(hash hash.Hash) (*process.Process, error) {
 	var process process.Process
-	if err := s.client.Query("custom/"+backendName+"/get/"+hash.String(), nil, &process); err != nil {
+	if err := s.client.Query("custom/"+ModuleName+"/get/"+hash.String(), nil, &process); err != nil {
 		return nil, err
 	}
 	return &process, nil
@@ -56,7 +56,7 @@ func (s *SDK) Get(hash hash.Hash) (*process.Process, error) {
 // List returns all processes.
 func (s *SDK) List() ([]*process.Process, error) {
 	var processes []*process.Process
-	if err := s.client.Query("custom/"+backendName+"/list", nil, &processes); err != nil {
+	if err := s.client.Query("custom/"+ModuleName+"/list", nil, &processes); err != nil {
 		return nil, err
 	}
 	return processes, nil

@@ -26,7 +26,7 @@ func newMsgCreateRunner(address cosmostypes.AccAddress, serviceHash hash.Hash, e
 
 // Route should return the name of the module.
 func (msg msgCreateRunner) Route() string {
-	return backendName
+	return ModuleName
 }
 
 // Type returns the action.
@@ -77,7 +77,7 @@ func newMsgDeleteRunner(address cosmostypes.AccAddress, runnerHash hash.Hash) *m
 
 // Route should return the name of the module.
 func (msg msgDeleteRunner) Route() string {
-	return backendName
+	return ModuleName
 }
 
 // Type returns the action.

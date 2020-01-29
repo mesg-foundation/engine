@@ -23,7 +23,7 @@ func New(client *cosmos.Client) *SDK {
 // Get returns the instance that matches given hash.
 func (s *SDK) Get(hash hash.Hash) (*instance.Instance, error) {
 	var instance instance.Instance
-	if err := s.client.Query("custom/"+backendName+"/get/"+hash.String(), nil, &instance); err != nil {
+	if err := s.client.Query("custom/"+ModuleName+"/get/"+hash.String(), nil, &instance); err != nil {
 		return nil, err
 	}
 	return &instance, nil
@@ -32,7 +32,7 @@ func (s *SDK) Get(hash hash.Hash) (*instance.Instance, error) {
 // List returns all instances.
 func (s *SDK) List(f *api.ListInstanceRequest_Filter) ([]*instance.Instance, error) {
 	var instances []*instance.Instance
-	if err := s.client.Query("custom/"+backendName+"/list", f, &instances); err != nil {
+	if err := s.client.Query("custom/"+ModuleName+"/list", f, &instances); err != nil {
 		return nil, err
 	}
 	return instances, nil
@@ -41,7 +41,7 @@ func (s *SDK) List(f *api.ListInstanceRequest_Filter) ([]*instance.Instance, err
 // Exists returns if a instance already exists.
 func (s *SDK) Exists(hash hash.Hash) (bool, error) {
 	var exists bool
-	if err := s.client.Query("custom/"+backendName+"/exists/"+hash.String(), nil, &exists); err != nil {
+	if err := s.client.Query("custom/"+ModuleName+"/exists/"+hash.String(), nil, &exists); err != nil {
 		return false, err
 	}
 	return exists, nil

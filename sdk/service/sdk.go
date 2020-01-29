@@ -37,7 +37,7 @@ func (s *SDK) Create(req *api.CreateServiceRequest) (*service.Service, error) {
 // Get returns the service that matches given hash.
 func (s *SDK) Get(hash hash.Hash) (*service.Service, error) {
 	var service service.Service
-	if err := s.client.Query("custom/"+backendName+"/get/"+hash.String(), nil, &service); err != nil {
+	if err := s.client.Query("custom/"+ModuleName+"/get/"+hash.String(), nil, &service); err != nil {
 		return nil, err
 	}
 	return &service, nil
@@ -46,7 +46,7 @@ func (s *SDK) Get(hash hash.Hash) (*service.Service, error) {
 // List returns all services.
 func (s *SDK) List() ([]*service.Service, error) {
 	var services []*service.Service
-	if err := s.client.Query("custom/"+backendName+"/list", nil, &services); err != nil {
+	if err := s.client.Query("custom/"+ModuleName+"/list", nil, &services); err != nil {
 		return nil, err
 	}
 	return services, nil
@@ -55,7 +55,7 @@ func (s *SDK) List() ([]*service.Service, error) {
 // Exists returns if a service already exists.
 func (s *SDK) Exists(hash hash.Hash) (bool, error) {
 	var exists bool
-	if err := s.client.Query("custom/"+backendName+"/exists/"+hash.String(), nil, &exists); err != nil {
+	if err := s.client.Query("custom/"+ModuleName+"/exists/"+hash.String(), nil, &exists); err != nil {
 		return false, err
 	}
 	return exists, nil
@@ -64,7 +64,7 @@ func (s *SDK) Exists(hash hash.Hash) (bool, error) {
 // Hash returns the calculate hash of a service.
 func (s *SDK) Hash(req *api.CreateServiceRequest) (hash.Hash, error) {
 	var h hash.Hash
-	if err := s.client.Query("custom/"+backendName+"/hash", req, &h); err != nil {
+	if err := s.client.Query("custom/"+ModuleName+"/hash", req, &h); err != nil {
 		return nil, err
 	}
 	return h, nil
