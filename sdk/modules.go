@@ -218,6 +218,7 @@ func NewApp(logger log.Logger, db dbm.DB, minGasPrices string) (*bam.BaseApp, er
 		instanceStoreKey,
 		runnerStoreKey,
 		executionStoreKey,
+		processStoreKey,
 	)
 	app.SetAnteHandler(auth.NewAnteHandler(accountKeeper, supplyKeeper, auth.DefaultSigVerificationGasConsumer))
 	if err := app.LoadLatestVersion(mainStoreKey); err != nil {

@@ -5,8 +5,8 @@ import (
 
 	cosmostypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/mesg-foundation/engine/codec"
-	"github.com/mesg-foundation/engine/ownership"
 	"github.com/mesg-foundation/engine/hash"
+	"github.com/mesg-foundation/engine/ownership"
 	"github.com/mesg-foundation/engine/protobuf/api"
 	ownershipsdk "github.com/mesg-foundation/engine/sdk/ownership"
 	"github.com/mesg-foundation/engine/service"
