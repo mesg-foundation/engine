@@ -28,6 +28,7 @@ import (
 	dbm "github.com/tendermint/tm-db"
 )
 
+// NewBasicManager returns a basic manager with all the app's modules.
 func NewBasicManager() *module.BasicManager {
 	basicManager := module.NewBasicManager(
 		params.AppModuleBasic{},
@@ -51,6 +52,7 @@ func NewBasicManager() *module.BasicManager {
 	return &basicManager
 }
 
+// NewApp returns a initialized and loaded cosmos app.
 func NewApp(logger log.Logger, db dbm.DB, minGasPrices string) (*bam.BaseApp, error) {
 	// init cosmos stores
 	mainStoreKey := cosmostypes.NewKVStoreKey(bam.MainStoreKey)
