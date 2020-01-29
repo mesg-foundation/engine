@@ -10,7 +10,7 @@ require (
 	github.com/btcsuite/btcd v0.0.0-20190807005414-4063feeff79a // indirect
 	github.com/containerd/containerd v1.3.0 // indirect
 	github.com/containerd/continuity v0.0.0-20190426062206-aaeac12a7ffc // indirect
-	github.com/cosmos/cosmos-sdk v0.37.4
+	github.com/cosmos/cosmos-sdk v0.37.6
 	github.com/cosmos/go-bip39 v0.0.0-20180819234021-555e2067c45d
 	github.com/cskr/pubsub v1.0.2
 	github.com/docker/cli v0.0.0-20191011045415-5d85cdacd257
@@ -58,7 +58,7 @@ require (
 	github.com/stretchr/objx v0.2.0 // indirect
 	github.com/stretchr/testify v1.4.0
 	github.com/tendermint/go-amino v0.15.1
-	github.com/tendermint/tendermint v0.32.8
+	github.com/tendermint/tendermint v0.32.9
 	github.com/tendermint/tm-db v0.2.0
 	github.com/vektra/mockery v0.0.0-20181123154057-e78b021dcbb5
 	golang.org/x/crypto v0.0.0-20190701094942-4def268fd1a4
