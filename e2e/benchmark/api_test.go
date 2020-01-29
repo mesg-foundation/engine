@@ -21,14 +21,11 @@ type apiclient struct {
 
 var client apiclient
 
-func TestAPI(t *testing.T) {
-	if testing.Short() {
-		t.Skip()
-	}
-
+func initClient() error {
 	conn, err := grpc.DialContext(context.Background(), "localhost:50052", grpc.WithInsecure())
-	require.NoError(t, err)
-
+	if err != nil {
+		return err
+	}
 	client = apiclient{
 		pb.NewServiceClient(conn),
 		pb.NewEventClient(conn),
@@ -38,19 +35,20 @@ func TestAPI(t *testing.T) {
 		pb.NewOwnershipClient(conn),
 		pb.NewRunnerClient(conn),
 	}
+	return nil
+}
+
+func BenchmarkAPI(b *testing.B) {
+	if testing.Short() {
+		b.Skip()
+	}
+
+	require.NoError(b, initClient())
 
 	// ping server to test connection
-	_, err = client.ServiceClient.List(context.Background(), &pb.ListServiceRequest{})
-	require.NoError(t, err)
+	_, err := client.ServiceClient.List(context.Background(), &pb.ListServiceRequest{})
+	require.NoError(b, err)
 
-	// basic tests
-	t.Run("service", testService)
-	t.Run("runner", testRunner)
-	// t.Run("process", testProcess)
-	// t.Run("instance", testInstance)
-	// t.Run("event", testEvent)
-	t.Run("execution", testExecution)
-	// t.Run("orchestrator", testOrchestrator)
-	t.Run("runner/delete", testDeleteRunner)
-	// t.Run("complex-service", testComplexService)
+	// benchmark tests
+	b.Run("execution", benchmarkExecution)
 }

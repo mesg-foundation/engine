@@ -58,6 +58,9 @@ build-cmd-cosmos: dep
 e2e: docker-dev
 	./scripts/run-e2e.sh
 
+e2e-benchmark: docker-dev
+	./scripts/run-e2e-benchmark.sh
+
 test: dep
 	go test -short -mod=readonly -v -coverprofile=coverage.txt ./...
 

@@ -1,13 +1,12 @@
 package main
 
 import (
-	"github.com/mesg-foundation/engine/protobuf/api"
 	pb "github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/mesg-foundation/engine/service"
 )
 
 func newTestComplexCreateServiceRequest() *pb.CreateServiceRequest {
-	return &api.CreateServiceRequest{
+	return &pb.CreateServiceRequest{
 		Sid:  "test-complex-service",
 		Name: "test-complex-service",
 		Dependencies: []*service.Service_Dependency{
@@ -43,7 +42,7 @@ func newTestComplexCreateServiceRequest() *pb.CreateServiceRequest {
 }
 
 func newTestCreateServiceRequest() *pb.CreateServiceRequest {
-	return &api.CreateServiceRequest{
+	return &pb.CreateServiceRequest{
 		Sid:  "test-service",
 		Name: "test-service",
 		Configuration: service.Service_Configuration{
