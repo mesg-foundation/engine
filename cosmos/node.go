@@ -1,6 +1,7 @@
 package cosmos
 
 import (
+	bam "github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/mesg-foundation/engine/logger"
 	tmconfig "github.com/tendermint/tendermint/config"
 	"github.com/tendermint/tendermint/node"
@@ -11,7 +12,7 @@ import (
 )
 
 // NewNode creates a new Tendermint node from an App.
-func NewNode(app *App, cfg *tmconfig.Config, genesis *types.GenesisDoc) (*node.Node, error) {
+func NewNode(app *bam.BaseApp, cfg *tmconfig.Config, genesis *types.GenesisDoc) (*node.Node, error) {
 	nodeKey, err := p2p.LoadOrGenNodeKey(cfg.NodeKeyFile())
 	if err != nil {
 		return nil, err

@@ -7,8 +7,6 @@ import (
 	"path/filepath"
 	"testing"
 
-	cosmoscodec "github.com/cosmos/cosmos-sdk/codec"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/mesg-foundation/engine/codec"
 	"github.com/stretchr/testify/require"
@@ -22,8 +20,6 @@ func TestGenesis(t *testing.T) {
 	kb, err := NewKeybase(filepath.Join(path, "kb"))
 	require.NoError(t, err)
 	// codec
-	sdk.RegisterCodec(codec.Codec)
-	cosmoscodec.RegisterCrypto(codec.Codec)
 	stakingtypes.RegisterCodec(codec.Codec)
 	// variables
 	var (

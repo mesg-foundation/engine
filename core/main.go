@@ -7,6 +7,7 @@ import (
 	"sync"
 
 	"github.com/cosmos/cosmos-sdk/crypto/keys"
+	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/mesg-foundation/engine/config"
 	"github.com/mesg-foundation/engine/container"
 	"github.com/mesg-foundation/engine/cosmos"
@@ -85,7 +86,7 @@ func loadOrGenConfigAccount(kb *cosmos.Keybase, cfg *config.Config) (keys.Info, 
 	return kb.CreateAccount(cfg.Account.Name, mnemonic, "", cfg.Account.Password, cfg.Account.Number, cfg.Account.Index)
 }
 
-func loadOrGenDevGenesis(app *cosmos.App, kb *cosmos.Keybase, cfg *config.Config) (*tmtypes.GenesisDoc, error) {
+func loadOrGenDevGenesis(basicManager *module.BasicManager, kb *cosmos.Keybase, cfg *config.Config) (*tmtypes.GenesisDoc, error) {
 	if cosmos.GenesisExist(cfg.Tendermint.Config.GenesisFile()) {
 		return cosmos.LoadGenesis(cfg.Tendermint.Config.GenesisFile())
 	}
@@ -105,7 +106,7 @@ func loadOrGenDevGenesis(app *cosmos.App, kb *cosmos.Keybase, cfg *config.Config
 		"nodeID": validator.NodeID,
 		"peer":   fmt.Sprintf("%s@%s:26656", validator.NodeID, validator.Name),
 	}).Warnln("Validator")
-	return cosmos.GenGenesis(kb, app.DefaultGenesis(), cfg.DevGenesis.ChainID, cfg.DevGenesis.InitialBalances, cfg.DevGenesis.ValidatorDelegationCoin, cfg.Tendermint.Config.GenesisFile(), []cosmos.GenesisValidator{validator})
+	return cosmos.GenGenesis(kb, basicManager.DefaultGenesis(), cfg.DevGenesis.ChainID, cfg.DevGenesis.InitialBalances, cfg.DevGenesis.ValidatorDelegationCoin, cfg.Tendermint.Config.GenesisFile(), []cosmos.GenesisValidator{validator})
 }
 
 func main() {
@@ -115,6 +116,7 @@ func main() {
 	if err != nil {
 		logrus.WithField("module", "main").Fatalln(err)
 	}
+	cosmos.CustomizeConfig(cfg)
 
 	// init logger.
 	logger.Init(cfg.Log.Format, cfg.Log.Level, cfg.Log.ForceColors)
@@ -133,17 +135,8 @@ func main() {
 		logrus.WithField("module", "main").Fatalln(err)
 	}
 
-	cosmos.CustomizeConfig(cfg)
-
-	// TODO: rename NewAppFactory to something else
-	appFactory := cosmos.NewAppFactory(logger.TendermintLogger(), db, cfg.Cosmos.MinGasPrices)
-
-	// register the backend modules to the app factory.
-	// TODO: this is a mandatory call so it should return a new types required by cosmos.NewApp
-	enginesdk.NewBackend(appFactory)
-
-	// init cosmos app
-	app, err := cosmos.NewApp(appFactory)
+	// init app
+	app, err := enginesdk.NewApp(logger.TendermintLogger(), db, cfg.Cosmos.MinGasPrices)
 	if err != nil {
 		logrus.WithField("module", "main").Fatalln(err)
 	}
@@ -162,7 +155,7 @@ func main() {
 	logrus.WithField("address", acc.GetAddress().String()).Info("engine account")
 
 	// load or gen genesis
-	genesis, err := loadOrGenDevGenesis(app, kb, cfg)
+	genesis, err := loadOrGenDevGenesis(enginesdk.NewBasicManager(), kb, cfg)
 	if err != nil {
 		logrus.WithField("module", "main").Fatalln(err)
 	}

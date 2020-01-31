@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"io"
 	"os"
-	"path/filepath"
 
 	"github.com/cosmos/cosmos-sdk/server"
+	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/x/genaccounts"
 	genaccscli "github.com/cosmos/cosmos-sdk/x/genaccounts/client/cli"
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
@@ -14,7 +14,6 @@ import (
 	"github.com/mesg-foundation/engine/codec"
 	"github.com/mesg-foundation/engine/config"
 	"github.com/mesg-foundation/engine/cosmos"
-	"github.com/mesg-foundation/engine/logger"
 	enginesdk "github.com/mesg-foundation/engine/sdk"
 	"github.com/spf13/cobra"
 	abci "github.com/tendermint/tendermint/abci/types"
@@ -26,7 +25,7 @@ import (
 
 var (
 	defaultCLIHome = os.ExpandEnv("$HOME/.mesg-cosmos-cli")
-	app            *cosmos.App
+	basicManager   module.BasicManager
 )
 
 func main() {
@@ -37,17 +36,9 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	db, err := db.NewGoLevelDB("app", filepath.Join(cfg.Path, cfg.Cosmos.RelativePath))
-	if err != nil {
-		panic(err)
-	}
-	appFactory := cosmos.NewAppFactory(logger.TendermintLogger(), db, cfg.Cosmos.MinGasPrices)
-	enginesdk.NewBackend(appFactory)
-	app, err = cosmos.NewApp(appFactory)
-	if err != nil {
-		panic(err)
-	}
 	cosmos.CustomizeConfig(cfg)
+
+	basicManager = *enginesdk.NewBasicManager()
 	cdc := codec.Codec
 
 	ctx := server.NewDefaultContext()
@@ -59,13 +50,13 @@ func main() {
 	}
 	// CLI commands to initialize the chain
 	rootCmd.AddCommand(
-		genutilcli.InitCmd(ctx, cdc, app.BasicManager(), cfg.Tendermint.Config.RootDir),
+		genutilcli.InitCmd(ctx, cdc, basicManager, cfg.Tendermint.Config.RootDir),
 		genutilcli.CollectGenTxsCmd(ctx, cdc, genaccounts.AppModuleBasic{}, cfg.Tendermint.Config.RootDir),
 		genutilcli.GenTxCmd(
-			ctx, cdc, app.BasicManager(), staking.AppModuleBasic{},
+			ctx, cdc, basicManager, staking.AppModuleBasic{},
 			genaccounts.AppModuleBasic{}, cfg.Tendermint.Config.RootDir, defaultCLIHome,
 		),
-		genutilcli.ValidateGenesisCmd(ctx, cdc, app.BasicManager()),
+		genutilcli.ValidateGenesisCmd(ctx, cdc, basicManager),
 		genaccscli.AddGenesisAccountCmd(ctx, cdc, cfg.Tendermint.Config.RootDir, defaultCLIHome),
 	)
 
@@ -80,7 +71,8 @@ func main() {
 }
 
 func newApp(logger log.Logger, db db.DB, traceStore io.Writer) abci.Application {
-	return app
+	// TODO: could start the engine here
+	return nil
 }
 
 func exportAppStateAndTMValidators(logger log.Logger, db db.DB, traceStore io.Writer, height int64, forZeroHeight bool, jailWhiteList []string,

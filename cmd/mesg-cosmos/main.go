@@ -3,30 +3,28 @@ package main
 import (
 	"os"
 	"path"
-	"path/filepath"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/keys"
 	"github.com/cosmos/cosmos-sdk/client/lcd"
 	"github.com/cosmos/cosmos-sdk/client/rpc"
+	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/version"
 	authcmd "github.com/cosmos/cosmos-sdk/x/auth/client/cli"
 	authrest "github.com/cosmos/cosmos-sdk/x/auth/client/rest"
 	"github.com/mesg-foundation/engine/codec"
 	"github.com/mesg-foundation/engine/config"
 	"github.com/mesg-foundation/engine/cosmos"
-	"github.com/mesg-foundation/engine/logger"
 	enginesdk "github.com/mesg-foundation/engine/sdk"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	amino "github.com/tendermint/go-amino"
 	"github.com/tendermint/tendermint/libs/cli"
-	db "github.com/tendermint/tm-db"
 )
 
 var (
 	defaultCLIHome = os.ExpandEnv("$HOME/.mesg-cosmos-cli")
-	app            *cosmos.App
+	basicManager   module.BasicManager
 )
 
 func main() {
@@ -35,17 +33,9 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	db, err := db.NewGoLevelDB("app", filepath.Join(cfg.Path, cfg.Cosmos.RelativePath))
-	if err != nil {
-		panic(err)
-	}
-	appFactory := cosmos.NewAppFactory(logger.TendermintLogger(), db, cfg.Cosmos.MinGasPrices)
-	enginesdk.NewBackend(appFactory)
-	app, err = cosmos.NewApp(appFactory)
-	if err != nil {
-		panic(err)
-	}
 	cosmos.CustomizeConfig(cfg)
+
+	basicManager = *enginesdk.NewBasicManager()
 	cdc := codec.Codec
 
 	rootCmd := &cobra.Command{
@@ -81,7 +71,7 @@ func main() {
 func registerRoutes(rs *lcd.RestServer) {
 	client.RegisterRoutes(rs.CliCtx, rs.Mux)
 	authrest.RegisterTxRoutes(rs.CliCtx, rs.Mux)
-	app.BasicManager().RegisterRESTRoutes(rs.CliCtx, rs.Mux)
+	basicManager.RegisterRESTRoutes(rs.CliCtx, rs.Mux)
 }
 
 func queryCmd(cdc *amino.Codec) *cobra.Command {
@@ -99,7 +89,7 @@ func queryCmd(cdc *amino.Codec) *cobra.Command {
 	)
 
 	// add modules' query commands
-	app.BasicManager().AddQueryCommands(queryCmd, cdc)
+	basicManager.AddQueryCommands(queryCmd, cdc)
 
 	return queryCmd
 }
@@ -116,7 +106,7 @@ func txCmd(cdc *amino.Codec) *cobra.Command {
 	)
 
 	// add modules' tx commands
-	app.BasicManager().AddTxCommands(txCmd, cdc)
+	basicManager.AddTxCommands(txCmd, cdc)
 
 	return txCmd
 }

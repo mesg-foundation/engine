@@ -150,7 +150,7 @@ func (s *SDK) Delete(req *api.DeleteRunnerRequest) error {
 // Get returns the runner that matches given hash.
 func (s *SDK) Get(hash hash.Hash) (*runner.Runner, error) {
 	var runner runner.Runner
-	if err := s.client.Query("custom/"+backendName+"/get/"+hash.String(), nil, &runner); err != nil {
+	if err := s.client.Query("custom/"+ModuleName+"/get/"+hash.String(), nil, &runner); err != nil {
 		return nil, err
 	}
 	return &runner, nil
@@ -159,7 +159,7 @@ func (s *SDK) Get(hash hash.Hash) (*runner.Runner, error) {
 // List returns all runners.
 func (s *SDK) List(f *Filter) ([]*runner.Runner, error) {
 	var runners []*runner.Runner
-	if err := s.client.Query("custom/"+backendName+"/list", nil, &runners); err != nil {
+	if err := s.client.Query("custom/"+ModuleName+"/list", nil, &runners); err != nil {
 		return nil, err
 	}
 	// no filter, returns
