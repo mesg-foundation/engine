@@ -1,7 +1,6 @@
 package ownershipsdk
 
 import (
-	"errors"
 	"fmt"
 
 	cosmostypes "github.com/cosmos/cosmos-sdk/types"
