@@ -114,17 +114,17 @@ func (m *AppModule) NewHandler() cosmostypes.Handler {
 			return cosmostypes.ErrInternal(err.Error()).Result()
 		}
 
-		request.EventManager().EmitEvent(cosmostypes.NewEvent(
+		event := cosmostypes.NewEvent(
 			cosmostypes.EventTypeMessage,
 			cosmostypes.NewAttribute(cosmostypes.AttributeKeyModule, m.name),
-		))
-
+		)
 		if hash != nil {
-			request.EventManager().EmitEvent(cosmostypes.NewEvent(
-				cosmostypes.EventTypeMessage,
+			event = event.AppendAttributes(
 				cosmostypes.NewAttribute(AttributeKeyHash, hash.String()),
-			))
+			)
 		}
+		request.EventManager().EmitEvent(event)
+
 		return cosmostypes.Result{
 			Data:   hash,
 			Events: request.EventManager().Events(),
