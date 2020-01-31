@@ -53,7 +53,7 @@ func querier(k *Keeper) cosmos.Querier {
 		case "list":
 			return k.List(request)
 		default:
-			return nil, errors.New("unknown execution query endpoint" + path[0])
+			return nil, fmt.Errorf("unknown execution query endpoint %s", path[0])
 		}
 	}
 }

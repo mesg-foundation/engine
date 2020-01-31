@@ -62,7 +62,7 @@ func querier(k *Keeper) cosmos.Querier {
 			return k.Exists(request, hash)
 
 		default:
-			return nil, errors.New("unknown service query endpoint" + path[0])
+			return nil, fmt.Errorf("unknown service query endpoint %s", path[0])
 		}
 	}
 }

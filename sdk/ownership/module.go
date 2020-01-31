@@ -32,7 +32,7 @@ func querier(k *Keeper) cosmos.Querier {
 		case "list":
 			return k.List(request)
 		default:
-			return nil, errors.New("unknown ownership query endpoint" + path[0])
+			return nil, fmt.Errorf("unknown ownership query endpoint %s", path[0])
 		}
 	}
 }

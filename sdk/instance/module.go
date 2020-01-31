@@ -50,7 +50,7 @@ func querier(k *Keeper) cosmos.Querier {
 			}
 			return k.Exists(request, hash)
 		default:
-			return nil, errors.New("unknown instance query endpoint" + path[0])
+			return nil, fmt.Errorf("unknown instance query endpoint %s", path[0])
 		}
 	}
 }
