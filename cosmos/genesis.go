@@ -6,6 +6,7 @@ import (
 	"time"
 
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
+	authutils "github.com/cosmos/cosmos-sdk/x/auth/client/utils"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/genaccounts"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
@@ -71,7 +72,18 @@ func GenGenesis(kb *Keybase, defaultGenesisŚtate map[string]json.RawMessage, ch
 	// generate genesis transaction
 	accNumber := uint64(0)
 	sequence := uint64(0)
-	b := NewTxBuilder(accNumber, sequence, kb, chainID, sdktypes.DecCoins{})
+	b := authtypes.NewTxBuilder(
+		authutils.GetTxEncoder(codec.Codec),
+		accNumber,
+		sequence,
+		0,
+		0,
+		false,
+		chainID,
+		"",
+		sdktypes.NewCoins(),
+		sdktypes.DecCoins{},
+	).WithKeybase(kb)
 	signedMsg, err := b.BuildSignMsg(msgs)
 	if err != nil {
 		return nil, err

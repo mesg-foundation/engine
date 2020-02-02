@@ -7,10 +7,12 @@ import (
 	"sync"
 	"time"
 
+	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/crypto/keys"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	authutils "github.com/cosmos/cosmos-sdk/x/auth/client/utils"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/mesg-foundation/engine/codec"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/x/xreflect"
@@ -88,7 +90,7 @@ func (c *Client) QueryWithData(path string, data []byte) ([]byte, int64, error) 
 // BuildAndBroadcastMsg builds and signs message and broadcast it to node.
 func (c *Client) BuildAndBroadcastMsg(msg sdktypes.Msg) (*abci.ResponseDeliverTx, error) {
 	c.broadcastMutex.Lock() // Lock the whole signature + broadcast of the transaction
-	signedTx, err := c.sign(msg)
+	signedTx, err := c.createAndSignTx([]sdktypes.Msg{msg})
 	if err != nil {
 		c.broadcastMutex.Unlock()
 		return nil, err
@@ -206,26 +208,32 @@ func (c *Client) GetAccount() (auth.Account, error) {
 	return c.acc, nil
 }
 
-// Sign signs a msg and return a tendermint tx.
-func (c *Client) sign(msg sdktypes.Msg) (tenderminttypes.Tx, error) {
-	acc, err := c.GetAccount()
+func (c *Client) createAndSignTx(msgs []sdktypes.Msg) (tenderminttypes.Tx, error) {
+	// retreive account
+	accR, err := c.GetAccount()
 	if err != nil {
 		return nil, err
 	}
+	sequence := accR.GetSequence()
+	accR.SetSequence(accR.GetSequence() + 1)
 
-	sequence := acc.GetSequence()
-	acc.SetSequence(acc.GetSequence() + 1)
+	// Create TxBuilder
+	txBuilder := authtypes.NewTxBuilder(
+		authutils.GetTxEncoder(codec.Codec),
+		accR.GetAccountNumber(),
+		sequence,
+		flags.DefaultGasLimit,
+		flags.DefaultGasAdjustment,
+		true,
+		c.chainID,
+		"",
+		sdktypes.NewCoins(),
+		c.minGasPrices,
+	).WithKeybase(c.kb)
 
-	minGasPrices, err := sdktypes.ParseDecCoins(c.minGasPrices)
-	if err != nil {
-		return nil, err
-	}
-
-	txBuilder := NewTxBuilder(acc.GetAccountNumber(), sequence, c.kb, c.chainID, minGasPrices)
-
-	// simulate tx to estimate the gas
+	// calculate gas
 	if txBuilder.SimulateAndExecute() {
-		txBytes, err := txBuilder.BuildTxForSim([]sdktypes.Msg{msg})
+		txBytes, err := txBuilder.BuildTxForSim(msgs)
 		if err != nil {
 			return nil, err
 		}
@@ -236,9 +244,20 @@ func (c *Client) sign(msg sdktypes.Msg) (tenderminttypes.Tx, error) {
 		txBuilder = txBuilder.WithGas(adjusted)
 	}
 
-	signedTx, err := txBuilder.BuildAndSignStdTx(msg, c.accName, c.accPassword)
+	// create StdSignMsg
+	stdSignMsg, err := txBuilder.BuildSignMsg(msgs)
 	if err != nil {
 		return nil, err
 	}
-	return txBuilder.Encode(signedTx)
+
+	// create StdTx
+	stdTx := authtypes.NewStdTx(stdSignMsg.Msgs, stdSignMsg.Fee, []authtypes.StdSignature{}, stdSignMsg.Memo)
+
+	// sign StdTx
+	signedTx, err := txBuilder.SignStdTx(c.accName, c.accPassword, stdTx, false)
+	if err != nil {
+		return nil, err
+	}
+
+	return txBuilder.TxEncoder()(signedTx)
 }
