@@ -81,8 +81,8 @@ func GenGenesis(kb *Keybase, defaultGenesisŚtate map[string]json.RawMessage, ch
 		false,
 		chainID,
 		"",
-		sdktypes.NewCoins(),
-		sdktypes.DecCoins{},
+		nil,
+		nil,
 	).WithKeybase(kb)
 	signedMsg, err := b.BuildSignMsg(msgs)
 	if err != nil {

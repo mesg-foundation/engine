@@ -227,7 +227,7 @@ func (c *Client) createAndSignTx(msgs []sdktypes.Msg) (tenderminttypes.Tx, error
 		true,
 		c.chainID,
 		"",
-		sdktypes.NewCoins(),
+		nil,
 		c.minGasPrices,
 	).WithKeybase(c.kb)
 
