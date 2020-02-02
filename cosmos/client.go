@@ -29,7 +29,7 @@ type Client struct {
 	chainID      string
 	accName      string
 	accPassword  string
-	minGasPrices string
+	minGasPrices sdktypes.DecCoins
 
 	// Local state
 	acc             auth.Account
@@ -38,15 +38,19 @@ type Client struct {
 }
 
 // NewClient returns a rpc tendermint client.
-func NewClient(node *node.Node, kb keys.Keybase, chainID, accName, accPassword, minGasPrices string) *Client {
+func NewClient(node *node.Node, kb keys.Keybase, chainID, accName, accPassword, minGasPrices string) (*Client, error) {
+	minGasPricesDecoded, err := sdktypes.ParseDecCoins(minGasPrices)
+	if err != nil {
+		return nil, err
+	}
 	return &Client{
 		Local:        rpcclient.NewLocal(node),
 		kb:           kb,
 		chainID:      chainID,
 		accName:      accName,
 		accPassword:  accPassword,
-		minGasPrices: minGasPrices,
-	}
+		minGasPrices: minGasPricesDecoded,
+	}, nil
 }
 
 // Query is abci.query wrapper with errors check and decode data.
