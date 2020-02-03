@@ -1,6 +1,7 @@
 package cosmos
 
 import (
+	"crypto/sha256"
 	"sync"
 
 	clientkey "github.com/cosmos/cosmos-sdk/client/keys"
@@ -16,9 +17,9 @@ const mnemonicEntropySize = 256
 
 // Keybase is a standard cosmos keybase.
 type Keybase struct {
-	kb keys.Keybase
-
-	mx sync.Mutex
+	kb        keys.Keybase
+	mx        sync.Mutex
+	privCache map[[sha256.Size]byte]crypto.PrivKey
 }
 
 // NewKeybase initializes a filesystem keybase at a particular dir.
@@ -27,7 +28,10 @@ func NewKeybase(dir string) (*Keybase, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &Keybase{kb: kb}, nil
+	return &Keybase{
+		kb:        kb,
+		privCache: make(map[[sha256.Size]byte]crypto.PrivKey),
+	}, nil
 }
 
 // NewMnemonic returns a new mnemonic phrase.
@@ -81,10 +85,25 @@ func (kb *Keybase) Delete(name, passphrase string, skipPass bool) error {
 }
 
 // Sign is a lock protected version of keys.Sign
+// it also keeps the last private key used in memory for the time set in `keepPrivTime` for performance improvement.
 func (kb *Keybase) Sign(name, passphrase string, msg []byte) ([]byte, crypto.PubKey, error) {
 	kb.mx.Lock()
 	defer kb.mx.Unlock()
-	return kb.kb.Sign(name, passphrase, msg)
+	hash := sha256.Sum256([]byte(name + passphrase))
+	priv := kb.privCache[hash]
+	if priv == nil {
+		var err error
+		if priv, err = kb.kb.ExportPrivateKeyObject(name, passphrase); err != nil {
+			return nil, nil, err
+		}
+		kb.privCache[hash] = priv
+	}
+	sig, err := priv.Sign(msg)
+	if err != nil {
+		return nil, nil, err
+	}
+	pub := priv.PubKey()
+	return sig, pub, nil
 }
 
 // CreateMnemonic is a lock protected version of keys.CreateMnemonic

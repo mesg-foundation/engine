@@ -209,7 +209,7 @@ func (c *Client) GetAccount() (auth.Account, error) {
 }
 
 func (c *Client) createAndSignTx(msgs []sdktypes.Msg) (tenderminttypes.Tx, error) {
-	// retreive account
+	// retrieve account
 	accR, err := c.GetAccount()
 	if err != nil {
 		return nil, err
