@@ -1,4 +1,4 @@
-.PHONY: all e2e check-version docker-publish docker-publish-dev docker-tools dev dev-stop dev-start lint dep build test mock protobuf changelog clean genesis clean-build clean-docker build-cmd-cosmos
+.PHONY: all build build-cmd-cosmos changelog check-version clean clean-build clean-docker dep dev dev-mon dev-start dev-stop docker-build docker-dev docker-publish docker-publish-dev docker-tools genesis lint mock protobuf test
 
 MAJOR_VERSION := $(shell echo $(version) | cut -d . -f 1)	
 MINOR_VERSION := $(shell echo $(version) | cut -d . -f 1-2)
@@ -39,11 +39,14 @@ docker-tools:
 dev: docker-dev
 	- ./scripts/dev.sh
 
+dev-mon: docker-dev
+	- ./scripts/dev.sh -m
+
 dev-start: docker-dev
 	./scripts/dev.sh -q
 
 dev-stop: docker-dev
-	./scripts/dev.sh stop
+	./scripts/dev.sh -m stop
 
 dep:
 	go mod download
