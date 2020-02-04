@@ -221,7 +221,7 @@ func main() {
 		logrus.WithField("module", "main").Fatalln(err)
 	}
 
-	cliCtx := context.NewCLIContext().WithCodec(codec.Codec)
+	cliCtx := context.NewCLIContext().WithCodec(codec.Codec).WithClient(client)
 	mux := mux.NewRouter()
 	cosmosclient.RegisterRoutes(cliCtx, mux)
 	authrest.RegisterTxRoutes(cliCtx, mux)
