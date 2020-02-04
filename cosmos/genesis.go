@@ -88,7 +88,7 @@ func GenGenesis(kb *Keybase, defaultGenesisŚtate map[string]json.RawMessage, ch
 	if err != nil {
 		return nil, err
 	}
-	validatorTx := authtypes.NewStdTx(signedMsg.Msgs, signedMsg.Fee, []authtypes.StdSignature{}, signedMsg.Memo)
+	validatorTx := authtypes.NewStdTx(signedMsg.Msgs, signedMsg.Fee, nil, signedMsg.Memo)
 	for _, validator := range validators {
 		validatorTx, err = b.SignStdTx(validator.Name, validator.Password, validatorTx, true)
 		if err != nil {

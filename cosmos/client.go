@@ -251,7 +251,7 @@ func (c *Client) createAndSignTx(msgs []sdktypes.Msg) (tenderminttypes.Tx, error
 	}
 
 	// create StdTx
-	stdTx := authtypes.NewStdTx(stdSignMsg.Msgs, stdSignMsg.Fee, []authtypes.StdSignature{}, stdSignMsg.Memo)
+	stdTx := authtypes.NewStdTx(stdSignMsg.Msgs, stdSignMsg.Fee, nil, stdSignMsg.Memo)
 
 	// sign StdTx
 	signedTx, err := txBuilder.SignStdTx(c.accName, c.accPassword, stdTx, false)
