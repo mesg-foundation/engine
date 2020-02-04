@@ -179,7 +179,10 @@ func main() {
 	}
 
 	// create cosmos client
-	client := cosmos.NewClient(node, kb, genesis.ChainID, cfg.Account.Name, cfg.Account.Password, cfg.Cosmos.MinGasPrices)
+	client, err := cosmos.NewClient(node, kb, genesis.ChainID, cfg.Account.Name, cfg.Account.Password, cfg.Cosmos.MinGasPrices)
+	if err != nil {
+		logrus.WithField("module", "main").Fatalln(err)
+	}
 
 	// init sdk
 	sdk := enginesdk.New(client, kb, container, cfg.Name, strconv.Itoa(port), cfg.IpfsEndpoint)
