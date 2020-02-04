@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	cosmostypes "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/mesg-foundation/engine/cosmos"
 	"github.com/mesg-foundation/engine/hash"
@@ -30,8 +31,7 @@ func handler(k *Keeper) cosmos.Handler {
 		case msgDeleteProcess:
 			return nil, k.Delete(request, &msg)
 		default:
-			errmsg := fmt.Sprintf("unrecognized process msg type: %v", msg.Type())
-			return nil, cosmostypes.ErrUnknownRequest(errmsg)
+			return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "unrecognized process msg type: %v", msg.Type())
 		}
 	}
 }

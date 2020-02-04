@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	cosmostypes "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/mesg-foundation/engine/cosmos"
 	"github.com/mesg-foundation/engine/hash"
@@ -33,8 +34,7 @@ func handler(k *Keeper) cosmos.Handler {
 			}
 			return nil, nil
 		default:
-			errmsg := fmt.Sprintf("Unrecognized runner Msg type: %v", msg.Type())
-			return nil, cosmostypes.ErrUnknownRequest(errmsg)
+			return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, fmt.Sprintf("Unrecognized runner Msg type: %v", msg.Type()))
 		}
 	}
 }

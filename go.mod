@@ -10,7 +10,7 @@ require (
 	github.com/btcsuite/btcd v0.0.0-20190807005414-4063feeff79a // indirect
 	github.com/containerd/containerd v1.3.0 // indirect
 	github.com/containerd/continuity v0.0.0-20190426062206-aaeac12a7ffc // indirect
-	github.com/cosmos/cosmos-sdk v0.37.6
+	github.com/cosmos/cosmos-sdk v0.38.0
 	github.com/cosmos/go-bip39 v0.0.0-20180819234021-555e2067c45d
 	github.com/cskr/pubsub v1.0.2
 	github.com/docker/cli v0.0.0-20191011045415-5d85cdacd257
@@ -35,7 +35,6 @@ require (
 	github.com/konsorten/go-windows-terminal-sequences v1.0.2 // indirect
 	github.com/leodido/go-urn v1.1.0 // indirect
 	github.com/lyft/protoc-gen-validate v0.1.0 // indirect
-	github.com/mattn/go-isatty v0.0.8 // indirect
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/morikuni/aec v1.0.0 // indirect
 	github.com/mr-tron/base58 v1.1.3
@@ -45,23 +44,21 @@ require (
 	github.com/opencontainers/go-digest v1.0.0-rc1 // indirect
 	github.com/opencontainers/image-spec v1.0.1 // indirect
 	github.com/opencontainers/runc v0.1.1 // indirect
-	github.com/pelletier/go-toml v1.4.0 // indirect
 	github.com/prometheus/client_golang v1.1.0
 	github.com/pseudomuto/protoc-gen-doc v1.3.0
 	github.com/pseudomuto/protokit v0.2.0 // indirect
-	github.com/rakyll/statik v0.1.6 // indirect
 	github.com/rcrowley/go-metrics v0.0.0-20190706150252-9beb055b7962 // indirect
 	github.com/sirupsen/logrus v1.4.2
 	github.com/spf13/afero v1.2.2 // indirect
 	github.com/spf13/cobra v0.0.5
 	github.com/spf13/viper v1.6.2
-	github.com/stretchr/objx v0.2.0 // indirect
 	github.com/stretchr/testify v1.4.0
+	github.com/stumble/gorocksdb v0.0.3 // indirect
 	github.com/tendermint/go-amino v0.15.1
-	github.com/tendermint/tendermint v0.32.9
-	github.com/tendermint/tm-db v0.2.0
+	github.com/tendermint/tendermint v0.33.0
+	github.com/tendermint/tm-db v0.4.0
 	github.com/vektra/mockery v0.0.0-20181123154057-e78b021dcbb5
-	golang.org/x/crypto v0.0.0-20190701094942-4def268fd1a4
+	golang.org/x/crypto v0.0.0-20191206172530-e9b2fee46413
 	golang.org/x/net v0.0.0-20190813141303-74dc4d7220e7 // indirect
 	golang.org/x/tools v0.0.0-20190813142322-97f12d73768f // indirect
 	google.golang.org/grpc v1.27.0

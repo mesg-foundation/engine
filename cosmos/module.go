@@ -6,6 +6,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/context"
 	cosmoscodec "github.com/cosmos/cosmos-sdk/codec"
 	cosmostypes "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/gorilla/mux"
 	"github.com/mesg-foundation/engine/codec"
@@ -103,15 +104,12 @@ func (m *AppModule) Route() string {
 }
 
 // NewHandler returns the handler used to apply transactions.
-func (m *AppModule) NewHandler() cosmostypes.Handler {
-	return func(request cosmostypes.Request, msg cosmostypes.Msg) cosmostypes.Result {
+func (m AppModule) NewHandler() cosmostypes.Handler {
+	return func(request cosmostypes.Request, msg cosmostypes.Msg) (*cosmostypes.Result, error) {
 		request = request.WithEventManager(cosmostypes.NewEventManager())
 		hash, err := m.handler(request, msg)
 		if err != nil {
-			if errsdk, ok := err.(cosmostypes.Error); ok {
-				return errsdk.Result()
-			}
-			return cosmostypes.ErrInternal(err.Error()).Result()
+			return nil, err
 		}
 
 		event := cosmostypes.NewEvent(
@@ -125,10 +123,10 @@ func (m *AppModule) NewHandler() cosmostypes.Handler {
 		}
 		request.EventManager().EmitEvent(event)
 
-		return cosmostypes.Result{
+		return &cosmostypes.Result{
 			Data:   hash,
 			Events: request.EventManager().Events(),
-		}
+		}, nil
 	}
 }
 
@@ -138,18 +136,15 @@ func (m *AppModule) QuerierRoute() string {
 }
 
 // NewQuerierHandler returns the handler used to reply ABCI query.
-func (m *AppModule) NewQuerierHandler() cosmostypes.Querier {
-	return func(request cosmostypes.Request, path []string, req abci.RequestQuery) ([]byte, cosmostypes.Error) {
+func (m AppModule) NewQuerierHandler() cosmostypes.Querier {
+	return func(request cosmostypes.Request, path []string, req abci.RequestQuery) ([]byte, error) {
 		data, err := m.querier(request, path, req)
 		if err != nil {
-			if errsdk, ok := err.(cosmostypes.Error); ok {
-				return nil, errsdk
-			}
-			return nil, NewMesgWrapError(CodeInternal, err)
+			return nil, err
 		}
 		res, err := codec.MarshalBinaryBare(data)
 		if err != nil {
-			return nil, NewMesgWrapError(CodeInternal, err)
+			return nil, sdkerrors.Wrap(ErrMarshal, err.Error())
 		}
 		return res, nil
 	}

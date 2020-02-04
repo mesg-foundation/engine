@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	cosmostypes "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/mesg-foundation/engine/codec"
 	"github.com/mesg-foundation/engine/cosmos"
@@ -23,7 +24,7 @@ func NewModule(k *Keeper) module.AppModule {
 func handler(k *Keeper) cosmos.Handler {
 	return func(request cosmostypes.Request, msg cosmostypes.Msg) (hash.Hash, error) {
 		errmsg := fmt.Sprintf("Unrecognized instance Msg type: %v", msg.Type())
-		return nil, cosmostypes.ErrUnknownRequest(errmsg)
+		return nil, sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, errmsg)
 	}
 }
 

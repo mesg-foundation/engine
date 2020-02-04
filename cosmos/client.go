@@ -12,13 +12,13 @@ import (
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	authutils "github.com/cosmos/cosmos-sdk/x/auth/client/utils"
+	authExported "github.com/cosmos/cosmos-sdk/x/auth/exported"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/mesg-foundation/engine/codec"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/x/xreflect"
 	"github.com/mesg-foundation/engine/x/xstrings"
 	abci "github.com/tendermint/tendermint/abci/types"
-	tmquery "github.com/tendermint/tendermint/libs/pubsub/query"
 	"github.com/tendermint/tendermint/node"
 	rpcclient "github.com/tendermint/tendermint/rpc/client"
 	tenderminttypes "github.com/tendermint/tendermint/types"
@@ -34,7 +34,7 @@ type Client struct {
 	minGasPrices sdktypes.DecCoins
 
 	// Local state
-	acc             auth.Account
+	acc             authExported.Account
 	getAccountMutex sync.Mutex
 	broadcastMutex  sync.Mutex
 }
@@ -136,11 +136,7 @@ func (c *Client) BuildAndBroadcastMsg(msg sdktypes.Msg) (*abci.ResponseDeliverTx
 // Stream subscribes to the provided query and returns the hash of the matching ressources.
 func (c *Client) Stream(ctx context.Context, query string) (chan hash.Hash, chan error, error) {
 	subscriber := xstrings.RandASCIILetters(8)
-	q, err := tmquery.New(query)
-	if err != nil {
-		return nil, nil, err
-	}
-	msgStream, err := c.EventBus.SubscribeUnbuffered(ctx, subscriber, q)
+	eventStream, err := c.Subscribe(ctx, subscriber, query, 0)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -150,8 +146,8 @@ func (c *Client) Stream(ctx context.Context, query string) (chan hash.Hash, chan
 	loop:
 		for {
 			select {
-			case msg := <-msgStream.Out():
-				attrs := msg.Events()[EventHashType]
+			case event := <-eventStream:
+				attrs := event.Events[EventHashType]
 				// The following error might be too much as MAYBE if one transaction contains many messages, the events will be merged across the whole transaction
 				if len(attrs) != 1 {
 					errC <- fmt.Errorf("event %s has %d tag(s), but only 1 is expected", EventHashType, len(attrs))
@@ -164,9 +160,6 @@ func (c *Client) Stream(ctx context.Context, query string) (chan hash.Hash, chan
 						hashC <- hash
 					}
 				}
-			case <-msgStream.Cancelled():
-				errC <- msgStream.Err()
-				break loop
 			case <-ctx.Done():
 				break loop
 			}
@@ -179,7 +172,7 @@ func (c *Client) Stream(ctx context.Context, query string) (chan hash.Hash, chan
 }
 
 // GetAccount returns the local account.
-func (c *Client) GetAccount() (auth.Account, error) {
+func (c *Client) GetAccount() (authExported.Account, error) {
 	c.getAccountMutex.Lock()
 	defer c.getAccountMutex.Unlock()
 	if c.acc == nil {

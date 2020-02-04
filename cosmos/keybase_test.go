@@ -6,6 +6,7 @@ import (
 	"os"
 	"testing"
 
+	"github.com/cosmos/cosmos-sdk/crypto/keys"
 	"github.com/stretchr/testify/require"
 )
 
@@ -27,7 +28,7 @@ func TestKeybase(t *testing.T) {
 	})
 
 	t.Run("Create", func(t *testing.T) {
-		acc, err := kb.CreateAccount(name, mnemonic, "", password, 0, 0)
+		acc, err := kb.CreateAccount(name, mnemonic, "", password, keys.CreateHDPath(0, 0).String(), DefaultAlgo)
 		require.NoError(t, err)
 		require.Equal(t, name, acc.GetName())
 	})
@@ -45,7 +46,8 @@ func TestKeybase(t *testing.T) {
 	t.Run("Sign", func(t *testing.T) {
 		name2 := "name2"
 		mnemonic2, _ := kb.NewMnemonic()
-		kb.CreateAccount(name2, mnemonic2, "", password, 0, 0)
+		_, err := kb.CreateAccount(name2, mnemonic2, "", password, keys.CreateHDPath(0, 0).String(), DefaultAlgo)
+		require.NoError(t, err)
 		hash := sha256.Sum256([]byte(name + ":" + password))
 		hash2 := sha256.Sum256([]byte(name2 + ":" + password))
 		for i := 0; i < 1000; i++ {

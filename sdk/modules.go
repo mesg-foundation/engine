@@ -9,7 +9,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	"github.com/cosmos/cosmos-sdk/x/bank"
 	"github.com/cosmos/cosmos-sdk/x/distribution"
-	"github.com/cosmos/cosmos-sdk/x/genaccounts"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	"github.com/cosmos/cosmos-sdk/x/params"
 	"github.com/cosmos/cosmos-sdk/x/slashing"
@@ -32,7 +31,6 @@ import (
 func NewBasicManager() *module.BasicManager {
 	basicManager := module.NewBasicManager(
 		params.AppModuleBasic{},
-		genaccounts.AppModuleBasic{},
 		genutil.AppModuleBasic{},
 		auth.AppModuleBasic{},
 		bank.AppModuleBasic{},
@@ -89,8 +87,8 @@ func NewApp(logger log.Logger, db dbm.DB, minGasPrices string) (*bam.BaseApp, er
 		codec.Codec,
 		paramsStoreKey,
 		paramsTStoreKey,
-		params.DefaultCodespace,
 	)
+
 	accountKeeper := auth.NewAccountKeeper(
 		codec.Codec,
 		paramsStoreKey,
@@ -100,7 +98,6 @@ func NewApp(logger log.Logger, db dbm.DB, minGasPrices string) (*bam.BaseApp, er
 	bankKeeper := bank.NewBaseKeeper(
 		accountKeeper,
 		paramsKeeper.Subspace(bank.DefaultParamspace),
-		bank.DefaultCodespace,
 		modAccAddrs,
 	)
 	supplyKeeper := supply.NewKeeper(
@@ -113,10 +110,8 @@ func NewApp(logger log.Logger, db dbm.DB, minGasPrices string) (*bam.BaseApp, er
 	stakingKeeper := staking.NewKeeper(
 		codec.Codec,
 		stakingStoreKey,
-		stakingTStoreKey,
 		supplyKeeper,
 		paramsKeeper.Subspace(staking.DefaultParamspace),
-		staking.DefaultCodespace,
 	)
 	distrKeeper := distribution.NewKeeper(
 		codec.Codec,
@@ -124,7 +119,6 @@ func NewApp(logger log.Logger, db dbm.DB, minGasPrices string) (*bam.BaseApp, er
 		paramsKeeper.Subspace(distribution.DefaultParamspace),
 		&stakingKeeper,
 		supplyKeeper,
-		distribution.DefaultCodespace,
 		auth.FeeCollectorName,
 		modAccAddrs,
 	)
@@ -133,7 +127,6 @@ func NewApp(logger log.Logger, db dbm.DB, minGasPrices string) (*bam.BaseApp, er
 		slashingStoreKey,
 		&stakingKeeper,
 		paramsKeeper.Subspace(slashing.DefaultParamspace),
-		slashing.DefaultCodespace,
 	)
 	stakingKeeper = *stakingKeeper.SetHooks(
 		staking.NewMultiStakingHooks(
@@ -154,14 +147,13 @@ func NewApp(logger log.Logger, db dbm.DB, minGasPrices string) (*bam.BaseApp, er
 
 	// init module manager
 	manager := module.NewManager(
-		genaccounts.NewAppModule(accountKeeper),
 		genutil.NewAppModule(accountKeeper, stakingKeeper, app.DeliverTx),
 		auth.NewAppModule(accountKeeper),
 		bank.NewAppModule(bankKeeper, accountKeeper),
 		supply.NewAppModule(supplyKeeper, accountKeeper),
-		distribution.NewAppModule(distrKeeper, supplyKeeper),
-		slashing.NewAppModule(slashingKeeper, stakingKeeper),
-		staking.NewAppModule(stakingKeeper, distrKeeper, accountKeeper, supplyKeeper),
+		distribution.NewAppModule(distrKeeper, accountKeeper, supplyKeeper, stakingKeeper),
+		slashing.NewAppModule(slashingKeeper, accountKeeper, stakingKeeper),
+		staking.NewAppModule(stakingKeeper, accountKeeper, supplyKeeper),
 
 		ownershipsdk.NewModule(ownershipKeeper),
 		servicesdk.NewModule(serviceKeeper),
@@ -173,7 +165,6 @@ func NewApp(logger log.Logger, db dbm.DB, minGasPrices string) (*bam.BaseApp, er
 	manager.SetOrderBeginBlockers(distribution.ModuleName, slashing.ModuleName)
 	manager.SetOrderEndBlockers(staking.ModuleName)
 	manager.SetOrderInitGenesis(
-		genaccounts.ModuleName,
 		distribution.ModuleName,
 		staking.ModuleName,
 		auth.ModuleName,

@@ -7,8 +7,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/server"
 	"github.com/cosmos/cosmos-sdk/types/module"
-	"github.com/cosmos/cosmos-sdk/x/genaccounts"
-	genaccscli "github.com/cosmos/cosmos-sdk/x/genaccounts/client/cli"
+	"github.com/cosmos/cosmos-sdk/x/auth"
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	"github.com/mesg-foundation/engine/codec"
@@ -51,13 +50,12 @@ func main() {
 	// CLI commands to initialize the chain
 	rootCmd.AddCommand(
 		genutilcli.InitCmd(ctx, cdc, basicManager, cfg.Tendermint.Config.RootDir),
-		genutilcli.CollectGenTxsCmd(ctx, cdc, genaccounts.AppModuleBasic{}, cfg.Tendermint.Config.RootDir),
+		genutilcli.CollectGenTxsCmd(ctx, cdc, auth.GenesisAccountIterator{}, cfg.Tendermint.Config.RootDir),
 		genutilcli.GenTxCmd(
 			ctx, cdc, basicManager, staking.AppModuleBasic{},
-			genaccounts.AppModuleBasic{}, cfg.Tendermint.Config.RootDir, defaultCLIHome,
+			auth.GenesisAccountIterator{}, cfg.Tendermint.Config.RootDir, defaultCLIHome,
 		),
 		genutilcli.ValidateGenesisCmd(ctx, cdc, basicManager),
-		genaccscli.AddGenesisAccountCmd(ctx, cdc, cfg.Tendermint.Config.RootDir, defaultCLIHome),
 	)
 
 	server.AddCommands(ctx, cdc, rootCmd, newApp, exportAppStateAndTMValidators)
