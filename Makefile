@@ -1,4 +1,4 @@
-.PHONY: all build build-cmd-cosmos changelog check-version clean clean-build clean-docker dep dev dev-mon dev-start dev-stop docker-build docker-dev docker-publish docker-publish-dev docker-tools genesis lint mock protobuf test
+.PHONY: all build build-cmd-cosmos changelog check-version clean clean-build clean-docker dep dev dev-start dev-stop docker-build docker-dev docker-publish docker-publish-dev docker-tools genesis lint mock protobuf test
 
 MAJOR_VERSION := $(shell echo $(version) | cut -d . -f 1)	
 MINOR_VERSION := $(shell echo $(version) | cut -d . -f 1-2)
@@ -37,9 +37,6 @@ docker-tools:
 	docker build -t mesg/tools:local -f Dockerfile.tools .
 
 dev: docker-dev
-	- ./scripts/dev.sh
-
-dev-mon: docker-dev
 	- ./scripts/dev.sh -m
 
 dev-start: docker-dev
