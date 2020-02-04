@@ -12,10 +12,17 @@ MESG_TENDERMINT_PORT=${MESG_TENDERMINT_PORT:-"26656"}
 MESG_TENDERMINT_RPC_PORT=${MESG_TENDERMINT_RPC_PORT:-"26657"}
 MESG_PROMETHEUS_RPC_PORT=${MESG_PROMETHEUS_RPC_PORT:-"26660"}
 
+# cmd args
+quiet=false
+monitor=false
+
 function onexit {
   set +e
   echo -e "\nshutting down, please wait..."
   docker_service_remove "$MESG_NAME"
+  if $monitor; then
+    docker service rm engine-grafana engine-prometheus
+  fi
   docker_network_remove "$MESG_NAME"
   docker_network_remove "$MESG_TENDERMINT_NETWORK"
 }
@@ -48,6 +55,11 @@ function start_engine {
     docker_network_create "$MESG_TENDERMINT_NETWORK"
   fi
 
+  if $monitor; then
+    docker service create -p 3001:3000 --network=engine --name=engine-grafana --mount type=bind,source=$(pwd)/scripts/datasource.yml,destination=/etc/grafana/provisioning/datasources/datasource.yml grafana/grafana
+    docker service create -p 9090:9090 --network=engine --name=engine-prometheus --mount type=bind,source=$(pwd)/scripts/prometheus.yml,destination=/etc/prometheus/prometheus.yml prom/prometheus
+  fi
+
   mkdir -p $MESG_PATH
 
   echo "create docker service: "
@@ -72,12 +84,13 @@ function stop_engine {
   onexit
 }
 
-quiet=false
-
-while getopts "q" o; do
+while getopts "qm" o; do
   case $o in
     q)
       quiet=true
+      ;;
+    m)
+      monitor=true
       ;;
     *)
       echo "unknown flag $0"
