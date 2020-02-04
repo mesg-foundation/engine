@@ -6,8 +6,13 @@ import (
 	"strconv"
 	"sync"
 
+	cosmosclient "github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/crypto/keys"
 	"github.com/cosmos/cosmos-sdk/types/module"
+	authrest "github.com/cosmos/cosmos-sdk/x/auth/client/rest"
+	"github.com/gorilla/mux"
+	"github.com/mesg-foundation/engine/codec"
 	"github.com/mesg-foundation/engine/config"
 	"github.com/mesg-foundation/engine/container"
 	"github.com/mesg-foundation/engine/cosmos"
@@ -24,6 +29,7 @@ import (
 	"github.com/mesg-foundation/engine/x/xrand"
 	"github.com/mesg-foundation/engine/x/xsignal"
 	"github.com/sirupsen/logrus"
+	rpcserver "github.com/tendermint/tendermint/rpc/lib/server"
 	tmtypes "github.com/tendermint/tendermint/types"
 	db "github.com/tendermint/tm-db"
 )
@@ -121,6 +127,12 @@ func main() {
 	// init logger.
 	logger.Init(cfg.Log.Format, cfg.Log.Level, cfg.Log.ForceColors)
 
+	// init basicManager
+	basicManager := enginesdk.NewBasicManager()
+
+	// init tendermint logger
+	tendermintLogger := logger.TendermintLogger()
+
 	// init container.
 	container, err := container.New(cfg.Name)
 	if err != nil {
@@ -136,7 +148,7 @@ func main() {
 	}
 
 	// init app
-	app, err := enginesdk.NewApp(logger.TendermintLogger(), db, cfg.Cosmos.MinGasPrices)
+	app, err := enginesdk.NewApp(tendermintLogger, db, cfg.Cosmos.MinGasPrices)
 	if err != nil {
 		logrus.WithField("module", "main").Fatalln(err)
 	}
@@ -155,7 +167,7 @@ func main() {
 	logrus.WithField("address", acc.GetAddress().String()).Info("engine account")
 
 	// load or gen genesis
-	genesis, err := loadOrGenDevGenesis(enginesdk.NewBasicManager(), kb, cfg)
+	genesis, err := loadOrGenDevGenesis(basicManager, kb, cfg)
 	if err != nil {
 		logrus.WithField("module", "main").Fatalln(err)
 	}
@@ -167,7 +179,10 @@ func main() {
 	}
 
 	// create cosmos client
-	client := cosmos.NewClient(node, kb, genesis.ChainID, cfg.Account.Name, cfg.Account.Password, cfg.Cosmos.MinGasPrices)
+	client, err := cosmos.NewClient(node, kb, genesis.ChainID, cfg.Account.Name, cfg.Account.Password, cfg.Cosmos.MinGasPrices)
+	if err != nil {
+		logrus.WithField("module", "main").Fatalln(err)
+	}
 
 	// init sdk
 	sdk := enginesdk.New(client, kb, container, cfg.Name, strconv.Itoa(port), cfg.IpfsEndpoint)
@@ -202,13 +217,43 @@ func main() {
 		}
 	}()
 
+	logrus.WithField("module", "main").Info("starting lcd server")
+	cfgLcd := rpcserver.DefaultConfig()
+	lcdServer, err := rpcserver.Listen("tcp://[::]:1317", cfgLcd)
+	if err != nil {
+		logrus.WithField("module", "main").Fatalln(err)
+	}
+
+	cliCtx := context.NewCLIContext().WithCodec(codec.Codec).WithClient(client)
+	mux := mux.NewRouter()
+	cosmosclient.RegisterRoutes(cliCtx, mux)
+	authrest.RegisterTxRoutes(cliCtx, mux)
+	basicManager.RegisterRESTRoutes(cliCtx, mux)
+	go func() {
+		if err := rpcserver.StartHTTPServer(lcdServer, mux, tendermintLogger, cfgLcd); err != nil {
+			logrus.WithField("module", "main").Warnln(err) // not a fatal because closing the connection return an error here
+		}
+	}()
+
 	<-xsignal.WaitForInterrupt()
+
+	logrus.WithField("module", "main").Info("stopping lcd server")
+	if err := lcdServer.Close(); err != nil {
+		logrus.WithField("module", "main").Fatalln(err)
+	}
+
+	logrus.WithField("module", "main").Info("stopping running services")
 	if err := stopRunningServices(sdk, acc.GetAddress().String()); err != nil {
 		logrus.WithField("module", "main").Fatalln(err)
 	}
 
+	logrus.WithField("module", "main").Info("cleanup container")
 	if err := container.Cleanup(); err != nil {
 		logrus.WithField("module", "main").Fatalln(err)
 	}
+
+	logrus.WithField("module", "main").Info("stopping grpc server")
 	server.Close()
+
+	logrus.WithField("module", "main").Info("everything is stopped")
 }
