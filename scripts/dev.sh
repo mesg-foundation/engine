@@ -56,8 +56,21 @@ function start_engine {
   fi
 
   if $monitor; then
-    docker service create -p 3001:3000 --network=engine --name=engine-grafana --mount type=bind,source=$(pwd)/scripts/datasource.yml,destination=/etc/grafana/provisioning/datasources/datasource.yml grafana/grafana
-    docker service create -p 9090:9090 --network=engine --name=engine-prometheus --mount type=bind,source=$(pwd)/scripts/prometheus.yml,destination=/etc/prometheus/prometheus.yml prom/prometheus
+    docker service create \
+      -p 3001:3000 \
+      --network=engine \
+      --name=engine-grafana \
+      --mount type=bind,source=$(pwd)/scripts/monitoring/datasource.yml,destination=/etc/grafana/provisioning/datasources/datasource.yml \
+      --mount type=bind,source=$(pwd)/scripts/monitoring/dashboard.yml,destination=/etc/grafana/provisioning/dashboards/dashboard.yml \
+      --mount type=bind,source=$(pwd)/scripts/monitoring/dashboards,destination=/var/lib/grafana/dashboards \
+      grafana/grafana
+
+    docker service create \
+      -p 9090:9090 \
+      --network=engine \
+      --name=engine-prometheus \
+      --mount type=bind,source=$(pwd)/scripts/monitoring/prometheus.yml,destination=/etc/prometheus/prometheus.yml \
+      prom/prometheus
   fi
 
   mkdir -p $MESG_PATH
