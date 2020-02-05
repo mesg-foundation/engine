@@ -1,5 +1,37 @@
 # Changelog
 
+## [v0.18.3](https://github.com/mesg-foundation/engine/releases/tag/v0.18.3)
+
+#### Added
+
+- ([#1630](https://github.com/mesg-foundation/engine/pull/1630)) Start cosmos lcd server with the engine.
+- ([#1632](https://github.com/mesg-foundation/engine/pull/1632)) Add monitoring to dev engine.
+
+#### Changed
+
+- ([#1554](https://github.com/mesg-foundation/engine/pull/1554)) Cosmos implementation simplification.
+- ([#1617](https://github.com/mesg-foundation/engine/pull/1617)) Use cosmos event manager like standard cosmos modules are doing.
+- ([#1636](https://github.com/mesg-foundation/engine/pull/1636)) Reorganise monitoring configs and add default dashboards.
+- ([#1641](https://github.com/mesg-foundation/engine/pull/1641)) Update metrics.
+
+#### Fixed
+
+- ([#1599](https://github.com/mesg-foundation/engine/pull/1599)) Move AccNumber and AccIndex to the config.
+- ([#1625](https://github.com/mesg-foundation/engine/pull/1625)) Remove useless volume definition in the tool dockerfile.
+- ([#1626](https://github.com/mesg-foundation/engine/pull/1626)) Emit only one event with multiple attributes in cosmos module handler.
+- ([#1627](https://github.com/mesg-foundation/engine/pull/1627)) Simplify txbuilder and improve keybase signing.
+
+#### Dependencies
+
+- ([#1576](https://github.com/mesg-foundation/engine/pull/1576)) Bump gopkg.in/go-playground/validator.v9 from 9.30.2 to 9.31.0.
+- ([#1610](https://github.com/mesg-foundation/engine/pull/1610)) Bump github.com/spf13/viper from 1.6.1 to 1.6.2.
+- ([#1614](https://github.com/mesg-foundation/engine/pull/1614)) Bump gopkg.in/yaml.v2 from 2.2.7 to 2.2.8.
+- ([#1616](https://github.com/mesg-foundation/engine/pull/1616)) Bump github.com/prometheus/client_golang from 1.1.0 to 1.4.0.
+- ([#1618](https://github.com/mesg-foundation/engine/pull/1618)) Update to cosmos v0.37.6 and tendermint v0.32.9.
+- ([#1619](https://github.com/mesg-foundation/engine/pull/1619)) Bump google.golang.org/grpc from 1.25.1 to 1.27.0.
+- ([#1623](https://github.com/mesg-foundation/engine/pull/1623)) Bump github.com/golang/protobuf from 1.3.2 to 1.3.3.
+- ([#1628](https://github.com/mesg-foundation/engine/pull/1628)) Bump github.com/grpc-ecosystem/go-grpc-middleware from 1.1.0 to 1.2.0.
+
 ## [v0.18.2](https://github.com/mesg-foundation/engine/releases/tag/v0.18.2)
 
 #### Fixed
