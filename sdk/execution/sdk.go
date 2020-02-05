@@ -39,10 +39,8 @@ func (s *SDK) Create(req *api.CreateExecutionRequest) (*execution.Execution, err
 	if err != nil {
 		return nil, err
 	}
-	m.PreSigned.Add(1)
 	msg := newMsgCreateExecution(req, acc.GetAddress())
 	tx, err := s.client.BuildAndBroadcastMsg(msg)
-	m.Signed.Add(1)
 	if err != nil {
 		return nil, err
 	}
@@ -51,6 +49,7 @@ func (s *SDK) Create(req *api.CreateExecutionRequest) (*execution.Execution, err
 
 // Update updates a execution.
 func (s *SDK) Update(req *api.UpdateExecutionRequest) (*execution.Execution, error) {
+	m.Updated.Add(1)
 	acc, err := s.client.GetAccount()
 	if err != nil {
 		return nil, err

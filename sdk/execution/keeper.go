@@ -80,7 +80,9 @@ func (k *Keeper) Create(request cosmostypes.Request, msg msgCreateExecution) (*e
 	if err != nil {
 		return nil, err
 	}
-	m.InProgress.Add(1)
+	if !request.IsCheckTx() {
+		m.InProgress.Add(1)
+	}
 	store.Set(exec.Hash, value)
 	return exec, nil
 }
@@ -115,7 +117,9 @@ func (k *Keeper) Update(request cosmostypes.Request, msg msgUpdateExecution) (*e
 	if err != nil {
 		return nil, err
 	}
-	m.Completed.Add(1)
+	if !request.IsCheckTx() {
+		m.Completed.Add(1)
+	}
 	store.Set(exec.Hash, value)
 	return exec, nil
 }
