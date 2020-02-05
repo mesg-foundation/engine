@@ -39,10 +39,8 @@ func (s *SDK) Create(req *api.CreateExecutionRequest) (*execution.Execution, err
 	if err != nil {
 		return nil, err
 	}
-	m.PreSigned.Add(1)
 	msg := newMsgCreateExecution(req, acc.GetAddress())
 	tx, err := s.client.BuildAndBroadcastMsg(msg)
-	m.Signed.Add(1)
 	if err != nil {
 		return nil, err
 	}
@@ -51,6 +49,7 @@ func (s *SDK) Create(req *api.CreateExecutionRequest) (*execution.Execution, err
 
 // Update updates a execution.
 func (s *SDK) Update(req *api.UpdateExecutionRequest) (*execution.Execution, error) {
+	m.Updated.Add(1)
 	acc, err := s.client.GetAccount()
 	if err != nil {
 		return nil, err
@@ -66,7 +65,7 @@ func (s *SDK) Update(req *api.UpdateExecutionRequest) (*execution.Execution, err
 // Get returns the execution that matches given hash.
 func (s *SDK) Get(hash hash.Hash) (*execution.Execution, error) {
 	var execution execution.Execution
-	if err := s.client.Query("custom/"+backendName+"/get/"+hash.String(), nil, &execution); err != nil {
+	if err := s.client.Query("custom/"+ModuleName+"/get/"+hash.String(), nil, &execution); err != nil {
 		return nil, err
 	}
 	return &execution, nil
@@ -75,7 +74,7 @@ func (s *SDK) Get(hash hash.Hash) (*execution.Execution, error) {
 // List returns all executions.
 func (s *SDK) List() ([]*execution.Execution, error) {
 	var executions []*execution.Execution
-	if err := s.client.Query("custom/"+backendName+"/list", nil, &executions); err != nil {
+	if err := s.client.Query("custom/"+ModuleName+"/list", nil, &executions); err != nil {
 		return nil, err
 	}
 	return executions, nil
@@ -87,7 +86,7 @@ func (s *SDK) Stream(ctx context.Context, req *api.StreamExecutionRequest) (chan
 		return nil, nil, err
 	}
 
-	stream, serrC, err := s.client.Stream(ctx, cosmos.EventModuleQuery(backendName))
+	stream, serrC, err := s.client.Stream(ctx, cosmos.EventModuleQuery(ModuleName))
 	if err != nil {
 		return nil, nil, err
 	}

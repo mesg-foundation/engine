@@ -25,7 +25,7 @@ func newMsgCreateProcess(owner cosmostypes.AccAddress, req *api.CreateProcessReq
 
 // Route should return the name of the module.
 func (msg msgCreateProcess) Route() string {
-	return backendName
+	return ModuleName
 }
 
 // Type returns the action.
@@ -79,7 +79,7 @@ func newMsgDeleteProcess(owner cosmostypes.AccAddress, request *api.DeleteProces
 
 // Route should return the name of the module.
 func (msg msgDeleteProcess) Route() string {
-	return backendName
+	return ModuleName
 }
 
 // Type returns the action.

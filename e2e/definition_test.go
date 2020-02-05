@@ -187,6 +187,6 @@ func newTestCreateServiceRequest() *pb.CreateServiceRequest {
 				},
 			},
 		},
-		Source: "QmWHKNvJ4wT83TLHPLMjTRBjJYvcwyr8oqTtqxaJZVXPbQ",
+		Source: "QmXcPDajWN55n1UPV5VNJDEKE96xJFJMe3X7GwN3qx8p7r",
 	}
 }

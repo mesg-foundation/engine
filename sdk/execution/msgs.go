@@ -26,7 +26,7 @@ func newMsgCreateExecution(req *api.CreateExecutionRequest, signer cosmostypes.A
 
 // Route should return the name of the module.
 func (msg msgCreateExecution) Route() string {
-	return backendName
+	return ModuleName
 }
 
 // Type returns the action.
@@ -77,7 +77,7 @@ func newMsgUpdateExecution(req *api.UpdateExecutionRequest, executor cosmostypes
 
 // Route should return the name of the module.
 func (msg msgUpdateExecution) Route() string {
-	return backendName
+	return ModuleName
 }
 
 // Type returns the action.

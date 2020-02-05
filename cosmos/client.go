@@ -7,10 +7,12 @@ import (
 	"sync"
 	"time"
 
+	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/crypto/keys"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	authutils "github.com/cosmos/cosmos-sdk/x/auth/client/utils"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/mesg-foundation/engine/codec"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/x/xreflect"
@@ -29,7 +31,7 @@ type Client struct {
 	chainID      string
 	accName      string
 	accPassword  string
-	minGasPrices string
+	minGasPrices sdktypes.DecCoins
 
 	// Local state
 	acc             auth.Account
@@ -38,15 +40,19 @@ type Client struct {
 }
 
 // NewClient returns a rpc tendermint client.
-func NewClient(node *node.Node, kb keys.Keybase, chainID, accName, accPassword, minGasPrices string) *Client {
+func NewClient(node *node.Node, kb keys.Keybase, chainID, accName, accPassword, minGasPrices string) (*Client, error) {
+	minGasPricesDecoded, err := sdktypes.ParseDecCoins(minGasPrices)
+	if err != nil {
+		return nil, err
+	}
 	return &Client{
 		Local:        rpcclient.NewLocal(node),
 		kb:           kb,
 		chainID:      chainID,
 		accName:      accName,
 		accPassword:  accPassword,
-		minGasPrices: minGasPrices,
-	}
+		minGasPrices: minGasPricesDecoded,
+	}, nil
 }
 
 // Query is abci.query wrapper with errors check and decode data.
@@ -84,7 +90,7 @@ func (c *Client) QueryWithData(path string, data []byte) ([]byte, int64, error) 
 // BuildAndBroadcastMsg builds and signs message and broadcast it to node.
 func (c *Client) BuildAndBroadcastMsg(msg sdktypes.Msg) (*abci.ResponseDeliverTx, error) {
 	c.broadcastMutex.Lock() // Lock the whole signature + broadcast of the transaction
-	signedTx, err := c.sign(msg)
+	signedTx, err := c.createAndSignTx([]sdktypes.Msg{msg})
 	if err != nil {
 		c.broadcastMutex.Unlock()
 		return nil, err
@@ -134,7 +140,7 @@ func (c *Client) Stream(ctx context.Context, query string) (chan hash.Hash, chan
 	if err != nil {
 		return nil, nil, err
 	}
-	eventStream, err := c.EventBus.SubscribeUnbuffered(ctx, subscriber, q)
+	msgStream, err := c.EventBus.SubscribeUnbuffered(ctx, subscriber, q)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -144,19 +150,22 @@ func (c *Client) Stream(ctx context.Context, query string) (chan hash.Hash, chan
 	loop:
 		for {
 			select {
-			case event := <-eventStream.Out():
-				tags := event.Events()[EventHashType]
-				if len(tags) != 1 {
-					errC <- fmt.Errorf("event %s has %d tag(s), but only 1 is expected", EventHashType, len(tags))
+			case msg := <-msgStream.Out():
+				attrs := msg.Events()[EventHashType]
+				// The following error might be too much as MAYBE if one transaction contains many messages, the events will be merged across the whole transaction
+				if len(attrs) != 1 {
+					errC <- fmt.Errorf("event %s has %d tag(s), but only 1 is expected", EventHashType, len(attrs))
 				}
-				hash, err := hash.Decode(tags[0])
-				if err != nil {
-					errC <- err
-				} else {
-					hashC <- hash
+				for _, attr := range attrs {
+					hash, err := hash.Decode(attr)
+					if err != nil {
+						errC <- err
+					} else {
+						hashC <- hash
+					}
 				}
-			case <-eventStream.Cancelled():
-				errC <- eventStream.Err()
+			case <-msgStream.Cancelled():
+				errC <- msgStream.Err()
 				break loop
 			case <-ctx.Done():
 				break loop
@@ -199,26 +208,32 @@ func (c *Client) GetAccount() (auth.Account, error) {
 	return c.acc, nil
 }
 
-// Sign signs a msg and return a tendermint tx.
-func (c *Client) sign(msg sdktypes.Msg) (tenderminttypes.Tx, error) {
-	acc, err := c.GetAccount()
+func (c *Client) createAndSignTx(msgs []sdktypes.Msg) (tenderminttypes.Tx, error) {
+	// retrieve account
+	accR, err := c.GetAccount()
 	if err != nil {
 		return nil, err
 	}
+	sequence := accR.GetSequence()
+	accR.SetSequence(accR.GetSequence() + 1)
 
-	sequence := acc.GetSequence()
-	acc.SetSequence(acc.GetSequence() + 1)
+	// Create TxBuilder
+	txBuilder := authtypes.NewTxBuilder(
+		authutils.GetTxEncoder(codec.Codec),
+		accR.GetAccountNumber(),
+		sequence,
+		flags.DefaultGasLimit,
+		flags.DefaultGasAdjustment,
+		true,
+		c.chainID,
+		"",
+		nil,
+		c.minGasPrices,
+	).WithKeybase(c.kb)
 
-	minGasPrices, err := sdktypes.ParseDecCoins(c.minGasPrices)
-	if err != nil {
-		return nil, err
-	}
-
-	txBuilder := NewTxBuilder(acc.GetAccountNumber(), sequence, c.kb, c.chainID, minGasPrices)
-
-	// simulate tx to estimate the gas
+	// calculate gas
 	if txBuilder.SimulateAndExecute() {
-		txBytes, err := txBuilder.BuildTxForSim([]sdktypes.Msg{msg})
+		txBytes, err := txBuilder.BuildTxForSim(msgs)
 		if err != nil {
 			return nil, err
 		}
@@ -229,9 +244,20 @@ func (c *Client) sign(msg sdktypes.Msg) (tenderminttypes.Tx, error) {
 		txBuilder = txBuilder.WithGas(adjusted)
 	}
 
-	signedTx, err := txBuilder.BuildAndSignStdTx(msg, c.accName, c.accPassword)
+	// create StdSignMsg
+	stdSignMsg, err := txBuilder.BuildSignMsg(msgs)
 	if err != nil {
 		return nil, err
 	}
-	return txBuilder.Encode(signedTx)
+
+	// create StdTx
+	stdTx := authtypes.NewStdTx(stdSignMsg.Msgs, stdSignMsg.Fee, nil, stdSignMsg.Memo)
+
+	// sign StdTx
+	signedTx, err := txBuilder.SignStdTx(c.accName, c.accPassword, stdTx, false)
+	if err != nil {
+		return nil, err
+	}
+
+	return txBuilder.TxEncoder()(signedTx)
 }
