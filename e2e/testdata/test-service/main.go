@@ -110,77 +110,22 @@ func main() {
 		}
 		log.Printf("received execution %s %s\n", exec.TaskKey, exec.Hash)
 
-		req := &pb.UpdateExecutionRequest{
-			Hash: exec.Hash,
-		}
+		go processExec(client, exec)
+	}
+}
 
-		if exec.TaskKey == "task1" || exec.TaskKey == "task2" {
-			req.Result = &pb.UpdateExecutionRequest_Outputs{
-				Outputs: &types.Struct{
-					Fields: map[string]*types.Value{
-						"msg": {
-							Kind: &types.Value_StringValue{
-								StringValue: exec.Inputs.Fields["msg"].GetStringValue(),
-							},
-						},
-						"timestamp": {
-							Kind: &types.Value_NumberValue{
-								NumberValue: float64(time.Now().Unix()),
-							},
-						},
-					},
-				},
-			}
-		} else if exec.TaskKey == "task_complex" {
-			var fields = map[string]*types.Value{
-				"msg": {
-					Kind: &types.Value_StringValue{
-						StringValue: exec.Inputs.Fields["msg"].GetStructValue().Fields["msg"].GetStringValue(),
-					},
-				},
-				"timestamp": {
-					Kind: &types.Value_NumberValue{
-						NumberValue: float64(time.Now().Unix()),
-					},
-				},
-			}
-			if exec.Inputs.Fields["msg"].GetStructValue().Fields["array"].GetListValue() != nil {
-				fields["array"] = &types.Value{
-					Kind: &types.Value_ListValue{
-						ListValue: exec.Inputs.Fields["msg"].GetStructValue().Fields["array"].GetListValue(),
-					},
-				}
-			}
-			req.Result = &pb.UpdateExecutionRequest_Outputs{
-				Outputs: &types.Struct{
-					Fields: map[string]*types.Value{
-						"msg": {
-							Kind: &types.Value_StructValue{
-								StructValue: &types.Struct{
-									Fields: fields,
-								},
-							},
-						},
-					},
-				},
-			}
-		} else {
-			log.Fatalf("Taskkey %q not implemented", exec.TaskKey)
-		}
+func processExec(client *Client, exec *execution.Execution) {
+	req := &pb.UpdateExecutionRequest{
+		Hash: exec.Hash,
+	}
 
-		if _, err := client.ExecutionClient.Update(context.Background(), req); err != nil {
-			log.Fatal(err)
-		}
-		log.Printf("execution result submitted\n")
-
-		if _, err := client.EventClient.Create(context.Background(), &pb.CreateEventRequest{
-			InstanceHash: client.InstanceHash,
-			Key:          "event_after_task",
-			Data: &types.Struct{
+	if exec.TaskKey == "task1" || exec.TaskKey == "task2" {
+		req.Result = &pb.UpdateExecutionRequest_Outputs{
+			Outputs: &types.Struct{
 				Fields: map[string]*types.Value{
-					"task_key": {
+					"msg": {
 						Kind: &types.Value_StringValue{
-							StringValue: exec.TaskKey,
+							StringValue: exec.Inputs.Fields["msg"].GetStringValue(),
 						},
 					},
 					"timestamp": {
@@ -190,9 +135,68 @@ func main() {
 					},
 				},
 			},
-		}); err != nil {
-			log.Fatal(err)
 		}
-		log.Printf("emitted event_after_task event\n")
+	} else if exec.TaskKey == "task_complex" {
+		var fields = map[string]*types.Value{
+			"msg": {
+				Kind: &types.Value_StringValue{
+					StringValue: exec.Inputs.Fields["msg"].GetStructValue().Fields["msg"].GetStringValue(),
+				},
+			},
+			"timestamp": {
+				Kind: &types.Value_NumberValue{
+					NumberValue: float64(time.Now().Unix()),
+				},
+			},
+		}
+		if exec.Inputs.Fields["msg"].GetStructValue().Fields["array"].GetListValue() != nil {
+			fields["array"] = &types.Value{
+				Kind: &types.Value_ListValue{
+					ListValue: exec.Inputs.Fields["msg"].GetStructValue().Fields["array"].GetListValue(),
+				},
+			}
+		}
+		req.Result = &pb.UpdateExecutionRequest_Outputs{
+			Outputs: &types.Struct{
+				Fields: map[string]*types.Value{
+					"msg": {
+						Kind: &types.Value_StructValue{
+							StructValue: &types.Struct{
+								Fields: fields,
+							},
+						},
+					},
+				},
+			},
+		}
+	} else {
+		log.Fatalf("Taskkey %q not implemented", exec.TaskKey)
 	}
+
+	if _, err := client.ExecutionClient.Update(context.Background(), req); err != nil {
+		log.Fatal(err)
+	}
+	log.Printf("execution result submitted\n")
+
+	if _, err := client.EventClient.Create(context.Background(), &pb.CreateEventRequest{
+		InstanceHash: client.InstanceHash,
+		Key:          "event_after_task",
+		Data: &types.Struct{
+			Fields: map[string]*types.Value{
+				"task_key": {
+					Kind: &types.Value_StringValue{
+						StringValue: exec.TaskKey,
+					},
+				},
+				"timestamp": {
+					Kind: &types.Value_NumberValue{
+						NumberValue: float64(time.Now().Unix()),
+					},
+				},
+			},
+		},
+	}); err != nil {
+		log.Fatal(err)
+	}
+	log.Printf("emitted event_after_task event\n")
 }
