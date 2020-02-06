@@ -1,12 +1,13 @@
 package sdk
 
 import (
-	"encoding/json"
-
 	bam "github.com/cosmos/cosmos-sdk/baseapp"
+	"github.com/cosmos/cosmos-sdk/simapp"
 	cosmostypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
+	"github.com/cosmos/cosmos-sdk/version"
 	"github.com/cosmos/cosmos-sdk/x/auth"
+	"github.com/cosmos/cosmos-sdk/x/auth/vesting"
 	"github.com/cosmos/cosmos-sdk/x/bank"
 	"github.com/cosmos/cosmos-sdk/x/distribution"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
@@ -46,6 +47,7 @@ func NewBasicManager() *module.BasicManager {
 		cosmos.NewAppModuleBasic(executionsdk.ModuleName),
 		cosmos.NewAppModuleBasic(processsdk.ModuleName),
 	)
+	vesting.RegisterCodec(codec.Codec)
 	basicManager.RegisterCodec(codec.Codec)
 	return &basicManager
 }
@@ -134,6 +136,7 @@ func NewApp(logger log.Logger, db dbm.DB, minGasPrices string) (*bam.BaseApp, er
 			slashingKeeper.Hooks(),
 		),
 	)
+
 	ownershipKeeper := ownershipsdk.NewKeeper(ownershipStoreKey)
 	serviceKeeper := servicesdk.NewKeeper(serviceStoreKey, ownershipKeeper)
 	instanceKeeper := instancesdk.NewKeeper(instanceStoreKey)
@@ -144,6 +147,7 @@ func NewApp(logger log.Logger, db dbm.DB, minGasPrices string) (*bam.BaseApp, er
 	// init app
 	// TODO: engine should be in config
 	app := bam.NewBaseApp("engine", logger, db, auth.DefaultTxDecoder(codec.Codec), bam.SetMinGasPrices(minGasPrices))
+	app.SetAppVersion(version.Version)
 
 	// init module manager
 	manager := module.NewManager(
@@ -153,7 +157,6 @@ func NewApp(logger log.Logger, db dbm.DB, minGasPrices string) (*bam.BaseApp, er
 		supply.NewAppModule(supplyKeeper, accountKeeper),
 		distribution.NewAppModule(distrKeeper, accountKeeper, supplyKeeper, stakingKeeper),
 		slashing.NewAppModule(slashingKeeper, accountKeeper, stakingKeeper),
-		staking.NewAppModule(stakingKeeper, accountKeeper, supplyKeeper),
 
 		ownershipsdk.NewModule(ownershipKeeper),
 		servicesdk.NewModule(serviceKeeper),
@@ -161,6 +164,8 @@ func NewApp(logger log.Logger, db dbm.DB, minGasPrices string) (*bam.BaseApp, er
 		runnersdk.NewModule(runnerKeeper),
 		executionsdk.NewModule(executionKeeper),
 		processsdk.NewModule(processKeeper),
+
+		staking.NewAppModule(stakingKeeper, accountKeeper, supplyKeeper),
 	)
 	manager.SetOrderBeginBlockers(distribution.ModuleName, slashing.ModuleName)
 	manager.SetOrderEndBlockers(staking.ModuleName)
@@ -170,7 +175,6 @@ func NewApp(logger log.Logger, db dbm.DB, minGasPrices string) (*bam.BaseApp, er
 		auth.ModuleName,
 		bank.ModuleName,
 		slashing.ModuleName,
-		supply.ModuleName,
 
 		// app module
 		ownershipsdk.ModuleName,
@@ -181,17 +185,17 @@ func NewApp(logger log.Logger, db dbm.DB, minGasPrices string) (*bam.BaseApp, er
 		processsdk.ModuleName,
 
 		// genutil should be last module
+		supply.ModuleName,
 		genutil.ModuleName,
 	)
 
 	// register app to manager
 	manager.RegisterRoutes(app.Router(), app.QueryRouter())
+
 	app.SetInitChainer(func(ctx cosmostypes.Context, req abci.RequestInitChain) abci.ResponseInitChain {
-		var genesisData map[string]json.RawMessage
-		if err := codec.UnmarshalJSON(req.AppStateBytes, &genesisData); err != nil {
-			panic(err)
-		}
-		return manager.InitGenesis(ctx, genesisData)
+		var genesisState simapp.GenesisState
+		codec.Codec.MustUnmarshalJSON(req.AppStateBytes, &genesisState)
+		return manager.InitGenesis(ctx, genesisState)
 	})
 	app.SetBeginBlocker(manager.BeginBlock)
 	app.SetEndBlocker(manager.EndBlock)
@@ -213,6 +217,7 @@ func NewApp(logger log.Logger, db dbm.DB, minGasPrices string) (*bam.BaseApp, er
 		executionStoreKey,
 		processStoreKey,
 	)
+
 	app.SetAnteHandler(auth.NewAnteHandler(accountKeeper, supplyKeeper, auth.DefaultSigVerificationGasConsumer))
 	if err := app.LoadLatestVersion(mainStoreKey); err != nil {
 		return nil, err
