@@ -2,6 +2,7 @@ package servicesdk
 
 import (
 	cosmostypes "github.com/cosmos/cosmos-sdk/types"
+	cosmoserrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/mesg-foundation/engine/codec"
 	"github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/mesg-foundation/engine/x/xvalidator"
@@ -32,12 +33,12 @@ func (msg msgCreateService) Type() string {
 }
 
 // ValidateBasic runs stateless checks on the message.
-func (msg msgCreateService) ValidateBasic() cosmostypes.Error {
+func (msg msgCreateService) ValidateBasic() error {
 	if err := xvalidator.Validate.Struct(msg); err != nil {
-		return cosmostypes.ErrInternal(err.Error())
+		return err
 	}
 	if msg.Owner.Empty() {
-		return cosmostypes.ErrInvalidAddress("owner is missing")
+		return cosmoserrors.Wrap(cosmoserrors.ErrInvalidAddress, "owner is missing")
 	}
 	return nil
 }

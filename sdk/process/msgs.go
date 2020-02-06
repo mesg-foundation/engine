@@ -2,6 +2,7 @@ package processsdk
 
 import (
 	cosmostypes "github.com/cosmos/cosmos-sdk/types"
+	cosmoserrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/mesg-foundation/engine/codec"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/process"
@@ -34,12 +35,12 @@ func (msg msgCreateProcess) Type() string {
 }
 
 // ValidateBasic runs stateless checks on the message.
-func (msg msgCreateProcess) ValidateBasic() cosmostypes.Error {
+func (msg msgCreateProcess) ValidateBasic() error {
 	if msg.Owner.Empty() {
-		return cosmostypes.ErrInvalidAddress("owner is missing")
+		return cosmoserrors.Wrap(cosmoserrors.ErrInvalidAddress, "owner is missing")
 	}
 	if err := xvalidator.Validate.Struct(msg); err != nil {
-		return cosmostypes.ErrInternal(err.Error())
+		return err
 	}
 	p := &process.Process{
 		Name:  msg.Request.Name,
@@ -48,7 +49,7 @@ func (msg msgCreateProcess) ValidateBasic() cosmostypes.Error {
 	}
 	p.Hash = hash.Dump(p)
 	if err := p.Validate(); err != nil {
-		return cosmostypes.ErrInternal(err.Error())
+		return err
 	}
 	return nil
 }
@@ -88,12 +89,12 @@ func (msg msgDeleteProcess) Type() string {
 }
 
 // ValidateBasic runs stateless checks on the message.
-func (msg msgDeleteProcess) ValidateBasic() cosmostypes.Error {
+func (msg msgDeleteProcess) ValidateBasic() error {
 	if msg.Owner.Empty() {
-		return cosmostypes.ErrInvalidAddress("owner is missing")
+		return cosmoserrors.Wrap(cosmoserrors.ErrInvalidAddress, "owner is missing")
 	}
 	if err := xvalidator.Validate.Struct(msg); err != nil {
-		return cosmostypes.ErrInternal(err.Error())
+		return err
 	}
 	return nil
 }

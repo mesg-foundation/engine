@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	cosmostypes "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/mesg-foundation/engine/codec"
 	"github.com/mesg-foundation/engine/cosmos"
@@ -30,8 +31,7 @@ func handler(k *Keeper) cosmos.Handler {
 			}
 			return srv.Hash, nil
 		default:
-			errmsg := fmt.Sprintf("Unrecognized service Msg type: %v", msg.Type())
-			return nil, cosmostypes.ErrUnknownRequest(errmsg)
+			return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "Unrecognized service Msg type: %v", msg.Type())
 		}
 	}
 }

@@ -7,8 +7,8 @@ import (
 
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	authutils "github.com/cosmos/cosmos-sdk/x/auth/client/utils"
+	authexported "github.com/cosmos/cosmos-sdk/x/auth/exported"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	"github.com/cosmos/cosmos-sdk/x/genaccounts"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/mesg-foundation/engine/codec"
@@ -126,23 +126,24 @@ func genGenesisDoc(appState map[string]json.RawMessage, chainID string, genesisT
 }
 
 func genGenesisAppState(defaultGenesisŚtate map[string]json.RawMessage, signedStdTx authtypes.StdTx, initialBalances string) (map[string]json.RawMessage, error) {
-	genAccs := []genaccounts.GenesisAccount{}
-	for _, signer := range signedStdTx.GetSigners() {
+	genAccs := authexported.GenesisAccounts{}
+	pubkeys := signedStdTx.GetPubKeys()
+	for i, signer := range signedStdTx.GetSigners() {
 		initialB, err := sdktypes.ParseCoins(initialBalances)
 		if err != nil {
 			return nil, err
 		}
-		genAcc := genaccounts.NewGenesisAccountRaw(signer, initialB, sdktypes.NewCoins(), 0, 0, "", "")
+		genAcc := authtypes.NewBaseAccount(signer, initialB, pubkeys[i], 0, 0)
 		if err := genAcc.Validate(); err != nil {
 			return nil, err
 		}
 		genAccs = append(genAccs, genAcc)
 	}
-	genstate, err := codec.MarshalJSON(genaccounts.GenesisState(genAccs))
+	genstate, err := codec.MarshalJSON(authtypes.NewGenesisState(authtypes.DefaultParams(), genAccs))
 	if err != nil {
 		return nil, err
 	}
-	defaultGenesisŚtate[genaccounts.ModuleName] = genstate
+	defaultGenesisŚtate[authtypes.ModuleName] = genstate
 	return genutil.SetGenTxsInAppGenesisState(codec.Codec, defaultGenesisŚtate, []authtypes.StdTx{signedStdTx})
 }
 

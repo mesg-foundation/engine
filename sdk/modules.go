@@ -1,15 +1,16 @@
 package sdk
 
 import (
-	"encoding/json"
-
 	bam "github.com/cosmos/cosmos-sdk/baseapp"
+	"github.com/cosmos/cosmos-sdk/simapp"
 	cosmostypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
+	"github.com/cosmos/cosmos-sdk/version"
 	"github.com/cosmos/cosmos-sdk/x/auth"
+	"github.com/cosmos/cosmos-sdk/x/auth/ante"
+	"github.com/cosmos/cosmos-sdk/x/auth/vesting"
 	"github.com/cosmos/cosmos-sdk/x/bank"
 	"github.com/cosmos/cosmos-sdk/x/distribution"
-	"github.com/cosmos/cosmos-sdk/x/genaccounts"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	"github.com/cosmos/cosmos-sdk/x/params"
 	"github.com/cosmos/cosmos-sdk/x/slashing"
@@ -32,7 +33,6 @@ import (
 func NewBasicManager() *module.BasicManager {
 	basicManager := module.NewBasicManager(
 		params.AppModuleBasic{},
-		genaccounts.AppModuleBasic{},
 		genutil.AppModuleBasic{},
 		auth.AppModuleBasic{},
 		bank.AppModuleBasic{},
@@ -48,6 +48,7 @@ func NewBasicManager() *module.BasicManager {
 		cosmos.NewAppModuleBasic(executionsdk.ModuleName),
 		cosmos.NewAppModuleBasic(processsdk.ModuleName),
 	)
+	vesting.RegisterCodec(codec.Codec)
 	basicManager.RegisterCodec(codec.Codec)
 	return &basicManager
 }
@@ -89,8 +90,8 @@ func NewApp(logger log.Logger, db dbm.DB, minGasPrices string) (*bam.BaseApp, er
 		codec.Codec,
 		paramsStoreKey,
 		paramsTStoreKey,
-		params.DefaultCodespace,
 	)
+
 	accountKeeper := auth.NewAccountKeeper(
 		codec.Codec,
 		paramsStoreKey,
@@ -100,7 +101,6 @@ func NewApp(logger log.Logger, db dbm.DB, minGasPrices string) (*bam.BaseApp, er
 	bankKeeper := bank.NewBaseKeeper(
 		accountKeeper,
 		paramsKeeper.Subspace(bank.DefaultParamspace),
-		bank.DefaultCodespace,
 		modAccAddrs,
 	)
 	supplyKeeper := supply.NewKeeper(
@@ -113,10 +113,8 @@ func NewApp(logger log.Logger, db dbm.DB, minGasPrices string) (*bam.BaseApp, er
 	stakingKeeper := staking.NewKeeper(
 		codec.Codec,
 		stakingStoreKey,
-		stakingTStoreKey,
 		supplyKeeper,
 		paramsKeeper.Subspace(staking.DefaultParamspace),
-		staking.DefaultCodespace,
 	)
 	distrKeeper := distribution.NewKeeper(
 		codec.Codec,
@@ -124,7 +122,6 @@ func NewApp(logger log.Logger, db dbm.DB, minGasPrices string) (*bam.BaseApp, er
 		paramsKeeper.Subspace(distribution.DefaultParamspace),
 		&stakingKeeper,
 		supplyKeeper,
-		distribution.DefaultCodespace,
 		auth.FeeCollectorName,
 		modAccAddrs,
 	)
@@ -133,7 +130,6 @@ func NewApp(logger log.Logger, db dbm.DB, minGasPrices string) (*bam.BaseApp, er
 		slashingStoreKey,
 		&stakingKeeper,
 		paramsKeeper.Subspace(slashing.DefaultParamspace),
-		slashing.DefaultCodespace,
 	)
 	stakingKeeper = *stakingKeeper.SetHooks(
 		staking.NewMultiStakingHooks(
@@ -141,6 +137,7 @@ func NewApp(logger log.Logger, db dbm.DB, minGasPrices string) (*bam.BaseApp, er
 			slashingKeeper.Hooks(),
 		),
 	)
+
 	ownershipKeeper := ownershipsdk.NewKeeper(ownershipStoreKey)
 	serviceKeeper := servicesdk.NewKeeper(serviceStoreKey, ownershipKeeper)
 	instanceKeeper := instancesdk.NewKeeper(instanceStoreKey)
@@ -151,17 +148,16 @@ func NewApp(logger log.Logger, db dbm.DB, minGasPrices string) (*bam.BaseApp, er
 	// init app
 	// TODO: engine should be in config
 	app := bam.NewBaseApp("engine", logger, db, auth.DefaultTxDecoder(codec.Codec), bam.SetMinGasPrices(minGasPrices))
+	app.SetAppVersion(version.Version)
 
 	// init module manager
 	manager := module.NewManager(
-		genaccounts.NewAppModule(accountKeeper),
 		genutil.NewAppModule(accountKeeper, stakingKeeper, app.DeliverTx),
 		auth.NewAppModule(accountKeeper),
 		bank.NewAppModule(bankKeeper, accountKeeper),
 		supply.NewAppModule(supplyKeeper, accountKeeper),
-		distribution.NewAppModule(distrKeeper, supplyKeeper),
-		slashing.NewAppModule(slashingKeeper, stakingKeeper),
-		staking.NewAppModule(stakingKeeper, distrKeeper, accountKeeper, supplyKeeper),
+		distribution.NewAppModule(distrKeeper, accountKeeper, supplyKeeper, stakingKeeper),
+		slashing.NewAppModule(slashingKeeper, accountKeeper, stakingKeeper),
 
 		ownershipsdk.NewModule(ownershipKeeper),
 		servicesdk.NewModule(serviceKeeper),
@@ -169,17 +165,17 @@ func NewApp(logger log.Logger, db dbm.DB, minGasPrices string) (*bam.BaseApp, er
 		runnersdk.NewModule(runnerKeeper),
 		executionsdk.NewModule(executionKeeper),
 		processsdk.NewModule(processKeeper),
+
+		staking.NewAppModule(stakingKeeper, accountKeeper, supplyKeeper),
 	)
 	manager.SetOrderBeginBlockers(distribution.ModuleName, slashing.ModuleName)
 	manager.SetOrderEndBlockers(staking.ModuleName)
 	manager.SetOrderInitGenesis(
-		genaccounts.ModuleName,
 		distribution.ModuleName,
 		staking.ModuleName,
 		auth.ModuleName,
 		bank.ModuleName,
 		slashing.ModuleName,
-		supply.ModuleName,
 
 		// app module
 		ownershipsdk.ModuleName,
@@ -190,17 +186,17 @@ func NewApp(logger log.Logger, db dbm.DB, minGasPrices string) (*bam.BaseApp, er
 		processsdk.ModuleName,
 
 		// genutil should be last module
+		supply.ModuleName,
 		genutil.ModuleName,
 	)
 
 	// register app to manager
 	manager.RegisterRoutes(app.Router(), app.QueryRouter())
+
 	app.SetInitChainer(func(ctx cosmostypes.Context, req abci.RequestInitChain) abci.ResponseInitChain {
-		var genesisData map[string]json.RawMessage
-		if err := codec.UnmarshalJSON(req.AppStateBytes, &genesisData); err != nil {
-			panic(err)
-		}
-		return manager.InitGenesis(ctx, genesisData)
+		var genesisState simapp.GenesisState
+		codec.Codec.MustUnmarshalJSON(req.AppStateBytes, &genesisState)
+		return manager.InitGenesis(ctx, genesisState)
 	})
 	app.SetBeginBlocker(manager.BeginBlock)
 	app.SetEndBlocker(manager.EndBlock)
@@ -222,7 +218,24 @@ func NewApp(logger log.Logger, db dbm.DB, minGasPrices string) (*bam.BaseApp, er
 		executionStoreKey,
 		processStoreKey,
 	)
-	app.SetAnteHandler(auth.NewAnteHandler(accountKeeper, supplyKeeper, auth.DefaultSigVerificationGasConsumer))
+
+	app.SetAnteHandler(
+		cosmostypes.ChainAnteDecorators(
+			ante.NewSetUpContextDecorator(), // outermost AnteDecorator. SetUpContext must be called first
+			ante.NewMempoolFeeDecorator(),
+			ante.NewValidateBasicDecorator(),
+			ante.NewValidateMemoDecorator(accountKeeper),
+			ante.NewConsumeGasForTxSizeDecorator(accountKeeper),
+			ante.NewSetPubKeyDecorator(accountKeeper), // SetPubKeyDecorator must be called before all signature verification decorators
+			ante.NewValidateSigCountDecorator(accountKeeper),
+			ante.NewDeductFeeDecorator(accountKeeper, supplyKeeper),
+			ante.NewSigGasConsumeDecorator(accountKeeper, auth.DefaultSigVerificationGasConsumer),
+			ante.NewSigVerificationDecorator(accountKeeper),
+			cosmos.NewForceCheckTxProxyDecorator(ante.NewIncrementSequenceDecorator(accountKeeper)), // innermost AnteDecorator
+		),
+		// Previous implementation:
+		// auth.NewAnteHandler(accountKeeper, supplyKeeper, auth.DefaultSigVerificationGasConsumer)
+	)
 	if err := app.LoadLatestVersion(mainStoreKey); err != nil {
 		return nil, err
 	}

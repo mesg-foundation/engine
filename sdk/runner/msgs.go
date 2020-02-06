@@ -2,6 +2,7 @@ package runnersdk
 
 import (
 	cosmostypes "github.com/cosmos/cosmos-sdk/types"
+	cosmoserrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/mesg-foundation/engine/codec"
 	"github.com/mesg-foundation/engine/cosmos"
 	"github.com/mesg-foundation/engine/hash"
@@ -35,18 +36,18 @@ func (msg msgCreateRunner) Type() string {
 }
 
 // ValidateBasic runs stateless checks on the message.
-func (msg msgCreateRunner) ValidateBasic() cosmostypes.Error {
+func (msg msgCreateRunner) ValidateBasic() error {
 	if err := xvalidator.Validate.Struct(msg); err != nil {
-		return cosmostypes.ErrInternal(err.Error())
+		return err
 	}
 	if msg.ServiceHash.IsZero() {
-		return cosmos.NewMesgErrorf(cosmos.CodeValidation, "serviceHash is missing")
+		return cosmoserrors.Wrap(cosmos.ErrValidation, "serviceHash is missing")
 	}
 	if msg.EnvHash.IsZero() {
-		return cosmos.NewMesgErrorf(cosmos.CodeValidation, "envHash is missing")
+		return cosmoserrors.Wrap(cosmos.ErrValidation, "envHash is missing")
 	}
 	if msg.Address.Empty() {
-		return cosmostypes.ErrInvalidAddress("address is missing")
+		return cosmoserrors.Wrap(cosmoserrors.ErrInvalidAddress, "address is missing")
 	}
 	return nil
 }
@@ -86,15 +87,15 @@ func (msg msgDeleteRunner) Type() string {
 }
 
 // ValidateBasic runs stateless checks on the message.
-func (msg msgDeleteRunner) ValidateBasic() cosmostypes.Error {
+func (msg msgDeleteRunner) ValidateBasic() error {
 	if err := xvalidator.Validate.Struct(msg); err != nil {
-		return cosmostypes.ErrInternal(err.Error())
+		return err
 	}
 	if msg.RunnerHash.IsZero() {
-		return cosmos.NewMesgErrorf(cosmos.CodeValidation, "runnerHash is missing")
+		return cosmoserrors.Wrap(cosmos.ErrValidation, "runnerHash is missing")
 	}
 	if msg.Address.Empty() {
-		return cosmostypes.ErrInvalidAddress("address is missing")
+		return cosmoserrors.Wrap(cosmoserrors.ErrInvalidAddress, "address is missing")
 	}
 	return nil
 }

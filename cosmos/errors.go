@@ -1,26 +1,30 @@
 package cosmos
 
 import (
-	"github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
 const (
 	// CodespaceMesg is a cosmos codespace for all mesg errors.
-	CodespaceMesg types.CodespaceType = "mesg"
+	CodespaceMesg = "mesg"
 )
 
 // Base mesg codes.
 const (
-	CodeInternal   types.CodeType = 1000
-	CodeValidation types.CodeType = 2000
+	CodeInternal   uint32 = 1000
+	CodeValidation uint32 = 2000
+	CodeMarshal    uint32 = 2001
+	CodeUnmarshal  uint32 = 2002
 )
 
-// NewMesgErrorf creates error with given code type and mesg codespace.
-func NewMesgErrorf(ct types.CodeType, format string, a ...interface{}) types.Error {
-	return types.NewError(CodespaceMesg, ct, format, a...)
-}
+// mesg errors
+var (
+	ErrValidation = sdkerrors.Register(CodespaceMesg, CodeValidation, "validation failed")
+	ErrMarshal    = sdkerrors.Register(CodespaceMesg, CodeMarshal, "failed to marshal")     // TODO: to replace by cosmoserrors.ErrJSONMarshal if it makes sense
+	ErrUnmarshal  = sdkerrors.Register(CodespaceMesg, CodeUnmarshal, "failed to unmarshal") // TODO: to replace by cosmoserrors.ErrJSONUnmarshal if it makes sense
+)
 
 // NewMesgWrapError creates error with given code type and mesg codespace.
-func NewMesgWrapError(ct types.CodeType, err error) types.Error {
-	return types.NewError(CodespaceMesg, ct, err.Error())
+func NewMesgWrapError(code uint32, err error) *sdkerrors.Error {
+	return sdkerrors.New(CodespaceMesg, code, err.Error())
 }

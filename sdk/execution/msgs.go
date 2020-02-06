@@ -2,7 +2,9 @@ package executionsdk
 
 import (
 	cosmostypes "github.com/cosmos/cosmos-sdk/types"
+	cosmoserrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/mesg-foundation/engine/codec"
+	"github.com/mesg-foundation/engine/cosmos"
 	"github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/mesg-foundation/engine/x/xvalidator"
 )
@@ -35,18 +37,18 @@ func (msg msgCreateExecution) Type() string {
 }
 
 // ValidateBasic runs stateless checks on the message.
-func (msg msgCreateExecution) ValidateBasic() cosmostypes.Error {
+func (msg msgCreateExecution) ValidateBasic() error {
 	if err := xvalidator.Validate.Struct(msg); err != nil {
-		return cosmostypes.ErrInternal(err.Error())
+		return err
 	}
 	if !msg.Request.ParentHash.IsZero() && !msg.Request.EventHash.IsZero() {
-		return cosmostypes.ErrInternal("cannot have both parent and event hash")
+		return cosmoserrors.Wrap(cosmos.ErrValidation, "cannot have both parent and event hash")
 	}
 	if msg.Request.ParentHash.IsZero() && msg.Request.EventHash.IsZero() {
-		return cosmostypes.ErrInternal("should have at least an event hash or parent hash")
+		return cosmoserrors.Wrap(cosmos.ErrValidation, "should have at least an event hash or parent hash")
 	}
 	if msg.Request.ExecutorHash.IsZero() {
-		return cosmostypes.ErrInternal("should have a executor hash")
+		return cosmoserrors.Wrap(cosmos.ErrValidation, "should have a executor hash")
 	}
 	return nil
 }
@@ -86,9 +88,9 @@ func (msg msgUpdateExecution) Type() string {
 }
 
 // ValidateBasic runs stateless checks on the message.
-func (msg msgUpdateExecution) ValidateBasic() cosmostypes.Error {
+func (msg msgUpdateExecution) ValidateBasic() error {
 	if msg.Executor.Empty() {
-		return cosmostypes.ErrInvalidAddress("executor is missing")
+		return cosmoserrors.Wrap(cosmoserrors.ErrInvalidAddress, "executor is missing")
 	}
 	return nil
 }
