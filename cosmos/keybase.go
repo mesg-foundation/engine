@@ -13,8 +13,10 @@ import (
 )
 
 const (
+	// DefaultAlgo for create account.
+	DefaultAlgo = keys.Secp256k1
+
 	mnemonicEntropySize = 256
-	DefaultAlgo         = keys.Secp256k1
 )
 
 // Keybase is a standard cosmos keybase.
