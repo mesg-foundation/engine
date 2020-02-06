@@ -11,12 +11,11 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/slashing"
 	"github.com/cosmos/cosmos-sdk/x/staking"
-	"github.com/cosmos/cosmos-sdk/x/staking/exported"
 )
 
 // ExportAppStateAndValidators exports the state of the application for a genesis
 // file.
-func (app *newApp) ExportAppStateAndValidators(
+func (app *NewApp) ExportAppStateAndValidators(
 	forZeroHeight bool, jailWhiteList []string,
 ) (appState json.RawMessage, validators []tmtypes.GenesisValidator, err error) {
 
@@ -40,7 +39,7 @@ func (app *newApp) ExportAppStateAndValidators(
 // prepare for fresh start at zero height
 // NOTE zero height genesis is a temporary feature which will be deprecated
 //      in favour of export at a block height
-func (app *newApp) prepForZeroHeightGenesis(ctx sdk.Context, jailWhiteList []string) {
+func (app *NewApp) prepForZeroHeightGenesis(ctx sdk.Context, jailWhiteList []string) {
 	applyWhiteList := false
 
 	//Check if there is a whitelist
@@ -61,15 +60,21 @@ func (app *newApp) prepForZeroHeightGenesis(ctx sdk.Context, jailWhiteList []str
 	/* Handle fee distribution state. */
 
 	// withdraw all validator commission
-	app.stakingKeeper.IterateValidators(ctx, func(_ int64, val exported.ValidatorI) (stop bool) {
-		_, _ = app.distrKeeper.WithdrawValidatorCommission(ctx, val.GetOperator())
+	app.stakingKeeper.IterateValidators(ctx, func(_ int64, val staking.ValidatorI) (stop bool) {
+		_, err := app.distrKeeper.WithdrawValidatorCommission(ctx, val.GetOperator())
+		if err != nil {
+			log.Fatal(err)
+		}
 		return false
 	})
 
 	// withdraw all delegator rewards
 	dels := app.stakingKeeper.GetAllDelegations(ctx)
 	for _, delegation := range dels {
-		_, _ = app.distrKeeper.WithdrawDelegationRewards(ctx, delegation.DelegatorAddress, delegation.ValidatorAddress)
+		_, err := app.distrKeeper.WithdrawDelegationRewards(ctx, delegation.DelegatorAddress, delegation.ValidatorAddress)
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
 
 	// clear validator slash events
@@ -83,12 +88,12 @@ func (app *newApp) prepForZeroHeightGenesis(ctx sdk.Context, jailWhiteList []str
 	ctx = ctx.WithBlockHeight(0)
 
 	// reinitialize all validators
-	app.stakingKeeper.IterateValidators(ctx, func(_ int64, val exported.ValidatorI) (stop bool) {
+	app.stakingKeeper.IterateValidators(ctx, func(_ int64, val staking.ValidatorI) (stop bool) {
 
 		// donate any unwithdrawn outstanding reward fraction tokens to the community pool
 		scraps := app.distrKeeper.GetValidatorOutstandingRewards(ctx, val.GetOperator())
 		feePool := app.distrKeeper.GetFeePool(ctx)
-		feePool.CommunityPool = feePool.CommunityPool.Add(scraps)
+		feePool.CommunityPool = feePool.CommunityPool.Add(scraps...)
 		app.distrKeeper.SetFeePool(ctx, feePool)
 
 		app.distrKeeper.Hooks().AfterValidatorCreated(ctx, val.GetOperator())

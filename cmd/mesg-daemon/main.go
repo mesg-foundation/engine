@@ -4,24 +4,28 @@ import (
 	"encoding/json"
 	"io"
 
-	"github.com/cosmos/cosmos-sdk/server"
-	"github.com/cosmos/cosmos-sdk/x/genaccounts"
-	genaccscli "github.com/cosmos/cosmos-sdk/x/genaccounts/client/cli"
-	"github.com/cosmos/cosmos-sdk/x/staking"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+
+	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/libs/cli"
 	"github.com/tendermint/tendermint/libs/log"
-	"github.com/cosmos/cosmos-sdk/baseapp"
-	"github.com/cosmos/cosmos-sdk/store"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
-	app "github.com/mesg-foundation/engine/app"
-	abci "github.com/tendermint/tendermint/abci/types"
 	tmtypes "github.com/tendermint/tendermint/types"
 	dbm "github.com/tendermint/tm-db"
-	mesgconfig "github.com/mesg-foundation/engine/config"
+
+	"github.com/mesg-foundation/engine/app"
+	"github.com/mesg-foundation/engine/config"
 	"github.com/mesg-foundation/engine/cosmos"
+
+	"github.com/cosmos/cosmos-sdk/baseapp"
+	"github.com/cosmos/cosmos-sdk/client/debug"
+	"github.com/cosmos/cosmos-sdk/client/flags"
+	"github.com/cosmos/cosmos-sdk/server"
+	"github.com/cosmos/cosmos-sdk/store"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/x/auth"
+	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
+	"github.com/cosmos/cosmos-sdk/x/staking"
 )
 
 const flagInvCheckPeriod = "inv-check-period"
@@ -36,7 +40,7 @@ func main() {
 	// config.SetBech32PrefixForValidator(sdk.Bech32PrefixValAddr, sdk.Bech32PrefixValPub)
 	// config.SetBech32PrefixForConsensusNode(sdk.Bech32PrefixConsAddr, sdk.Bech32PrefixConsPub)
 	// config.Seal()
-	cfg, err := mesgconfig.New()
+	cfg, err := config.New()
 	if err != nil {
 		panic(err)
 	}
@@ -45,22 +49,24 @@ func main() {
 	ctx := server.NewDefaultContext()
 	cobra.EnableCommandSorting = false
 	rootCmd := &cobra.Command{
-		Use:               "mesg-deamon",
-		Short:             "mesg app Daemon (server)",
+		Use:               "aud",
+		Short:             "app Daemon (server)",
 		PersistentPreRunE: server.PersistentPreRunEFn(ctx),
 	}
 
+	rootCmd.AddCommand(genutilcli.InitCmd(ctx, cdc, app.ModuleBasics, app.DefaultNodeHome))
+	rootCmd.AddCommand(genutilcli.CollectGenTxsCmd(ctx, cdc, auth.GenesisAccountIterator{}, app.DefaultNodeHome))
+	rootCmd.AddCommand(genutilcli.MigrateGenesisCmd(ctx, cdc))
 	rootCmd.AddCommand(
-		genutilcli.InitCmd(ctx, cdc, app.ModuleBasics, app.DefaultNodeHome),
-		genutilcli.CollectGenTxsCmd(ctx, cdc, genaccounts.AppModuleBasic{}, app.DefaultNodeHome),
 		genutilcli.GenTxCmd(
 			ctx, cdc, app.ModuleBasics, staking.AppModuleBasic{},
-			genaccounts.AppModuleBasic{}, app.DefaultNodeHome, app.DefaultCLIHome,
+			auth.GenesisAccountIterator{}, app.DefaultNodeHome, app.DefaultCLIHome,
 		),
-		genutilcli.ValidateGenesisCmd(ctx, cdc, app.ModuleBasics),
-		// AddGenesisAccountCmd allows users to add accounts to the genesis file
-		genaccscli.AddGenesisAccountCmd(ctx, cdc, app.DefaultNodeHome, app.DefaultCLIHome),
 	)
+	rootCmd.AddCommand(genutilcli.ValidateGenesisCmd(ctx, cdc, app.ModuleBasics))
+	rootCmd.AddCommand(AddGenesisAccountCmd(ctx, cdc, app.DefaultNodeHome, app.DefaultCLIHome))
+	rootCmd.AddCommand(flags.NewCompletionCmd(rootCmd, true))
+	rootCmd.AddCommand(debug.Cmd(cdc))
 
 	server.AddCommands(ctx, cdc, rootCmd, newApp, exportAppStateAndTMValidators)
 
@@ -75,11 +81,19 @@ func main() {
 }
 
 func newApp(logger log.Logger, db dbm.DB, traceStore io.Writer) abci.Application {
+	var cache sdk.MultiStorePersistentCache
+
+	if viper.GetBool(server.FlagInterBlockCache) {
+		cache = store.NewCommitKVStoreCacheManager()
+	}
+
 	return app.NewInitApp(
 		logger, db, traceStore, true, invCheckPeriod,
 		baseapp.SetPruning(store.NewPruningOptionsFromString(viper.GetString("pruning"))),
 		baseapp.SetMinGasPrices(viper.GetString(server.FlagMinGasPrices)),
-		baseapp.SetHaltHeight(uint64(viper.GetInt(server.FlagHaltHeight))),
+		baseapp.SetHaltHeight(viper.GetUint64(server.FlagHaltHeight)),
+		baseapp.SetHaltTime(viper.GetUint64(server.FlagHaltTime)),
+		baseapp.SetInterBlockCache(cache),
 	)
 }
 
@@ -88,7 +102,7 @@ func exportAppStateAndTMValidators(
 ) (json.RawMessage, []tmtypes.GenesisValidator, error) {
 
 	if height != -1 {
-		aApp := app.NewInitApp(logger, db, traceStore, true, uint(1))
+		aApp := app.NewInitApp(logger, db, traceStore, false, uint(1))
 		err := aApp.LoadHeight(height)
 		if err != nil {
 			return nil, nil, err

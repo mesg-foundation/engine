@@ -6,12 +6,13 @@ import (
 	"strconv"
 	"sync"
 
+	bam "github.com/cosmos/cosmos-sdk/baseapp"
 	cosmosclient "github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/crypto/keys"
-	"github.com/cosmos/cosmos-sdk/types/module"
 	authrest "github.com/cosmos/cosmos-sdk/x/auth/client/rest"
 	"github.com/gorilla/mux"
+	"github.com/mesg-foundation/engine/app"
 	"github.com/mesg-foundation/engine/codec"
 	"github.com/mesg-foundation/engine/config"
 	"github.com/mesg-foundation/engine/container"
@@ -92,7 +93,7 @@ func loadOrGenConfigAccount(kb *cosmos.Keybase, cfg *config.Config) (keys.Info, 
 	return kb.CreateAccount(cfg.Account.Name, mnemonic, "", cfg.Account.Password, keys.CreateHDPath(cfg.Account.Number, cfg.Account.Index).String(), cosmos.DefaultAlgo)
 }
 
-func loadOrGenDevGenesis(basicManager *module.BasicManager, kb *cosmos.Keybase, cfg *config.Config) (*tmtypes.GenesisDoc, error) {
+func loadOrGenDevGenesis(kb *cosmos.Keybase, cfg *config.Config) (*tmtypes.GenesisDoc, error) {
 	if cosmos.GenesisExist(cfg.Tendermint.Config.GenesisFile()) {
 		return cosmos.LoadGenesis(cfg.Tendermint.Config.GenesisFile())
 	}
@@ -112,7 +113,7 @@ func loadOrGenDevGenesis(basicManager *module.BasicManager, kb *cosmos.Keybase, 
 		"nodeID": validator.NodeID,
 		"peer":   fmt.Sprintf("%s@%s:26656", validator.NodeID, validator.Name),
 	}).Warnln("Validator")
-	return cosmos.GenGenesis(kb, basicManager.DefaultGenesis(), cfg.DevGenesis.ChainID, cfg.DevGenesis.InitialBalances, cfg.DevGenesis.ValidatorDelegationCoin, cfg.Tendermint.Config.GenesisFile(), []cosmos.GenesisValidator{validator})
+	return cosmos.GenGenesis(kb, app.NewDefaultGenesisState(), cfg.DevGenesis.ChainID, cfg.DevGenesis.InitialBalances, cfg.DevGenesis.ValidatorDelegationCoin, cfg.Tendermint.Config.GenesisFile(), []cosmos.GenesisValidator{validator})
 }
 
 func main() {
@@ -128,7 +129,7 @@ func main() {
 	logger.Init(cfg.Log.Format, cfg.Log.Level, cfg.Log.ForceColors)
 
 	// init basicManager
-	basicManager := enginesdk.NewBasicManager()
+	// basicManager := enginesdk.NewBasicManager()
 
 	// init tendermint logger
 	tendermintLogger := logger.TendermintLogger()
@@ -148,10 +149,11 @@ func main() {
 	}
 
 	// init app
-	app, err := enginesdk.NewApp(tendermintLogger, db, cfg.Cosmos.MinGasPrices)
-	if err != nil {
-		logrus.WithField("module", "main").Fatalln(err)
-	}
+	// app, err := enginesdk.NewApp(tendermintLogger, db, cfg.Cosmos.MinGasPrices)
+	initApp := app.NewInitApp(tendermintLogger, db, nil, true, 0, bam.SetMinGasPrices(cfg.Cosmos.MinGasPrices))
+	// if err != nil {
+	// 	logrus.WithField("module", "main").Fatalln(err)
+	// }
 
 	// init key manager
 	kb, err := cosmos.NewKeybase(filepath.Join(cfg.Path, cfg.Cosmos.RelativePath))
@@ -167,13 +169,13 @@ func main() {
 	logrus.WithField("address", acc.GetAddress().String()).Info("engine account")
 
 	// load or gen genesis
-	genesis, err := loadOrGenDevGenesis(basicManager, kb, cfg)
+	genesis, err := loadOrGenDevGenesis(kb, cfg)
 	if err != nil {
 		logrus.WithField("module", "main").Fatalln(err)
 	}
 
 	// create cosmos node
-	node, err := cosmos.NewNode(app, cfg.Tendermint.Config, genesis)
+	node, err := cosmos.NewNode(initApp.BaseApp, cfg.Tendermint.Config, genesis)
 	if err != nil {
 		logrus.WithField("module", "main").Fatalln(err)
 	}
@@ -231,7 +233,7 @@ func main() {
 	mux := mux.NewRouter()
 	cosmosclient.RegisterRoutes(cliCtx, mux)
 	authrest.RegisterTxRoutes(cliCtx, mux)
-	basicManager.RegisterRESTRoutes(cliCtx, mux)
+	app.ModuleBasics.RegisterRESTRoutes(cliCtx, mux)
 	go func() {
 		if err := rpcserver.StartHTTPServer(lcdServer, mux, tendermintLogger, cfgLcd); err != nil {
 			logrus.WithField("module", "main").Warnln(err) // not a fatal because closing the connection return an error here

@@ -5,27 +5,34 @@ import (
 	"io"
 	"os"
 
-	"github.com/mesg-foundation/engine/cosmos"
 	abci "github.com/tendermint/tendermint/abci/types"
-	cmn "github.com/tendermint/tendermint/libs/common"
 	"github.com/tendermint/tendermint/libs/log"
+	tmos "github.com/tendermint/tendermint/libs/os"
 	dbm "github.com/tendermint/tm-db"
 
 	bam "github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/codec"
+	"github.com/cosmos/cosmos-sdk/simapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/version"
 	"github.com/cosmos/cosmos-sdk/x/auth"
+	"github.com/cosmos/cosmos-sdk/x/auth/vesting"
 	"github.com/cosmos/cosmos-sdk/x/bank"
 	distr "github.com/cosmos/cosmos-sdk/x/distribution"
-	"github.com/cosmos/cosmos-sdk/x/genaccounts"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	"github.com/cosmos/cosmos-sdk/x/params"
 	"github.com/cosmos/cosmos-sdk/x/slashing"
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	"github.com/cosmos/cosmos-sdk/x/supply"
 	mesgcodec "github.com/mesg-foundation/engine/codec"
+	"github.com/mesg-foundation/engine/cosmos"
+	executionsdk "github.com/mesg-foundation/engine/sdk/execution"
+	instancesdk "github.com/mesg-foundation/engine/sdk/instance"
+	ownershipsdk "github.com/mesg-foundation/engine/sdk/ownership"
+	processsdk "github.com/mesg-foundation/engine/sdk/process"
+	runnersdk "github.com/mesg-foundation/engine/sdk/runner"
+	servicesdk "github.com/mesg-foundation/engine/sdk/service"
 )
 
 const appName = "engine"
@@ -37,9 +44,10 @@ var (
 	// DefaultNodeHome sets the folder where the applcation data and configuration will be stored
 	DefaultNodeHome = os.ExpandEnv("$HOME/.mesg/tendermint")
 
-	// ModuleBasics NewBasicManager is in charge of setting up basic module elemnets
+	// ModuleBasics The module BasicManager is in charge of setting up basic,
+	// non-dependant module elements, such as codec registration
+	// and genesis verification.
 	ModuleBasics = module.NewBasicManager(
-		genaccounts.AppModuleBasic{},
 		genutil.AppModuleBasic{},
 		auth.AppModuleBasic{},
 		bank.AppModuleBasic{},
@@ -57,7 +65,8 @@ var (
 		cosmos.NewAppModuleBasic(executionsdk.ModuleName),
 		cosmos.NewAppModuleBasic(processsdk.ModuleName),
 	)
-	// account permissions
+
+	// module account permissions
 	maccPerms = map[string][]string{
 		auth.FeeCollectorName:     nil,
 		distr.ModuleName:          nil,
@@ -66,26 +75,36 @@ var (
 	}
 )
 
-// MakeCodec generates the necessary codecs for Amino
+// MakeCodec creates the application codec. The codec is sealed before it is
+// returned.
 func MakeCodec() *codec.Codec {
 	// TODO: let's use the cosmos template way
 	// var cdc = codec.New()
-	// ModuleBasics.RegisterCodec(cdc)
+
+	ModuleBasics.RegisterCodec(mesgcodec.Codec)
+	vesting.RegisterCodec(mesgcodec.Codec)
 	// sdk.RegisterCodec(cdc)
 	// codec.RegisterCrypto(cdc)
-	// return cdc
+
+	// return cdc.Seal()
 	return mesgcodec.Codec
 }
 
-type newApp struct {
+// NewApp extended ABCI application
+type NewApp struct {
 	*bam.BaseApp
 	cdc *codec.Codec
 
+	invCheckPeriod uint
+
 	// keys to access the substores
 	keys  map[string]*sdk.KVStoreKey
-	tkeys map[string]*sdk.TransientStoreKey
+	tKeys map[string]*sdk.TransientStoreKey
 
-	// Keepers
+	// subspaces
+	subspaces map[string]params.Subspace
+
+	// keepers
 	accountKeeper  auth.AccountKeeper
 	bankKeeper     bank.Keeper
 	stakingKeeper  staking.Keeper
@@ -104,20 +123,28 @@ type newApp struct {
 
 	// Module Manager
 	mm *module.Manager
+
+	// simulation manager
+	sm *module.SimulationManager
 }
 
-// NewInitApp is a constructor function for nameServiceApp
-func NewInitApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest bool,
-	invCheckPeriod uint, baseAppOptions ...func(*bam.BaseApp)) *newApp {
+// verify app interface at compile time
+var _ simapp.App = (*NewApp)(nil)
 
+// NewengineApp is a constructor function for engineApp
+func NewInitApp(
+	logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest bool,
+	invCheckPeriod uint, baseAppOptions ...func(*bam.BaseApp),
+) *NewApp {
 	// First define the top level codec that will be shared by the different modules
 	cdc := MakeCodec()
 
 	// BaseApp handles interactions with Tendermint through the ABCI protocol
 	bApp := bam.NewBaseApp(appName, logger, db, auth.DefaultTxDecoder(cdc), baseAppOptions...)
-
+	bApp.SetCommitMultiStoreTracer(traceStore)
 	bApp.SetAppVersion(version.Version)
 
+	// TODO: Add the keys that module requires
 	keys := sdk.NewKVStoreKeys(
 		bam.MainStoreKey,
 		auth.StoreKey,
@@ -136,38 +163,39 @@ func NewInitApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest b
 		processsdk.ModuleName,
 	)
 
-	tkeys := sdk.NewTransientStoreKeys(staking.TStoreKey, params.TStoreKey)
+	tKeys := sdk.NewTransientStoreKeys(staking.TStoreKey, params.TStoreKey)
 
 	// Here you initialize your application with the store keys it requires
-	var app = &newApp{
-		BaseApp: bApp,
-		cdc:     cdc,
-		keys:    keys,
-		tkeys:   tkeys,
+	var app = &NewApp{
+		BaseApp:        bApp,
+		cdc:            cdc,
+		invCheckPeriod: invCheckPeriod,
+		keys:           keys,
+		tKeys:          tKeys,
+		subspaces:      make(map[string]params.Subspace),
 	}
 
 	// The ParamsKeeper handles parameter storage for the application
-	app.paramsKeeper = params.NewKeeper(app.cdc, keys[params.StoreKey], tkeys[params.TStoreKey], params.DefaultCodespace)
+	app.paramsKeeper = params.NewKeeper(app.cdc, keys[params.StoreKey], tKeys[params.TStoreKey])
 	// Set specific supspaces
-	authSubspace := app.paramsKeeper.Subspace(auth.DefaultParamspace)
-	bankSupspace := app.paramsKeeper.Subspace(bank.DefaultParamspace)
-	stakingSubspace := app.paramsKeeper.Subspace(staking.DefaultParamspace)
-	distrSubspace := app.paramsKeeper.Subspace(distr.DefaultParamspace)
-	slashingSubspace := app.paramsKeeper.Subspace(slashing.DefaultParamspace)
+	app.subspaces[auth.ModuleName] = app.paramsKeeper.Subspace(auth.DefaultParamspace)
+	app.subspaces[bank.ModuleName] = app.paramsKeeper.Subspace(bank.DefaultParamspace)
+	app.subspaces[staking.ModuleName] = app.paramsKeeper.Subspace(staking.DefaultParamspace)
+	app.subspaces[distr.ModuleName] = app.paramsKeeper.Subspace(distr.DefaultParamspace)
+	app.subspaces[slashing.ModuleName] = app.paramsKeeper.Subspace(slashing.DefaultParamspace)
 
 	// The AccountKeeper handles address -> account lookups
 	app.accountKeeper = auth.NewAccountKeeper(
 		app.cdc,
 		keys[auth.StoreKey],
-		authSubspace,
+		app.subspaces[auth.ModuleName],
 		auth.ProtoBaseAccount,
 	)
 
 	// The BankKeeper allows you perform sdk.Coins interactions
 	app.bankKeeper = bank.NewBaseKeeper(
 		app.accountKeeper,
-		bankSupspace,
-		bank.DefaultCodespace,
+		app.subspaces[bank.ModuleName],
 		app.ModuleAccountAddrs(),
 	)
 
@@ -184,19 +212,16 @@ func NewInitApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest b
 	stakingKeeper := staking.NewKeeper(
 		app.cdc,
 		keys[staking.StoreKey],
-		tkeys[staking.TStoreKey],
 		app.supplyKeeper,
-		stakingSubspace,
-		staking.DefaultCodespace,
+		app.subspaces[staking.ModuleName],
 	)
 
 	app.distrKeeper = distr.NewKeeper(
 		app.cdc,
 		keys[distr.StoreKey],
-		distrSubspace,
+		app.subspaces[distr.ModuleName],
 		&stakingKeeper,
 		app.supplyKeeper,
-		distr.DefaultCodespace,
 		auth.FeeCollectorName,
 		app.ModuleAccountAddrs(),
 	)
@@ -205,8 +230,7 @@ func NewInitApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest b
 		app.cdc,
 		keys[slashing.StoreKey],
 		&stakingKeeper,
-		slashingSubspace,
-		slashing.DefaultCodespace,
+		app.subspaces[slashing.ModuleName],
 	)
 
 	// register the staking hooks
@@ -218,41 +242,44 @@ func NewInitApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest b
 	)
 
 	// Engine's module keepers
-	ownershipKeeper := ownershipsdk.NewKeeper(ownershipStoreKey)
-	serviceKeeper := servicesdk.NewKeeper(serviceStoreKey, ownershipKeeper)
-	instanceKeeper := instancesdk.NewKeeper(instanceStoreKey)
-	runnerKeeper := runnersdk.NewKeeper(runnerStoreKey, instanceKeeper)
-	processKeeper := processsdk.NewKeeper(processStoreKey, ownershipKeeper, instanceKeeper)
-	executionKeeper := executionsdk.NewKeeper(executionStoreKey, serviceKeeper, instanceKeeper, runnerKeeper, processKeeper)
+	app.ownershipKeeper = ownershipsdk.NewKeeper(keys[ownershipsdk.ModuleName])
+	app.serviceKeeper = servicesdk.NewKeeper(keys[servicesdk.ModuleName], app.ownershipKeeper)
+	app.instanceKeeper = instancesdk.NewKeeper(keys[instancesdk.ModuleName])
+	app.runnerKeeper = runnersdk.NewKeeper(keys[runnersdk.ModuleName], app.instanceKeeper)
+	app.processKeeper = processsdk.NewKeeper(keys[processsdk.ModuleName], app.ownershipKeeper, app.instanceKeeper)
+	app.executionKeeper = executionsdk.NewKeeper(keys[executionsdk.ModuleName], app.serviceKeeper, app.instanceKeeper, app.runnerKeeper, app.processKeeper)
 
+	// NOTE: Any module instantiated in the module manager that is later modified
+	// must be passed by reference here.
 	app.mm = module.NewManager(
-		genaccounts.NewAppModule(app.accountKeeper),
 		genutil.NewAppModule(app.accountKeeper, app.stakingKeeper, app.BaseApp.DeliverTx),
 		auth.NewAppModule(app.accountKeeper),
 		bank.NewAppModule(app.bankKeeper, app.accountKeeper),
 		supply.NewAppModule(app.supplyKeeper, app.accountKeeper),
-		distr.NewAppModule(app.distrKeeper, app.supplyKeeper),
+		distr.NewAppModule(app.distrKeeper, app.accountKeeper, app.supplyKeeper, app.stakingKeeper),
+		slashing.NewAppModule(app.slashingKeeper, app.accountKeeper, app.stakingKeeper),
 
 		// Engine's modules
-		ownershipsdk.NewModule(ownershipKeeper),
-		servicesdk.NewModule(serviceKeeper),
-		instancesdk.NewModule(instanceKeeper),
-		runnersdk.NewModule(runnerKeeper),
-		executionsdk.NewModule(executionKeeper),
-		processsdk.NewModule(processKeeper),
+		ownershipsdk.NewModule(app.ownershipKeeper),
+		servicesdk.NewModule(app.serviceKeeper),
+		instancesdk.NewModule(app.instanceKeeper),
+		runnersdk.NewModule(app.runnerKeeper),
+		executionsdk.NewModule(app.executionKeeper),
+		processsdk.NewModule(app.processKeeper),
 
-		slashing.NewAppModule(app.slashingKeeper, app.stakingKeeper),
-		staking.NewAppModule(app.stakingKeeper, app.distrKeeper, app.accountKeeper, app.supplyKeeper),
+		staking.NewAppModule(app.stakingKeeper, app.accountKeeper, app.supplyKeeper),
 	)
+	// During begin block slashing happens after distr.BeginBlocker so that
+	// there is nothing left over in the validator fee pool, so as to keep the
+	// CanWithdrawInvariant invariant.
 
 	app.mm.SetOrderBeginBlockers(distr.ModuleName, slashing.ModuleName)
 	app.mm.SetOrderEndBlockers(staking.ModuleName)
 
 	// Sets the order of Genesis - Order matters, genutil is to always come last
-	// NOTE: The genutils moodule must occur after staking so that pools are
+	// NOTE: The genutils module must occur after staking so that pools are
 	// properly initialized with tokens from genesis accounts.
 	app.mm.SetOrderInitGenesis(
-		genaccounts.ModuleName,
 		distr.ModuleName,
 		staking.ModuleName,
 		auth.ModuleName,
@@ -290,11 +317,13 @@ func NewInitApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest b
 
 	// initialize stores
 	app.MountKVStores(keys)
-	app.MountTransientStores(tkeys)
+	app.MountTransientStores(tKeys)
 
-	err := app.LoadLatestVersion(app.keys[bam.MainStoreKey])
-	if err != nil {
-		cmn.Exit(err.Error())
+	if loadLatest {
+		err := app.LoadLatestVersion(app.keys[bam.MainStoreKey])
+		if err != nil {
+			tmos.Exit(err.Error())
+		}
 	}
 
 	return app
@@ -303,38 +332,60 @@ func NewInitApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest b
 // GenesisState represents chain state at the start of the chain. Any initial state (account balances) are stored here.
 type GenesisState map[string]json.RawMessage
 
-// NewDefaultGenesisState returns a the default GensisState
+// NewDefaultGenesisState generates the default state for the application.
 func NewDefaultGenesisState() GenesisState {
 	return ModuleBasics.DefaultGenesis()
 }
 
-func (app *newApp) InitChainer(ctx sdk.Context, req abci.RequestInitChain) abci.ResponseInitChain {
-	var genesisState GenesisState
+// InitChainer application update at chain initialization
+func (app *NewApp) InitChainer(ctx sdk.Context, req abci.RequestInitChain) abci.ResponseInitChain {
+	var genesisState simapp.GenesisState
 
-	err := app.cdc.UnmarshalJSON(req.AppStateBytes, &genesisState)
-	if err != nil {
-		panic(err)
-	}
+	app.cdc.MustUnmarshalJSON(req.AppStateBytes, &genesisState)
 
 	return app.mm.InitGenesis(ctx, genesisState)
 }
 
-func (app *newApp) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci.ResponseBeginBlock {
+// BeginBlocker application updates every begin block
+func (app *NewApp) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci.ResponseBeginBlock {
 	return app.mm.BeginBlock(ctx, req)
 }
-func (app *newApp) EndBlocker(ctx sdk.Context, req abci.RequestEndBlock) abci.ResponseEndBlock {
+
+// EndBlocker application updates every end block
+func (app *NewApp) EndBlocker(ctx sdk.Context, req abci.RequestEndBlock) abci.ResponseEndBlock {
 	return app.mm.EndBlock(ctx, req)
 }
-func (app *newApp) LoadHeight(height int64) error {
+
+// LoadHeight loads a particular height
+func (app *NewApp) LoadHeight(height int64) error {
 	return app.LoadVersion(height, app.keys[bam.MainStoreKey])
 }
 
 // ModuleAccountAddrs returns all the app's module account addresses.
-func (app *newApp) ModuleAccountAddrs() map[string]bool {
+func (app *NewApp) ModuleAccountAddrs() map[string]bool {
 	modAccAddrs := make(map[string]bool)
 	for acc := range maccPerms {
 		modAccAddrs[supply.NewModuleAddress(acc).String()] = true
 	}
 
 	return modAccAddrs
+}
+
+// Codec returns the application's sealed codec.
+func (app *NewApp) Codec() *codec.Codec {
+	return app.cdc
+}
+
+// SimulationManager implements the SimulationApp interface
+func (app *NewApp) SimulationManager() *module.SimulationManager {
+	return app.sm
+}
+
+// GetMaccPerms returns a mapping of the application's module account permissions.
+func GetMaccPerms() map[string][]string {
+	modAccPerms := make(map[string][]string)
+	for k, v := range maccPerms {
+		modAccPerms[k] = v
+	}
+	return modAccPerms
 }
