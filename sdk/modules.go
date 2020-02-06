@@ -7,6 +7,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/version"
 	"github.com/cosmos/cosmos-sdk/x/auth"
+	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 	"github.com/cosmos/cosmos-sdk/x/auth/vesting"
 	"github.com/cosmos/cosmos-sdk/x/bank"
 	"github.com/cosmos/cosmos-sdk/x/distribution"
@@ -218,7 +219,23 @@ func NewApp(logger log.Logger, db dbm.DB, minGasPrices string) (*bam.BaseApp, er
 		processStoreKey,
 	)
 
-	app.SetAnteHandler(auth.NewAnteHandler(accountKeeper, supplyKeeper, auth.DefaultSigVerificationGasConsumer))
+	app.SetAnteHandler(
+		cosmostypes.ChainAnteDecorators(
+			ante.NewSetUpContextDecorator(), // outermost AnteDecorator. SetUpContext must be called first
+			ante.NewMempoolFeeDecorator(),
+			ante.NewValidateBasicDecorator(),
+			ante.NewValidateMemoDecorator(accountKeeper),
+			ante.NewConsumeGasForTxSizeDecorator(accountKeeper),
+			ante.NewSetPubKeyDecorator(accountKeeper), // SetPubKeyDecorator must be called before all signature verification decorators
+			ante.NewValidateSigCountDecorator(accountKeeper),
+			ante.NewDeductFeeDecorator(accountKeeper, supplyKeeper),
+			ante.NewSigGasConsumeDecorator(accountKeeper, auth.DefaultSigVerificationGasConsumer),
+			ante.NewSigVerificationDecorator(accountKeeper),
+			cosmos.NewForceCheckTxProxyDecorator(ante.NewIncrementSequenceDecorator(accountKeeper)), // innermost AnteDecorator
+		),
+		// Previous implementation:
+		// auth.NewAnteHandler(accountKeeper, supplyKeeper, auth.DefaultSigVerificationGasConsumer)
+	)
 	if err := app.LoadLatestVersion(mainStoreKey); err != nil {
 		return nil, err
 	}
