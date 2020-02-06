@@ -108,7 +108,7 @@ func defaultConfig() (*Config, error) {
 	c.Tendermint.Config.Consensus.TimeoutCommit = 5 * time.Second
 	c.Tendermint.Config.Instrumentation.Prometheus = true
 	c.Tendermint.Config.Instrumentation.PrometheusListenAddr = "0.0.0.0:26660"
-	c.Tendermint.Config.TxIndex.IndexAllTags = true
+	c.Tendermint.Config.TxIndex.IndexAllKeys = true
 
 	c.Cosmos.RelativePath = "cosmos"
 	c.Cosmos.MinGasPrices = "1.0atto"
