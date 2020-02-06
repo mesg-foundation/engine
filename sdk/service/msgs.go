@@ -4,8 +4,8 @@ import (
 	cosmostypes "github.com/cosmos/cosmos-sdk/types"
 	cosmoserrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/mesg-foundation/engine/codec"
-	"github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/mesg-foundation/engine/ext/xvalidator"
+	"github.com/mesg-foundation/engine/protobuf/api"
 )
 
 // msgCreateService defines a state transition to create a service.

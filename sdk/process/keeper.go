@@ -6,21 +6,21 @@ import (
 	cosmostypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/mesg-foundation/engine/codec"
 	"github.com/mesg-foundation/engine/hash"
-	"github.com/mesg-foundation/engine/ownership"
+	ownershippb "github.com/mesg-foundation/engine/ownership"
 	"github.com/mesg-foundation/engine/process"
 	instancesdk "github.com/mesg-foundation/engine/sdk/instance"
-	ownershipsdk "github.com/mesg-foundation/engine/sdk/ownership"
+	"github.com/mesg-foundation/engine/x/ownership"
 )
 
 // Keeper is the service keeper.
 type Keeper struct {
 	storeKey        *cosmostypes.KVStoreKey
-	ownershipKeeper *ownershipsdk.Keeper
+	ownershipKeeper ownership.Keeper
 	instanceKeeper  *instancesdk.Keeper
 }
 
 // NewKeeper returns the keeper of the service sdk.
-func NewKeeper(storeKey *cosmostypes.KVStoreKey, ownershipKeeper *ownershipsdk.Keeper, instanceKeeper *instancesdk.Keeper) *Keeper {
+func NewKeeper(storeKey *cosmostypes.KVStoreKey, ownershipKeeper ownership.Keeper, instanceKeeper *instancesdk.Keeper) *Keeper {
 	return &Keeper{
 		storeKey:        storeKey,
 		ownershipKeeper: ownershipKeeper,
@@ -63,7 +63,7 @@ func (k *Keeper) Create(req cosmostypes.Request, msg *msgCreateProcess) (*proces
 		return nil, err
 	}
 
-	if _, err := k.ownershipKeeper.Create(req, msg.Owner, p.Hash, ownership.Ownership_Process); err != nil {
+	if _, err := k.ownershipKeeper.Set(req, msg.Owner, p.Hash, ownershippb.Ownership_Process); err != nil {
 		return nil, err
 	}
 
