@@ -10,9 +10,8 @@ var m *metric
 
 type metric struct {
 	Created    metrics.Counter
-	PreSigned  metrics.Counter
-	Signed     metrics.Counter
 	InProgress metrics.Counter
+	Updated    metrics.Counter
 	Completed  metrics.Counter
 }
 
@@ -24,23 +23,17 @@ func newMetric() *metric {
 			Name:      "created",
 			Help:      "executions created",
 		}, []string{}),
-		Signed: prometheus.NewCounterFrom(stdprometheus.CounterOpts{
-			Namespace: "mesg",
-			Subsystem: "execution",
-			Name:      "signed",
-			Help:      "executions signed",
-		}, []string{}),
-		PreSigned: prometheus.NewCounterFrom(stdprometheus.CounterOpts{
-			Namespace: "mesg",
-			Subsystem: "execution",
-			Name:      "pre_signed",
-			Help:      "executions pre signed",
-		}, []string{}),
 		InProgress: prometheus.NewCounterFrom(stdprometheus.CounterOpts{
 			Namespace: "mesg",
 			Subsystem: "execution",
 			Name:      "in_progress",
 			Help:      "executions in progress",
+		}, []string{}),
+		Updated: prometheus.NewCounterFrom(stdprometheus.CounterOpts{
+			Namespace: "mesg",
+			Subsystem: "execution",
+			Name:      "updated",
+			Help:      "executions updated",
 		}, []string{}),
 		Completed: prometheus.NewCounterFrom(stdprometheus.CounterOpts{
 			Namespace: "mesg",
