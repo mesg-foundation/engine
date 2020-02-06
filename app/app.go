@@ -79,7 +79,7 @@ var (
 // MakeCodec creates the application codec. The codec is sealed before it is
 // returned.
 func MakeCodec() *codec.Codec {
-	// TODO: let's use the cosmos template way
+	// TODO: to change to the cosmos template way
 	// var cdc = codec.New()
 
 	ModuleBasics.RegisterCodec(mesgcodec.Codec)
