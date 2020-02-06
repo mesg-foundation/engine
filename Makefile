@@ -54,9 +54,9 @@ dep:
 build: check-version dep
 	go build -mod=readonly -o ./bin/engine -ldflags="-X 'github.com/mesg-foundation/engine/version.Version=$(version)'" core/main.go
 
-build-cmd-cosmos: dep
-	go build -mod=readonly -o ./bin/mesg-cosmos ./cmd/mesg-cosmos/main.go
-	go build -mod=readonly -o ./bin/mesg-cosmos-daemon ./cmd/mesg-cosmos-daemon/main.go
+build-cmd: dep
+	go build -mod=readonly -o ./bin/mesg-cli ./cmd/mesg-cli/
+	go build -mod=readonly -o ./bin/mesg-daemon ./cmd/mesg-daemon/
 
 e2e: docker-dev
 	./scripts/run-e2e.sh

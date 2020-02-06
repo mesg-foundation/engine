@@ -74,7 +74,7 @@ func main() {
 	executor := cli.PrepareBaseCmd(rootCmd, "AU", app.DefaultNodeHome)
 	rootCmd.PersistentFlags().UintVar(&invCheckPeriod, flagInvCheckPeriod,
 		0, "Assert registered invariants every N blocks")
-	err := executor.Execute()
+	err = executor.Execute()
 	if err != nil {
 		panic(err)
 	}
@@ -114,3 +114,25 @@ func exportAppStateAndTMValidators(
 
 	return aApp.ExportAppStateAndValidators(forZeroHeight, jailWhiteList)
 }
+
+/*
+genaccounts
+func AddGenesisAccountCmd(ctx *server.Context, cdc *codec.Codec, defaultNodeHome, defaultClientHome string) *cobra.Command {
+
+genutil
+func CollectGenTxsCmd(ctx *server.Context, cdc *codec.Codec, genAccIterator types.GenesisAccountsIterator, defaultNodeHome string) *cobra.Command {
+func GenTxCmd(ctx *server.Context, cdc *codec.Codec, mbm module.BasicManager, smbh StakingMsgBuildingHelpers, genAccIterator types.GenesisAccountsIterator, defaultNodeHome, defaultCLIHome string) *cobra.Command {
+func InitCmd(ctx *server.Context, cdc *codec.Codec, mbm module.BasicManager, defaultNodeHome string) *cobra.Command {
+func MigrateGenesisCmd(_ *server.Context, cdc *codec.Codec) *cobra.Command {
+func ValidateGenesisCmd(ctx *server.Context, cdc *codec.Codec, mbm module.BasicManager) *cobra.Command {
+
+server
+func AddCommands(ctx *Context, cdc *codec.Codec, rootCmd *cobra.Command, appCreator AppCreator, appExport AppExporter) {
+	func StartCmd(ctx *Context, appCreator AppCreator) *cobra.Command {
+	func ExportCmd(ctx *Context, cdc *codec.Codec, appExporter AppExporter) *cobra.Command {
+	func ShowNodeIDCmd(ctx *Context) *cobra.Command {
+	func ShowValidatorCmd(ctx *Context) *cobra.Command {
+	func ShowAddressCmd(ctx *Context) *cobra.Command {
+	func VersionCmd(ctx *Context) *cobra.Command {
+	func UnsafeResetAllCmd(ctx *Context) *cobra.Command {
+*/

@@ -10,7 +10,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/keys"
 	"github.com/cosmos/cosmos-sdk/client/lcd"
 	"github.com/cosmos/cosmos-sdk/client/rpc"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/version"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	authcmd "github.com/cosmos/cosmos-sdk/x/auth/client/cli"
@@ -81,7 +80,7 @@ func main() {
 	// Add flags and prefix all env exposed with AA
 	executor := cli.PrepareMainCmd(rootCmd, "AA", app.DefaultCLIHome)
 
-	err := executor.Execute()
+	err = executor.Execute()
 	if err != nil {
 		fmt.Printf("Failed executing CLI command: %s, exiting...\n", err)
 		os.Exit(1)
@@ -177,3 +176,113 @@ func initConfig(cmd *cobra.Command) error {
 	}
 	return viper.BindPFlag(cli.OutputFlag, cmd.PersistentFlags().Lookup(cli.OutputFlag))
 }
+
+/*
+List of commands that could be used in this cli
+
+distribution
+func GetTxCmd(storeKey string, cdc *codec.Codec) *cobra.Command {
+	func GetCmdWithdrawRewards(cdc *codec.Codec) *cobra.Command {
+	func GetCmdWithdrawAllRewards(cdc *codec.Codec, queryRoute string) *cobra.Command {
+	func GetCmdSetWithdrawAddr(cdc *codec.Codec) *cobra.Command {
+func GetQueryCmd(queryRoute string, cdc *codec.Codec) *cobra.Command {
+	func GetCmdQueryParams(queryRoute string, cdc *codec.Codec) *cobra.Command {
+	func GetCmdQueryValidatorOutstandingRewards(queryRoute string, cdc *codec.Codec) *cobra.Command {
+	func GetCmdQueryValidatorCommission(queryRoute string, cdc *codec.Codec) *cobra.Command {
+	func GetCmdQueryValidatorSlashes(queryRoute string, cdc *codec.Codec) *cobra.Command {
+	func GetCmdQueryDelegatorRewards(queryRoute string, cdc *codec.Codec) *cobra.Command {
+	func GetCmdQueryCommunityPool(queryRoute string, cdc *codec.Codec) *cobra.Command {
+func GetCmdSubmitProposal(cdc *codec.Codec) *cobra.Command {
+
+gov
+func GetQueryCmd(queryRoute string, cdc *codec.Codec) *cobra.Command {
+	func GetCmdQueryProposal(queryRoute string, cdc *codec.Codec) *cobra.Command {
+	func GetCmdQueryProposals(queryRoute string, cdc *codec.Codec) *cobra.Command {
+	func GetCmdQueryVote(queryRoute string, cdc *codec.Codec) *cobra.Command {
+	func GetCmdQueryVotes(queryRoute string, cdc *codec.Codec) *cobra.Command {
+	func GetCmdQueryDeposit(queryRoute string, cdc *codec.Codec) *cobra.Command {
+	func GetCmdQueryDeposits(queryRoute string, cdc *codec.Codec) *cobra.Command {
+	func GetCmdQueryTally(queryRoute string, cdc *codec.Codec) *cobra.Command {
+	func GetCmdQueryParams(queryRoute string, cdc *codec.Codec) *cobra.Command {
+	func GetCmdQueryParam(queryRoute string, cdc *codec.Codec) *cobra.Command {
+	func GetCmdQueryProposer(queryRoute string, cdc *codec.Codec) *cobra.Command {
+func GetTxCmd(storeKey string, cdc *codec.Codec, pcmds []*cobra.Command) *cobra.Command {
+	func GetCmdSubmitProposal(cdc *codec.Codec) *cobra.Command {
+	func GetCmdDeposit(cdc *codec.Codec) *cobra.Command {
+	func GetCmdVote(cdc *codec.Codec) *cobra.Command {
+
+bank
+func GetTxCmd(cdc *codec.Codec) *cobra.Command {
+	func SendTxCmd(cdc *codec.Codec) *cobra.Command {
+
+params
+func GetCmdSubmitProposal(cdc *codec.Codec) *cobra.Command {
+
+auth
+func GetQueryCmd(cdc *codec.Codec) *cobra.Command {
+	func GetAccountCmd(cdc *codec.Codec) *cobra.Command {
+func QueryTxsByEventsCmd(cdc *codec.Codec) *cobra.Command {
+func QueryTxCmd(cdc *codec.Codec) *cobra.Command {
+func GetTxCmd(cdc *codec.Codec) *cobra.Command {
+	func GetSignCommand(codec *codec.Codec) *cobra.Command {
+	func GetMultiSignCommand(cdc *codec.Codec) *cobra.Command {
+func GetBroadcastCommand(cdc *codec.Codec) *cobra.Command {
+func GetEncodeCommand(cdc *codec.Codec) *cobra.Command {
+
+staking
+func GetQueryCmd(queryRoute string, cdc *codec.Codec) *cobra.Command {
+	func GetCmdQueryValidator(storeName string, cdc *codec.Codec) *cobra.Command {
+	func GetCmdQueryValidators(storeName string, cdc *codec.Codec) *cobra.Command {
+	func GetCmdQueryValidatorUnbondingDelegations(queryRoute string, cdc *codec.Codec) *cobra.Command {
+	func GetCmdQueryValidatorRedelegations(queryRoute string, cdc *codec.Codec) *cobra.Command {
+	func GetCmdQueryDelegation(queryRoute string, cdc *codec.Codec) *cobra.Command {
+	func GetCmdQueryDelegations(queryRoute string, cdc *codec.Codec) *cobra.Command {
+	func GetCmdQueryValidatorDelegations(queryRoute string, cdc *codec.Codec) *cobra.Command {
+	func GetCmdQueryUnbondingDelegation(queryRoute string, cdc *codec.Codec) *cobra.Command {
+	func GetCmdQueryUnbondingDelegations(queryRoute string, cdc *codec.Codec) *cobra.Command {
+	func GetCmdQueryRedelegation(queryRoute string, cdc *codec.Codec) *cobra.Command {
+	func GetCmdQueryRedelegations(queryRoute string, cdc *codec.Codec) *cobra.Command {
+	func GetCmdQueryPool(storeName string, cdc *codec.Codec) *cobra.Command {
+	func GetCmdQueryParams(storeName string, cdc *codec.Codec) *cobra.Command {
+func GetTxCmd(storeKey string, cdc *codec.Codec) *cobra.Command {
+	func GetCmdCreateValidator(cdc *codec.Codec) *cobra.Command {
+	func GetCmdEditValidator(cdc *codec.Codec) *cobra.Command {
+	func GetCmdDelegate(cdc *codec.Codec) *cobra.Command {
+	func GetCmdRedelegate(storeName string, cdc *codec.Codec) *cobra.Command {
+	func GetCmdUnbond(storeName string, cdc *codec.Codec) *cobra.Command {
+
+crisis
+func GetTxCmd(cdc *codec.Codec) *cobra.Command {
+	func GetCmdInvariantBroken(cdc *codec.Codec) *cobra.Command {
+
+supply
+func GetQueryCmd(cdc *codec.Codec) *cobra.Command {
+	func GetCmdQueryTotalSupply(cdc *codec.Codec) *cobra.Command {
+
+slashing
+func GetQueryCmd(queryRoute string, cdc *codec.Codec) *cobra.Command {
+	func GetCmdQuerySigningInfo(storeName string, cdc *codec.Codec) *cobra.Command {
+	func GetCmdQueryParams(cdc *codec.Codec) *cobra.Command {
+func GetTxCmd(cdc *codec.Codec) *cobra.Command {
+	func GetCmdUnjail(cdc *codec.Codec) *cobra.Command {
+
+mint
+func GetQueryCmd(cdc *codec.Codec) *cobra.Command {
+	func GetCmdQueryParams(cdc *codec.Codec) *cobra.Command {
+	func GetCmdQueryInflation(cdc *codec.Codec) *cobra.Command {
+	func GetCmdQueryAnnualProvisions(cdc *codec.Codec) *cobra.Command {
+
+client
+func ConfigCmd(defaultCLIHome string) *cobra.Command {
+
+client/lcd
+func ServeCommand(cdc *codec.Codec, registerRoutesFn func(*RestServer)) *cobra.Command {
+
+client/keys
+func Commands() *cobra.Command {
+
+client/rpc
+func ValidatorCommand(cdc *codec.Codec) *cobra.Command {
+func StatusCommand() *cobra.Command {
+func BlockCommand() *cobra.Command {
+*/
