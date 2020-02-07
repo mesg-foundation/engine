@@ -32,6 +32,7 @@ var invCheckPeriod uint
 func main() {
 	cdc := app.MakeCodec()
 
+	// TODO: put back when more refactor is done
 	// config := sdk.GetConfig()
 	// config.SetBech32PrefixForAccount(sdk.Bech32PrefixAccAddr, sdk.Bech32PrefixAccPub)
 	// config.SetBech32PrefixForValidator(sdk.Bech32PrefixValAddr, sdk.Bech32PrefixValPub)
@@ -46,7 +47,7 @@ func main() {
 	ctx := server.NewDefaultContext()
 	cobra.EnableCommandSorting = false
 	rootCmd := &cobra.Command{
-		Use:               "aud",
+		Use:               "mesg-daemon",
 		Short:             "app Daemon (server)",
 		PersistentPreRunE: server.PersistentPreRunEFn(ctx),
 	}
@@ -97,7 +98,6 @@ func newApp(logger log.Logger, db dbm.DB, traceStore io.Writer) abci.Application
 func exportAppStateAndTMValidators(
 	logger log.Logger, db dbm.DB, traceStore io.Writer, height int64, forZeroHeight bool, jailWhiteList []string,
 ) (json.RawMessage, []tmtypes.GenesisValidator, error) {
-
 	if height != -1 {
 		aApp := app.NewInitApp(logger, db, traceStore, false, uint(1))
 		err := aApp.LoadHeight(height)

@@ -148,12 +148,7 @@ func main() {
 		logrus.WithField("module", "main").Fatalln(err)
 	}
 
-	// init app
-	// app, err := enginesdk.NewApp(tendermintLogger, db, cfg.Cosmos.MinGasPrices)
 	initApp := app.NewInitApp(tendermintLogger, db, nil, true, 0, bam.SetMinGasPrices(cfg.Cosmos.MinGasPrices))
-	// if err != nil {
-	// 	logrus.WithField("module", "main").Fatalln(err)
-	// }
 
 	// init key manager
 	kb, err := cosmos.NewKeybase(filepath.Join(cfg.Path, cfg.Cosmos.RelativePath))

@@ -16,16 +16,13 @@ import (
 	authrest "github.com/cosmos/cosmos-sdk/x/auth/client/rest"
 	"github.com/cosmos/cosmos-sdk/x/bank"
 	bankcmd "github.com/cosmos/cosmos-sdk/x/bank/client/cli"
-
-	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
-
-	"github.com/tendermint/go-amino"
-	"github.com/tendermint/tendermint/libs/cli"
-
 	"github.com/mesg-foundation/engine/app"
 	"github.com/mesg-foundation/engine/config"
 	"github.com/mesg-foundation/engine/cosmos"
+	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
+	"github.com/tendermint/go-amino"
+	"github.com/tendermint/tendermint/libs/cli"
 )
 
 func main() {
@@ -36,6 +33,7 @@ func main() {
 	cdc := app.MakeCodec()
 
 	// Read in the configuration file for the sdk
+	// TODO: change back when more refactor is done
 	// config := sdk.GetConfig()
 	// config.SetBech32PrefixForAccount(sdk.Bech32PrefixAccAddr, sdk.Bech32PrefixAccPub)
 	// config.SetBech32PrefixForValidator(sdk.Bech32PrefixValAddr, sdk.Bech32PrefixValPub)
@@ -47,12 +45,8 @@ func main() {
 	}
 	cosmos.CustomizeConfig(cfg)
 
-	// TODO: setup keybase, viper object, etc. to be passed into
-	// the below functions and eliminate global vars, like we do
-	// with the cdc
-
 	rootCmd := &cobra.Command{
-		Use:   "acli",
+		Use:   "mesg-cli",
 		Short: "Command line interface for interacting with appd",
 	}
 
@@ -77,8 +71,8 @@ func main() {
 		flags.NewCompletionCmd(rootCmd, true),
 	)
 
-	// Add flags and prefix all env exposed with AA
-	executor := cli.PrepareMainCmd(rootCmd, "AA", app.DefaultCLIHome)
+	// Add flags and prefix all env exposed with MESG
+	executor := cli.PrepareMainCmd(rootCmd, "MESG", app.DefaultCLIHome)
 
 	err = executor.Execute()
 	if err != nil {
