@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"path"
 
@@ -9,39 +10,44 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/keys"
 	"github.com/cosmos/cosmos-sdk/client/lcd"
 	"github.com/cosmos/cosmos-sdk/client/rpc"
-	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/version"
+	"github.com/cosmos/cosmos-sdk/x/auth"
 	authcmd "github.com/cosmos/cosmos-sdk/x/auth/client/cli"
 	authrest "github.com/cosmos/cosmos-sdk/x/auth/client/rest"
-	"github.com/mesg-foundation/engine/codec"
+	"github.com/cosmos/cosmos-sdk/x/bank"
+	bankcmd "github.com/cosmos/cosmos-sdk/x/bank/client/cli"
+	"github.com/mesg-foundation/engine/app"
 	"github.com/mesg-foundation/engine/config"
 	"github.com/mesg-foundation/engine/cosmos"
-	enginesdk "github.com/mesg-foundation/engine/sdk"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	amino "github.com/tendermint/go-amino"
+	"github.com/tendermint/go-amino"
 	"github.com/tendermint/tendermint/libs/cli"
 )
 
-var (
-	defaultCLIHome = os.ExpandEnv("$HOME/.mesg-cosmos-cli")
-	basicManager   module.BasicManager
-)
-
 func main() {
-	// init app and codec
+	// Configure cobra to sort commands
+	cobra.EnableCommandSorting = false
+
+	// Instantiate the codec for the command line application
+	cdc := app.MakeCodec()
+
+	// Read in the configuration file for the sdk
+	// TODO: change back when more refactor is done
+	// config := sdk.GetConfig()
+	// config.SetBech32PrefixForAccount(sdk.Bech32PrefixAccAddr, sdk.Bech32PrefixAccPub)
+	// config.SetBech32PrefixForValidator(sdk.Bech32PrefixValAddr, sdk.Bech32PrefixValPub)
+	// config.SetBech32PrefixForConsensusNode(sdk.Bech32PrefixConsAddr, sdk.Bech32PrefixConsPub)
+	// config.Seal()
 	cfg, err := config.New()
 	if err != nil {
 		panic(err)
 	}
 	cosmos.CustomizeConfig(cfg)
 
-	basicManager = *enginesdk.NewBasicManager()
-	cdc := codec.Codec
-
 	rootCmd := &cobra.Command{
-		Use:   "mesg-cosmos",
-		Short: "Cosmos Client",
+		Use:   "mesg-cli",
+		Short: "Command line interface for interacting with appd",
 	}
 
 	// Add --chain-id to persistent flags and mark it required
@@ -53,26 +59,26 @@ func main() {
 	// Construct Root Command
 	rootCmd.AddCommand(
 		rpc.StatusCommand(),
-		client.ConfigCmd(defaultCLIHome),
+		client.ConfigCmd(app.DefaultCLIHome),
 		queryCmd(cdc),
 		txCmd(cdc),
+		flags.LineBreak,
 		lcd.ServeCommand(cdc, registerRoutes),
+		flags.LineBreak,
 		keys.Commands(),
+		flags.LineBreak,
 		version.Cmd,
 		flags.NewCompletionCmd(rootCmd, true),
 	)
 
-	executor := cli.PrepareMainCmd(rootCmd, "MESG", defaultCLIHome)
+	// Add flags and prefix all env exposed with MESG
+	executor := cli.PrepareMainCmd(rootCmd, "MESG", app.DefaultCLIHome)
+
 	err = executor.Execute()
 	if err != nil {
-		panic(err)
+		fmt.Printf("Failed executing CLI command: %s, exiting...\n", err)
+		os.Exit(1)
 	}
-}
-
-func registerRoutes(rs *lcd.RestServer) {
-	client.RegisterRoutes(rs.CliCtx, rs.Mux)
-	authrest.RegisterTxRoutes(rs.CliCtx, rs.Mux)
-	basicManager.RegisterRESTRoutes(rs.CliCtx, rs.Mux)
 }
 
 func queryCmd(cdc *amino.Codec) *cobra.Command {
@@ -83,14 +89,17 @@ func queryCmd(cdc *amino.Codec) *cobra.Command {
 	}
 
 	queryCmd.AddCommand(
+		authcmd.GetAccountCmd(cdc),
+		flags.LineBreak,
 		rpc.ValidatorCommand(cdc),
 		rpc.BlockCommand(),
 		authcmd.QueryTxsByEventsCmd(cdc),
 		authcmd.QueryTxCmd(cdc),
+		flags.LineBreak,
 	)
 
 	// add modules' query commands
-	basicManager.AddQueryCommands(queryCmd, cdc)
+	app.ModuleBasics.AddQueryCommands(queryCmd, cdc)
 
 	return queryCmd
 }
@@ -102,14 +111,41 @@ func txCmd(cdc *amino.Codec) *cobra.Command {
 	}
 
 	txCmd.AddCommand(
+		bankcmd.SendTxCmd(cdc),
+		flags.LineBreak,
+		authcmd.GetSignCommand(cdc),
+		authcmd.GetMultiSignCommand(cdc),
+		flags.LineBreak,
 		authcmd.GetBroadcastCommand(cdc),
 		authcmd.GetEncodeCommand(cdc),
+		authcmd.GetDecodeCommand(cdc),
+		flags.LineBreak,
 	)
 
 	// add modules' tx commands
-	basicManager.AddTxCommands(txCmd, cdc)
+	app.ModuleBasics.AddTxCommands(txCmd, cdc)
+
+	// remove auth and bank commands as they're mounted under the root tx command
+	var cmdsToRemove []*cobra.Command
+
+	for _, cmd := range txCmd.Commands() {
+		if cmd.Use == auth.ModuleName || cmd.Use == bank.ModuleName {
+			cmdsToRemove = append(cmdsToRemove, cmd)
+		}
+	}
+
+	txCmd.RemoveCommand(cmdsToRemove...)
 
 	return txCmd
+}
+
+// registerRoutes registers the routes from the different modules for the LCD.
+// NOTE: details on the routes added for each module are in the module documentation
+// NOTE: If making updates here you also need to update the test helper in client/lcd/test_helper.go
+func registerRoutes(rs *lcd.RestServer) {
+	client.RegisterRoutes(rs.CliCtx, rs.Mux)
+	authrest.RegisterTxRoutes(rs.CliCtx, rs.Mux)
+	app.ModuleBasics.RegisterRESTRoutes(rs.CliCtx, rs.Mux)
 }
 
 func initConfig(cmd *cobra.Command) error {
