@@ -4,7 +4,6 @@ import (
 	fmt "fmt"
 
 	execution "github.com/mesg-foundation/engine/execution"
-	"github.com/mesg-foundation/engine/x/xstrings"
 )
 
 // Validate checks if given filter is valid and returns error.
@@ -55,9 +54,18 @@ func (f *StreamExecutionRequest_Filter) Match(e *execution.Execution) bool {
 		return false
 	}
 	for _, tag := range f.Tags {
-		if !xstrings.SliceContains(e.Tags, tag) {
+		if !f.sliceContains(e.Tags, tag) {
 			return false
 		}
 	}
 	return true
+}
+
+func (f *StreamExecutionRequest_Filter) sliceContains(a []string, e string) bool {
+	for _, s := range a {
+		if s == e {
+			return true
+		}
+	}
+	return false
 }

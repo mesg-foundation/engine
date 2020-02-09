@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"math/rand"
 	"sync"
 	"time"
 
@@ -135,7 +136,12 @@ func (c *Client) BuildAndBroadcastMsg(msg sdktypes.Msg) (*abci.ResponseDeliverTx
 
 // Stream subscribes to the provided query and returns the hash of the matching ressources.
 func (c *Client) Stream(ctx context.Context, query string) (chan hash.Hash, chan error, error) {
-	subscriber := xstrings.RandASCIILetters(8)
+	var asciiletters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	b := make([]byte, 8)
+	for i := range b {
+		b[i] = asciiletters[rand.Intn(len(asciiletters))]
+	}
+	subscriber := string(b)
 	eventStream, err := c.Subscribe(ctx, subscriber, query, 0)
 	if err != nil {
 		return nil, nil, err
