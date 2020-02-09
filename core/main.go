@@ -2,11 +2,17 @@ package main
 
 import (
 	crypto_rand "crypto/rand"
+	"encoding/binary"
 	"fmt"
 	"math/rand"
+	"net"
+	"os"
+	"os/signal"
 	"path/filepath"
 	"strconv"
 	"sync"
+	"syscall"
+	"time"
 
 	bam "github.com/cosmos/cosmos-sdk/baseapp"
 	cosmosclient "github.com/cosmos/cosmos-sdk/client"
@@ -148,7 +154,19 @@ func main() {
 		logrus.WithField("module", "main").Fatalln(err)
 	}
 
-	_, port, _ := xnet.SplitHostPort(cfg.Server.Address)
+	_, portStr, err := net.SplitHostPort(cfg.Server.Address)
+	if err != nil {
+		logrus.WithField("module", "main").Fatalln(err)
+	}
+
+	port, err := strconv.ParseInt(portStr, 10, 64)
+	if err != nil {
+		logrus.WithField("module", "main").Fatalln(err)
+	}
+
+	if port < 0 || port > 65535 {
+		logrus.WithField("module", "main").Fatalln(errors.New("port out of range"))
+	}
 
 	// init app factory
 	db, err := db.NewGoLevelDB("app", filepath.Join(cfg.Path, cfg.Cosmos.RelativePath))
@@ -190,7 +208,7 @@ func main() {
 	}
 
 	// init sdk
-	sdk := enginesdk.New(client, kb, container, cfg.Name, strconv.Itoa(port), cfg.IpfsEndpoint)
+	sdk := enginesdk.New(client, kb, container, cfg.Name, strconv.Itoa(int(port)), cfg.IpfsEndpoint)
 
 	// start tendermint node
 	logrus.WithField("module", "main").WithField("seeds", cfg.Tendermint.Config.P2P.Seeds).Info("starting tendermint node")
