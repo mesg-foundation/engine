@@ -22,8 +22,8 @@ const (
 	envSeparator  = "="
 )
 
-// Default global value to used from package level.
-var Validate, Translator = New()
+// Validate let's you validate data.
+var Validate, _ = New()
 
 // NewWithPrefix returns a new instance of 'validate' with more validation fields prefixed with 'prefix'.
 func NewWithPrefix(prefix string) (*validator.Validate, ut.Translator) {

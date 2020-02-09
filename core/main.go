@@ -151,18 +151,9 @@ func main() {
 		logrus.WithField("module", "main").Fatalln(err)
 	}
 
-	_, portStr, err := net.SplitHostPort(cfg.Server.Address)
+	_, port, err := splitHostPort(cfg.Server.Address)
 	if err != nil {
 		logrus.WithField("module", "main").Fatalln(err)
-	}
-
-	port, err := strconv.ParseInt(portStr, 10, 64)
-	if err != nil {
-		logrus.WithField("module", "main").Fatalln(err)
-	}
-
-	if port < 0 || port > 65535 {
-		logrus.WithField("module", "main").Fatalln(errors.New("port out of range"))
 	}
 
 	// init app factory
@@ -205,7 +196,7 @@ func main() {
 	}
 
 	// init sdk
-	sdk := enginesdk.New(client, kb, container, cfg.Name, strconv.Itoa(int(port)), cfg.IpfsEndpoint)
+	sdk := enginesdk.New(client, kb, container, cfg.Name, strconv.Itoa(port), cfg.IpfsEndpoint)
 
 	// start tendermint node
 	logrus.WithField("module", "main").WithField("seeds", cfg.Tendermint.Config.P2P.Seeds).Info("starting tendermint node")
@@ -281,4 +272,25 @@ func main() {
 	server.Close()
 
 	logrus.WithField("module", "main").Info("everything is stopped")
+}
+
+// SplitHostPort splits a network address of the form "host:port",
+// "host%zone:port", "[host]:port" or "[host%zone]:port" into host or
+// host%zone and port.
+func splitHostPort(hostport string) (string, int, error) {
+	host, portStr, err := net.SplitHostPort(hostport)
+	if err != nil {
+		return "", 0, err
+	}
+
+	port, err := strconv.ParseInt(portStr, 10, 64)
+	if err != nil {
+		return "", 0, &net.AddrError{Err: "can't parse port", Addr: hostport}
+	}
+
+	if port < 0 || port > 65535 {
+		return "", 0, &net.AddrError{Err: "port out of range", Addr: hostport}
+	}
+
+	return host, int(port), nil
 }

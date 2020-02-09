@@ -6,6 +6,7 @@ import (
 	"sync"
 )
 
+// New returns a new error
 func New(text string) error {
 	return e.New(text)
 }
