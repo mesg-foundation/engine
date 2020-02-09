@@ -7,11 +7,12 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/mesg-foundation/engine/hash"
 	pb "github.com/mesg-foundation/engine/protobuf/api"
-	"github.com/mesg-foundation/engine/x/xsignal"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/keepalive"
 )
@@ -122,5 +123,7 @@ func main() {
 		client.SendEvent("access_volumes_from_error")
 	}
 
-	<-xsignal.WaitForInterrupt()
+	abort := make(chan os.Signal, 1)
+	signal.Notify(abort, os.Interrupt, syscall.SIGTERM)
+	<-abort
 }

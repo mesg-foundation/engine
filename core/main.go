@@ -235,7 +235,9 @@ func main() {
 		}
 	}()
 
-	<-xsignal.WaitForInterrupt()
+	abort := make(chan os.Signal, 1)
+	signal.Notify(abort, os.Interrupt, syscall.SIGTERM)
+	<-abort
 
 	logrus.WithField("module", "main").Info("stopping lcd server")
 	if err := lcdServer.Close(); err != nil {
