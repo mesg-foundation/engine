@@ -1,7 +1,6 @@
 package runnersdk
 
 import (
-	"errors"
 	"io/ioutil"
 	"net"
 	"net/http"
@@ -14,10 +13,9 @@ import (
 	"github.com/docker/docker/pkg/archive"
 	"github.com/mesg-foundation/engine/container"
 	"github.com/mesg-foundation/engine/env"
+	"github.com/mesg-foundation/engine/errors"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/service"
-	"github.com/mesg-foundation/engine/x/xerrors"
-	"github.com/mesg-foundation/engine/x/xos"
 )
 
 // Build the imge of the container
@@ -144,7 +142,7 @@ func start(cont container.Container, srv *service.Service, instanceHash hash.Has
 func stop(cont container.Container, runnerHash hash.Hash, dependencies []*service.Service_Dependency) error {
 	var (
 		wg         sync.WaitGroup
-		errs       xerrors.SyncErrors
+		errs       errors.SyncErrors
 		namespace  = namespace(runnerHash)
 		namespaces = make([]string, 0)
 	)
@@ -178,7 +176,7 @@ func stop(cont container.Container, runnerHash hash.Hash, dependencies []*servic
 func deleteData(cont container.Container, s *service.Service) error {
 	var (
 		wg      sync.WaitGroup
-		errs    xerrors.SyncErrors
+		errs    errors.SyncErrors
 		volumes = make([]container.Mount, 0)
 	)
 

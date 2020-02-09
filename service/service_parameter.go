@@ -3,13 +3,13 @@ package service
 import (
 	"fmt"
 
+	"github.com/mesg-foundation/engine/errors"
 	"github.com/mesg-foundation/engine/protobuf/types"
-	"github.com/mesg-foundation/engine/x/xerrors"
 )
 
 // validateServiceParameters validates data to see if it matches with parameters schema.
 func validateServiceParameters(parameters []*Service_Parameter, data *types.Struct) error {
-	var errs xerrors.Errors
+	var errs errors.Errors
 
 	for _, p := range parameters {
 		var value *types.Value

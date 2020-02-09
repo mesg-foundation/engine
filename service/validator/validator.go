@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/mesg-foundation/engine/errors"
 	"github.com/mesg-foundation/engine/service"
 	"github.com/mesg-foundation/engine/validator"
 	validatorv9 "gopkg.in/go-playground/validator.v9"
@@ -22,7 +23,7 @@ func ValidateService(s *service.Service) error {
 }
 
 func validateServiceStruct(s *service.Service) error {
-	var errs xerrors.Errors
+	var errs errors.Errors
 	// validate service struct based on tag
 	if err := validate.Struct(s); err != nil {
 		for _, e := range err.(validatorv9.ValidationErrors) {
@@ -41,7 +42,7 @@ func validateServiceStruct(s *service.Service) error {
 }
 
 func validateServiceData(s *service.Service) error {
-	var errs xerrors.Errors
+	var errs errors.Errors
 	if err := isServiceKeysUnique(s); err != nil {
 		errs = append(errs, err)
 	}
@@ -90,7 +91,7 @@ func validateServiceData(s *service.Service) error {
 
 // isServiceKeysUnique checks uniqueness of service deps/tasks/events/params keys.
 func isServiceKeysUnique(s *service.Service) error {
-	var errs xerrors.Errors
+	var errs errors.Errors
 	exist := make(map[string]bool)
 	for _, dep := range s.Dependencies {
 		if exist[dep.Key] {
@@ -133,7 +134,7 @@ func isServiceParamsUnique(ps []*service.Service_Parameter, errprefix string) er
 		return nil
 	}
 
-	var errs xerrors.Errors
+	var errs errors.Errors
 	existparam := make(map[string]bool)
 	for _, p := range ps {
 		if existparam[p.Key] {

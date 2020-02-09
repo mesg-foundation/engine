@@ -1,4 +1,4 @@
-package xerrors
+package errors
 
 import (
 	"errors"

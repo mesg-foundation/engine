@@ -1,9 +1,14 @@
-package xerrors
+package errors
 
 import (
+	e "errors"
 	"strings"
 	"sync"
 )
+
+func New(text string) error {
+	return e.New(text)
+}
 
 // Errors is an error for tracing multiple errors.
 type Errors []error
