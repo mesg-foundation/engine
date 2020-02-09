@@ -6,13 +6,13 @@ import (
 
 	"github.com/mesg-foundation/engine/container"
 	"github.com/mesg-foundation/engine/cosmos"
+	"github.com/mesg-foundation/engine/env"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/instance"
 	"github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/mesg-foundation/engine/runner"
 	instancesdk "github.com/mesg-foundation/engine/sdk/instance"
 	servicesdk "github.com/mesg-foundation/engine/sdk/service"
-	"github.com/mesg-foundation/engine/x/xos"
 )
 
 // SDK is the runner sdk.
@@ -54,7 +54,7 @@ func (s *SDK) Create(req *api.CreateRunnerRequest) (*runner.Runner, error) {
 	if err != nil {
 		return nil, err
 	}
-	instanceEnv := xos.EnvMergeSlices(srv.Configuration.Env, req.Env)
+	instanceEnv := env.MergeSlices(srv.Configuration.Env, req.Env)
 	envHash := hash.Dump(instanceEnv)
 	// TODO: should be done by instance or runner
 	instanceHash := hash.Dump(&instance.Instance{

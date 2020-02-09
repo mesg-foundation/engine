@@ -13,6 +13,7 @@ import (
 	"github.com/docker/docker/client"
 	"github.com/docker/docker/pkg/archive"
 	"github.com/mesg-foundation/engine/container"
+	"github.com/mesg-foundation/engine/env"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/service"
 	"github.com/mesg-foundation/engine/x/xerrors"
@@ -51,7 +52,7 @@ func build(cont container.Container, srv *service.Service, ipfsEndpoint string) 
 }
 
 // Start starts the service.
-func start(cont container.Container, srv *service.Service, instanceHash hash.Hash, runnerHash hash.Hash, imageHash string, env []string, engineName, port string) (serviceIDs []string, err error) {
+func start(cont container.Container, srv *service.Service, instanceHash hash.Hash, runnerHash hash.Hash, imageHash string, envs []string, engineName, port string) (serviceIDs []string, err error) {
 	endpoint := net.JoinHostPort(engineName, port)
 	namespace := namespace(runnerHash)
 	networkID, err := cont.CreateNetwork(namespace)
@@ -112,7 +113,7 @@ func start(cont container.Container, srv *service.Service, instanceHash hash.Has
 		Image:   imageHash,
 		Args:    srv.Configuration.Args,
 		Command: srv.Configuration.Command,
-		Env: xos.EnvMergeSlices(env, []string{
+		Env: env.MergeSlices(envs, []string{
 			"MESG_INSTANCE_HASH=" + instanceHash.String(),
 			"MESG_RUNNER_HASH=" + runnerHash.String(),
 			"MESG_ENDPOINT=" + endpoint,

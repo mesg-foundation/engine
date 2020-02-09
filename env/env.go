@@ -1,13 +1,13 @@
-package xos
+package env
 
 import (
 	"sort"
 	"strings"
 )
 
-// EnvMergeSlices merges multiple slices into single one.
+// MergeSlices merges multiple slices into single one.
 // If the same key exist multiple time, it will be added in occurrence order.
-func EnvMergeSlices(values ...[]string) []string {
+func MergeSlices(values ...[]string) []string {
 	envs := make(map[string]string)
 	for _, value := range values {
 		for _, v := range value {
