@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"math/rand"
+	"reflect"
 	"sync"
 	"time"
 
@@ -17,8 +18,6 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/mesg-foundation/engine/codec"
 	"github.com/mesg-foundation/engine/hash"
-	"github.com/mesg-foundation/engine/x/xreflect"
-	"github.com/mesg-foundation/engine/x/xstrings"
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/node"
 	rpcclient "github.com/tendermint/tendermint/rpc/client"
@@ -59,7 +58,7 @@ func NewClient(node *node.Node, kb keys.Keybase, chainID, accName, accPassword, 
 // Query is abci.query wrapper with errors check and decode data.
 func (c *Client) Query(path string, qdata, ptr interface{}) error {
 	var data []byte
-	if !xreflect.IsNil(qdata) {
+	if !isNil(qdata) {
 		b, err := codec.MarshalBinaryBare(qdata)
 		if err != nil {
 			return err
@@ -259,4 +258,17 @@ func (c *Client) createAndSignTx(msgs []sdktypes.Msg) (tenderminttypes.Tx, error
 	}
 
 	return txBuilder.TxEncoder()(signedTx)
+}
+
+func isNil(o interface{}) bool {
+	if o == nil {
+		return true
+	}
+
+	for rv := reflect.ValueOf(o); rv.Kind() == reflect.Ptr; rv = rv.Elem() {
+		if rv.IsNil() {
+			return true
+		}
+	}
+	return false
 }
