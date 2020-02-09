@@ -1,7 +1,9 @@
 package main
 
 import (
+	crypto_rand "crypto/rand"
 	"fmt"
+	"math/rand"
 	"path/filepath"
 	"strconv"
 	"sync"
@@ -117,7 +119,13 @@ func loadOrGenDevGenesis(kb *cosmos.Keybase, cfg *config.Config) (*tmtypes.Genes
 }
 
 func main() {
-	xrand.SeedInit()
+	var b [8]byte
+	if _, err := crypto_rand.Read(b[:]); err == nil {
+		rand.Seed(int64(binary.LittleEndian.Uint64(b[:])))
+	} else {
+		// fallback to unix nano time
+		rand.Seed(time.Now().UTC().UnixNano())
+	}
 
 	cfg, err := config.New()
 	if err != nil {
