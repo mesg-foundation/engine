@@ -6,7 +6,7 @@ import (
 	"github.com/mesg-foundation/engine/codec"
 	"github.com/mesg-foundation/engine/cosmos"
 	"github.com/mesg-foundation/engine/protobuf/api"
-	"github.com/mesg-foundation/engine/x/xvalidator"
+	"github.com/mesg-foundation/engine/validator"
 )
 
 // msgCreateExecution defines a state transition to create a execution.
@@ -38,7 +38,7 @@ func (msg msgCreateExecution) Type() string {
 
 // ValidateBasic runs stateless checks on the message.
 func (msg msgCreateExecution) ValidateBasic() error {
-	if err := xvalidator.Validate.Struct(msg); err != nil {
+	if err := validator.Validate.Struct(msg); err != nil {
 		return err
 	}
 	if !msg.Request.ParentHash.IsZero() && !msg.Request.EventHash.IsZero() {

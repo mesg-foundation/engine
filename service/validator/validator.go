@@ -5,14 +5,13 @@ import (
 	"strings"
 
 	"github.com/mesg-foundation/engine/service"
-	"github.com/mesg-foundation/engine/x/xerrors"
-	"github.com/mesg-foundation/engine/x/xvalidator"
-	validator "gopkg.in/go-playground/validator.v9"
+	"github.com/mesg-foundation/engine/validator"
+	validatorv9 "gopkg.in/go-playground/validator.v9"
 )
 
 const namespacePrefix = "service."
 
-var validate, translator = xvalidator.NewWithPrefix(namespacePrefix)
+var validate, translator = validator.NewWithPrefix(namespacePrefix)
 
 // ValidateService validates if service contains proper data.
 func ValidateService(s *service.Service) error {
@@ -26,7 +25,7 @@ func validateServiceStruct(s *service.Service) error {
 	var errs xerrors.Errors
 	// validate service struct based on tag
 	if err := validate.Struct(s); err != nil {
-		for _, e := range err.(validator.ValidationErrors) {
+		for _, e := range err.(validatorv9.ValidationErrors) {
 			// Remove the name of the struct and the field from namespace
 			trimmedNamespace := strings.TrimPrefix(e.Namespace(), namespacePrefix)
 			trimmedNamespace = strings.TrimSuffix(trimmedNamespace, e.Field())

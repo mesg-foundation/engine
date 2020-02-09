@@ -12,7 +12,7 @@ import (
 	protobuf_api "github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/mesg-foundation/engine/sdk"
 	"github.com/mesg-foundation/engine/server/grpc/api"
-	"github.com/mesg-foundation/engine/x/xvalidator"
+	"github.com/mesg-foundation/engine/validator"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/keepalive"
@@ -67,7 +67,7 @@ func (s *Server) Close() {
 }
 
 func validateInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
-	if err := xvalidator.Validate.Struct(req); err != nil {
+	if err := validator.Validate.Struct(req); err != nil {
 		return nil, err
 	}
 	return handler(ctx, req)

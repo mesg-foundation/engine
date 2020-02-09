@@ -6,7 +6,7 @@ import (
 	"github.com/mesg-foundation/engine/codec"
 	"github.com/mesg-foundation/engine/cosmos"
 	"github.com/mesg-foundation/engine/hash"
-	"github.com/mesg-foundation/engine/x/xvalidator"
+	"github.com/mesg-foundation/engine/validator"
 )
 
 // msgCreateRunner defines a state transition to create a runner.
@@ -37,7 +37,7 @@ func (msg msgCreateRunner) Type() string {
 
 // ValidateBasic runs stateless checks on the message.
 func (msg msgCreateRunner) ValidateBasic() error {
-	if err := xvalidator.Validate.Struct(msg); err != nil {
+	if err := validator.Validate.Struct(msg); err != nil {
 		return err
 	}
 	if msg.ServiceHash.IsZero() {
@@ -88,7 +88,7 @@ func (msg msgDeleteRunner) Type() string {
 
 // ValidateBasic runs stateless checks on the message.
 func (msg msgDeleteRunner) ValidateBasic() error {
-	if err := xvalidator.Validate.Struct(msg); err != nil {
+	if err := validator.Validate.Struct(msg); err != nil {
 		return err
 	}
 	if msg.RunnerHash.IsZero() {

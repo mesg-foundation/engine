@@ -7,7 +7,7 @@ import (
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/process"
 	"github.com/mesg-foundation/engine/protobuf/api"
-	"github.com/mesg-foundation/engine/x/xvalidator"
+	"github.com/mesg-foundation/engine/validator"
 )
 
 // msgCreateProcess defines a state transition to create a service.
@@ -39,7 +39,7 @@ func (msg msgCreateProcess) ValidateBasic() error {
 	if msg.Owner.Empty() {
 		return cosmoserrors.Wrap(cosmoserrors.ErrInvalidAddress, "owner is missing")
 	}
-	if err := xvalidator.Validate.Struct(msg); err != nil {
+	if err := validator.Validate.Struct(msg); err != nil {
 		return err
 	}
 	p := &process.Process{
@@ -93,7 +93,7 @@ func (msg msgDeleteProcess) ValidateBasic() error {
 	if msg.Owner.Empty() {
 		return cosmoserrors.Wrap(cosmoserrors.ErrInvalidAddress, "owner is missing")
 	}
-	if err := xvalidator.Validate.Struct(msg); err != nil {
+	if err := validator.Validate.Struct(msg); err != nil {
 		return err
 	}
 	return nil

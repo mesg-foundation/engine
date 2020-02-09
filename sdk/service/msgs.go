@@ -5,7 +5,7 @@ import (
 	cosmoserrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/mesg-foundation/engine/codec"
 	"github.com/mesg-foundation/engine/protobuf/api"
-	"github.com/mesg-foundation/engine/x/xvalidator"
+	"github.com/mesg-foundation/engine/validator"
 )
 
 // msgCreateService defines a state transition to create a service.
@@ -34,7 +34,7 @@ func (msg msgCreateService) Type() string {
 
 // ValidateBasic runs stateless checks on the message.
 func (msg msgCreateService) ValidateBasic() error {
-	if err := xvalidator.Validate.Struct(msg); err != nil {
+	if err := validator.Validate.Struct(msg); err != nil {
 		return err
 	}
 	if msg.Owner.Empty() {
