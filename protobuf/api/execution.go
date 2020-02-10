@@ -4,7 +4,7 @@ import (
 	fmt "fmt"
 
 	execution "github.com/mesg-foundation/engine/execution"
-	"github.com/mesg-foundation/engine/x/xstrings"
+	"github.com/mesg-foundation/engine/ext/xstrings"
 )
 
 // Validate checks if given filter is valid and returns error.

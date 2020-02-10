@@ -9,8 +9,8 @@ import (
 	cosmostypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/go-playground/locales/en"
 	ut "github.com/go-playground/universal-translator"
+	"github.com/mesg-foundation/engine/ext/xnet"
 	"github.com/mesg-foundation/engine/hash"
-	"github.com/mesg-foundation/engine/x/xnet"
 	validator "gopkg.in/go-playground/validator.v9"
 	en_translations "gopkg.in/go-playground/validator.v9/translations/en"
 )
