@@ -8,17 +8,17 @@ import (
 	"github.com/mesg-foundation/engine/codec"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/runner"
-	instancesdk "github.com/mesg-foundation/engine/sdk/instance"
+	"github.com/mesg-foundation/engine/x/instance"
 )
 
 // Keeper holds the logic to read and write data.
 type Keeper struct {
 	storeKey       *cosmostypes.KVStoreKey
-	instanceKeeper *instancesdk.Keeper
+	instanceKeeper instance.Keeper
 }
 
 // NewKeeper initialize a new keeper.
-func NewKeeper(storeKey *cosmostypes.KVStoreKey, instanceKeeper *instancesdk.Keeper) *Keeper {
+func NewKeeper(storeKey *cosmostypes.KVStoreKey, instanceKeeper instance.Keeper) *Keeper {
 	return &Keeper{
 		storeKey:       storeKey,
 		instanceKeeper: instanceKeeper,
