@@ -91,7 +91,7 @@ func (k Keeper) findOwnerships(store sdk.KVStore, owner string, resourceHash has
 
 	for iter.Valid() {
 		var o *ownership.Ownership
-		if err := k.cdc.UnmarshalBinaryBare(iter.Value(), &o); err == nil {
+		if err := k.cdc.UnmarshalBinaryLengthPrefixed(iter.Value(), &o); err == nil {
 			if (owner == "" || o.Owner == owner) && o.ResourceHash.Equal(resourceHash) {
 				ownerships = append(ownerships, o.Hash)
 			}

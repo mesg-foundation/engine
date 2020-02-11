@@ -27,7 +27,7 @@ func NewOwnershipServer(sdk *sdk.SDK, client *cosmos.Client) *OwnershipServer {
 // List returns all ownerships.
 func (s *OwnershipServer) List(ctx context.Context, req *protobuf_api.ListOwnershipRequest) (*protobuf_api.ListOwnershipResponse, error) {
 	var ownerships []*ownershippb.Ownership
-	if err := s.client.QueryJSON("custom/"+ownership.ModuleName+"/"+ownership.QueryListOwnerships, nil, &ownerships); err != nil {
+	if err := s.client.QueryJSON("custom/"+ownership.QuerierRoute+"/"+ownership.QueryListOwnerships, nil, &ownerships); err != nil {
 		return nil, err
 	}
 	return &protobuf_api.ListOwnershipResponse{Ownerships: ownerships}, nil

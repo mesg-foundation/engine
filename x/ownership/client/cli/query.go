@@ -37,9 +37,9 @@ func GetCmdListOwnerships(queryRoute string, cdc *codec.Codec) *cobra.Command {
 		Short: "list",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
-			res, _, err := cliCtx.QueryWithData(fmt.Sprintf("custom/%s/"+types.QueryListOwnerships, queryRoute), nil)
+			res, _, err := cliCtx.QueryWithData(fmt.Sprintf("custom/%s/%s", queryRoute, types.QueryListOwnerships), nil)
 			if err != nil {
-				fmt.Printf("could not get scavenges\n%s\n", err.Error())
+				fmt.Printf("could not get ownerships\n%s\n", err.Error())
 				return nil
 			}
 

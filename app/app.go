@@ -59,7 +59,7 @@ var (
 		supply.AppModuleBasic{},
 
 		// Engine's AppModuleBasic
-		cosmos.NewAppModuleBasic(ownership.ModuleName),
+		ownership.AppModuleBasic{},
 		cosmos.NewAppModuleBasic(servicesdk.ModuleName),
 		cosmos.NewAppModuleBasic(instancesdk.ModuleName),
 		cosmos.NewAppModuleBasic(runnersdk.ModuleName),
@@ -84,7 +84,6 @@ func MakeCodec() *codec.Codec {
 
 	ModuleBasics.RegisterCodec(mesgcodec.Codec)
 	vesting.RegisterCodec(mesgcodec.Codec)
-	ownership.RegisterCodec(mesgcodec.Codec)
 	// sdk.RegisterCodec(cdc)
 	// codec.RegisterCrypto(cdc)
 
@@ -243,7 +242,7 @@ func NewInitApp(
 	)
 
 	// Engine's module keepers
-	app.ownershipKeeper = ownership.NewKeeper(app.cdc, keys[ownership.ModuleName])
+	app.ownershipKeeper = ownership.NewKeeper(app.cdc, keys[ownership.StoreKey])
 	app.serviceKeeper = servicesdk.NewKeeper(keys[servicesdk.ModuleName], app.ownershipKeeper)
 	app.instanceKeeper = instancesdk.NewKeeper(keys[instancesdk.ModuleName])
 	app.runnerKeeper = runnersdk.NewKeeper(keys[runnersdk.ModuleName], app.instanceKeeper)
