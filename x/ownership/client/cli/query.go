@@ -24,7 +24,9 @@ func GetQueryCmd(queryRoute string, cdc *codec.Codec) *cobra.Command {
 	}
 
 	ownershipQueryCmd.AddCommand(
-		flags.GetCommands()...,
+		flags.GetCommands(
+			GetCmdListOwnerships(queryRoute, cdc),
+		)...,
 	)
 
 	return ownershipQueryCmd

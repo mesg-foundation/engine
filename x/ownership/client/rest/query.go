@@ -28,7 +28,7 @@ func queryListHandlerFn(cliCtx context.CLIContext) http.HandlerFunc {
 			return
 		}
 
-		route := fmt.Sprintf("custom/%s/list", types.QuerierRoute)
+		route := fmt.Sprintf("custom/%s/%s", types.QuerierRoute, types.QueryListOwnerships)
 
 		res, height, err := cliCtx.QueryWithData(route, nil)
 		if err != nil {
