@@ -74,12 +74,12 @@ func (k Keeper) List(ctx sdk.Context, f *api.ListInstanceRequest_Filter) ([]*ins
 	var items []*instance.Instance
 
 	for iter.Valid() {
-		var item instance.Instance
+		var item *instance.Instance
 		if err := k.cdc.UnmarshalBinaryLengthPrefixed(iter.Value(), &item); err != nil {
 			return nil, err
 		}
 		if f == nil || f.ServiceHash.IsZero() || item.ServiceHash.Equal(f.ServiceHash) {
-			items = append(items, &item)
+			items = append(items, item)
 		}
 		iter.Next()
 	}
