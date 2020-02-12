@@ -50,11 +50,21 @@ func testService(t *testing.T) {
 	})
 
 	t.Run("check ownership creation", func(t *testing.T) {
-		ownerships, err := client.OwnershipClient.List(context.Background(), &pb.ListOwnershipRequest{})
-		require.NoError(t, err)
-		require.Len(t, ownerships.Ownerships, 1)
-		require.NotEmpty(t, ownerships.Ownerships[0].Owner)
-		require.Equal(t, ownership.Ownership_Service, ownerships.Ownerships[0].Resource)
-		require.Equal(t, testServiceHash, ownerships.Ownerships[0].ResourceHash)
+		t.Run("lcd", func(t *testing.T) {
+			ownerships, err := client.OwnershipClient.List(context.Background(), &pb.ListOwnershipRequest{})
+			require.NoError(t, err)
+			require.Len(t, ownerships.Ownerships, 1)
+			require.NotEmpty(t, ownerships.Ownerships[0].Owner)
+			require.Equal(t, ownership.Ownership_Service, ownerships.Ownerships[0].Resource)
+			require.Equal(t, testServiceHash, ownerships.Ownerships[0].ResourceHash)
+		})
+		t.Run("grpc", func(t *testing.T) {
+			ownerships := make([]*ownership.Ownership, 0)
+			lcdGet(t, "ownership/list", &ownerships)
+			require.Len(t, ownerships, 1)
+			require.NotEmpty(t, ownerships[0].Owner)
+			require.Equal(t, ownership.Ownership_Service, ownerships[0].Resource)
+			require.Equal(t, testServiceHash, ownerships[0].ResourceHash)
+		})
 	})
 }
