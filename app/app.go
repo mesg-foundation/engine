@@ -29,11 +29,11 @@ import (
 	mesgcodec "github.com/mesg-foundation/engine/codec"
 	"github.com/mesg-foundation/engine/cosmos"
 	executionsdk "github.com/mesg-foundation/engine/sdk/execution"
-	processsdk "github.com/mesg-foundation/engine/sdk/process"
 	runnersdk "github.com/mesg-foundation/engine/sdk/runner"
 	servicesdk "github.com/mesg-foundation/engine/sdk/service"
 	"github.com/mesg-foundation/engine/x/instance"
 	"github.com/mesg-foundation/engine/x/ownership"
+	"github.com/mesg-foundation/engine/x/process"
 )
 
 const appName = "engine"
@@ -61,10 +61,10 @@ var (
 		// Engine's AppModuleBasic
 		ownership.AppModuleBasic{},
 		instance.AppModuleBasic{},
+		process.AppModuleBasic{},
 		cosmos.NewAppModuleBasic(servicesdk.ModuleName),
 		cosmos.NewAppModuleBasic(runnersdk.ModuleName),
 		cosmos.NewAppModuleBasic(executionsdk.ModuleName),
-		cosmos.NewAppModuleBasic(processsdk.ModuleName),
 	)
 
 	// module account permissions
@@ -117,9 +117,9 @@ type NewApp struct {
 	// Engine's keepers
 	ownershipKeeper ownership.Keeper
 	instanceKeeper  instance.Keeper
+	processKeeper   process.Keeper
 	serviceKeeper   *servicesdk.Keeper
 	runnerKeeper    *runnersdk.Keeper
-	processKeeper   *processsdk.Keeper
 	executionKeeper *executionsdk.Keeper
 
 	// Module Manager
@@ -157,10 +157,10 @@ func NewInitApp(
 		// Engine's module keys
 		ownership.ModuleName,
 		instance.ModuleName,
+		process.ModuleName,
 		servicesdk.ModuleName,
 		runnersdk.ModuleName,
 		executionsdk.ModuleName,
-		processsdk.ModuleName,
 	)
 
 	tKeys := sdk.NewTransientStoreKeys(staking.TStoreKey, params.TStoreKey)
@@ -244,9 +244,9 @@ func NewInitApp(
 	// Engine's module keepers
 	app.ownershipKeeper = ownership.NewKeeper(app.cdc, keys[ownership.StoreKey])
 	app.instanceKeeper = instance.NewKeeper(app.cdc, keys[instance.StoreKey])
+	app.processKeeper = process.NewKeeper(app.cdc, keys[process.StoreKey], app.instanceKeeper, app.ownershipKeeper)
 	app.serviceKeeper = servicesdk.NewKeeper(keys[servicesdk.ModuleName], app.ownershipKeeper)
 	app.runnerKeeper = runnersdk.NewKeeper(keys[runnersdk.ModuleName], app.instanceKeeper)
-	app.processKeeper = processsdk.NewKeeper(keys[processsdk.ModuleName], app.ownershipKeeper, app.instanceKeeper)
 	app.executionKeeper = executionsdk.NewKeeper(keys[executionsdk.ModuleName], app.serviceKeeper, app.instanceKeeper, app.runnerKeeper, app.processKeeper)
 
 	// NOTE: Any module instantiated in the module manager that is later modified
@@ -262,10 +262,10 @@ func NewInitApp(
 		// Engine's modules
 		ownership.NewAppModule(app.ownershipKeeper),
 		instance.NewAppModule(app.instanceKeeper),
+		process.NewAppModule(app.processKeeper),
 		servicesdk.NewModule(app.serviceKeeper),
 		runnersdk.NewModule(app.runnerKeeper),
 		executionsdk.NewModule(app.executionKeeper),
-		processsdk.NewModule(app.processKeeper),
 
 		staking.NewAppModule(app.stakingKeeper, app.accountKeeper, app.supplyKeeper),
 	)
@@ -289,10 +289,10 @@ func NewInitApp(
 		// Engine's modules
 		ownership.ModuleName,
 		instance.ModuleName,
+		process.ModuleName,
 		servicesdk.ModuleName,
 		runnersdk.ModuleName,
 		executionsdk.ModuleName,
-		processsdk.ModuleName,
 
 		supply.ModuleName,
 		genutil.ModuleName,
