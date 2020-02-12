@@ -23,7 +23,10 @@ type apiclient struct {
 	pb.RunnerClient
 }
 
-var client apiclient
+var (
+	client apiclient
+	cdc    = app.MakeCodec()
+)
 
 const lcdEndpoint = "http://127.0.0.1:1317/"
 
@@ -33,7 +36,6 @@ func lcdGet(t *testing.T, path string, ptr interface{}) {
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
 	require.NoError(t, err)
-	cdc := app.MakeCodec()
 	cosResp := rest.ResponseWithHeight{}
 	require.NoError(t, cdc.UnmarshalJSON(body, &cosResp))
 	require.NoError(t, cdc.UnmarshalJSON(cosResp.Result, ptr))
