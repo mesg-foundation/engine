@@ -8,7 +8,7 @@ import (
 )
 
 func TestServerServe(t *testing.T) {
-	s := New(nil, nil)
+	s := New(nil, nil, nil)
 	go func() {
 		time.Sleep(500 * time.Millisecond)
 		s.Close()

@@ -6,24 +6,24 @@ import (
 	cosmostypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/mesg-foundation/engine/codec"
 	"github.com/mesg-foundation/engine/hash"
-	"github.com/mesg-foundation/engine/ownership"
+	ownershippb "github.com/mesg-foundation/engine/ownership"
 	"github.com/mesg-foundation/engine/protobuf/api"
-	ownershipsdk "github.com/mesg-foundation/engine/sdk/ownership"
 	"github.com/mesg-foundation/engine/service"
 	"github.com/mesg-foundation/engine/service/validator"
+	"github.com/mesg-foundation/engine/x/ownership"
 )
 
 // Keeper holds the logic to read and write data.
 type Keeper struct {
-	storeKey   *cosmostypes.KVStoreKey
-	ownerships *ownershipsdk.Keeper
+	storeKey        *cosmostypes.KVStoreKey
+	ownershipKeeper ownership.Keeper
 }
 
 // NewKeeper initialize a new keeper.
-func NewKeeper(storeKey *cosmostypes.KVStoreKey, ownerships *ownershipsdk.Keeper) *Keeper {
+func NewKeeper(storeKey *cosmostypes.KVStoreKey, ownershipKeeper ownership.Keeper) *Keeper {
 	return &Keeper{
-		storeKey:   storeKey,
-		ownerships: ownerships,
+		storeKey:        storeKey,
+		ownershipKeeper: ownershipKeeper,
 	}
 }
 
@@ -48,7 +48,7 @@ func (k *Keeper) Create(request cosmostypes.Request, msg *msgCreateService) (*se
 		return nil, err
 	}
 
-	if _, err := k.ownerships.Create(request, msg.Owner, srv.Hash, ownership.Ownership_Service); err != nil {
+	if _, err := k.ownershipKeeper.Set(request, msg.Owner, srv.Hash, ownershippb.Ownership_Service); err != nil {
 		return nil, err
 	}
 

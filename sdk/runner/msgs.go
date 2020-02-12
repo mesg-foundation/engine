@@ -5,8 +5,8 @@ import (
 	cosmoserrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/mesg-foundation/engine/codec"
 	"github.com/mesg-foundation/engine/cosmos"
+	"github.com/mesg-foundation/engine/ext/xvalidator"
 	"github.com/mesg-foundation/engine/hash"
-	"github.com/mesg-foundation/engine/x/xvalidator"
 )
 
 // msgCreateRunner defines a state transition to create a runner.

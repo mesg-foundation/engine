@@ -15,9 +15,9 @@ import (
 	authExported "github.com/cosmos/cosmos-sdk/x/auth/exported"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/mesg-foundation/engine/codec"
+	"github.com/mesg-foundation/engine/ext/xreflect"
+	"github.com/mesg-foundation/engine/ext/xstrings"
 	"github.com/mesg-foundation/engine/hash"
-	"github.com/mesg-foundation/engine/x/xreflect"
-	"github.com/mesg-foundation/engine/x/xstrings"
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/node"
 	rpcclient "github.com/tendermint/tendermint/rpc/client"
@@ -53,6 +53,24 @@ func NewClient(node *node.Node, kb keys.Keybase, chainID, accName, accPassword, 
 		accPassword:  accPassword,
 		minGasPrices: minGasPricesDecoded,
 	}, nil
+}
+
+// QueryJSON is abci.query wrapper with errors check and decode data.
+func (c *Client) QueryJSON(path string, qdata, ptr interface{}) error {
+	var data []byte
+	if !xreflect.IsNil(qdata) {
+		b, err := codec.MarshalJSON(qdata)
+		if err != nil {
+			return err
+		}
+		data = b
+	}
+
+	result, _, err := c.QueryWithData(path, data)
+	if err != nil {
+		return err
+	}
+	return codec.UnmarshalJSON(result, ptr)
 }
 
 // Query is abci.query wrapper with errors check and decode data.

@@ -13,10 +13,10 @@ import (
 	"github.com/docker/docker/client"
 	"github.com/docker/docker/pkg/archive"
 	"github.com/mesg-foundation/engine/container"
+	"github.com/mesg-foundation/engine/ext/xerrors"
+	"github.com/mesg-foundation/engine/ext/xos"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/service"
-	"github.com/mesg-foundation/engine/x/xerrors"
-	"github.com/mesg-foundation/engine/x/xos"
 )
 
 // Build the imge of the container

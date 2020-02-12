@@ -17,6 +17,10 @@ import (
 	"github.com/mesg-foundation/engine/config"
 	"github.com/mesg-foundation/engine/container"
 	"github.com/mesg-foundation/engine/cosmos"
+	"github.com/mesg-foundation/engine/ext/xerrors"
+	"github.com/mesg-foundation/engine/ext/xnet"
+	"github.com/mesg-foundation/engine/ext/xrand"
+	"github.com/mesg-foundation/engine/ext/xsignal"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/logger"
 	"github.com/mesg-foundation/engine/orchestrator"
@@ -25,10 +29,6 @@ import (
 	runnersdk "github.com/mesg-foundation/engine/sdk/runner"
 	"github.com/mesg-foundation/engine/server/grpc"
 	"github.com/mesg-foundation/engine/version"
-	"github.com/mesg-foundation/engine/x/xerrors"
-	"github.com/mesg-foundation/engine/x/xnet"
-	"github.com/mesg-foundation/engine/x/xrand"
-	"github.com/mesg-foundation/engine/x/xsignal"
 	"github.com/sirupsen/logrus"
 	rpcserver "github.com/tendermint/tendermint/rpc/lib/server"
 	tmtypes "github.com/tendermint/tendermint/types"
@@ -191,7 +191,7 @@ func main() {
 	}
 
 	// init gRPC server.
-	server := grpc.New(sdk, cfg)
+	server := grpc.New(sdk, cfg, client)
 
 	logrus.WithField("module", "main").Infof("starting MESG Engine version %s", version.Version)
 

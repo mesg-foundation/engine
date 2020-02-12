@@ -30,10 +30,10 @@ import (
 	"github.com/mesg-foundation/engine/cosmos"
 	executionsdk "github.com/mesg-foundation/engine/sdk/execution"
 	instancesdk "github.com/mesg-foundation/engine/sdk/instance"
-	ownershipsdk "github.com/mesg-foundation/engine/sdk/ownership"
 	processsdk "github.com/mesg-foundation/engine/sdk/process"
 	runnersdk "github.com/mesg-foundation/engine/sdk/runner"
 	servicesdk "github.com/mesg-foundation/engine/sdk/service"
+	"github.com/mesg-foundation/engine/x/ownership"
 )
 
 const appName = "engine"
@@ -59,7 +59,7 @@ var (
 		supply.AppModuleBasic{},
 
 		// Engine's AppModuleBasic
-		cosmos.NewAppModuleBasic(ownershipsdk.ModuleName),
+		ownership.AppModuleBasic{},
 		cosmos.NewAppModuleBasic(servicesdk.ModuleName),
 		cosmos.NewAppModuleBasic(instancesdk.ModuleName),
 		cosmos.NewAppModuleBasic(runnersdk.ModuleName),
@@ -115,7 +115,7 @@ type NewApp struct {
 	paramsKeeper   params.Keeper
 
 	// Engine's keepers
-	ownershipKeeper *ownershipsdk.Keeper
+	ownershipKeeper ownership.Keeper
 	serviceKeeper   *servicesdk.Keeper
 	instanceKeeper  *instancesdk.Keeper
 	runnerKeeper    *runnersdk.Keeper
@@ -155,7 +155,7 @@ func NewInitApp(
 		params.StoreKey,
 
 		// Engine's module keys
-		ownershipsdk.ModuleName,
+		ownership.ModuleName,
 		servicesdk.ModuleName,
 		instancesdk.ModuleName,
 		runnersdk.ModuleName,
@@ -242,7 +242,7 @@ func NewInitApp(
 	)
 
 	// Engine's module keepers
-	app.ownershipKeeper = ownershipsdk.NewKeeper(keys[ownershipsdk.ModuleName])
+	app.ownershipKeeper = ownership.NewKeeper(app.cdc, keys[ownership.StoreKey])
 	app.serviceKeeper = servicesdk.NewKeeper(keys[servicesdk.ModuleName], app.ownershipKeeper)
 	app.instanceKeeper = instancesdk.NewKeeper(keys[instancesdk.ModuleName])
 	app.runnerKeeper = runnersdk.NewKeeper(keys[runnersdk.ModuleName], app.instanceKeeper)
@@ -260,7 +260,7 @@ func NewInitApp(
 		slashing.NewAppModule(app.slashingKeeper, app.accountKeeper, app.stakingKeeper),
 
 		// Engine's modules
-		ownershipsdk.NewModule(app.ownershipKeeper),
+		ownership.NewAppModule(app.ownershipKeeper),
 		servicesdk.NewModule(app.serviceKeeper),
 		instancesdk.NewModule(app.instanceKeeper),
 		runnersdk.NewModule(app.runnerKeeper),
@@ -287,7 +287,7 @@ func NewInitApp(
 		slashing.ModuleName,
 
 		// Engine's modules
-		ownershipsdk.ModuleName,
+		ownership.ModuleName,
 		servicesdk.ModuleName,
 		instancesdk.ModuleName,
 		runnersdk.ModuleName,

@@ -9,10 +9,11 @@ import (
 	grpc_logrus "github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus"
 	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
 	"github.com/mesg-foundation/engine/config"
+	"github.com/mesg-foundation/engine/cosmos"
+	"github.com/mesg-foundation/engine/ext/xvalidator"
 	protobuf_api "github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/mesg-foundation/engine/sdk"
 	"github.com/mesg-foundation/engine/server/grpc/api"
-	"github.com/mesg-foundation/engine/x/xvalidator"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/keepalive"
@@ -24,11 +25,16 @@ type Server struct {
 	instance *grpc.Server
 	sdk      *sdk.SDK
 	cfg      *config.Config
+	client   *cosmos.Client
 }
 
 // New returns a new gRPC server.
-func New(sdk *sdk.SDK, cfg *config.Config) *Server {
-	return &Server{sdk: sdk, cfg: cfg}
+func New(sdk *sdk.SDK, cfg *config.Config, client *cosmos.Client) *Server {
+	return &Server{
+		sdk:    sdk,
+		cfg:    cfg,
+		client: client,
+	}
 }
 
 // Serve listens for connections.
@@ -80,7 +86,7 @@ func (s *Server) register() {
 	protobuf_api.RegisterInstanceServer(s.instance, api.NewInstanceServer(s.sdk))
 	protobuf_api.RegisterServiceServer(s.instance, api.NewServiceServer(s.sdk))
 	protobuf_api.RegisterProcessServer(s.instance, api.NewProcessServer(s.sdk))
-	protobuf_api.RegisterOwnershipServer(s.instance, api.NewOwnershipServer(s.sdk))
+	protobuf_api.RegisterOwnershipServer(s.instance, api.NewOwnershipServer(s.sdk, s.client))
 	protobuf_api.RegisterRunnerServer(s.instance, api.NewRunnerServer(s.sdk))
 
 	reflection.Register(s.instance)
