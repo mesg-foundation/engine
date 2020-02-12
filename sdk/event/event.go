@@ -1,12 +1,16 @@
 package eventsdk
 
 import (
+	"fmt"
+
 	"github.com/cskr/pubsub"
+	"github.com/mesg-foundation/engine/cosmos"
 	"github.com/mesg-foundation/engine/event"
 	"github.com/mesg-foundation/engine/hash"
+	instancepb "github.com/mesg-foundation/engine/instance"
 	"github.com/mesg-foundation/engine/protobuf/types"
-	instancesdk "github.com/mesg-foundation/engine/sdk/instance"
 	servicesdk "github.com/mesg-foundation/engine/sdk/service"
+	"github.com/mesg-foundation/engine/x/instance"
 )
 
 const (
@@ -16,17 +20,17 @@ const (
 
 // Event exposes event APIs of MESG.
 type Event struct {
-	ps       *pubsub.PubSub
-	instance *instancesdk.SDK
-	service  *servicesdk.SDK
+	ps      *pubsub.PubSub
+	client  *cosmos.Client
+	service *servicesdk.SDK
 }
 
 // New creates a new Event SDK with given options.
-func New(ps *pubsub.PubSub, service *servicesdk.SDK, instance *instancesdk.SDK) *Event {
+func New(ps *pubsub.PubSub, service *servicesdk.SDK, client *cosmos.Client) *Event {
 	return &Event{
-		ps:       ps,
-		service:  service,
-		instance: instance,
+		ps:      ps,
+		client:  client,
+		service: service,
 	}
 }
 
@@ -34,12 +38,12 @@ func New(ps *pubsub.PubSub, service *servicesdk.SDK, instance *instancesdk.SDK) 
 func (e *Event) Create(instanceHash hash.Hash, eventKey string, eventData *types.Struct) (*event.Event, error) {
 	event := event.Create(instanceHash, eventKey, eventData)
 
-	instance, err := e.instance.Get(event.InstanceHash)
-	if err != nil {
+	var inst instancepb.Instance
+	if err := e.client.QueryJSON(fmt.Sprintf("custom/%s/%s/%s", instance.QuerierRoute, instance.QueryGetInstance, event.InstanceHash), nil, &inst); err != nil {
 		return nil, err
 	}
 
-	service, err := e.service.Get(instance.ServiceHash)
+	service, err := e.service.Get(inst.ServiceHash)
 	if err != nil {
 		return nil, err
 	}

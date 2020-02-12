@@ -83,7 +83,7 @@ func validateInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryS
 func (s *Server) register() {
 	protobuf_api.RegisterEventServer(s.instance, api.NewEventServer(s.sdk))
 	protobuf_api.RegisterExecutionServer(s.instance, api.NewExecutionServer(s.sdk))
-	protobuf_api.RegisterInstanceServer(s.instance, api.NewInstanceServer(s.sdk))
+	protobuf_api.RegisterInstanceServer(s.instance, api.NewInstanceServer(s.sdk, s.client))
 	protobuf_api.RegisterServiceServer(s.instance, api.NewServiceServer(s.sdk))
 	protobuf_api.RegisterProcessServer(s.instance, api.NewProcessServer(s.sdk))
 	protobuf_api.RegisterOwnershipServer(s.instance, api.NewOwnershipServer(s.sdk, s.client))
