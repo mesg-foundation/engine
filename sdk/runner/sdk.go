@@ -10,9 +10,10 @@ import (
 	"github.com/mesg-foundation/engine/hash"
 	instancepb "github.com/mesg-foundation/engine/instance"
 	"github.com/mesg-foundation/engine/protobuf/api"
-	"github.com/mesg-foundation/engine/runner"
+	runnerpb "github.com/mesg-foundation/engine/runner"
 	servicesdk "github.com/mesg-foundation/engine/sdk/service"
 	"github.com/mesg-foundation/engine/x/instance"
+	"github.com/mesg-foundation/engine/x/runner"
 )
 
 // SDK is the runner sdk.
@@ -45,7 +46,7 @@ func New(client *cosmos.Client, serviceSDK *servicesdk.SDK, container container.
 }
 
 // Create creates a new runner.
-func (s *SDK) Create(req *api.CreateRunnerRequest) (*runner.Runner, error) {
+func (s *SDK) Create(req *api.CreateRunnerRequest) (*runnerpb.Runner, error) {
 	// calculate instance's hash.
 	// TODO: this should be merged with the same logic currently in instance sdk
 	srv, err := s.serviceSDK.Get(req.ServiceHash)
@@ -63,7 +64,7 @@ func (s *SDK) Create(req *api.CreateRunnerRequest) (*runner.Runner, error) {
 	if err != nil {
 		return nil, err
 	}
-	expRunnerHash := hash.Dump(&runner.Runner{
+	expRunnerHash := hash.Dump(&runnerpb.Runner{
 		Address:      acc.GetAddress().String(),
 		InstanceHash: instanceHash,
 	})
@@ -85,7 +86,7 @@ func (s *SDK) Create(req *api.CreateRunnerRequest) (*runner.Runner, error) {
 		stop(s.container, expRunnerHash, srv.Dependencies)
 	}
 
-	msg := newMsgCreateRunner(acc.GetAddress(), req.ServiceHash, envHash)
+	msg := runner.NewMsgCreateRunner(acc.GetAddress(), req.ServiceHash, envHash)
 	tx, err := s.client.BuildAndBroadcastMsg(msg)
 	if err != nil {
 		onError()
@@ -106,7 +107,7 @@ func (s *SDK) Create(req *api.CreateRunnerRequest) (*runner.Runner, error) {
 // Delete deletes an existing runner.
 func (s *SDK) Delete(req *api.DeleteRunnerRequest) error {
 	// get runner before deleting it
-	runner, err := s.Get(req.Hash)
+	r, err := s.Get(req.Hash)
 	if err != nil {
 		return err
 	}
@@ -114,14 +115,14 @@ func (s *SDK) Delete(req *api.DeleteRunnerRequest) error {
 	if err != nil {
 		return err
 	}
-	msg := newMsgDeleteRunner(acc.GetAddress(), req.Hash)
+	msg := runner.NewMsgDeleteRunner(acc.GetAddress(), req.Hash)
 	_, err = s.client.BuildAndBroadcastMsg(msg)
 	if err != nil {
 		return err
 	}
 
 	var inst instancepb.Instance
-	if err := s.client.QueryJSON(fmt.Sprintf("custom/%s/%s/%s", instance.QuerierRoute, instance.QueryGetInstance, runner.InstanceHash), nil, &inst); err != nil {
+	if err := s.client.QueryJSON(fmt.Sprintf("custom/%s/%s/%s", instance.QuerierRoute, instance.QueryGetInstance, r.InstanceHash), nil, &inst); err != nil {
 		return err
 	}
 
@@ -131,7 +132,7 @@ func (s *SDK) Delete(req *api.DeleteRunnerRequest) error {
 	}
 
 	// stop the local running service
-	if err := stop(s.container, runner.Hash, srv.Dependencies); err != nil {
+	if err := stop(s.container, r.Hash, srv.Dependencies); err != nil {
 		return err
 	}
 
@@ -146,18 +147,18 @@ func (s *SDK) Delete(req *api.DeleteRunnerRequest) error {
 }
 
 // Get returns the runner that matches given hash.
-func (s *SDK) Get(hash hash.Hash) (*runner.Runner, error) {
-	var runner runner.Runner
-	if err := s.client.Query("custom/"+ModuleName+"/get/"+hash.String(), nil, &runner); err != nil {
+func (s *SDK) Get(hash hash.Hash) (*runnerpb.Runner, error) {
+	var r runnerpb.Runner
+	if err := s.client.QueryJSON(fmt.Sprintf("custom/%s/%s/%s", runner.ModuleName, runner.QueryGetRunner, hash), nil, &r); err != nil {
 		return nil, err
 	}
-	return &runner, nil
+	return &r, nil
 }
 
 // List returns all runners.
-func (s *SDK) List(f *Filter) ([]*runner.Runner, error) {
-	var runners []*runner.Runner
-	if err := s.client.Query("custom/"+ModuleName+"/list", nil, &runners); err != nil {
+func (s *SDK) List(f *Filter) ([]*runnerpb.Runner, error) {
+	var runners []*runnerpb.Runner
+	if err := s.client.QueryJSON(fmt.Sprintf("custom/%s/%s", runner.ModuleName, runner.QueryListRunners), nil, &runners); err != nil {
 		return nil, err
 	}
 	// no filter, returns
@@ -165,11 +166,11 @@ func (s *SDK) List(f *Filter) ([]*runner.Runner, error) {
 		return runners, nil
 	}
 	// filter results
-	ret := make([]*runner.Runner, 0)
-	for _, runner := range runners {
-		if (f.Address == "" || runner.Address == f.Address) &&
-			(f.InstanceHash.IsZero() || runner.InstanceHash.Equal(f.InstanceHash)) {
-			ret = append(ret, runner)
+	ret := make([]*runnerpb.Runner, 0)
+	for _, r := range runners {
+		if (f.Address == "" || r.Address == f.Address) &&
+			(f.InstanceHash.IsZero() || r.InstanceHash.Equal(f.InstanceHash)) {
+			ret = append(ret, r)
 		}
 	}
 	return ret, nil
