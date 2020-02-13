@@ -8,13 +8,13 @@ import (
 	"time"
 
 	"github.com/cosmos/cosmos-sdk/client/flags"
+	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/crypto/keys"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	authutils "github.com/cosmos/cosmos-sdk/x/auth/client/utils"
 	authExported "github.com/cosmos/cosmos-sdk/x/auth/exported"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	"github.com/mesg-foundation/engine/codec"
 	"github.com/mesg-foundation/engine/ext/xreflect"
 	"github.com/mesg-foundation/engine/ext/xstrings"
 	"github.com/mesg-foundation/engine/hash"
@@ -27,6 +27,7 @@ import (
 // Client is a tendermint client with helper functions.
 type Client struct {
 	*rpcclient.Local
+	cdc          *codec.Codec
 	kb           keys.Keybase
 	chainID      string
 	accName      string
@@ -40,13 +41,14 @@ type Client struct {
 }
 
 // NewClient returns a rpc tendermint client.
-func NewClient(node *node.Node, kb keys.Keybase, chainID, accName, accPassword, minGasPrices string) (*Client, error) {
+func NewClient(node *node.Node, cdc *codec.Codec, kb keys.Keybase, chainID, accName, accPassword, minGasPrices string) (*Client, error) {
 	minGasPricesDecoded, err := sdktypes.ParseDecCoins(minGasPrices)
 	if err != nil {
 		return nil, err
 	}
 	return &Client{
 		Local:        rpcclient.NewLocal(node),
+		cdc:          cdc,
 		kb:           kb,
 		chainID:      chainID,
 		accName:      accName,
@@ -59,7 +61,7 @@ func NewClient(node *node.Node, kb keys.Keybase, chainID, accName, accPassword, 
 func (c *Client) QueryJSON(path string, qdata, ptr interface{}) error {
 	var data []byte
 	if !xreflect.IsNil(qdata) {
-		b, err := codec.MarshalJSON(qdata)
+		b, err := c.cdc.MarshalJSON(qdata)
 		if err != nil {
 			return err
 		}
@@ -70,14 +72,14 @@ func (c *Client) QueryJSON(path string, qdata, ptr interface{}) error {
 	if err != nil {
 		return err
 	}
-	return codec.UnmarshalJSON(result, ptr)
+	return c.cdc.UnmarshalJSON(result, ptr)
 }
 
 // Query is abci.query wrapper with errors check and decode data.
 func (c *Client) Query(path string, qdata, ptr interface{}) error {
 	var data []byte
 	if !xreflect.IsNil(qdata) {
-		b, err := codec.MarshalBinaryBare(qdata)
+		b, err := c.cdc.MarshalBinaryBare(qdata)
 		if err != nil {
 			return err
 		}
@@ -87,7 +89,7 @@ func (c *Client) Query(path string, qdata, ptr interface{}) error {
 	if err != nil {
 		return err
 	}
-	return codec.UnmarshalBinaryBare(result, ptr)
+	return c.cdc.UnmarshalBinaryBare(result, ptr)
 }
 
 // QueryWithData performs a query to a Tendermint node with the provided path
@@ -230,7 +232,7 @@ func (c *Client) createAndSignTx(msgs []sdktypes.Msg) (tenderminttypes.Tx, error
 
 	// Create TxBuilder
 	txBuilder := authtypes.NewTxBuilder(
-		authutils.GetTxEncoder(codec.Codec),
+		authutils.GetTxEncoder(c.cdc),
 		accR.GetAccountNumber(),
 		sequence,
 		flags.DefaultGasLimit,
@@ -248,7 +250,7 @@ func (c *Client) createAndSignTx(msgs []sdktypes.Msg) (tenderminttypes.Tx, error
 		if err != nil {
 			return nil, err
 		}
-		_, adjusted, err := authutils.CalculateGas(c.QueryWithData, codec.Codec, txBytes, txBuilder.GasAdjustment())
+		_, adjusted, err := authutils.CalculateGas(c.QueryWithData, c.cdc, txBytes, txBuilder.GasAdjustment())
 		if err != nil {
 			return nil, err
 		}

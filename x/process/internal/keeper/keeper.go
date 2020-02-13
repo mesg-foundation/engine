@@ -38,7 +38,7 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 }
 
 // Create creates a new process.
-func (k *Keeper) Create(ctx sdk.Context, msg *types.MsgCreateProcess) (*processpb.Process, error) {
+func (k Keeper) Create(ctx sdk.Context, msg *types.MsgCreateProcess) (*processpb.Process, error) {
 	store := ctx.KVStore(k.storeKey)
 	p := &process.Process{
 		Name:  msg.Request.Name,
@@ -81,7 +81,7 @@ func (k *Keeper) Create(ctx sdk.Context, msg *types.MsgCreateProcess) (*processp
 }
 
 // Delete deletes a process.
-func (k *Keeper) Delete(ctx sdk.Context, msg *types.MsgDeleteProcess) error {
+func (k Keeper) Delete(ctx sdk.Context, msg *types.MsgDeleteProcess) error {
 	if err := k.ownershipKeeper.Delete(ctx, msg.Owner, msg.Request.Hash); err != nil {
 		return err
 	}
@@ -90,7 +90,7 @@ func (k *Keeper) Delete(ctx sdk.Context, msg *types.MsgDeleteProcess) error {
 }
 
 // Get returns the process that matches given hash.
-func (k *Keeper) Get(ctx sdk.Context, hash hash.Hash) (*processpb.Process, error) {
+func (k Keeper) Get(ctx sdk.Context, hash hash.Hash) (*processpb.Process, error) {
 	store := ctx.KVStore(k.storeKey)
 	if !store.Has(hash) {
 		return nil, fmt.Errorf("process %q not found", hash)
@@ -101,7 +101,7 @@ func (k *Keeper) Get(ctx sdk.Context, hash hash.Hash) (*processpb.Process, error
 }
 
 // List returns all processes.
-func (k *Keeper) List(ctx sdk.Context) ([]*processpb.Process, error) {
+func (k Keeper) List(ctx sdk.Context) ([]*processpb.Process, error) {
 	var (
 		processes []*processpb.Process
 		iter      = ctx.KVStore(k.storeKey).Iterator(nil, nil)

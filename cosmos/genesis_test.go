@@ -7,17 +7,21 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/crypto/keys"
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	"github.com/mesg-foundation/engine/codec"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/x/auth"
+	"github.com/cosmos/cosmos-sdk/x/staking"
 	"github.com/stretchr/testify/require"
 )
 
 func TestGenesis(t *testing.T) {
 	// codec
-	authtypes.RegisterCodec(codec.Codec)
-	stakingtypes.RegisterCodec(codec.Codec)
+	cdc := codec.New()
+	sdk.RegisterCodec(cdc)
+	codec.RegisterCrypto(cdc)
+	auth.RegisterCodec(cdc)
+	staking.RegisterCodec(cdc)
 
 	// path
 	path, _ := ioutil.TempDir("", "TestGenesis")
@@ -59,7 +63,7 @@ func TestGenesis(t *testing.T) {
 		require.False(t, GenesisExist(genesisPath))
 	})
 	t.Run("generate genesis", func(t *testing.T) {
-		genesis, err := GenGenesis(kb, defaultGenesisState, chainID, initialBalances, validatorDelegationCoin, genesisPath, validators)
+		genesis, err := GenGenesis(cdc, kb, defaultGenesisState, chainID, initialBalances, validatorDelegationCoin, genesisPath, validators)
 		require.NoError(t, err)
 		require.NotEmpty(t, genesis)
 	})

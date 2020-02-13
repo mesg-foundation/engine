@@ -35,7 +35,7 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 }
 
 // Create creates a new runner.
-func (k *Keeper) Create(ctx sdk.Context, msg *types.MsgCreateRunner) (*runner.Runner, error) {
+func (k Keeper) Create(ctx sdk.Context, msg *types.MsgCreateRunner) (*runner.Runner, error) {
 	store := ctx.KVStore(k.storeKey)
 	inst, err := k.instanceKeeper.FetchOrCreate(ctx, msg.ServiceHash, msg.EnvHash)
 	if err != nil {
@@ -60,7 +60,7 @@ func (k *Keeper) Create(ctx sdk.Context, msg *types.MsgCreateRunner) (*runner.Ru
 }
 
 // Delete deletes a runner.
-func (k *Keeper) Delete(ctx sdk.Context, msg *types.MsgDeleteRunner) error {
+func (k Keeper) Delete(ctx sdk.Context, msg *types.MsgDeleteRunner) error {
 	store := ctx.KVStore(k.storeKey)
 	if !store.Has(msg.RunnerHash) {
 		return fmt.Errorf("runner %q not found", msg.RunnerHash)
@@ -79,7 +79,7 @@ func (k *Keeper) Delete(ctx sdk.Context, msg *types.MsgDeleteRunner) error {
 }
 
 // Get returns the runner that matches given hash.
-func (k *Keeper) Get(ctx sdk.Context, hash hash.Hash) (*runner.Runner, error) {
+func (k Keeper) Get(ctx sdk.Context, hash hash.Hash) (*runner.Runner, error) {
 	store := ctx.KVStore(k.storeKey)
 	if !store.Has(hash) {
 		return nil, fmt.Errorf("runner %q not found", hash)
@@ -90,7 +90,7 @@ func (k *Keeper) Get(ctx sdk.Context, hash hash.Hash) (*runner.Runner, error) {
 }
 
 // List returns all runners.
-func (k *Keeper) List(ctx sdk.Context) ([]*runner.Runner, error) {
+func (k Keeper) List(ctx sdk.Context) ([]*runner.Runner, error) {
 	var (
 		runners []*runner.Runner
 		iter    = ctx.KVStore(k.storeKey).Iterator(nil, nil)

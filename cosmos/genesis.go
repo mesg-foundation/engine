@@ -5,13 +5,13 @@ import (
 	"os"
 	"time"
 
+	"github.com/cosmos/cosmos-sdk/codec"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	authutils "github.com/cosmos/cosmos-sdk/x/auth/client/utils"
 	authexported "github.com/cosmos/cosmos-sdk/x/auth/exported"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	"github.com/mesg-foundation/engine/codec"
 	"github.com/tendermint/tendermint/crypto"
 	"github.com/tendermint/tendermint/p2p"
 	"github.com/tendermint/tendermint/privval"
@@ -54,7 +54,7 @@ func LoadGenesis(genesisFile string) (*tmtypes.GenesisDoc, error) {
 }
 
 // GenGenesis generates a new genesis and save it.
-func GenGenesis(kb *Keybase, defaultGenesisŚtate map[string]json.RawMessage, chainID, initialBalances, validatorDelegationCoin, genesisFile string, validators []GenesisValidator) (*tmtypes.GenesisDoc, error) {
+func GenGenesis(cdc *codec.Codec, kb *Keybase, defaultGenesisŚtate map[string]json.RawMessage, chainID, initialBalances, validatorDelegationCoin, genesisFile string, validators []GenesisValidator) (*tmtypes.GenesisDoc, error) {
 	valDelCoin, err := sdktypes.ParseCoin(validatorDelegationCoin)
 	if err != nil {
 		return nil, err
@@ -73,7 +73,7 @@ func GenGenesis(kb *Keybase, defaultGenesisŚtate map[string]json.RawMessage, ch
 	accNumber := uint64(0)
 	sequence := uint64(0)
 	b := authtypes.NewTxBuilder(
-		authutils.GetTxEncoder(codec.Codec),
+		authutils.GetTxEncoder(cdc),
 		accNumber,
 		sequence,
 		0,
@@ -96,11 +96,11 @@ func GenGenesis(kb *Keybase, defaultGenesisŚtate map[string]json.RawMessage, ch
 		}
 	}
 	// generate genesis
-	appState, err := genGenesisAppState(defaultGenesisŚtate, validatorTx, initialBalances)
+	appState, err := genGenesisAppState(cdc, defaultGenesisŚtate, validatorTx, initialBalances)
 	if err != nil {
 		return nil, err
 	}
-	genesis, err := genGenesisDoc(appState, chainID, time.Now())
+	genesis, err := genGenesisDoc(cdc, appState, chainID, time.Now())
 	if err != nil {
 		return nil, err
 	}
@@ -111,8 +111,8 @@ func GenGenesis(kb *Keybase, defaultGenesisŚtate map[string]json.RawMessage, ch
 	return genesis, nil
 }
 
-func genGenesisDoc(appState map[string]json.RawMessage, chainID string, genesisTime time.Time) (*tmtypes.GenesisDoc, error) {
-	appStateEncoded, err := codec.MarshalJSON(appState)
+func genGenesisDoc(cdc *codec.Codec, appState map[string]json.RawMessage, chainID string, genesisTime time.Time) (*tmtypes.GenesisDoc, error) {
+	appStateEncoded, err := cdc.MarshalJSON(appState)
 	if err != nil {
 		return nil, err
 	}
@@ -125,7 +125,7 @@ func genGenesisDoc(appState map[string]json.RawMessage, chainID string, genesisT
 	return genesis, genesis.ValidateAndComplete()
 }
 
-func genGenesisAppState(defaultGenesisŚtate map[string]json.RawMessage, signedStdTx authtypes.StdTx, initialBalances string) (map[string]json.RawMessage, error) {
+func genGenesisAppState(cdc *codec.Codec, defaultGenesisŚtate map[string]json.RawMessage, signedStdTx authtypes.StdTx, initialBalances string) (map[string]json.RawMessage, error) {
 	genAccs := authexported.GenesisAccounts{}
 	pubkeys := signedStdTx.GetPubKeys()
 	for i, signer := range signedStdTx.GetSigners() {
@@ -139,12 +139,12 @@ func genGenesisAppState(defaultGenesisŚtate map[string]json.RawMessage, signedS
 		}
 		genAccs = append(genAccs, genAcc)
 	}
-	genstate, err := codec.MarshalJSON(authtypes.NewGenesisState(authtypes.DefaultParams(), genAccs))
+	genstate, err := cdc.MarshalJSON(authtypes.NewGenesisState(authtypes.DefaultParams(), genAccs))
 	if err != nil {
 		return nil, err
 	}
 	defaultGenesisŚtate[authtypes.ModuleName] = genstate
-	return genutil.SetGenTxsInAppGenesisState(codec.Codec, defaultGenesisŚtate, []authtypes.StdTx{signedStdTx})
+	return genutil.SetGenTxsInAppGenesisState(cdc, defaultGenesisŚtate, []authtypes.StdTx{signedStdTx})
 }
 
 func genCreateValidatorMsg(accAddress sdktypes.AccAddress, accName string, validatorDelegationCoin sdktypes.Coin, valPubKey crypto.PubKey) stakingtypes.MsgCreateValidator {

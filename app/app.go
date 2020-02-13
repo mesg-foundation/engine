@@ -26,9 +26,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/slashing"
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	"github.com/cosmos/cosmos-sdk/x/supply"
-	mesgcodec "github.com/mesg-foundation/engine/codec"
-	"github.com/mesg-foundation/engine/cosmos"
-	executionsdk "github.com/mesg-foundation/engine/sdk/execution"
+	"github.com/mesg-foundation/engine/protobuf/api"
+	"github.com/mesg-foundation/engine/protobuf/types"
+	"github.com/mesg-foundation/engine/x/execution"
 	"github.com/mesg-foundation/engine/x/instance"
 	"github.com/mesg-foundation/engine/x/ownership"
 	"github.com/mesg-foundation/engine/x/process"
@@ -64,7 +64,7 @@ var (
 		process.AppModuleBasic{},
 		runner.AppModuleBasic{},
 		service.AppModuleBasic{},
-		cosmos.NewAppModuleBasic(executionsdk.ModuleName),
+		execution.AppModuleBasic{},
 	)
 
 	// module account permissions
@@ -79,16 +79,16 @@ var (
 // MakeCodec creates the application codec. The codec is sealed before it is
 // returned.
 func MakeCodec() *codec.Codec {
-	// TODO: to change to the cosmos template way
-	// var cdc = codec.New()
+	var cdc = codec.New()
 
-	ModuleBasics.RegisterCodec(mesgcodec.Codec)
-	vesting.RegisterCodec(mesgcodec.Codec)
-	// sdk.RegisterCodec(cdc)
-	// codec.RegisterCrypto(cdc)
+	ModuleBasics.RegisterCodec(cdc)
+	vesting.RegisterCodec(cdc)
+	sdk.RegisterCodec(cdc)
+	codec.RegisterCrypto(cdc)
+	types.RegisterCodec(cdc)
+	api.RegisterCodec(cdc)
 
-	// return cdc.Seal()
-	return mesgcodec.Codec
+	return cdc.Seal()
 }
 
 // NewApp extended ABCI application
@@ -120,7 +120,7 @@ type NewApp struct {
 	processKeeper   process.Keeper
 	runnerKeeper    runner.Keeper
 	serviceKeeper   service.Keeper
-	executionKeeper *executionsdk.Keeper
+	executionKeeper execution.Keeper
 
 	// Module Manager
 	mm *module.Manager
@@ -160,7 +160,7 @@ func NewInitApp(
 		process.ModuleName,
 		runner.ModuleName,
 		service.ModuleName,
-		executionsdk.ModuleName,
+		execution.ModuleName,
 	)
 
 	tKeys := sdk.NewTransientStoreKeys(staking.TStoreKey, params.TStoreKey)
@@ -247,7 +247,7 @@ func NewInitApp(
 	app.processKeeper = process.NewKeeper(app.cdc, keys[process.StoreKey], app.instanceKeeper, app.ownershipKeeper)
 	app.serviceKeeper = service.NewKeeper(app.cdc, keys[service.StoreKey], app.ownershipKeeper)
 	app.runnerKeeper = runner.NewKeeper(app.cdc, keys[runner.StoreKey], app.instanceKeeper)
-	app.executionKeeper = executionsdk.NewKeeper(keys[executionsdk.ModuleName], app.serviceKeeper, app.instanceKeeper, app.runnerKeeper, app.processKeeper)
+	app.executionKeeper = execution.NewKeeper(app.cdc, keys[execution.StoreKey], app.serviceKeeper, app.instanceKeeper, app.runnerKeeper, app.processKeeper)
 
 	// NOTE: Any module instantiated in the module manager that is later modified
 	// must be passed by reference here.
@@ -265,7 +265,7 @@ func NewInitApp(
 		process.NewAppModule(app.processKeeper),
 		runner.NewAppModule(app.runnerKeeper, app.instanceKeeper),
 		service.NewAppModule(app.serviceKeeper),
-		executionsdk.NewModule(app.executionKeeper),
+		execution.NewAppModule(app.executionKeeper),
 
 		staking.NewAppModule(app.stakingKeeper, app.accountKeeper, app.supplyKeeper),
 	)
@@ -292,7 +292,7 @@ func NewInitApp(
 		process.ModuleName,
 		runner.ModuleName,
 		service.ModuleName,
-		executionsdk.ModuleName,
+		execution.ModuleName,
 
 		supply.ModuleName,
 		genutil.ModuleName,
