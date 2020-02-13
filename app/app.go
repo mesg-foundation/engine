@@ -244,7 +244,7 @@ func NewInitApp(
 	// Engine's module keepers
 	app.ownershipKeeper = ownership.NewKeeper(app.cdc, keys[ownership.StoreKey])
 	app.instanceKeeper = instance.NewKeeper(app.cdc, keys[instance.StoreKey])
-	app.runnerKeeper = runner.NewKeeper(app.cdc, keys[runner.ModuleName], app.instanceKeeper)
+	app.runnerKeeper = runner.NewKeeper(app.cdc, keys[runner.StoreKey], app.instanceKeeper)
 	app.serviceKeeper = servicesdk.NewKeeper(keys[servicesdk.ModuleName], app.ownershipKeeper)
 	app.processKeeper = processsdk.NewKeeper(keys[processsdk.ModuleName], app.ownershipKeeper, app.instanceKeeper)
 	app.executionKeeper = executionsdk.NewKeeper(keys[executionsdk.ModuleName], app.serviceKeeper, app.instanceKeeper, app.runnerKeeper, app.processKeeper)

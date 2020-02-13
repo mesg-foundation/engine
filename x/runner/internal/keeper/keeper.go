@@ -16,11 +16,11 @@ import (
 type Keeper struct {
 	storeKey       sdk.StoreKey
 	cdc            *codec.Codec
-	instanceKeeper types.InstaceKeeper
+	instanceKeeper types.InstanceKeeper
 }
 
 // NewKeeper creates a runner keeper
-func NewKeeper(cdc *codec.Codec, key sdk.StoreKey, instanceKeeper types.InstaceKeeper) Keeper {
+func NewKeeper(cdc *codec.Codec, key sdk.StoreKey, instanceKeeper types.InstanceKeeper) Keeper {
 	keeper := Keeper{
 		storeKey:       key,
 		cdc:            cdc,

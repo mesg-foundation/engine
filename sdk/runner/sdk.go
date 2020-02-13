@@ -149,7 +149,7 @@ func (s *SDK) Delete(req *api.DeleteRunnerRequest) error {
 // Get returns the runner that matches given hash.
 func (s *SDK) Get(hash hash.Hash) (*runnerpb.Runner, error) {
 	var r runnerpb.Runner
-	if err := s.client.QueryJSON(fmt.Sprintf("custom/%s/%s/%s", runner.ModuleName, runner.QueryGetRunner, hash), nil, &r); err != nil {
+	if err := s.client.QueryJSON(fmt.Sprintf("custom/%s/%s/%s", runner.QuerierRoute, runner.QueryGetRunner, hash), nil, &r); err != nil {
 		return nil, err
 	}
 	return &r, nil
@@ -158,7 +158,7 @@ func (s *SDK) Get(hash hash.Hash) (*runnerpb.Runner, error) {
 // List returns all runners.
 func (s *SDK) List(f *Filter) ([]*runnerpb.Runner, error) {
 	var runners []*runnerpb.Runner
-	if err := s.client.QueryJSON(fmt.Sprintf("custom/%s/%s", runner.ModuleName, runner.QueryListRunners), nil, &runners); err != nil {
+	if err := s.client.QueryJSON(fmt.Sprintf("custom/%s/%s", runner.QuerierRoute, runner.QueryListRunners), nil, &runners); err != nil {
 		return nil, err
 	}
 	// no filter, returns
