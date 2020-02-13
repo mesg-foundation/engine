@@ -7,28 +7,35 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/types/rest"
 	"github.com/gorilla/mux"
-	"github.com/mesg-foundation/engine/x/ownership/internal/types"
+	"github.com/mesg-foundation/engine/x/instance/internal/types"
 )
 
 func registerQueryRoutes(cliCtx context.CLIContext, r *mux.Router) {
 	r.HandleFunc(
-		"/ownership/list",
+		"/instance/get/{hash}",
+		queryGetHandlerFn(cliCtx),
+	).Methods(http.MethodGet)
+	r.HandleFunc(
+		"/instance/list",
 		queryListHandlerFn(cliCtx),
 	).Methods(http.MethodGet)
 	r.HandleFunc(
-		"/ownership/parameters",
-		queryParamsHandlerFn(cliCtx),
-	).Methods(http.MethodGet)
+		"/instance/parameters",
+		queryParametersHandlerFn(cliCtx),
+	).Methods("GET")
 }
 
-func queryListHandlerFn(cliCtx context.CLIContext) http.HandlerFunc {
+func queryGetHandlerFn(cliCtx context.CLIContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		vars := mux.Vars(r)
+
 		cliCtx, ok := rest.ParseQueryHeightOrReturnBadRequest(w, cliCtx, r)
 		if !ok {
 			return
 		}
 
-		route := fmt.Sprintf("custom/%s/%s", types.QuerierRoute, types.QueryListOwnerships)
+		route := fmt.Sprintf("custom/%s/%s/%s", types.QuerierRoute, types.QueryGetInstance, vars["hash"])
+
 		res, height, err := cliCtx.QueryWithData(route, nil)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
@@ -40,7 +47,27 @@ func queryListHandlerFn(cliCtx context.CLIContext) http.HandlerFunc {
 	}
 }
 
-func queryParamsHandlerFn(cliCtx context.CLIContext) http.HandlerFunc {
+func queryListHandlerFn(cliCtx context.CLIContext) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		cliCtx, ok := rest.ParseQueryHeightOrReturnBadRequest(w, cliCtx, r)
+		if !ok {
+			return
+		}
+
+		route := fmt.Sprintf("custom/%s/%s", types.QuerierRoute, types.QueryListInstances)
+
+		res, height, err := cliCtx.QueryWithData(route, nil)
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
+			return
+		}
+
+		cliCtx = cliCtx.WithHeight(height)
+		rest.PostProcessResponse(w, cliCtx, res)
+	}
+}
+
+func queryParametersHandlerFn(cliCtx context.CLIContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		cliCtx, ok := rest.ParseQueryHeightOrReturnBadRequest(w, cliCtx, r)
 		if !ok {

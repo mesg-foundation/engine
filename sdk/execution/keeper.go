@@ -10,23 +10,23 @@ import (
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/mesg-foundation/engine/protobuf/types"
-	instancesdk "github.com/mesg-foundation/engine/sdk/instance"
 	processsdk "github.com/mesg-foundation/engine/sdk/process"
 	runnersdk "github.com/mesg-foundation/engine/sdk/runner"
 	servicesdk "github.com/mesg-foundation/engine/sdk/service"
+	"github.com/mesg-foundation/engine/x/instance"
 )
 
 // Keeper holds the logic to read and write data.
 type Keeper struct {
 	storeKey       *cosmostypes.KVStoreKey
 	serviceKeeper  *servicesdk.Keeper
-	instanceKeeper *instancesdk.Keeper
+	instanceKeeper instance.Keeper
 	runnerKeeper   *runnersdk.Keeper
 	processKeeper  *processsdk.Keeper
 }
 
 // NewKeeper initialize a new keeper.
-func NewKeeper(storeKey *cosmostypes.KVStoreKey, serviceKeeper *servicesdk.Keeper, instanceKeeper *instancesdk.Keeper, runnerKeeper *runnersdk.Keeper, processKeeper *processsdk.Keeper) *Keeper {
+func NewKeeper(storeKey *cosmostypes.KVStoreKey, serviceKeeper *servicesdk.Keeper, instanceKeeper instance.Keeper, runnerKeeper *runnersdk.Keeper, processKeeper *processsdk.Keeper) *Keeper {
 	return &Keeper{
 		storeKey:       storeKey,
 		serviceKeeper:  serviceKeeper,

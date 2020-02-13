@@ -8,7 +8,7 @@ import (
 	"github.com/mesg-foundation/engine/hash"
 	ownershippb "github.com/mesg-foundation/engine/ownership"
 	"github.com/mesg-foundation/engine/process"
-	instancesdk "github.com/mesg-foundation/engine/sdk/instance"
+	"github.com/mesg-foundation/engine/x/instance"
 	"github.com/mesg-foundation/engine/x/ownership"
 )
 
@@ -16,11 +16,11 @@ import (
 type Keeper struct {
 	storeKey        *cosmostypes.KVStoreKey
 	ownershipKeeper ownership.Keeper
-	instanceKeeper  *instancesdk.Keeper
+	instanceKeeper  instance.Keeper
 }
 
 // NewKeeper returns the keeper of the service sdk.
-func NewKeeper(storeKey *cosmostypes.KVStoreKey, ownershipKeeper ownership.Keeper, instanceKeeper *instancesdk.Keeper) *Keeper {
+func NewKeeper(storeKey *cosmostypes.KVStoreKey, ownershipKeeper ownership.Keeper, instanceKeeper instance.Keeper) *Keeper {
 	return &Keeper{
 		storeKey:        storeKey,
 		ownershipKeeper: ownershipKeeper,
