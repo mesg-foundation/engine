@@ -66,15 +66,28 @@ func testProcess(t *testing.T) {
 	})
 
 	t.Run("check ownership creation", func(t *testing.T) {
-		ownerships, err := client.OwnershipClient.List(context.Background(), &pb.ListOwnershipRequest{})
-		require.NoError(t, err)
-		owners := make([]*ownership.Ownership, 0)
-		for _, o := range ownerships.Ownerships {
-			if o.ResourceHash.Equal(processHash) && o.Resource == ownership.Ownership_Process && o.Owner != "" {
-				owners = append(owners, o)
+		t.Run("lcd", func(t *testing.T) {
+			ownerships := make([]*ownership.Ownership, 0)
+			lcdGet(t, "ownership/list", &ownerships)
+			owners := make([]*ownership.Ownership, 0)
+			for _, o := range ownerships {
+				if o.ResourceHash.Equal(processHash) && o.Resource == ownership.Ownership_Process && o.Owner != "" {
+					owners = append(owners, o)
+				}
 			}
-		}
-		require.Len(t, owners, 1)
+			require.Len(t, owners, 1)
+		})
+		t.Run("grpc", func(t *testing.T) {
+			ownerships, err := client.OwnershipClient.List(context.Background(), &pb.ListOwnershipRequest{})
+			require.NoError(t, err)
+			owners := make([]*ownership.Ownership, 0)
+			for _, o := range ownerships.Ownerships {
+				if o.ResourceHash.Equal(processHash) && o.Resource == ownership.Ownership_Process && o.Owner != "" {
+					owners = append(owners, o)
+				}
+			}
+			require.Len(t, owners, 1)
+		})
 	})
 
 	t.Run("list", func(t *testing.T) {
@@ -89,8 +102,15 @@ func testProcess(t *testing.T) {
 	})
 
 	t.Run("check ownership deletion", func(t *testing.T) {
-		ownerships, err := client.OwnershipClient.List(context.Background(), &pb.ListOwnershipRequest{})
-		require.NoError(t, err)
-		require.Len(t, ownerships.Ownerships, 1)
+		t.Run("lcd", func(t *testing.T) {
+			ownerships := make([]*ownership.Ownership, 0)
+			lcdGet(t, "ownership/list", &ownerships)
+			require.Len(t, ownerships, 1)
+		})
+		t.Run("grpc", func(t *testing.T) {
+			ownerships, err := client.OwnershipClient.List(context.Background(), &pb.ListOwnershipRequest{})
+			require.NoError(t, err)
+			require.Len(t, ownerships.Ownerships, 1)
+		})
 	})
 }
