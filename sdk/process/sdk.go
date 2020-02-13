@@ -1,10 +1,13 @@
 package processsdk
 
 import (
+	"fmt"
+
 	"github.com/mesg-foundation/engine/cosmos"
 	"github.com/mesg-foundation/engine/hash"
-	"github.com/mesg-foundation/engine/process"
+	processpb "github.com/mesg-foundation/engine/process"
 	"github.com/mesg-foundation/engine/protobuf/api"
+	"github.com/mesg-foundation/engine/x/process"
 )
 
 // SDK is the process sdk.
@@ -20,12 +23,12 @@ func New(client *cosmos.Client) *SDK {
 }
 
 // Create creates a new process.
-func (s *SDK) Create(req *api.CreateProcessRequest) (*process.Process, error) {
+func (s *SDK) Create(req *api.CreateProcessRequest) (*processpb.Process, error) {
 	acc, err := s.client.GetAccount()
 	if err != nil {
 		return nil, err
 	}
-	msg := newMsgCreateProcess(acc.GetAddress(), req)
+	msg := process.NewMsgCreateProcess(acc.GetAddress(), req)
 	tx, err := s.client.BuildAndBroadcastMsg(msg)
 	if err != nil {
 		return nil, err
@@ -39,24 +42,24 @@ func (s *SDK) Delete(req *api.DeleteProcessRequest) error {
 	if err != nil {
 		return err
 	}
-	msg := newMsgDeleteProcess(acc.GetAddress(), req)
+	msg := process.NewMsgDeleteProcess(acc.GetAddress(), req)
 	_, err = s.client.BuildAndBroadcastMsg(msg)
 	return err
 }
 
 // Get returns the process that matches given hash.
-func (s *SDK) Get(hash hash.Hash) (*process.Process, error) {
-	var process process.Process
-	if err := s.client.Query("custom/"+ModuleName+"/get/"+hash.String(), nil, &process); err != nil {
+func (s *SDK) Get(hash hash.Hash) (*processpb.Process, error) {
+	var p processpb.Process
+	if err := s.client.QueryJSON(fmt.Sprintf("custom/%s/%s/%s", process.QuerierRoute, process.QueryGetProcess, hash.String()), nil, &p); err != nil {
 		return nil, err
 	}
-	return &process, nil
+	return &p, nil
 }
 
 // List returns all processes.
-func (s *SDK) List() ([]*process.Process, error) {
-	var processes []*process.Process
-	if err := s.client.Query("custom/"+ModuleName+"/list", nil, &processes); err != nil {
+func (s *SDK) List() ([]*processpb.Process, error) {
+	var processes []*processpb.Process
+	if err := s.client.QueryJSON(fmt.Sprintf("custom/%s/%s", process.QuerierRoute, process.QueryListProcesses), nil, &processes); err != nil {
 		return nil, err
 	}
 	return processes, nil
