@@ -41,7 +41,10 @@ func handleMsgCreateRunner(ctx sdk.Context, k Keeper, msg *MsgCreateRunner) (*sd
 		),
 	)
 
-	return &sdk.Result{Events: ctx.EventManager().Events()}, nil
+	return &sdk.Result{
+		Data:   runner.Hash,
+		Events: ctx.EventManager().Events(),
+	}, nil
 }
 
 // handleMsgDeleteRunner deletes a runner.
