@@ -17,6 +17,7 @@ import (
 	"github.com/mesg-foundation/engine/config"
 	"github.com/mesg-foundation/engine/container"
 	"github.com/mesg-foundation/engine/cosmos"
+	"github.com/mesg-foundation/engine/event/publisher"
 	"github.com/mesg-foundation/engine/ext/xerrors"
 	"github.com/mesg-foundation/engine/ext/xnet"
 	"github.com/mesg-foundation/engine/ext/xrand"
@@ -25,8 +26,7 @@ import (
 	"github.com/mesg-foundation/engine/logger"
 	"github.com/mesg-foundation/engine/orchestrator"
 	"github.com/mesg-foundation/engine/protobuf/api"
-	enginesdk "github.com/mesg-foundation/engine/sdk"
-	runnersdk "github.com/mesg-foundation/engine/sdk/runner"
+	"github.com/mesg-foundation/engine/runner/builder"
 	"github.com/mesg-foundation/engine/server/grpc"
 	"github.com/mesg-foundation/engine/version"
 	"github.com/sirupsen/logrus"
@@ -35,8 +35,8 @@ import (
 	db "github.com/tendermint/tm-db"
 )
 
-func stopRunningServices(sdk *enginesdk.SDK, address string) error {
-	runners, err := sdk.Runner.List(&runnersdk.Filter{Address: address})
+func stopRunningServices(mc *cosmos.ModuleClient, b *builder.Builder, address string) error {
+	runners, err := mc.ListRunner(&cosmos.FilterRunner{Address: address})
 	if err != nil {
 		return err
 	}
@@ -49,7 +49,7 @@ func stopRunningServices(sdk *enginesdk.SDK, address string) error {
 	for _, instance := range runners {
 		go func(hash hash.Hash) {
 			defer wg.Done()
-			err := sdk.Runner.Delete(&api.DeleteRunnerRequest{
+			err := b.Delete(&api.DeleteRunnerRequest{
 				Hash:       hash,
 				DeleteData: false,
 			})
@@ -128,9 +128,6 @@ func main() {
 	// init logger.
 	logger.Init(cfg.Log.Format, cfg.Log.Level, cfg.Log.ForceColors)
 
-	// init basicManager
-	// basicManager := enginesdk.NewBasicManager()
-
 	// init tendermint logger
 	tendermintLogger := logger.TendermintLogger()
 
@@ -182,8 +179,13 @@ func main() {
 		logrus.WithField("module", "main").Fatalln(err)
 	}
 
-	// init sdk
-	sdk := enginesdk.New(client, kb, container, cfg.Name, strconv.Itoa(port), cfg.IpfsEndpoint)
+	mc := cosmos.NewModuleClient(client)
+
+	// init runner builder
+	b := builder.New(mc, container, cfg.Name, strconv.Itoa(port), cfg.IpfsEndpoint)
+
+	// init event publiserh
+	ep := publisher.New(mc)
 
 	// start tendermint node
 	logrus.WithField("module", "main").WithField("seeds", cfg.Tendermint.Config.P2P.Seeds).Info("starting tendermint node")
@@ -192,7 +194,7 @@ func main() {
 	}
 
 	// init gRPC server.
-	server := grpc.New(sdk, cfg, client)
+	server := grpc.New(mc, ep, b)
 
 	logrus.WithField("module", "main").Infof("starting MESG Engine version %s", version.Version)
 
@@ -203,7 +205,7 @@ func main() {
 	}()
 
 	logrus.WithField("module", "main").Info("starting process engine")
-	s := orchestrator.New(sdk.Event, sdk.Execution, sdk.Process, sdk.Runner)
+	s := orchestrator.New(mc, ep)
 	go func() {
 		if err := s.Start(); err != nil {
 			logrus.WithField("module", "main").Fatalln(err)
@@ -244,7 +246,7 @@ func main() {
 	}
 
 	logrus.WithField("module", "main").Info("stopping running services")
-	if err := stopRunningServices(sdk, acc.GetAddress().String()); err != nil {
+	if err := stopRunningServices(mc, b, acc.GetAddress().String()); err != nil {
 		logrus.WithField("module", "main").Fatalln(err)
 	}
 

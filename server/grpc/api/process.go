@@ -3,24 +3,24 @@ package api
 import (
 	"context"
 
+	"github.com/mesg-foundation/engine/cosmos"
 	"github.com/mesg-foundation/engine/process"
 	"github.com/mesg-foundation/engine/protobuf/api"
-	"github.com/mesg-foundation/engine/sdk"
 )
 
 // ProcessServer is the type to aggregate all Service APIs.
 type ProcessServer struct {
-	sdk *sdk.SDK
+	mc *cosmos.ModuleClient
 }
 
 // NewProcessServer creates a new ProcessServer.
-func NewProcessServer(sdk *sdk.SDK) *ProcessServer {
-	return &ProcessServer{sdk: sdk}
+func NewProcessServer(mc *cosmos.ModuleClient) *ProcessServer {
+	return &ProcessServer{mc: mc}
 }
 
 // Create creates a new process.
 func (s *ProcessServer) Create(ctx context.Context, req *api.CreateProcessRequest) (*api.CreateProcessResponse, error) {
-	wf, err := s.sdk.Process.Create(req)
+	wf, err := s.mc.CreateProcess(req)
 	if err != nil {
 		return nil, err
 	}
@@ -29,21 +29,19 @@ func (s *ProcessServer) Create(ctx context.Context, req *api.CreateProcessReques
 
 // Delete deletes process by hash or sid.
 func (s *ProcessServer) Delete(ctx context.Context, req *api.DeleteProcessRequest) (*api.DeleteProcessResponse, error) {
-	return &api.DeleteProcessResponse{}, s.sdk.Process.Delete(req)
+	return &api.DeleteProcessResponse{}, s.mc.DeleteProcess(req)
 }
 
 // Get returns process from given hash.
 func (s *ProcessServer) Get(ctx context.Context, req *api.GetProcessRequest) (*process.Process, error) {
-	return s.sdk.Process.Get(req.Hash)
+	return s.mc.GetProcess(req.Hash)
 }
 
 // List returns all processes.
 func (s *ProcessServer) List(ctx context.Context, req *api.ListProcessRequest) (*api.ListProcessResponse, error) {
-	processes, err := s.sdk.Process.List()
+	processes, err := s.mc.ListProcess()
 	if err != nil {
 		return nil, err
 	}
-	return &api.ListProcessResponse{
-		Processes: processes,
-	}, nil
+	return &api.ListProcessResponse{Processes: processes}, nil
 }

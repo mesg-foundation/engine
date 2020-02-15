@@ -6,24 +6,23 @@ import (
 	"fmt"
 	"math/rand"
 
+	"github.com/mesg-foundation/engine/cosmos"
 	"github.com/mesg-foundation/engine/event"
+	"github.com/mesg-foundation/engine/event/publisher"
 	"github.com/mesg-foundation/engine/execution"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/process"
 	"github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/mesg-foundation/engine/protobuf/types"
-	runnersdk "github.com/mesg-foundation/engine/sdk/runner"
 	"github.com/sirupsen/logrus"
 )
 
 // New creates a new Process instance
-func New(event EventSDK, execution ExecutionSDK, process ProcessSDK, runner RunnerSDK) *Orchestrator {
+func New(mc *cosmos.ModuleClient, ep *publisher.EventPublisher) *Orchestrator {
 	return &Orchestrator{
-		event:     event,
-		execution: execution,
-		process:   process,
-		runner:    runner,
-		ErrC:      make(chan error),
+		mc:   mc,
+		ep:   ep,
+		ErrC: make(chan error),
 	}
 }
 
@@ -33,12 +32,12 @@ func (s *Orchestrator) Start() error {
 		return fmt.Errorf("process orchestrator already running")
 	}
 
-	s.eventStream = s.event.GetStream(nil)
+	s.eventStream = s.ep.GetStream(nil)
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	executionStream, errC, err := s.execution.Stream(ctx, &api.StreamExecutionRequest{
+	executionStream, errC, err := s.mc.StreamExecution(ctx, &api.StreamExecutionRequest{
 		Filter: &api.StreamExecutionRequest_Filter{
 			Statuses: []execution.Status{execution.Status_Completed},
 		},
@@ -105,7 +104,7 @@ func (s *Orchestrator) findNodes(wf *process.Process, filter func(wf *process.Pr
 }
 
 func (s *Orchestrator) execute(filter func(wf *process.Process, node *process.Process_Node) (bool, error), exec *execution.Execution, event *event.Event, data *types.Struct) {
-	processes, err := s.process.List()
+	processes, err := s.mc.ListProcess()
 	if err != nil {
 		s.ErrC <- err
 		return
@@ -231,7 +230,7 @@ func (s *Orchestrator) resolveInput(wfHash hash.Hash, exec *execution.Execution,
 		return nil, fmt.Errorf("reference's nodeKey not found")
 	}
 	if exec.NodeKey != nodeKey {
-		parent, err := s.execution.Get(exec.ParentHash)
+		parent, err := s.mc.GetExecution(exec.ParentHash)
 		if err != nil {
 			return nil, err
 		}
@@ -248,7 +247,7 @@ func (s *Orchestrator) processTask(nodeKey string, task *process.Process_Node_Ta
 	if exec != nil {
 		execHash = exec.Hash
 	}
-	executors, err := s.runner.List(&runnersdk.Filter{
+	executors, err := s.mc.ListRunner(&cosmos.FilterRunner{
 		InstanceHash: task.InstanceHash,
 	})
 	if err != nil {
@@ -258,7 +257,7 @@ func (s *Orchestrator) processTask(nodeKey string, task *process.Process_Node_Ta
 		return fmt.Errorf("no runner is running instance %q", task.InstanceHash)
 	}
 	executor := executors[rand.Intn(len(executors))]
-	_, err = s.execution.Create(&api.CreateExecutionRequest{
+	_, err = s.mc.CreateExecution(&api.CreateExecutionRequest{
 		ProcessHash:  wf.Hash,
 		EventHash:    eventHash,
 		ParentHash:   execHash,

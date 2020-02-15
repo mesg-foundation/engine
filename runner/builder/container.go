@@ -1,4 +1,4 @@
-package runnersdk
+package builder
 
 import (
 	"errors"

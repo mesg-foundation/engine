@@ -1,10 +1,9 @@
-package eventsdk
+package event
 
 import (
 	"testing"
 
 	"github.com/cskr/pubsub"
-	"github.com/mesg-foundation/engine/event"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/stretchr/testify/assert"
 )
@@ -12,7 +11,7 @@ import (
 func TestFilter(t *testing.T) {
 	var tests = []struct {
 		f     *Filter
-		e     *event.Event
+		e     *Event
 		match bool
 	}{
 		{
@@ -22,42 +21,42 @@ func TestFilter(t *testing.T) {
 		},
 		{
 			&Filter{},
-			&event.Event{},
+			&Event{},
 			true,
 		},
 		{
 			&Filter{Hash: hash.Int(1)},
-			&event.Event{Hash: hash.Int(1)},
+			&Event{Hash: hash.Int(1)},
 			true,
 		},
 		{
 			&Filter{Hash: hash.Int(1)},
-			&event.Event{Hash: hash.Int(2)},
+			&Event{Hash: hash.Int(2)},
 			false,
 		},
 		{
 			&Filter{InstanceHash: hash.Int(1)},
-			&event.Event{InstanceHash: hash.Int(1)},
+			&Event{InstanceHash: hash.Int(1)},
 			true,
 		},
 		{
 			&Filter{InstanceHash: hash.Int(1)},
-			&event.Event{InstanceHash: hash.Int(1)},
+			&Event{InstanceHash: hash.Int(1)},
 			true,
 		},
 		{
 			&Filter{Key: "0"},
-			&event.Event{Key: "0"},
+			&Event{Key: "0"},
 			true,
 		},
 		{
 			&Filter{Key: "*"},
-			&event.Event{Key: "0"},
+			&Event{Key: "0"},
 			true,
 		},
 		{
 			&Filter{Key: "0"},
-			&event.Event{Key: "1"},
+			&Event{Key: "1"},
 			false,
 		},
 	}
@@ -69,12 +68,12 @@ func TestFilter(t *testing.T) {
 
 func TestEventListener(t *testing.T) {
 	topic := "test-topic"
-	testEvent := &event.Event{Key: "0"}
+	testEvent := &Event{Key: "0"}
 	ps := pubsub.New(0)
 	el := NewListener(ps, topic, &Filter{Key: "0"})
 
 	go func() {
-		ps.Pub(&event.Event{Key: "1"}, topic)
+		ps.Pub(&Event{Key: "1"}, topic)
 		ps.Pub(testEvent, topic)
 	}()
 	go el.Listen()

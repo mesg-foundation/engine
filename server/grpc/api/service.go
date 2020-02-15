@@ -3,24 +3,24 @@ package api
 import (
 	"context"
 
+	"github.com/mesg-foundation/engine/cosmos"
 	protobuf_api "github.com/mesg-foundation/engine/protobuf/api"
-	"github.com/mesg-foundation/engine/sdk"
 	"github.com/mesg-foundation/engine/service"
 )
 
 // ServiceServer is the type to aggregate all Service APIs.
 type ServiceServer struct {
-	sdk *sdk.SDK
+	mc *cosmos.ModuleClient
 }
 
 // NewServiceServer creates a new ServiceServer.
-func NewServiceServer(sdk *sdk.SDK) *ServiceServer {
-	return &ServiceServer{sdk: sdk}
+func NewServiceServer(mc *cosmos.ModuleClient) *ServiceServer {
+	return &ServiceServer{mc: mc}
 }
 
 // Create creates a new service from definition.
 func (s *ServiceServer) Create(ctx context.Context, req *protobuf_api.CreateServiceRequest) (*protobuf_api.CreateServiceResponse, error) {
-	srv, err := s.sdk.Service.Create(req)
+	srv, err := s.mc.CreateService(req)
 	if err != nil {
 		return nil, err
 	}
@@ -29,12 +29,12 @@ func (s *ServiceServer) Create(ctx context.Context, req *protobuf_api.CreateServ
 
 // Get returns service from given hash.
 func (s *ServiceServer) Get(ctx context.Context, req *protobuf_api.GetServiceRequest) (*service.Service, error) {
-	return s.sdk.Service.Get(req.Hash)
+	return s.mc.GetService(req.Hash)
 }
 
 // List returns all services.
 func (s *ServiceServer) List(ctx context.Context, req *protobuf_api.ListServiceRequest) (*protobuf_api.ListServiceResponse, error) {
-	services, err := s.sdk.Service.List()
+	services, err := s.mc.ListService()
 	if err != nil {
 		return nil, err
 	}
@@ -44,22 +44,18 @@ func (s *ServiceServer) List(ctx context.Context, req *protobuf_api.ListServiceR
 
 // Exists returns if a service already exists.
 func (s *ServiceServer) Exists(ctx context.Context, req *protobuf_api.ExistsServiceRequest) (*protobuf_api.ExistsServiceResponse, error) {
-	exists, err := s.sdk.Service.Exists(req.Hash)
+	exist, err := s.mc.ExistService(req.Hash)
 	if err != nil {
 		return nil, err
 	}
-	return &protobuf_api.ExistsServiceResponse{
-		Exists: exists,
-	}, nil
+	return &protobuf_api.ExistsServiceResponse{Exists: exist}, nil
 }
 
 // Hash returns the calculated hash of a service request.
 func (s *ServiceServer) Hash(ctx context.Context, req *protobuf_api.CreateServiceRequest) (*protobuf_api.HashServiceResponse, error) {
-	h, err := s.sdk.Service.Hash(req)
+	h, err := s.mc.HashService(req)
 	if err != nil {
 		return nil, err
 	}
-	return &protobuf_api.HashServiceResponse{
-		Hash: h,
-	}, nil
+	return &protobuf_api.HashServiceResponse{Hash: h}, nil
 }

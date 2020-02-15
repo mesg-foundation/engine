@@ -75,23 +75,6 @@ func (c *Client) QueryJSON(path string, qdata, ptr interface{}) error {
 	return c.cdc.UnmarshalJSON(result, ptr)
 }
 
-// Query is abci.query wrapper with errors check and decode data.
-func (c *Client) Query(path string, qdata, ptr interface{}) error {
-	var data []byte
-	if !xreflect.IsNil(qdata) {
-		b, err := c.cdc.MarshalBinaryBare(qdata)
-		if err != nil {
-			return err
-		}
-		data = b
-	}
-	result, _, err := c.QueryWithData(path, data)
-	if err != nil {
-		return err
-	}
-	return c.cdc.UnmarshalBinaryBare(result, ptr)
-}
-
 // QueryWithData performs a query to a Tendermint node with the provided path
 // and a data payload. It returns the result and height of the query upon success
 // or an error if the query fails.
