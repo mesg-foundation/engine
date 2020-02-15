@@ -3,7 +3,7 @@ package types
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/mesg-foundation/engine/cosmos"
+	"github.com/mesg-foundation/engine/cosmos/errors"
 	"github.com/mesg-foundation/engine/ext/xvalidator"
 	"github.com/mesg-foundation/engine/hash"
 )
@@ -40,10 +40,10 @@ func (msg MsgCreateRunner) ValidateBasic() error {
 		return err
 	}
 	if msg.ServiceHash.IsZero() {
-		return sdkerrors.Wrap(cosmos.ErrValidation, "serviceHash is missing")
+		return sdkerrors.Wrap(errors.ErrValidation, "serviceHash is missing")
 	}
 	if msg.EnvHash.IsZero() {
-		return sdkerrors.Wrap(cosmos.ErrValidation, "envHash is missing")
+		return sdkerrors.Wrap(errors.ErrValidation, "envHash is missing")
 	}
 	if msg.Address.Empty() {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, "address is missing")
@@ -88,10 +88,10 @@ func (msg MsgDeleteRunner) Type() string {
 // ValidateBasic runs stateless checks on the message.
 func (msg MsgDeleteRunner) ValidateBasic() error {
 	if err := xvalidator.Validate.Struct(msg); err != nil {
-		return sdkerrors.Wrap(cosmos.ErrValidation, err.Error())
+		return sdkerrors.Wrap(errors.ErrValidation, err.Error())
 	}
 	if msg.RunnerHash.IsZero() {
-		return sdkerrors.Wrap(cosmos.ErrValidation, "runnerHash is missing")
+		return sdkerrors.Wrap(errors.ErrValidation, "runnerHash is missing")
 	}
 	if msg.Address.Empty() {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, "address is missing")
