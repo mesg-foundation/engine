@@ -54,15 +54,27 @@ func testProcess(t *testing.T) {
 	})
 
 	t.Run("get", func(t *testing.T) {
-		p, err := client.ProcessClient.Get(context.Background(), &pb.GetProcessRequest{Hash: testProcessHash})
-		require.NoError(t, err)
-		require.True(t, p.Equal(&process.Process{
-			Hash:  p.Hash,
-			Name:  req.Name,
-			Nodes: req.Nodes,
-			Edges: req.Edges,
-		}))
-		processHash = p.Hash
+		t.Run("grpc", func(t *testing.T) {
+			p, err := client.ProcessClient.Get(context.Background(), &pb.GetProcessRequest{Hash: testProcessHash})
+			require.NoError(t, err)
+			require.True(t, p.Equal(&process.Process{
+				Hash:  p.Hash,
+				Name:  req.Name,
+				Nodes: req.Nodes,
+				Edges: req.Edges,
+			}))
+			processHash = p.Hash
+		})
+		t.Run("lcd", func(t *testing.T) {
+			var p *process.Process
+			lcdGet(t, "process/get/"+testProcessHash.String(), &p)
+			require.True(t, p.Equal(&process.Process{
+				Hash:  p.Hash,
+				Name:  req.Name,
+				Nodes: req.Nodes,
+				Edges: req.Edges,
+			}))
+		})
 	})
 
 	t.Run("check ownership creation", func(t *testing.T) {
@@ -91,9 +103,16 @@ func testProcess(t *testing.T) {
 	})
 
 	t.Run("list", func(t *testing.T) {
-		ps, err := client.ProcessClient.List(context.Background(), &pb.ListProcessRequest{})
-		require.NoError(t, err)
-		require.Len(t, ps.Processes, 1)
+		t.Run("lcd", func(t *testing.T) {
+			ps, err := client.ProcessClient.List(context.Background(), &pb.ListProcessRequest{})
+			require.NoError(t, err)
+			require.Len(t, ps.Processes, 1)
+		})
+		t.Run("lcd", func(t *testing.T) {
+			ps := make([]*process.Process, 0)
+			lcdGet(t, "process/list", &ps)
+			require.Len(t, ps, 1)
+		})
 	})
 
 	t.Run("delete", func(t *testing.T) {

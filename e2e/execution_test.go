@@ -177,9 +177,16 @@ func testExecution(t *testing.T) {
 	})
 
 	t.Run("list", func(t *testing.T) {
-		resp, err := client.ExecutionClient.List(context.Background(), &pb.ListExecutionRequest{})
-		require.NoError(t, err)
-		require.Len(t, resp.Executions, 2)
+		t.Run("grpc", func(t *testing.T) {
+			resp, err := client.ExecutionClient.List(context.Background(), &pb.ListExecutionRequest{})
+			require.NoError(t, err)
+			require.Len(t, resp.Executions, 2)
+		})
+		t.Run("lcd", func(t *testing.T) {
+			execs := make([]*execution.Execution, 0)
+			lcdGet(t, "execution/list", &execs)
+			require.Len(t, execs, 2)
+		})
 	})
 
 	t.Run("many executions in parallel", func(t *testing.T) {
