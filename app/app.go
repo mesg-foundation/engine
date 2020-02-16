@@ -29,11 +29,11 @@ import (
 	mesgcodec "github.com/mesg-foundation/engine/codec"
 	"github.com/mesg-foundation/engine/cosmos"
 	executionsdk "github.com/mesg-foundation/engine/sdk/execution"
-	servicesdk "github.com/mesg-foundation/engine/sdk/service"
 	"github.com/mesg-foundation/engine/x/instance"
 	"github.com/mesg-foundation/engine/x/ownership"
 	"github.com/mesg-foundation/engine/x/process"
 	"github.com/mesg-foundation/engine/x/runner"
+	"github.com/mesg-foundation/engine/x/service"
 )
 
 const appName = "engine"
@@ -63,7 +63,7 @@ var (
 		instance.AppModuleBasic{},
 		process.AppModuleBasic{},
 		runner.AppModuleBasic{},
-		cosmos.NewAppModuleBasic(servicesdk.ModuleName),
+		service.AppModuleBasic{},
 		cosmos.NewAppModuleBasic(executionsdk.ModuleName),
 	)
 
@@ -119,7 +119,7 @@ type NewApp struct {
 	instanceKeeper  instance.Keeper
 	processKeeper   process.Keeper
 	runnerKeeper    runner.Keeper
-	serviceKeeper   *servicesdk.Keeper
+	serviceKeeper   service.Keeper
 	executionKeeper *executionsdk.Keeper
 
 	// Module Manager
@@ -159,7 +159,7 @@ func NewInitApp(
 		instance.ModuleName,
 		process.ModuleName,
 		runner.ModuleName,
-		servicesdk.ModuleName,
+		service.ModuleName,
 		executionsdk.ModuleName,
 	)
 
@@ -245,7 +245,7 @@ func NewInitApp(
 	app.ownershipKeeper = ownership.NewKeeper(app.cdc, keys[ownership.StoreKey])
 	app.instanceKeeper = instance.NewKeeper(app.cdc, keys[instance.StoreKey])
 	app.processKeeper = process.NewKeeper(app.cdc, keys[process.StoreKey], app.instanceKeeper, app.ownershipKeeper)
-	app.serviceKeeper = servicesdk.NewKeeper(keys[servicesdk.ModuleName], app.ownershipKeeper)
+	app.serviceKeeper = service.NewKeeper(app.cdc, keys[service.StoreKey], app.ownershipKeeper)
 	app.runnerKeeper = runner.NewKeeper(app.cdc, keys[runner.StoreKey], app.instanceKeeper)
 	app.executionKeeper = executionsdk.NewKeeper(keys[executionsdk.ModuleName], app.serviceKeeper, app.instanceKeeper, app.runnerKeeper, app.processKeeper)
 
@@ -264,7 +264,7 @@ func NewInitApp(
 		instance.NewAppModule(app.instanceKeeper),
 		process.NewAppModule(app.processKeeper),
 		runner.NewAppModule(app.runnerKeeper, app.instanceKeeper),
-		servicesdk.NewModule(app.serviceKeeper),
+		service.NewAppModule(app.serviceKeeper),
 		executionsdk.NewModule(app.executionKeeper),
 
 		staking.NewAppModule(app.stakingKeeper, app.accountKeeper, app.supplyKeeper),
@@ -291,7 +291,7 @@ func NewInitApp(
 		instance.ModuleName,
 		process.ModuleName,
 		runner.ModuleName,
-		servicesdk.ModuleName,
+		service.ModuleName,
 		executionsdk.ModuleName,
 
 		supply.ModuleName,
