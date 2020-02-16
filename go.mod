@@ -66,4 +66,6 @@ require (
 	gotest.tools v2.2.0+incompatible // indirect
 )
 
+replace github.com/tendermint/go-amino => github.com/mesg-foundation/go-amino v0.15.1-0.20200216090907-4e9dce4edc74
+
 go 1.13

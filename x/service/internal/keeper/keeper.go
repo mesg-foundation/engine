@@ -37,7 +37,7 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 }
 
 // Create creates a new service.
-func (k *Keeper) Create(ctx sdk.Context, msg *types.MsgCreateService) (*servicepb.Service, error) {
+func (k Keeper) Create(ctx sdk.Context, msg *types.MsgCreateService) (*servicepb.Service, error) {
 	store := ctx.KVStore(k.storeKey)
 	// create service
 	srv := initializeService(msg.Request)
@@ -70,7 +70,7 @@ func (k *Keeper) Create(ctx sdk.Context, msg *types.MsgCreateService) (*servicep
 }
 
 // Get returns the service that matches given hash.
-func (k *Keeper) Get(ctx sdk.Context, hash hash.Hash) (*servicepb.Service, error) {
+func (k Keeper) Get(ctx sdk.Context, hash hash.Hash) (*servicepb.Service, error) {
 	store := ctx.KVStore(k.storeKey)
 	if !store.Has(hash) {
 		return nil, fmt.Errorf("service %q not found", hash)
@@ -80,17 +80,17 @@ func (k *Keeper) Get(ctx sdk.Context, hash hash.Hash) (*servicepb.Service, error
 }
 
 // Exists returns true if a specific set of data exists in the database, false otherwise
-func (k *Keeper) Exists(ctx sdk.Context, hash hash.Hash) (bool, error) {
+func (k Keeper) Exists(ctx sdk.Context, hash hash.Hash) (bool, error) {
 	return ctx.KVStore(k.storeKey).Has(hash), nil
 }
 
 // Hash returns the hash of a service request.
-func (k *Keeper) Hash(_ sdk.Context, serviceRequest *api.CreateServiceRequest) hash.Hash {
+func (k Keeper) Hash(_ sdk.Context, serviceRequest *api.CreateServiceRequest) hash.Hash {
 	return initializeService(serviceRequest).Hash
 }
 
 // List returns all services.
-func (k *Keeper) List(ctx sdk.Context) ([]*servicepb.Service, error) {
+func (k Keeper) List(ctx sdk.Context) ([]*servicepb.Service, error) {
 	var (
 		services []*servicepb.Service
 		iter     = ctx.KVStore(k.storeKey).Iterator(nil, nil)

@@ -9,11 +9,11 @@ import (
 	bam "github.com/cosmos/cosmos-sdk/baseapp"
 	cosmosclient "github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/context"
+	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/crypto/keys"
 	authrest "github.com/cosmos/cosmos-sdk/x/auth/client/rest"
 	"github.com/gorilla/mux"
 	"github.com/mesg-foundation/engine/app"
-	"github.com/mesg-foundation/engine/codec"
 	"github.com/mesg-foundation/engine/config"
 	"github.com/mesg-foundation/engine/container"
 	"github.com/mesg-foundation/engine/cosmos"
@@ -93,7 +93,7 @@ func loadOrGenConfigAccount(kb *cosmos.Keybase, cfg *config.Config) (keys.Info, 
 	return kb.CreateAccount(cfg.Account.Name, mnemonic, "", cfg.Account.Password, keys.CreateHDPath(cfg.Account.Number, cfg.Account.Index).String(), cosmos.DefaultAlgo)
 }
 
-func loadOrGenDevGenesis(kb *cosmos.Keybase, cfg *config.Config) (*tmtypes.GenesisDoc, error) {
+func loadOrGenDevGenesis(cdc *codec.Codec, kb *cosmos.Keybase, cfg *config.Config) (*tmtypes.GenesisDoc, error) {
 	if cosmos.GenesisExist(cfg.Tendermint.Config.GenesisFile()) {
 		return cosmos.LoadGenesis(cfg.Tendermint.Config.GenesisFile())
 	}
@@ -113,7 +113,7 @@ func loadOrGenDevGenesis(kb *cosmos.Keybase, cfg *config.Config) (*tmtypes.Genes
 		"nodeID": validator.NodeID,
 		"peer":   fmt.Sprintf("%s@%s:26656", validator.NodeID, validator.Name),
 	}).Warnln("Validator")
-	return cosmos.GenGenesis(kb, app.NewDefaultGenesisState(), cfg.DevGenesis.ChainID, cfg.DevGenesis.InitialBalances, cfg.DevGenesis.ValidatorDelegationCoin, cfg.Tendermint.Config.GenesisFile(), []cosmos.GenesisValidator{validator})
+	return cosmos.GenGenesis(cdc, kb, app.NewDefaultGenesisState(), cfg.DevGenesis.ChainID, cfg.DevGenesis.InitialBalances, cfg.DevGenesis.ValidatorDelegationCoin, cfg.Tendermint.Config.GenesisFile(), []cosmos.GenesisValidator{validator})
 }
 
 func main() {
@@ -149,6 +149,7 @@ func main() {
 	}
 
 	initApp := app.NewInitApp(tendermintLogger, db, nil, true, 0, bam.SetMinGasPrices(cfg.Cosmos.MinGasPrices))
+	cdc := initApp.Codec()
 
 	// init key manager
 	kb, err := cosmos.NewKeybase(filepath.Join(cfg.Path, cfg.Cosmos.RelativePath))
@@ -164,7 +165,7 @@ func main() {
 	logrus.WithField("address", acc.GetAddress().String()).Info("engine account")
 
 	// load or gen genesis
-	genesis, err := loadOrGenDevGenesis(kb, cfg)
+	genesis, err := loadOrGenDevGenesis(cdc, kb, cfg)
 	if err != nil {
 		logrus.WithField("module", "main").Fatalln(err)
 	}
@@ -176,7 +177,7 @@ func main() {
 	}
 
 	// create cosmos client
-	client, err := cosmos.NewClient(node, kb, genesis.ChainID, cfg.Account.Name, cfg.Account.Password, cfg.Cosmos.MinGasPrices)
+	client, err := cosmos.NewClient(node, cdc, kb, genesis.ChainID, cfg.Account.Name, cfg.Account.Password, cfg.Cosmos.MinGasPrices)
 	if err != nil {
 		logrus.WithField("module", "main").Fatalln(err)
 	}
@@ -222,7 +223,7 @@ func main() {
 	}
 
 	cliCtx := context.NewCLIContext().
-		WithCodec(codec.Codec).
+		WithCodec(cdc).
 		WithClient(client).
 		WithTrustNode(true)
 	mux := mux.NewRouter()

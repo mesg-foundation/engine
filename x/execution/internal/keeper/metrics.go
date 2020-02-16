@@ -1,4 +1,4 @@
-package executionsdk
+package keeper
 
 import (
 	"github.com/go-kit/kit/metrics"
@@ -6,17 +6,20 @@ import (
 	stdprometheus "github.com/prometheus/client_golang/prometheus"
 )
 
-var m *metric
+// M is global metric variable.
+var M = NewMetric()
 
-type metric struct {
+// Metric is struct to keep counters for execution statuses.
+type Metric struct {
 	Created    metrics.Counter
 	InProgress metrics.Counter
 	Updated    metrics.Counter
 	Completed  metrics.Counter
 }
 
-func newMetric() *metric {
-	return &metric{
+// NewMetric creates a counters metric.
+func NewMetric() *Metric {
+	return &Metric{
 		Created: prometheus.NewCounterFrom(stdprometheus.CounterOpts{
 			Namespace: "mesg",
 			Subsystem: "execution",
@@ -42,8 +45,4 @@ func newMetric() *metric {
 			Help:      "executions completed",
 		}, []string{}),
 	}
-}
-
-func init() {
-	m = newMetric()
 }
