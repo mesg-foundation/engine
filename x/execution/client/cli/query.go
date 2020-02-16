@@ -61,7 +61,7 @@ func GetCmdListExecution(queryRoute string, cdc *codec.Codec) *cobra.Command {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
 			res, _, err := cliCtx.QueryWithData(fmt.Sprintf("custom/%s/%s", queryRoute, types.QueryListExecution), nil)
 			if err != nil {
-				fmt.Printf("could not list services\n%s\n", err.Error())
+				fmt.Printf("could not list executions\n%s\n", err.Error())
 				return nil
 			}
 

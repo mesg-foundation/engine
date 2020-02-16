@@ -12,11 +12,11 @@ import (
 
 func registerQueryRoutes(cliCtx context.CLIContext, r *mux.Router) {
 	r.HandleFunc(
-		"/service/get/{hash}",
+		"/execution/get/{hash}",
 		queryGetHandlerFn(cliCtx),
 	).Methods(http.MethodGet)
 	r.HandleFunc(
-		"/service/list",
+		"/execution/list",
 		queryListHandlerFn(cliCtx),
 	).Methods(http.MethodGet)
 }
