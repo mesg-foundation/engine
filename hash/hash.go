@@ -118,7 +118,7 @@ func (h Hash) Marshal() ([]byte, error) {
 	if len(h) != size {
 		return nil, errInvalidLen
 	}
-	return h.MarshalJSON()
+	return []byte(base58.Encode(h)), nil
 }
 
 // MarshalTo marshals hash into slice of bytes. It's used by protobuf.
@@ -132,7 +132,19 @@ func (h Hash) MarshalTo(data []byte) (int, error) {
 
 // Unmarshal unmarshals slice of bytes into hash. It's used by protobuf.
 func (h *Hash) Unmarshal(data []byte) error {
-	return h.UnmarshalJSON(data)
+	str := string(data)
+	if str == "" {
+		return nil
+	}
+	h1, err := base58.Decode(str)
+	if err != nil {
+		return err
+	}
+	*h = Hash(h1)
+	if len(*h) != size {
+		return errInvalidLen
+	}
+	return nil
 }
 
 // Size returns size of hash. It's used by protobuf.
@@ -149,7 +161,11 @@ func (h Hash) Valid() bool {
 
 // MarshalJSON mashals hash into encoded json string.
 func (h Hash) MarshalJSON() ([]byte, error) {
-	return json.Marshal(base58.Encode(h))
+	data, err := h.Marshal()
+	if err != nil {
+		return nil, err
+	}
+	return json.Marshal(string(data))
 }
 
 // UnmarshalJSON unmarshals hex encoded json string into hash.
@@ -158,16 +174,5 @@ func (h *Hash) UnmarshalJSON(data []byte) error {
 	if err := json.Unmarshal(data, &str); err != nil {
 		return err
 	}
-	if str == "" {
-		return nil
-	}
-	h1, err := base58.Decode(str)
-	if err != nil {
-		return err
-	}
-	*h = Hash(h1)
-	if len(*h) != size {
-		return errInvalidLen
-	}
-	return nil
+	return h.Unmarshal([]byte(str))
 }
