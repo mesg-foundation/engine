@@ -118,7 +118,7 @@ func (h Hash) Marshal() ([]byte, error) {
 	if len(h) != size {
 		return nil, errInvalidLen
 	}
-	return h, nil
+	return h.MarshalJSON()
 }
 
 // MarshalTo marshals hash into slice of bytes. It's used by protobuf.
@@ -132,12 +132,7 @@ func (h Hash) MarshalTo(data []byte) (int, error) {
 
 // Unmarshal unmarshals slice of bytes into hash. It's used by protobuf.
 func (h *Hash) Unmarshal(data []byte) error {
-	if len(data) != size {
-		return errInvalidLen
-	}
-	*h = make([]byte, len(data))
-	copy(*h, data)
-	return nil
+	return h.UnmarshalJSON(data)
 }
 
 // Size returns size of hash. It's used by protobuf.
