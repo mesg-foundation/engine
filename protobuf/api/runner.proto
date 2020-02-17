@@ -29,7 +29,7 @@ service Runner {
 
 // The request's data for the `Get` API.
 message GetRunnerRequest {
-  bytes hash = 1 [
+  string hash = 1 [
     (gogoproto.moretags) = 'validate:"required,hash"',
     (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
     (gogoproto.nullable) = false
@@ -81,7 +81,7 @@ message CreateRunnerRequest {
 // The response's data for the `Create` API.
 message CreateRunnerResponse {
   // The runner's hash created.
-  bytes hash = 1 [
+  string hash = 1 [
     (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
     (gogoproto.nullable) = false
   ];
@@ -90,7 +90,7 @@ message CreateRunnerResponse {
 // The request's data for the `Delete` API.
 message DeleteRunnerRequest {
   // Runner's hash
-  bytes hash = 1 [
+  string hash = 1 [
     (gogoproto.moretags) = 'validate:"required,hash"',
     (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
     (gogoproto.nullable) = false

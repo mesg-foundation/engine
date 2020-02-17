@@ -216,7 +216,7 @@ message Process {
   }
 
   // Process's hash
-  bytes hash = 1 [
+  string hash = 1 [
     (gogoproto.moretags) = 'hash:"-" validate:"required"',
     (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
     (gogoproto.nullable) = false

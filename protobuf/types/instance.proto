@@ -10,7 +10,7 @@ option (gogoproto.equal_all) = true;
 
 // Instance represents service's instance.
 message Instance {
-  bytes hash = 1 [
+  string hash = 1 [
     (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
     (gogoproto.nullable) = false
   ];

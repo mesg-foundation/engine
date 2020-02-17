@@ -32,7 +32,7 @@ enum Status {
 // Execution represents a single execution run in engine.
 message Execution {
   // Hash is a unique hash to identify execution.
-  bytes hash = 1 [
+  string hash = 1 [
     (gogoproto.moretags) = 'hash:"-"',
     (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
     (gogoproto.nullable) = false

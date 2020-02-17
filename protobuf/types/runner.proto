@@ -11,7 +11,7 @@ option (gogoproto.equal_all) = true;
 // Runner represents one node service's instance.
 message Runner {
   // Runner's hash
-  bytes hash = 1 [
+  string hash = 1 [
     (gogoproto.moretags) = 'hash:"-"',
     (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
     (gogoproto.nullable) = false

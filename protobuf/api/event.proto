@@ -26,7 +26,7 @@ message StreamEventRequest {
   // Filter contains filtering criteria.
   message Filter {
     // hash to filter events.
-    bytes hash = 1 [
+    string hash = 1 [
       (gogoproto.moretags) = 'validate:"omitempty,hash"',
       (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
       (gogoproto.nullable) = false
@@ -70,7 +70,7 @@ message CreateEventRequest {
 // CreateEventResponse defines response for execution update.
 message CreateEventResponse {
   // Hash represents event.
-  bytes hash = 1 [
+  string hash = 1 [
     (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
     (gogoproto.nullable) = false
   ];

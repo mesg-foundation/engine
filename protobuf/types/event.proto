@@ -11,7 +11,7 @@ option (gogoproto.goproto_getters_all) = false;
 // Event represents a single event run in engine.
 message Event {
   // Hash is a unique hash to identify event.
-  bytes hash = 1 [
+  string hash = 1 [
     (gogoproto.moretags) = 'hash:"-"',
     (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
     (gogoproto.nullable) = false

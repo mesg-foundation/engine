@@ -75,7 +75,7 @@ message CreateExecutionRequest {
 // CreateExecutionResponse defines response for execution creation.
 message CreateExecutionResponse {
   // Execution's hash.
-  bytes hash = 1 [
+  string hash = 1 [
     (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
     (gogoproto.nullable) = false
   ];
@@ -84,7 +84,7 @@ message CreateExecutionResponse {
 // GetExecutionRequest defines request to retrieve a single execution.
 message GetExecutionRequest {
   // Execution's hash to fetch.
-  bytes hash = 1 [
+  string hash = 1 [
     (gogoproto.moretags) = 'validate:"required,hash"',
     (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
     (gogoproto.nullable) = false
@@ -130,7 +130,7 @@ message StreamExecutionRequest{
 // UpdateExecutionRequest defines request for execution update.
 message UpdateExecutionRequest {
   // Hash represents execution.
-  bytes hash = 1 [
+  string hash = 1 [
     (gogoproto.moretags) = 'validate:"required,hash"',
     (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
     (gogoproto.nullable) = false

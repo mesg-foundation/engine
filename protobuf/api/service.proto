@@ -82,7 +82,7 @@ message CreateServiceRequest {
 // The response's data for the `Create` API.
 message CreateServiceResponse {
   // The service's hash created.
-  bytes hash = 1 [
+  string hash = 1 [
     (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
     (gogoproto.nullable) = false
   ];
@@ -91,7 +91,7 @@ message CreateServiceResponse {
 // The request's data for the `Get` API.
 message GetServiceRequest {
   // The service's hash to fetch.
-  bytes hash = 1 [
+  string hash = 1 [
     (gogoproto.moretags) = 'validate:"required,hash"',
     (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
     (gogoproto.nullable) = false
@@ -110,7 +110,7 @@ message ListServiceResponse {
 // The request's data for the `List` API.
 message ExistsServiceRequest {
   // The service's hash of the existing service. This hash is nil if exists is fals.
-  bytes hash = 1 [
+  string hash = 1 [
     (gogoproto.moretags) = 'validate:"required,hash"',
     (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
     (gogoproto.nullable) = false
@@ -126,7 +126,7 @@ message ExistsServiceResponse {
 // The request's data for the `Hash` API.
 message HashServiceResponse {
   // Hash of the service calculated.
-  bytes hash = 1 [
+  string hash = 1 [
     (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
     (gogoproto.nullable) = false
   ];

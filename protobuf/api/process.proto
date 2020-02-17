@@ -45,7 +45,7 @@ message CreateProcessRequest {
 // The response's data for the `Create` API.
 message CreateProcessResponse {
   // The process's hash created.
-  bytes hash = 1 [
+  string hash = 1 [
     (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
     (gogoproto.nullable) = false
   ];
@@ -54,7 +54,7 @@ message CreateProcessResponse {
 // The request's data for the `Delete` API.
 message DeleteProcessRequest {
   // The process's hash to delete.
-  bytes hash = 1 [
+  string hash = 1 [
     (gogoproto.moretags) = 'validate:"required,hash"',
     (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
     (gogoproto.nullable) = false
@@ -68,7 +68,7 @@ message DeleteProcessResponse {
 // The request's data for the `Get` API.
 message GetProcessRequest {
   // The process's hash to fetch.
-  bytes hash = 1 [
+  string hash = 1 [
     (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
     (gogoproto.nullable) = false
   ];

@@ -178,7 +178,7 @@ message Service {
   }
 
   // Service's hash.
-  bytes hash = 10 [
+  string hash = 10 [
     (gogoproto.moretags) = 'hash:"-" validate:"required"',
     (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
     (gogoproto.nullable) = false
