@@ -11,6 +11,7 @@ import (
 // MsgCreateExecution defines a state transition to create a execution.
 type MsgCreateExecution struct {
 	Request *api.CreateExecutionRequest `json:"request"`
+	Price   sdk.Coins                   `json:"price"`
 	Signer  sdk.AccAddress              `json:"signer"`
 }
 
@@ -18,6 +19,7 @@ type MsgCreateExecution struct {
 func NewMsgCreateExecution(req *api.CreateExecutionRequest, signer sdk.AccAddress) *MsgCreateExecution {
 	return &MsgCreateExecution{
 		Request: req,
+		Price:   sdk.NewCoins(sdk.NewCoin("atto", sdk.NewInt(10))),
 		Signer:  signer,
 	}
 }
@@ -34,6 +36,9 @@ func (msg MsgCreateExecution) Type() string {
 
 // ValidateBasic runs stateless checks on the message.
 func (msg MsgCreateExecution) ValidateBasic() error {
+	if !msg.Price.IsAllPositive() {
+		return sdkerrors.Wrap(sdkerrors.ErrInsufficientFunds, "price must be positive")
+	}
 	if err := xvalidator.Validate.Struct(msg); err != nil {
 		return err
 	}

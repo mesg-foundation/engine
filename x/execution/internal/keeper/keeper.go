@@ -3,9 +3,11 @@ package keeper
 import (
 	"errors"
 	"fmt"
+	"math/big"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/mesg-foundation/engine/cosmos/reciver"
 	executionpb "github.com/mesg-foundation/engine/execution"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/protobuf/api"
@@ -16,23 +18,28 @@ import (
 
 // Keeper of the execution store
 type Keeper struct {
-	storeKey       sdk.StoreKey
-	cdc            *codec.Codec
-	serviceKeeper  types.ServiceKeeper
-	instanceKeeper types.InstanceKeeper
-	runnerKeeper   types.RunnerKeeper
-	processKeeper  types.ProcessKeeper
+	storeKey sdk.StoreKey
+	cdc      *codec.Codec
+
+	bankKeeper      types.BankKeeper
+	serviceKeeper   types.ServiceKeeper
+	instanceKeeper  types.InstanceKeeper
+	runnerKeeper    types.RunnerKeeper
+	processKeeper   types.ProcessKeeper
+	ownershipKeeper types.OwnershipKeeper
 }
 
 // NewKeeper creates a execution keeper
-func NewKeeper(cdc *codec.Codec, key sdk.StoreKey, serviceKeeper types.ServiceKeeper, instanceKeeper types.InstanceKeeper, runnerKeeper types.RunnerKeeper, processKeeper types.ProcessKeeper) Keeper {
+func NewKeeper(cdc *codec.Codec, key sdk.StoreKey, bankKeeper types.BankKeeper, serviceKeeper types.ServiceKeeper, instanceKeeper types.InstanceKeeper, runnerKeeper types.RunnerKeeper, processKeeper types.ProcessKeeper, ownershipKeeper types.OwnershipKeeper) Keeper {
 	keeper := Keeper{
-		storeKey:       key,
-		cdc:            cdc,
-		serviceKeeper:  serviceKeeper,
-		instanceKeeper: instanceKeeper,
-		runnerKeeper:   runnerKeeper,
-		processKeeper:  processKeeper,
+		storeKey:        key,
+		cdc:             cdc,
+		bankKeeper:      bankKeeper,
+		serviceKeeper:   serviceKeeper,
+		instanceKeeper:  instanceKeeper,
+		runnerKeeper:    runnerKeeper,
+		processKeeper:   processKeeper,
+		ownershipKeeper: ownershipKeeper,
 	}
 	return keeper
 }
@@ -89,6 +96,57 @@ func (k *Keeper) Create(ctx sdk.Context, msg types.MsgCreateExecution) (*executi
 	if !ctx.IsCheckTx() {
 		M.InProgress.Add(1)
 	}
+
+	serviceOwners, err := k.ownershipKeeper.GetOwners(ctx, srv.Hash)
+	if err != nil {
+		return nil, err
+	}
+
+	runnerOwner, err := sdk.AccAddressFromBech32(run.Address)
+	if err != nil {
+		return nil, err
+	}
+
+	var runnerPrice sdk.Coins
+	var servicePrice sdk.Coins
+
+	for i := range msg.Price {
+		p := msg.Price[i].Amount.BigInt()
+
+		coin := sdk.Coin{
+			Denom:  msg.Price[i].Denom,
+			Amount: sdk.NewIntFromBigInt(p.Div(p, big.NewInt(10))),
+		}
+		msg.Price[i].Sub(coin)
+
+		runnerPrice = append(runnerPrice, msg.Price[i])
+		servicePrice = append(servicePrice, coin)
+	}
+
+	if err := k.bankKeeper.SendCoins(ctx, msg.Signer, reciver.Reciver, runnerPrice); err != nil {
+		return nil, err
+	}
+
+	if err := k.bankKeeper.SendCoins(ctx, msg.Signer, runnerOwner, runnerPrice); err != nil {
+		return nil, err
+	}
+
+	// send rest to runnerOwner
+	if len(serviceOwners) == 0 {
+		if err := k.bankKeeper.SendCoins(ctx, msg.Signer, runnerOwner, servicePrice); err != nil {
+			return nil, err
+		}
+	} else {
+		// send to first one for now
+		serviceOwner, err := sdk.AccAddressFromBech32(serviceOwners[0].Owner)
+		if err != nil {
+			return nil, err
+		}
+		if err := k.bankKeeper.SendCoins(ctx, msg.Signer, serviceOwner, servicePrice); err != nil {
+			return nil, err
+		}
+	}
+
 	store.Set(exec.Hash, value)
 	return exec, nil
 }

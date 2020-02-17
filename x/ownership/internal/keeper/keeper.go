@@ -31,6 +31,26 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", fmt.Sprintf("x/%s", types.ModuleName))
 }
 
+// GetOwners returns the ownership from the keeper.
+func (k Keeper) GetOwners(ctx sdk.Context, resourceHash hash.Hash) ([]*ownership.Ownership, error) {
+	store := ctx.KVStore(k.storeKey)
+	var ownerships []*ownership.Ownership
+
+	iter := store.Iterator(nil, nil)
+	for ; iter.Valid(); iter.Next() {
+		var o *ownership.Ownership
+		if err := k.cdc.UnmarshalBinaryLengthPrefixed(iter.Value(), &o); err != nil {
+			return nil, err
+		}
+		if o.ResourceHash.Equal(resourceHash) {
+			ownerships = append(ownerships, o)
+		}
+
+	}
+	iter.Close()
+	return ownerships, nil
+}
+
 // List returns all ownerships.
 func (k *Keeper) List(ctx sdk.Context) ([]*ownership.Ownership, error) {
 	var (

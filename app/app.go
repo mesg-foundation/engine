@@ -247,7 +247,7 @@ func NewInitApp(
 	app.processKeeper = process.NewKeeper(app.cdc, keys[process.StoreKey], app.instanceKeeper, app.ownershipKeeper)
 	app.serviceKeeper = service.NewKeeper(app.cdc, keys[service.StoreKey], app.ownershipKeeper)
 	app.runnerKeeper = runner.NewKeeper(app.cdc, keys[runner.StoreKey], app.instanceKeeper)
-	app.executionKeeper = execution.NewKeeper(app.cdc, keys[execution.StoreKey], app.serviceKeeper, app.instanceKeeper, app.runnerKeeper, app.processKeeper)
+	app.executionKeeper = execution.NewKeeper(app.cdc, keys[execution.StoreKey], app.bankKeeper, app.serviceKeeper, app.instanceKeeper, app.runnerKeeper, app.processKeeper, app.ownershipKeeper)
 
 	// NOTE: Any module instantiated in the module manager that is later modified
 	// must be passed by reference here.
@@ -383,6 +383,11 @@ func (app *NewApp) ModuleAccountAddrs() map[string]bool {
 	}
 
 	return modAccAddrs
+}
+
+// BankKeeper returns a keeper.
+func (app *NewApp) BankKeeper() bank.Keeper {
+	return app.bankKeeper
 }
 
 // Codec returns the application's sealed codec.

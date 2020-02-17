@@ -17,6 +17,7 @@ import (
 	"github.com/mesg-foundation/engine/config"
 	"github.com/mesg-foundation/engine/container"
 	"github.com/mesg-foundation/engine/cosmos"
+	"github.com/mesg-foundation/engine/cosmos/reciver"
 	"github.com/mesg-foundation/engine/event/publisher"
 	"github.com/mesg-foundation/engine/ext/xerrors"
 	"github.com/mesg-foundation/engine/ext/xnet"
@@ -68,6 +69,7 @@ func stopRunningServices(mc *cosmos.ModuleClient, b *builder.Builder, address st
 }
 
 func loadOrGenConfigAccount(kb *cosmos.Keybase, cfg *config.Config) (keys.Info, error) {
+	reciver.InitReciver(kb)
 	if cfg.Account.Mnemonic != "" {
 		logrus.WithField("module", "main").Warn("Config account mnemonic presents. Generating account with it...")
 		return kb.CreateAccount(cfg.Account.Name, cfg.Account.Mnemonic, "", cfg.Account.Password, keys.CreateHDPath(cfg.Account.Number, cfg.Account.Index).String(), cosmos.DefaultAlgo)
