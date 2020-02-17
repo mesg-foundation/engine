@@ -46,14 +46,16 @@ func getInstance(ctx sdk.Context, path []string, k Keeper) ([]byte, error) {
 }
 
 func listInstance(ctx sdk.Context, req abci.RequestQuery, k Keeper) ([]byte, error) {
-	var f *api.ListInstanceRequest
+	var f *api.ListInstanceRequest_Filter
 	if len(req.Data) > 0 {
-		if err := types.ModuleCdc.UnmarshalJSON(req.Data, &f); err != nil {
+		var r *api.ListInstanceRequest
+		if err := types.ModuleCdc.UnmarshalJSON(req.Data, &r); err != nil {
 			return nil, sdkerrors.Wrap(sdkerrors.ErrJSONUnmarshal, err.Error())
 		}
+		f = r.Filter
 	}
 
-	instances, err := k.List(ctx, f.Filter)
+	instances, err := k.List(ctx, f)
 	if err != nil {
 		return nil, err
 	}
