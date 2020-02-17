@@ -103,7 +103,7 @@ func testProcess(t *testing.T) {
 	})
 
 	t.Run("list", func(t *testing.T) {
-		t.Run("lcd", func(t *testing.T) {
+		t.Run("grpc", func(t *testing.T) {
 			ps, err := client.ProcessClient.List(context.Background(), &pb.ListProcessRequest{})
 			require.NoError(t, err)
 			require.Len(t, ps.Processes, 1)

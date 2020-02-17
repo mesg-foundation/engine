@@ -14,7 +14,7 @@ var testInstanceHash hash.Hash
 
 func testInstance(t *testing.T) {
 	t.Run("get", func(t *testing.T) {
-		t.Run("lcd", func(t *testing.T) {
+		t.Run("grpc", func(t *testing.T) {
 			resp, err := client.InstanceClient.Get(context.Background(), &pb.GetInstanceRequest{Hash: testInstanceHash})
 			require.NoError(t, err)
 			require.Equal(t, testInstanceHash, resp.Hash)
@@ -32,7 +32,7 @@ func testInstance(t *testing.T) {
 
 	t.Run("list", func(t *testing.T) {
 		t.Run("with nil filter", func(t *testing.T) {
-			t.Run("lcd", func(t *testing.T) {
+			t.Run("grpc", func(t *testing.T) {
 				resp, err := client.InstanceClient.List(context.Background(), &pb.ListInstanceRequest{})
 				require.NoError(t, err)
 				require.Len(t, resp.Instances, 1)
