@@ -123,10 +123,11 @@ func (h Hash) Marshal() ([]byte, error) {
 
 // MarshalTo marshals hash into slice of bytes. It's used by protobuf.
 func (h Hash) MarshalTo(data []byte) (int, error) {
-	if len(h) != size {
-		return 0, errInvalidLen
+	output, err := h.Marshal()
+	if err != nil {
+		return 0, err
 	}
-	return copy(data, h), nil
+	return copy(data, output), nil
 }
 
 // Unmarshal unmarshals slice of bytes into hash. It's used by protobuf.
@@ -139,9 +140,10 @@ func (h *Hash) Unmarshal(data []byte) error {
 	return nil
 }
 
-// Size retruns size of hash. It's used by protobuf.
+// Size returns size of hash. It's used by protobuf.
 func (h Hash) Size() int {
-	return len(h)
+	l, _ := h.Marshal()
+	return len(l)
 }
 
 // Valid checks if service hash length is valid.
@@ -155,7 +157,7 @@ func (h Hash) MarshalJSON() ([]byte, error) {
 	return json.Marshal(base58.Encode(h))
 }
 
-// UnmarshalJSON unmashals hex encoded json string into hash.
+// UnmarshalJSON unmarshals hex encoded json string into hash.
 func (h *Hash) UnmarshalJSON(data []byte) error {
 	var str string
 	if err := json.Unmarshal(data, &str); err != nil {
@@ -169,5 +171,8 @@ func (h *Hash) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*h = Hash(h1)
+	if len(*h) != size {
+		return errInvalidLen
+	}
 	return nil
 }
