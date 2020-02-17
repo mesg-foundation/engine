@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"io/ioutil"
 	"net/http"
@@ -28,7 +29,10 @@ var (
 	cdc    = app.MakeCodec()
 )
 
-const lcdEndpoint = "http://127.0.0.1:1317/"
+const (
+	lcdEndpoint        = "http://127.0.0.1:1317/"
+	lcdPostContentType = "application/json"
+)
 
 func lcdGet(t *testing.T, path string, ptr interface{}) {
 	resp, err := http.Get(lcdEndpoint + path)
@@ -38,7 +42,24 @@ func lcdGet(t *testing.T, path string, ptr interface{}) {
 	require.NoError(t, err)
 	cosResp := rest.ResponseWithHeight{}
 	require.NoError(t, cdc.UnmarshalJSON(body, &cosResp))
-	require.NoError(t, cdc.UnmarshalJSON(cosResp.Result, ptr))
+	if len(cosResp.Result) > 0 {
+		require.NoError(t, cdc.UnmarshalJSON(cosResp.Result, ptr))
+	}
+}
+
+func lcdPost(t *testing.T, path string, req interface{}, ptr interface{}) {
+	reqBody, err := cdc.MarshalJSON(req)
+	require.NoError(t, err)
+	resp, err := http.Post(lcdEndpoint+path, lcdPostContentType, bytes.NewReader(reqBody))
+	require.NoError(t, err)
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+	require.NoError(t, err)
+	cosResp := rest.ResponseWithHeight{}
+	require.NoError(t, cdc.UnmarshalJSON(body, &cosResp))
+	if len(cosResp.Result) > 0 {
+		require.NoError(t, cdc.UnmarshalJSON(cosResp.Result, ptr))
+	}
 }
 
 func TestAPI(t *testing.T) {
