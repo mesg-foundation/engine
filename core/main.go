@@ -184,7 +184,7 @@ func main() {
 	// init runner builder
 	b := builder.New(mc, container, cfg.Name, strconv.Itoa(port), cfg.IpfsEndpoint)
 
-	// init event publiserh
+	// init event publisher
 	ep := publisher.New(mc)
 
 	// start tendermint node
@@ -195,7 +195,6 @@ func main() {
 
 	// init gRPC server.
 	server := grpc.New(mc, ep, b)
-
 	logrus.WithField("module", "main").Infof("starting MESG Engine version %s", version.Version)
 
 	go func() {
