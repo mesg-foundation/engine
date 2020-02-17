@@ -21,10 +21,12 @@ import (
 	"github.com/mesg-foundation/engine/x/service"
 )
 
+// ModuleClient handles all communication with every module.
 type ModuleClient struct {
 	*Client
 }
 
+// NewModuleClient creates new module client.
 func NewModuleClient(c *Client) *ModuleClient {
 	return &ModuleClient{Client: c}
 }
@@ -33,7 +35,7 @@ func sroutef(format string, args ...interface{}) string {
 	return fmt.Sprintf("custom/"+format, args...)
 }
 
-// Create creates a new service from definition.
+// CreateService creates a new service from definition.
 func (mc *ModuleClient) CreateService(req *api.CreateServiceRequest) (*servicepb.Service, error) {
 	acc, err := mc.GetAccount()
 	if err != nil {
