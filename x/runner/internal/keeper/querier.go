@@ -3,6 +3,7 @@ package keeper
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/mesg-foundation/engine/cosmos/errors"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/x/runner/internal/types"
 	abci "github.com/tendermint/tendermint/abci/types"
@@ -23,9 +24,12 @@ func NewQuerier(k Keeper) sdk.Querier {
 }
 
 func getRunner(ctx sdk.Context, path []string, k Keeper) ([]byte, error) {
+	if len(path) == 0 {
+		return nil, errors.ErrMissingHash
+	}
 	hash, err := hash.Decode(path[0])
 	if err != nil {
-		return nil, err
+		return nil, sdkerrors.Wrap(errors.ErrValidation, err.Error())
 	}
 
 	instance, err := k.Get(ctx, hash)

@@ -11,17 +11,15 @@ const (
 
 // Base mesg codes.
 const (
-	CodeInternal   uint32 = 1000
 	CodeValidation uint32 = 2000
-	CodeMarshal    uint32 = 2001
-	CodeUnmarshal  uint32 = 2002
+	MissingHash    uint32 = 2001
 )
 
 // mesg errors
 var (
+	ErrMissingHash = sdkerrors.Register(CodespaceMesg, MissingHash, "bad request: missing hash")
+
 	ErrValidation = sdkerrors.Register(CodespaceMesg, CodeValidation, "validation failed")
-	ErrMarshal    = sdkerrors.Register(CodespaceMesg, CodeMarshal, "failed to marshal")     // TODO: to replace by cosmoserrors.ErrJSONMarshal if it makes sense
-	ErrUnmarshal  = sdkerrors.Register(CodespaceMesg, CodeUnmarshal, "failed to unmarshal") // TODO: to replace by cosmoserrors.ErrJSONUnmarshal if it makes sense
 )
 
 // NewMesgWrapError creates error with given code type and mesg codespace.
