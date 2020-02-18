@@ -3,7 +3,7 @@ package types
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/mesg-foundation/engine/cosmos"
+	"github.com/mesg-foundation/engine/cosmos/errors"
 	"github.com/mesg-foundation/engine/ext/xvalidator"
 	"github.com/mesg-foundation/engine/protobuf/api"
 )
@@ -38,13 +38,13 @@ func (msg MsgCreateExecution) ValidateBasic() error {
 		return err
 	}
 	if !msg.Request.ParentHash.IsZero() && !msg.Request.EventHash.IsZero() {
-		return sdkerrors.Wrap(cosmos.ErrValidation, "cannot have both parent and event hash")
+		return sdkerrors.Wrap(errors.ErrValidation, "cannot have both parent and event hash")
 	}
 	if msg.Request.ParentHash.IsZero() && msg.Request.EventHash.IsZero() {
-		return sdkerrors.Wrap(cosmos.ErrValidation, "should have at least an event hash or parent hash")
+		return sdkerrors.Wrap(errors.ErrValidation, "should have at least an event hash or parent hash")
 	}
 	if msg.Request.ExecutorHash.IsZero() {
-		return sdkerrors.Wrap(cosmos.ErrValidation, "should have a executor hash")
+		return sdkerrors.Wrap(errors.ErrValidation, "should have a executor hash")
 	}
 	return nil
 }

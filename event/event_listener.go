@@ -1,8 +1,7 @@
-package eventsdk
+package event
 
 import (
 	"github.com/cskr/pubsub"
-	"github.com/mesg-foundation/engine/event"
 	"github.com/mesg-foundation/engine/hash"
 )
 
@@ -14,7 +13,7 @@ type Filter struct {
 }
 
 // Match matches event.
-func (f *Filter) Match(e *event.Event) bool {
+func (f *Filter) Match(e *Event) bool {
 	if f == nil {
 		return true
 	}
@@ -41,7 +40,7 @@ func (f *Filter) HasKey() bool {
 
 // Listener provides functionalities to listen MESG events.
 type Listener struct {
-	C chan *event.Event
+	C chan *Event
 
 	ps    *pubsub.PubSub
 	topic string
@@ -53,7 +52,7 @@ type Listener struct {
 // NewListener creates a new Listener with given sdk and filters.
 func NewListener(ps *pubsub.PubSub, topic string, f *Filter) *Listener {
 	return &Listener{
-		C:      make(chan *event.Event, 1),
+		C:      make(chan *Event, 1),
 		ps:     ps,
 		topic:  topic,
 		c:      ps.Sub(topic),
@@ -72,7 +71,7 @@ func (l *Listener) Close() {
 // Listen listens events that match filter.
 func (l *Listener) Listen() {
 	for v := range l.c {
-		if e := v.(*event.Event); l.filter.Match(e) {
+		if e := v.(*Event); l.filter.Match(e) {
 			l.C <- e
 		}
 	}

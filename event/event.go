@@ -5,8 +5,8 @@ import (
 	"github.com/mesg-foundation/engine/protobuf/types"
 )
 
-// Create creates an event eventKey with eventData for service s.
-func Create(instanceHash hash.Hash, eventKey string, eventData *types.Struct) *Event {
+// New creates an event eventKey with eventData for service s.
+func New(instanceHash hash.Hash, eventKey string, eventData *types.Struct) *Event {
 	e := &Event{
 		InstanceHash: instanceHash,
 		Key:          eventKey,

@@ -4,31 +4,24 @@ import (
 	"context"
 
 	"github.com/mesg-foundation/engine/cosmos"
-	ownershippb "github.com/mesg-foundation/engine/ownership"
-	protobuf_api "github.com/mesg-foundation/engine/protobuf/api"
-	"github.com/mesg-foundation/engine/sdk"
-	"github.com/mesg-foundation/engine/x/ownership"
+	"github.com/mesg-foundation/engine/protobuf/api"
 )
 
 // OwnershipServer is the type to aggregate all Ownership APIs.
 type OwnershipServer struct {
-	sdk    *sdk.SDK
-	client *cosmos.Client
+	mc *cosmos.ModuleClient
 }
 
 // NewOwnershipServer creates a new OwnershipServer.
-func NewOwnershipServer(sdk *sdk.SDK, client *cosmos.Client) *OwnershipServer {
-	return &OwnershipServer{
-		sdk:    sdk,
-		client: client,
-	}
+func NewOwnershipServer(mc *cosmos.ModuleClient) *OwnershipServer {
+	return &OwnershipServer{mc: mc}
 }
 
 // List returns all ownerships.
-func (s *OwnershipServer) List(ctx context.Context, req *protobuf_api.ListOwnershipRequest) (*protobuf_api.ListOwnershipResponse, error) {
-	var ownerships []*ownershippb.Ownership
-	if err := s.client.QueryJSON("custom/"+ownership.QuerierRoute+"/"+ownership.QueryListOwnerships, nil, &ownerships); err != nil {
+func (s *OwnershipServer) List(ctx context.Context, req *api.ListOwnershipRequest) (*api.ListOwnershipResponse, error) {
+	out, err := s.mc.ListOwnership()
+	if err != nil {
 		return nil, err
 	}
-	return &protobuf_api.ListOwnershipResponse{Ownerships: ownerships}, nil
+	return &api.ListOwnershipResponse{Ownerships: out}, nil
 }

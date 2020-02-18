@@ -5,20 +5,20 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/mesg-foundation/engine/event"
+	"github.com/mesg-foundation/engine/event/publisher"
 	"github.com/mesg-foundation/engine/protobuf/acknowledgement"
 	"github.com/mesg-foundation/engine/protobuf/api"
-	"github.com/mesg-foundation/engine/sdk"
-	eventsdk "github.com/mesg-foundation/engine/sdk/event"
 )
 
 // EventServer serve event functions.
 type EventServer struct {
-	sdk *sdk.SDK
+	ep *publisher.EventPublisher
 }
 
 // NewEventServer creates a new EventServer.
-func NewEventServer(sdk *sdk.SDK) *EventServer {
-	return &EventServer{sdk: sdk}
+func NewEventServer(ep *publisher.EventPublisher) *EventServer {
+	return &EventServer{ep: ep}
 }
 
 // Create creates a new event.
@@ -27,7 +27,7 @@ func (s *EventServer) Create(ctx context.Context, req *api.CreateEventRequest) (
 		return nil, errors.New("create event: key missing")
 	}
 
-	event, err := s.sdk.Event.Create(req.InstanceHash, req.Key, req.Data)
+	event, err := s.ep.Publish(req.InstanceHash, req.Key, req.Data)
 	if err != nil {
 		return nil, fmt.Errorf("create event: data %s", err)
 	}
@@ -37,15 +37,15 @@ func (s *EventServer) Create(ctx context.Context, req *api.CreateEventRequest) (
 
 // Stream returns stream of events.
 func (s *EventServer) Stream(req *api.StreamEventRequest, resp api.Event_StreamServer) error {
-	var f *eventsdk.Filter
+	var f *event.Filter
 	if req.Filter != nil {
-		f = &eventsdk.Filter{
+		f = &event.Filter{
 			Hash:         req.Filter.Hash,
 			InstanceHash: req.Filter.InstanceHash,
 			Key:          req.Filter.Key,
 		}
 	}
-	stream := s.sdk.Event.GetStream(f)
+	stream := s.ep.GetStream(f)
 	defer stream.Close()
 
 	// send header to notify client that the stream is ready.

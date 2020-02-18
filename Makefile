@@ -1,4 +1,4 @@
-.PHONY: all build build-cmd-cosmos changelog check-version clean clean-build clean-docker dep dev dev-mon dev-start dev-stop docker-build docker-dev docker-publish docker-publish-dev docker-tools genesis lint mock protobuf test
+.PHONY: all build build-cmd-cosmos changelog check-version clean clean-build clean-docker dep dev dev-mon dev-start dev-stop docker-build docker-dev docker-publish docker-publish-dev docker-tools genesis lint protobuf test
 
 MAJOR_VERSION := $(shell echo $(version) | cut -d . -f 1)	
 MINOR_VERSION := $(shell echo $(version) | cut -d . -f 1-2)
@@ -66,9 +66,6 @@ test: dep
 
 lint:
 	golangci-lint run
-
-mock: docker-tools
-	docker run --rm -v $(PWD):/project mesg/tools:local	./scripts/build-mocks.sh
 
 protobuf: docker-tools
 	docker run --rm -v $(PWD):/project mesg/tools:local	./scripts/build-proto.sh

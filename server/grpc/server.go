@@ -8,11 +8,11 @@ import (
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_logrus "github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus"
 	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
-	"github.com/mesg-foundation/engine/config"
 	"github.com/mesg-foundation/engine/cosmos"
+	"github.com/mesg-foundation/engine/event/publisher"
 	"github.com/mesg-foundation/engine/ext/xvalidator"
 	protobuf_api "github.com/mesg-foundation/engine/protobuf/api"
-	"github.com/mesg-foundation/engine/sdk"
+	"github.com/mesg-foundation/engine/runner/builder"
 	"github.com/mesg-foundation/engine/server/grpc/api"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
@@ -23,17 +23,17 @@ import (
 // Server contains the server config.
 type Server struct {
 	instance *grpc.Server
-	sdk      *sdk.SDK
-	cfg      *config.Config
-	client   *cosmos.Client
+	mc       *cosmos.ModuleClient
+	ep       *publisher.EventPublisher
+	b        *builder.Builder
 }
 
 // New returns a new gRPC server.
-func New(sdk *sdk.SDK, cfg *config.Config, client *cosmos.Client) *Server {
+func New(mc *cosmos.ModuleClient, ep *publisher.EventPublisher, b *builder.Builder) *Server {
 	return &Server{
-		sdk:    sdk,
-		cfg:    cfg,
-		client: client,
+		mc: mc,
+		ep: ep,
+		b:  b,
 	}
 }
 
@@ -81,13 +81,13 @@ func validateInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryS
 
 // register all server
 func (s *Server) register() {
-	protobuf_api.RegisterEventServer(s.instance, api.NewEventServer(s.sdk))
-	protobuf_api.RegisterExecutionServer(s.instance, api.NewExecutionServer(s.sdk))
-	protobuf_api.RegisterInstanceServer(s.instance, api.NewInstanceServer(s.sdk, s.client))
-	protobuf_api.RegisterServiceServer(s.instance, api.NewServiceServer(s.sdk))
-	protobuf_api.RegisterProcessServer(s.instance, api.NewProcessServer(s.sdk))
-	protobuf_api.RegisterOwnershipServer(s.instance, api.NewOwnershipServer(s.sdk, s.client))
-	protobuf_api.RegisterRunnerServer(s.instance, api.NewRunnerServer(s.sdk))
+	protobuf_api.RegisterEventServer(s.instance, api.NewEventServer(s.ep))
+	protobuf_api.RegisterExecutionServer(s.instance, api.NewExecutionServer(s.mc))
+	protobuf_api.RegisterInstanceServer(s.instance, api.NewInstanceServer(s.mc))
+	protobuf_api.RegisterServiceServer(s.instance, api.NewServiceServer(s.mc))
+	protobuf_api.RegisterProcessServer(s.instance, api.NewProcessServer(s.mc))
+	protobuf_api.RegisterOwnershipServer(s.instance, api.NewOwnershipServer(s.mc))
+	protobuf_api.RegisterRunnerServer(s.instance, api.NewRunnerServer(s.mc, s.b))
 
 	reflection.Register(s.instance)
 }
