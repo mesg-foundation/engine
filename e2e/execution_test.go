@@ -189,6 +189,35 @@ func testExecution(t *testing.T) {
 		})
 	})
 
+	t.Run("execution with price", func(t *testing.T) {
+		var (
+			inputs = &types.Struct{
+				Fields: map[string]*types.Value{
+					"msg": {
+						Kind: &types.Value_StringValue{
+							StringValue: "test",
+						},
+					},
+				},
+			}
+		)
+		resp, err := client.ExecutionClient.Create(context.Background(), &pb.CreateExecutionRequest{
+			TaskKey:      "task1",
+			EventHash:    hash.Int(1),
+			ExecutorHash: executorHash,
+			Price:        "50atto",
+			Inputs:       inputs,
+		})
+		require.NoError(t, err)
+
+		_, err = streamInProgress.Recv()
+		require.NoError(t, err)
+
+		exec, err := streamCompleted.Recv()
+		require.NoError(t, err)
+		require.Equal(t, resp.Hash, exec.Hash)
+
+	})
 	t.Run("many executions in parallel", func(t *testing.T) {
 		var (
 			n          = 10
