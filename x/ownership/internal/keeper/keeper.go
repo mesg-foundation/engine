@@ -45,7 +45,6 @@ func (k Keeper) GetOwners(ctx sdk.Context, resourceHash hash.Hash) ([]*ownership
 		if o.ResourceHash.Equal(resourceHash) {
 			ownerships = append(ownerships, o)
 		}
-
 	}
 	iter.Close()
 	return ownerships, nil

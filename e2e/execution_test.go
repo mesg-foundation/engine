@@ -216,8 +216,8 @@ func testExecution(t *testing.T) {
 		exec, err := streamCompleted.Recv()
 		require.NoError(t, err)
 		require.Equal(t, resp.Hash, exec.Hash)
-
 	})
+
 	t.Run("many executions in parallel", func(t *testing.T) {
 		var (
 			n          = 10
