@@ -19,7 +19,7 @@ func TestNewFromService(t *testing.T) {
 		tags       = []string{"tag"}
 	)
 
-	execution := New(nil, hash, parentHash, eventHash, "", taskKey, nil, tags, nil)
+	execution := New(nil, hash, parentHash, eventHash, "", taskKey, "", nil, tags, nil)
 	require.NotNil(t, execution)
 	require.Equal(t, hash, execution.InstanceHash)
 	require.Equal(t, parentHash, execution.ParentHash)
@@ -31,7 +31,7 @@ func TestNewFromService(t *testing.T) {
 }
 
 func TestExecute(t *testing.T) {
-	e := New(nil, nil, nil, nil, "", "", nil, nil, nil)
+	e := New(nil, nil, nil, nil, "", "", "", nil, nil, nil)
 	require.NoError(t, e.Execute())
 	require.Equal(t, Status_InProgress, e.Status)
 	require.Error(t, e.Execute())
@@ -39,7 +39,7 @@ func TestExecute(t *testing.T) {
 
 func TestComplete(t *testing.T) {
 	var output types.Struct
-	e := New(nil, nil, nil, nil, "", "", nil, nil, nil)
+	e := New(nil, nil, nil, nil, "", "", "", nil, nil, nil)
 	e.Execute()
 	require.NoError(t, e.Complete(&output))
 	require.Equal(t, Status_Completed, e.Status)
@@ -49,7 +49,7 @@ func TestComplete(t *testing.T) {
 
 func TestFailed(t *testing.T) {
 	err := errors.New("test")
-	e := New(nil, nil, nil, nil, "", "", nil, nil, nil)
+	e := New(nil, nil, nil, nil, "", "", "", nil, nil, nil)
 	e.Execute()
 	require.NoError(t, e.Failed(err))
 	require.Equal(t, Status_Failed, e.Status)
@@ -61,7 +61,7 @@ func TestExecutionHash(t *testing.T) {
 	ids := make(map[string]bool)
 
 	f := func(instanceHash, parentHash, eventID []byte, taskKey string, tags []string) bool {
-		e := New(nil, instanceHash, parentHash, eventID, "", taskKey, nil, tags, nil)
+		e := New(nil, instanceHash, parentHash, eventID, "", taskKey, "", nil, tags, nil)
 		if ids[string(e.Hash)] {
 			return false
 		}

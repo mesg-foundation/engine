@@ -109,4 +109,9 @@ message Execution {
     (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
     (gogoproto.nullable) = false
   ];
+
+  // price of running the exeuction.
+  string price = 14 [
+    (gogoproto.moretags) = 'hash:"name:14" validate:"coins"'
+  ];
 }
