@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"strings"
 
-	cosmostypes "github.com/cosmos/cosmos-sdk/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/go-playground/locales/en"
 	ut "github.com/go-playground/universal-translator"
 	"github.com/mesg-foundation/engine/ext/xnet"
@@ -67,7 +67,15 @@ func NewWithPrefix(prefix string) (*validator.Validate, ut.Translator) {
 
 	validate.RegisterValidation("accaddress", IsAccAddress)
 	validate.RegisterTranslation("accaddress", trans, func(ut ut.Translator) error {
-		return ut.Add("hash", "{0} must be a valid address", false)
+		return ut.Add("address", "{0} must be a valid address", false)
+	}, func(ut ut.Translator, fe validator.FieldError) string {
+		t, _ := ut.T(fe.Tag(), fe.Field(), prefix)
+		return t
+	})
+
+	validate.RegisterValidation("coins", IsCoins)
+	validate.RegisterTranslation("cosin", trans, func(ut ut.Translator) error {
+		return ut.Add("coins", "{0} must be a valid coins", false)
 	}, func(ut ut.Translator, fe validator.FieldError) string {
 		t, _ := ut.T(fe.Tag(), fe.Field(), prefix)
 		return t
@@ -104,16 +112,22 @@ func IsHash(fl validator.FieldLevel) bool {
 func IsAccAddress(fl validator.FieldLevel) bool {
 	switch v := fl.Field(); v.Kind() {
 	case reflect.String:
-		_, err := cosmostypes.AccAddressFromBech32(fl.Field().String())
+		_, err := sdk.AccAddressFromBech32(fl.Field().String())
 		return err == nil
 	case reflect.Slice:
 		if v.Type().Elem().Kind() != reflect.Uint8 {
 			// if it's not slice of bytes then break
 			break
 		}
-		return cosmostypes.VerifyAddressFormat(v.Bytes()) == nil
+		return sdk.VerifyAddressFormat(v.Bytes()) == nil
 	}
 	return false
+}
+
+// IsCoins validates if given field is valid cosmos coins.
+func IsCoins(fl validator.FieldLevel) bool {
+	_, err := sdk.ParseCoins(fl.Field().String())
+	return err == nil
 }
 
 // IsDomainName validates if given field is valid domain name.
