@@ -74,7 +74,7 @@ func NewWithPrefix(prefix string) (*validator.Validate, ut.Translator) {
 	})
 
 	validate.RegisterValidation("coins", IsCoins)
-	validate.RegisterTranslation("cosin", trans, func(ut ut.Translator) error {
+	validate.RegisterTranslation("coins", trans, func(ut ut.Translator) error {
 		return ut.Add("coins", "{0} must be a valid coins", false)
 	}, func(ut ut.Translator, fe validator.FieldError) string {
 		t, _ := ut.T(fe.Tag(), fe.Field(), prefix)

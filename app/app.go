@@ -386,11 +386,6 @@ func (app *NewApp) ModuleAccountAddrs() map[string]bool {
 	return modAccAddrs
 }
 
-// BankKeeper returns a keeper.
-func (app *NewApp) BankKeeper() bank.Keeper {
-	return app.bankKeeper
-}
-
 // Codec returns the application's sealed codec.
 func (app *NewApp) Codec() *codec.Codec {
 	return app.cdc
