@@ -19,10 +19,9 @@ type ParamSubspace interface {
 	SetParamSet(ctx sdk.Context, ps params.ParamSet)
 }
 
-// SupplyKeeper module interface.
-type SupplyKeeper interface {
-	DelegateCoinsFromAccountToModule(ctx sdk.Context, senderAddr sdk.AccAddress, recipientModule string, amt sdk.Coins) error
-	UndelegateCoinsFromModuleToAccount(ctx sdk.Context, senderModule string, recipientAddr sdk.AccAddress, amt sdk.Coins) error
+// BankKeeper module interface.
+type BankKeeper interface {
+	SendCoins(ctx sdk.Context, fromAddr sdk.AccAddress, toAddr sdk.AccAddress, amt sdk.Coins) error
 }
 
 // ServiceKeeper module interface.

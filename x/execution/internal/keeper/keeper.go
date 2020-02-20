@@ -10,22 +10,25 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	executionpb "github.com/mesg-foundation/engine/execution"
 	"github.com/mesg-foundation/engine/hash"
-	ownershippb "github.com/mesg-foundation/engine/ownership"
 	"github.com/mesg-foundation/engine/protobuf/api"
 	typespb "github.com/mesg-foundation/engine/protobuf/types"
 	"github.com/mesg-foundation/engine/x/execution/internal/types"
+	"github.com/tendermint/tendermint/crypto"
 	"github.com/tendermint/tendermint/libs/log"
 )
 
 // price share for the execution runner
 const runnerShare = 0.9
 
+// ModuleAddress is the address of the module to recive coins for execution.
+var ModuleAddress = sdk.AccAddress(crypto.AddressHash([]byte(types.ModuleName)))
+
 // Keeper of the execution store
 type Keeper struct {
 	storeKey sdk.StoreKey
 	cdc      *codec.Codec
 
-	supplyKeeper    types.SupplyKeeper
+	bankKeeper      types.BankKeeper
 	serviceKeeper   types.ServiceKeeper
 	instanceKeeper  types.InstanceKeeper
 	runnerKeeper    types.RunnerKeeper
@@ -34,18 +37,17 @@ type Keeper struct {
 }
 
 // NewKeeper creates a execution keeper
-func NewKeeper(cdc *codec.Codec, key sdk.StoreKey, supplyKeeper types.SupplyKeeper, serviceKeeper types.ServiceKeeper, instanceKeeper types.InstanceKeeper, runnerKeeper types.RunnerKeeper, processKeeper types.ProcessKeeper, ownershipKeeper types.OwnershipKeeper) Keeper {
-	keeper := Keeper{
+func NewKeeper(cdc *codec.Codec, key sdk.StoreKey, bankKeeper types.BankKeeper, serviceKeeper types.ServiceKeeper, instanceKeeper types.InstanceKeeper, runnerKeeper types.RunnerKeeper, processKeeper types.ProcessKeeper, ownershipKeeper types.OwnershipKeeper) Keeper {
+	return Keeper{
 		storeKey:        key,
 		cdc:             cdc,
-		supplyKeeper:    supplyKeeper,
+		bankKeeper:      bankKeeper,
 		serviceKeeper:   serviceKeeper,
 		instanceKeeper:  instanceKeeper,
 		runnerKeeper:    runnerKeeper,
 		processKeeper:   processKeeper,
 		ownershipKeeper: ownershipKeeper,
 	}
-	return keeper
 }
 
 // Logger returns a module-specific logger.
@@ -107,7 +109,7 @@ func (k *Keeper) Create(ctx sdk.Context, msg types.MsgCreateExecution) (*executi
 		M.InProgress.Add(1)
 	}
 
-	if err := k.supplyKeeper.DelegateCoinsFromAccountToModule(ctx, msg.Signer, types.ModuleName, price); err != nil {
+	if err := k.bankKeeper.SendCoins(ctx, msg.Signer, ModuleAddress, price); err != nil {
 		return nil, err
 	}
 
@@ -159,17 +161,7 @@ func (k *Keeper) Update(ctx sdk.Context, msg types.MsgUpdateExecution) (*executi
 		return nil, err
 	}
 
-	serviceOwners, err := k.ownershipKeeper.GetOwners(ctx, srv.Hash)
-	if err != nil {
-		return nil, err
-	}
-
-	addrs, err := parseAccAddresses(serviceOwners)
-	if err != nil {
-		return nil, err
-	}
-
-	if err := k.distributePriceShares(ctx, msg.Executor, addrs, exec.Price); err != nil {
+	if err := k.distributePriceShares(ctx, msg.Executor, srv.Hash, exec.Price); err != nil {
 		return nil, err
 	}
 
@@ -177,34 +169,19 @@ func (k *Keeper) Update(ctx sdk.Context, msg types.MsgUpdateExecution) (*executi
 	return exec, nil
 }
 
-func (k *Keeper) distributePriceShares(ctx sdk.Context, runnerOwner sdk.AccAddress, serviceOwners []sdk.AccAddress, coinsStr string) error {
+func (k *Keeper) distributePriceShares(ctx sdk.Context, runnerOwner sdk.AccAddress, serviceHash hash.Hash, coinsStr string) error {
 	coins, err := sdk.ParseCoins(coinsStr)
 	if err != nil {
 		return fmt.Errorf("cannot parse coins: %w", err)
 	}
 
-	// send all to runner.
-	if len(serviceOwners) == 0 {
-		return k.supplyKeeper.UndelegateCoinsFromModuleToAccount(ctx, types.ModuleName, runnerOwner, coins)
-	}
-
 	runnerCoins := coinsMulFloat(coins, runnerShare)
 
-	if err := k.supplyKeeper.UndelegateCoinsFromModuleToAccount(ctx, types.ModuleName, runnerOwner, runnerCoins); err != nil {
+	if err := k.bankKeeper.SendCoins(ctx, ModuleAddress, runnerOwner, runnerCoins); err != nil {
 		return sdkerrors.Wrapf(err, "cannot send coins %s to runner owner %s", runnerCoins, runnerOwner)
 	}
-
-	serviceCoin, serviceRemCoin := coinsQuoRem(coins.Sub(runnerCoins), len(serviceOwners))
-
-	// TODO: the service with rem coins should be randomized
-	for i := 0; i < len(serviceOwners)-1; i++ {
-		if err := k.supplyKeeper.UndelegateCoinsFromModuleToAccount(ctx, types.ModuleName, serviceOwners[i], serviceCoin); err != nil {
-			return sdkerrors.Wrapf(err, "cannot send coins %s to service owner %s", serviceCoin, serviceOwners[1])
-		}
-	}
-
-	if err := k.supplyKeeper.UndelegateCoinsFromModuleToAccount(ctx, types.ModuleName, serviceOwners[len(serviceOwners)-1], serviceRemCoin); err != nil {
-		return sdkerrors.Wrapf(err, "cannot send rem coins %s to service owner %s", serviceRemCoin, serviceOwners[len(serviceOwners)-1])
+	if err := k.bankKeeper.SendCoins(ctx, ModuleAddress, sdk.AccAddress(serviceHash), coins.Sub(runnerCoins)); err != nil {
+		return sdkerrors.Wrapf(err, "cannot send coins %s to service %s", runnerCoins, runnerOwner)
 	}
 	return nil
 }
@@ -248,44 +225,6 @@ func (k *Keeper) List(ctx sdk.Context) ([]*executionpb.Execution, error) {
 	}
 	iter.Close()
 	return execs, nil
-}
-
-// parseAccAddresses parses multiple accAddresses at once.
-func parseAccAddresses(addresses []*ownershippb.Ownership) ([]sdk.AccAddress, error) {
-	var out []sdk.AccAddress
-	for i := range addresses {
-		// send to first one for now
-		addr, err := sdk.AccAddressFromBech32(addresses[i].Owner)
-		if err != nil {
-			return nil, err
-		}
-		out = append(out, addr)
-	}
-	return out, nil
-}
-
-// coinsQuoRem divides coins and returns quotient and remainder.
-// NOTE: if reminder is zero then it will be set to quotient.
-func coinsQuoRem(coins sdk.Coins, div int) (sdk.Coins, sdk.Coins) {
-	var quo, rem sdk.Coins
-	for i := range coins {
-		q := sdk.Coin{
-			Denom:  coins[i].Denom,
-			Amount: coins[i].Amount.QuoRaw(int64(div)),
-		}
-		r := sdk.Coin{
-			Denom:  coins[i].Denom,
-			Amount: coins[i].Amount.ModRaw(int64(div)),
-		}
-
-		quo = append(quo, q)
-		if r.IsZero() {
-			rem = append(rem, q)
-		} else {
-			rem = append(rem, r)
-		}
-	}
-	return quo, rem
 }
 
 // coinsProcentage multiply coins with float.
