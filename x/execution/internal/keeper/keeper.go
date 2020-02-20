@@ -3,7 +3,6 @@ package keeper
 import (
 	"errors"
 	"fmt"
-	"math/big"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -18,7 +17,7 @@ import (
 )
 
 // price share for the execution runner
-const runnerShare = 0.9
+var runnerShare = sdk.NewDecWithPrec(9, 1)
 
 // ModuleAddress is the address of the module to recive coins for execution.
 var ModuleAddress = sdk.AccAddress(crypto.AddressHash([]byte(types.ModuleName)))
@@ -175,7 +174,7 @@ func (k *Keeper) distributePriceShares(ctx sdk.Context, runnerOwner sdk.AccAddre
 		return fmt.Errorf("cannot parse coins: %w", err)
 	}
 
-	runnerCoins := coinsMulFloat(coins, runnerShare)
+	runnerCoins, _ := sdk.NewDecCoinsFromCoins(coins...).MulDecTruncate(runnerShare).TruncateDecimal()
 
 	if err := k.bankKeeper.SendCoins(ctx, ModuleAddress, runnerOwner, runnerCoins); err != nil {
 		return sdkerrors.Wrapf(err, "cannot send coins %s to runner owner %s", runnerCoins, runnerOwner)
@@ -225,23 +224,4 @@ func (k *Keeper) List(ctx sdk.Context) ([]*executionpb.Execution, error) {
 	}
 	iter.Close()
 	return execs, nil
-}
-
-// coinsProcentage multiply coins with float.
-func coinsMulFloat(coins sdk.Coins, mul float64) sdk.Coins {
-	var ret sdk.Coins
-	for i := range coins {
-		f := new(big.Float).SetInt(coins[i].Amount.BigInt())
-		f.Mul(f, big.NewFloat(mul))
-		amt := new(big.Int)
-		f.Int(amt)
-
-		c := sdk.Coin{
-			Denom:  coins[i].Denom,
-			Amount: sdk.NewIntFromBigInt(amt),
-		}
-
-		ret = append(ret, c)
-	}
-	return ret
 }
