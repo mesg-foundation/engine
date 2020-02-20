@@ -4,8 +4,10 @@ import (
 	"fmt"
 	"os"
 	"path"
+	"sync"
 
 	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/keys"
 	"github.com/cosmos/cosmos-sdk/client/lcd"
@@ -23,6 +25,7 @@ import (
 	"github.com/spf13/viper"
 	"github.com/tendermint/go-amino"
 	"github.com/tendermint/tendermint/libs/cli"
+	"github.com/tendermint/tendermint/types"
 )
 
 func main() {
@@ -58,6 +61,9 @@ func main() {
 
 	// Construct Root Command
 	rootCmd.AddCommand(
+		exportTxsCmd(cdc),
+		importTxsCmd(cdc),
+		flags.LineBreak,
 		rpc.StatusCommand(),
 		client.ConfigCmd(app.DefaultCLIHome),
 		queryCmd(cdc),
@@ -169,6 +175,100 @@ func initConfig(cmd *cobra.Command) error {
 		return err
 	}
 	return viper.BindPFlag(cli.OutputFlag, cmd.PersistentFlags().Lookup(cli.OutputFlag))
+}
+
+func exportTxsCmd(cdc *amino.Codec) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "exportTxs",
+		Short: "Export all txs",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			cliCtx := context.NewCLIContext().WithCodec(cdc)
+			status, err := cliCtx.Client.Status()
+			if err != nil {
+				return err
+			}
+			fmt.Println("last block", status.SyncInfo.LatestBlockHeight)
+
+			numJobs := status.SyncInfo.LatestBlockHeight - 1
+			jobs := make(chan int64, numJobs)
+			jobsDone := make(chan bool, numJobs)
+			results := make([]types.Tx, 0)
+			resultsMux := sync.Mutex{}
+			jobsWithError := make([]int64, 0)
+			jobsWithErrorMux := sync.Mutex{}
+
+			worker := func(cliCtx context.CLIContext, id int, jobs <-chan int64, jobsDone chan bool) {
+				for height := range jobs {
+					fmt.Printf("\nworking %d is fetching txs of block %d", id, height)
+					block, err := cliCtx.Client.Block(&height)
+					if err != nil {
+						fmt.Println("err", err)
+						jobsWithErrorMux.Lock()
+						jobsWithError = append(jobsWithError, height)
+						jobsWithErrorMux.Unlock()
+						jobsDone <- true
+						continue
+					}
+					fmt.Printf(". found %d txs", len(block.Block.Txs))
+					resultsMux.Lock()
+					results = append(results, block.Block.Txs...)
+					resultsMux.Unlock()
+					jobsDone <- true
+				}
+			}
+
+			for w := 1; w <= 20; w++ {
+				go worker(cliCtx, w, jobs, jobsDone)
+			}
+			for height := int64(1); height <= status.SyncInfo.LatestBlockHeight; height++ {
+				jobs <- height
+			}
+			close(jobs)
+
+			for a := int64(0); a <= numJobs; a++ {
+				<-jobsDone
+			}
+
+			json, err := cdc.MarshalJSONIndent(results, "", "  ")
+			if err != nil {
+				return err
+			}
+			fmt.Println(string(json))
+
+			fmt.Println("jobsWithError", jobsWithError)
+			return nil
+		},
+	}
+
+	return flags.GetCommands(cmd)[0]
+}
+
+func importTxsCmd(cdc *amino.Codec) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "importTxs",
+		Short: "import txs",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			cliCtx := context.NewCLIContext().WithCodec(cdc)
+
+			var txs []types.Tx
+			err := cdc.UnmarshalJSON([]byte(args[0]), &txs)
+			if err != nil {
+				return err
+			}
+
+			for _, tx := range txs {
+				res, err := cliCtx.BroadcastTxSync(tx)
+				if err != nil {
+					return err
+				}
+				cliCtx.PrintOutput(res)
+			}
+			return nil
+		},
+	}
+
+	return flags.GetCommands(cmd)[0]
 }
 
 /*
