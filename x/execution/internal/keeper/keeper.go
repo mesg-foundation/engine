@@ -179,6 +179,9 @@ func (k *Keeper) distributePriceShares(ctx sdk.Context, execAddress, runnerAddre
 	if err != nil {
 		return fmt.Errorf("cannot parse coins: %w", err)
 	}
+	if coins.Empty() {
+		return nil
+	}
 
 	runnerCoins, _ := sdk.NewDecCoinsFromCoins(coins...).MulDecTruncate(runnerShare).TruncateDecimal()
 	serviceCoins := coins.Sub(runnerCoins)
