@@ -7,6 +7,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/cosmos/cosmos-sdk/x/bank"
 	executionpb "github.com/mesg-foundation/engine/execution"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/protobuf/api"
@@ -173,8 +174,8 @@ func (k *Keeper) Update(ctx sdk.Context, msg types.MsgUpdateExecution) (*executi
 	return exec, nil
 }
 
-func (k *Keeper) distributePriceShares(ctx sdk.Context, execAddress, runnerAddress, serviceAddress sdk.AccAddress, coinsStr string) error {
-	coins, err := sdk.ParseCoins(coinsStr)
+func (k *Keeper) distributePriceShares(ctx sdk.Context, execAddress, runnerAddress, serviceAddress sdk.AccAddress, price string) error {
+	coins, err := sdk.ParseCoins(price)
 	if err != nil {
 		return fmt.Errorf("cannot parse coins: %w", err)
 	}
@@ -182,11 +183,14 @@ func (k *Keeper) distributePriceShares(ctx sdk.Context, execAddress, runnerAddre
 	runnerCoins, _ := sdk.NewDecCoinsFromCoins(coins...).MulDecTruncate(runnerShare).TruncateDecimal()
 	serviceCoins := coins.Sub(runnerCoins)
 
-	if err := k.bankKeeper.SendCoins(ctx, execAddress, runnerAddress, runnerCoins); err != nil {
-		return sdkerrors.Wrapf(err, "cannot send coins %s to runner %s", runnerCoins, runnerAddress)
+	inputs := []bank.Input{bank.NewInput(execAddress, coins)}
+	outputs := []bank.Output{
+		bank.NewOutput(runnerAddress, runnerCoins),
+		bank.NewOutput(serviceAddress, serviceCoins),
 	}
-	if err := k.bankKeeper.SendCoins(ctx, execAddress, serviceAddress, serviceCoins); err != nil {
-		return sdkerrors.Wrapf(err, "cannot send coins %s to service %s", runnerCoins, serviceAddress)
+
+	if err := k.bankKeeper.InputOutputCoins(ctx, inputs, outputs); err != nil {
+		return sdkerrors.Wrapf(err, "cannot distribute coins from execution adddress %s with inputs %s and outputs %s", execAddress, inputs, outputs)
 	}
 	return nil
 }
