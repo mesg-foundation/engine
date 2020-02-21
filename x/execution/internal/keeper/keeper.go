@@ -7,6 +7,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/cosmos/cosmos-sdk/x/bank"
 	executionpb "github.com/mesg-foundation/engine/execution"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/protobuf/api"
@@ -18,9 +19,6 @@ import (
 
 // price share for the execution runner
 var runnerShare = sdk.NewDecWithPrec(9, 1)
-
-// ModuleAddress is the address of the module to recive coins for execution.
-var ModuleAddress = sdk.AccAddress(crypto.AddressHash([]byte(types.ModuleName)))
 
 // Keeper of the execution store
 type Keeper struct {
@@ -108,7 +106,8 @@ func (k *Keeper) Create(ctx sdk.Context, msg types.MsgCreateExecution) (*executi
 		M.InProgress.Add(1)
 	}
 
-	if err := k.bankKeeper.SendCoins(ctx, msg.Signer, ModuleAddress, price); err != nil {
+	execAddress := sdk.AccAddress(crypto.AddressHash(exec.Hash))
+	if err := k.bankKeeper.SendCoins(ctx, msg.Signer, execAddress, price); err != nil {
 		return nil, err
 	}
 
@@ -159,8 +158,15 @@ func (k *Keeper) Update(ctx sdk.Context, msg types.MsgUpdateExecution) (*executi
 	if err != nil {
 		return nil, err
 	}
+	run, err := k.runnerKeeper.Get(ctx, exec.ExecutorHash)
+	if err != nil {
+		return nil, err
+	}
 
-	if err := k.distributePriceShares(ctx, msg.Executor, srv.Hash, exec.Price); err != nil {
+	execAddress := sdk.AccAddress(crypto.AddressHash(exec.Hash))
+	runnerAddress := sdk.AccAddress(crypto.AddressHash(run.Hash))
+	serviceAddress := sdk.AccAddress(crypto.AddressHash(srv.Hash))
+	if err := k.distributePriceShares(ctx, execAddress, runnerAddress, serviceAddress, exec.Price); err != nil {
 		return nil, err
 	}
 
@@ -168,19 +174,26 @@ func (k *Keeper) Update(ctx sdk.Context, msg types.MsgUpdateExecution) (*executi
 	return exec, nil
 }
 
-func (k *Keeper) distributePriceShares(ctx sdk.Context, runnerOwner sdk.AccAddress, serviceHash hash.Hash, coinsStr string) error {
-	coins, err := sdk.ParseCoins(coinsStr)
+func (k *Keeper) distributePriceShares(ctx sdk.Context, execAddress, runnerAddress, serviceAddress sdk.AccAddress, price string) error {
+	coins, err := sdk.ParseCoins(price)
 	if err != nil {
 		return fmt.Errorf("cannot parse coins: %w", err)
 	}
+	if coins.Empty() {
+		return nil
+	}
 
 	runnerCoins, _ := sdk.NewDecCoinsFromCoins(coins...).MulDecTruncate(runnerShare).TruncateDecimal()
+	serviceCoins := coins.Sub(runnerCoins)
 
-	if err := k.bankKeeper.SendCoins(ctx, ModuleAddress, runnerOwner, runnerCoins); err != nil {
-		return sdkerrors.Wrapf(err, "cannot send coins %s to runner owner %s", runnerCoins, runnerOwner)
+	inputs := []bank.Input{bank.NewInput(execAddress, coins)}
+	outputs := []bank.Output{
+		bank.NewOutput(runnerAddress, runnerCoins),
+		bank.NewOutput(serviceAddress, serviceCoins),
 	}
-	if err := k.bankKeeper.SendCoins(ctx, ModuleAddress, sdk.AccAddress(serviceHash), coins.Sub(runnerCoins)); err != nil {
-		return sdkerrors.Wrapf(err, "cannot send coins %s to service %s", runnerCoins, runnerOwner)
+
+	if err := k.bankKeeper.InputOutputCoins(ctx, inputs, outputs); err != nil {
+		return sdkerrors.Wrapf(err, "cannot distribute coins from execution adddress %s with inputs %s and outputs %s", execAddress, inputs, outputs)
 	}
 	return nil
 }
