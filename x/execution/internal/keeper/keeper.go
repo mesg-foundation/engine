@@ -19,9 +19,6 @@ import (
 // price share for the execution runner
 var runnerShare = sdk.NewDecWithPrec(9, 1)
 
-// ModuleAddress is the address of the module to recive coins for execution.
-var ModuleAddress = sdk.AccAddress(crypto.AddressHash([]byte(types.ModuleName)))
-
 // Keeper of the execution store
 type Keeper struct {
 	storeKey sdk.StoreKey
@@ -108,7 +105,8 @@ func (k *Keeper) Create(ctx sdk.Context, msg types.MsgCreateExecution) (*executi
 		M.InProgress.Add(1)
 	}
 
-	if err := k.bankKeeper.SendCoins(ctx, msg.Signer, ModuleAddress, price); err != nil {
+	execAddress := sdk.AccAddress(crypto.AddressHash(exec.Hash))
+	if err := k.bankKeeper.SendCoins(ctx, msg.Signer, execAddress, price); err != nil {
 		return nil, err
 	}
 
@@ -159,8 +157,15 @@ func (k *Keeper) Update(ctx sdk.Context, msg types.MsgUpdateExecution) (*executi
 	if err != nil {
 		return nil, err
 	}
+	run, err := k.runnerKeeper.Get(ctx, exec.ExecutorHash)
+	if err != nil {
+		return nil, err
+	}
 
-	if err := k.distributePriceShares(ctx, msg.Executor, srv.Hash, exec.Price); err != nil {
+	execAddress := sdk.AccAddress(crypto.AddressHash(exec.Hash))
+	runnerAddress := sdk.AccAddress(crypto.AddressHash(run.Hash))
+	serviceAddress := sdk.AccAddress(crypto.AddressHash(srv.Hash))
+	if err := k.distributePriceShares(ctx, execAddress, runnerAddress, serviceAddress, exec.Price); err != nil {
 		return nil, err
 	}
 
@@ -168,19 +173,20 @@ func (k *Keeper) Update(ctx sdk.Context, msg types.MsgUpdateExecution) (*executi
 	return exec, nil
 }
 
-func (k *Keeper) distributePriceShares(ctx sdk.Context, runnerOwner sdk.AccAddress, serviceHash hash.Hash, coinsStr string) error {
+func (k *Keeper) distributePriceShares(ctx sdk.Context, execAddress, runnerAddress, serviceAddress sdk.AccAddress, coinsStr string) error {
 	coins, err := sdk.ParseCoins(coinsStr)
 	if err != nil {
 		return fmt.Errorf("cannot parse coins: %w", err)
 	}
 
 	runnerCoins, _ := sdk.NewDecCoinsFromCoins(coins...).MulDecTruncate(runnerShare).TruncateDecimal()
+	serviceCoins := coins.Sub(runnerCoins)
 
-	if err := k.bankKeeper.SendCoins(ctx, ModuleAddress, runnerOwner, runnerCoins); err != nil {
-		return sdkerrors.Wrapf(err, "cannot send coins %s to runner owner %s", runnerCoins, runnerOwner)
+	if err := k.bankKeeper.SendCoins(ctx, execAddress, runnerAddress, runnerCoins); err != nil {
+		return sdkerrors.Wrapf(err, "cannot send coins %s to runner %s", runnerCoins, runnerAddress)
 	}
-	if err := k.bankKeeper.SendCoins(ctx, ModuleAddress, sdk.AccAddress(serviceHash), coins.Sub(runnerCoins)); err != nil {
-		return sdkerrors.Wrapf(err, "cannot send coins %s to service %s", runnerCoins, runnerOwner)
+	if err := k.bankKeeper.SendCoins(ctx, execAddress, serviceAddress, serviceCoins); err != nil {
+		return sdkerrors.Wrapf(err, "cannot send coins %s to service %s", runnerCoins, serviceAddress)
 	}
 	return nil
 }
