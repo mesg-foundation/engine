@@ -11,18 +11,16 @@ import (
 func TestStructHash(t *testing.T) {
 	hashes := make(map[string]bool)
 	structs := []Struct{
-		{Fields: map[string]*Value{}},
-		{Fields: map[string]*Value{"v": {Kind: &Value_NullValue{}}}},
-		{Fields: map[string]*Value{"v": {Kind: &Value_NumberValue{}}}},
-		{Fields: map[string]*Value{"v": {Kind: &Value_StringValue{}}}},
-		{Fields: map[string]*Value{"v": {Kind: &Value_BoolValue{}}}},
-		{Fields: map[string]*Value{"v": {Kind: &Value_StructValue{}}}},
-		{Fields: map[string]*Value{"v": {Kind: &Value_ListValue{}}}},
+		{Fields: map[string]*Value{"v": {Kind: &Value_NumberValue{NumberValue: 1}}}},
+		{Fields: map[string]*Value{"v": {Kind: &Value_StringValue{StringValue: "1"}}}},
+		{Fields: map[string]*Value{"v": {Kind: &Value_BoolValue{BoolValue: true}}}},
+		{Fields: map[string]*Value{"v": {Kind: &Value_StructValue{StructValue: &Struct{Fields: map[string]*Value{"1": {}}}}}}},
+		{Fields: map[string]*Value{"v": {Kind: &Value_ListValue{ListValue: &ListValue{Values: []*Value{{Kind: &Value_NumberValue{NumberValue: 1}}}}}}}},
 	}
 	for _, s := range structs {
 		hashes[string(hash.Dump(s))] = true
 	}
-	require.Equal(t, len(hashes), len(structs))
+	require.Equal(t, len(structs), len(hashes))
 }
 
 func TestStructMarshal(t *testing.T) {

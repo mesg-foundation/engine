@@ -1,24 +1,11 @@
 package structhash
 
 import (
-	"fmt"
 	"reflect"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
-
-func TestSha1(t *testing.T) {
-	assert.Equal(t, "da39a3ee5e6b4b0d3255bfef95601890afd80709", fmt.Sprintf("%x", Sha1(nil)))
-}
-
-func TestSha3(t *testing.T) {
-	assert.Equal(t, "a69f73cca23a9ac5c8b567dc185a756e97c982164fe25859e0d1dcc1475c80a615b2123af1f5f94c11e3e9402c3ac558f500199d95b6d3e301758586281dcd26", fmt.Sprintf("%x", Sha3(nil)))
-}
-
-func TestMd5(t *testing.T) {
-	assert.Equal(t, "d41d8cd98f00b204e9800998ecf8427e", fmt.Sprintf("%x", Md5(nil)))
-}
 
 //nolint:megacheck
 func TestDump(t *testing.T) {
@@ -30,288 +17,133 @@ func TestDump(t *testing.T) {
 		{nil, ""},
 		{make(chan string), ""},
 		{func() {}, ""},
-		{false, "false"},
-		{(*int)(nil), "nil"},
-		{int(0), "0"},
-		{uint(0), "0"},
-		{0.0, "0e+00"},
-		{"", `""`},
-		{interface{}(0), "0"},
-		{map[int]int(nil), "()nil"},
-		{map[int]int{}, "()"},
-		{map[int]int{0: 0}, "(0:0)"},
-		{map[int]int{0: 0, 1: 1}, "(0:0,1:1)"},
-		{map[int]int{1: 1, 0: 0}, "(0:0,1:1)"},
-		{[]int(nil), "[]nil"},
-		{[]*int{nil}, "[nil]"},
-		{[]int{}, "[]"},
-		{[]int{0}, "[0]"},
-		{[]int{0, 1}, "[0,1]"},
-		{[0]int{}, "[]"},
-		{[1]int{0}, "[0]"},
-		{[2]int{0, 1}, "[0,1]"},
-		{complex(0, 0), "0e+000e+00i"},
-		{(*struct{})(nil), "nil"},
-		{struct{}{}, "{}"},
+		{false, ""},
+		{(*int)(nil), ""},
+		{int(0), ""},
+		{uint(0), ""},
+		{0.0, ""},
+		{"", ""},
+		{interface{}(0), ""},
+		{map[int]int(nil), ""},
+		{map[int]int{}, ""},
+		{map[int]int{0: 0}, ""},
+		{map[int]int{0: 0, 1: 1}, "1:1;"},
+		{map[int]int{2: 2, 0: 0, 1: 1}, "1:1;2:2;"},
+		{map[string]int{"0": 1, "1": 0, "2": 2}, "0:1;2:2;"},
+		{map[string]int{"g": 1, "1": 0, "f": 2}, "f:2;g:1;"},
+		{[]int(nil), ""},
+		{[]*int{nil}, ""},
+		{[]int{}, ""},
+		{[]int{0}, ""},
+		{[]int{0, 1}, "1:1;"},
+		{[0]int{}, ""},
+		{[1]int{0}, ""},
+		{[2]int{0, 1}, "1:1;"},
+		{complex(0, 0), ""},
+		{(interface{})(nil), ""},
+		{(*struct{})(nil), ""},
+		{struct{}{}, ""},
+		{(chan int)(nil), ""},
 		{
 			struct {
-				a chan int `hash:"name:a"`
+				a bool           `protobuf:"bytes,1"`
+				b int            `protobuf:"bytes,2"`
+				c int8           `protobuf:"bytes,3"`
+				d int16          `protobuf:"bytes,4"`
+				e int32          `protobuf:"bytes,5"`
+				f int64          `protobuf:"bytes,6"`
+				g uint           `protobuf:"bytes,7"`
+				h uint8          `protobuf:"bytes,8"`
+				i uint16         `protobuf:"bytes,9"`
+				j uint32         `protobuf:"bytes,10"`
+				k uint64         `protobuf:"bytes,11"`
+				l float32        `protobuf:"bytes,12"`
+				m float64        `protobuf:"bytes,13"`
+				n []int          `protobuf:"bytes,14"`
+				o map[int]int    `protobuf:"bytes,15"`
+				p map[string]int `protobuf:"bytes,16"`
+				r *int           `protobuf:"bytes,17"`
+				s string         `protobuf:"bytes,18"`
 			}{},
-			"{}",
+			"",
 		},
 		{
 			struct {
-				a int `hash:"omitempty"`
+				a bool           `protobuf:"bytes,1"`
+				b int            `protobuf:"bytes,2"`
+				c int8           `protobuf:"bytes,3"`
+				d int16          `protobuf:"bytes,4"`
+				e int32          `protobuf:"bytes,5"`
+				f int64          `protobuf:"bytes,6"`
+				g uint           `protobuf:"bytes,7"`
+				h uint8          `protobuf:"bytes,8"`
+				i uint16         `protobuf:"bytes,9"`
+				j uint32         `protobuf:"bytes,10"`
+				k uint64         `protobuf:"bytes,11"`
+				l float32        `protobuf:"bytes,12"`
+				m float64        `protobuf:"bytes,13"`
+				n []int          `protobuf:"bytes,14"`
+				o map[int]int    `protobuf:"bytes,15"`
+				p map[string]int `protobuf:"bytes,16"`
+				r *int           `protobuf:"bytes,17"`
+				s string         `protobuf:"bytes,18"`
+			}{
+				a: true,
+				b: 1,
+				c: 1,
+				d: 1,
+				e: 1,
+				f: 1,
+				g: 1,
+				h: 1,
+				i: 1,
+				j: 1,
+				k: 1,
+				l: 1,
+				m: 1,
+				n: []int{1, 0, 1},
+				o: map[int]int{0: 1, 1: 0},
+				p: map[string]int{"0": 1, "1": 0, "2": 2},
+				r: &int1,
+				s: "1",
+			},
+			"1:true;2:1;3:1;4:1;5:1;6:1;7:1;8:1;9:1;10:1;11:1;12:1;13:1;14:CMvDhwpnsTgALRFiAzwi7GR9GUbFwo3xhp9MjifExAW7;15:EUBJnuc9DVgYJtdGABsukyTmTgpoGkUZBEBCZ2GR7HFJ;16:H19PMHCjrY3wgrYpS5qDxGPbfftEpqg68eri5JuPC8qY;17:1;18:1;",
+		},
+		{
+			struct {
+				b int `protobuf:"bytes,2"`
+				a int `protobuf:"bytes,1"`
+			}{2, 1},
+			"1:1;2:2;",
+		},
+		{
+			struct {
+				a interface{} `protobuf_oneof:"type"`
+			}{
+				a: struct {
+					b int `protobuf:"bytes,1"`
+					c int `protobuf:"bytes,2"`
+				}{0, 1},
+			},
+			"BL6qCe785oZSJZ1QQJZuPH9KZE75aSe2wfZUdbyyBAFP",
+		},
+		{[]string{"foo", "", "bar"}, "0:foo;2:bar;"},
+		{
+			map[string]string{
+				"keyB":  "bar",
+				"keyAB": "",
+				"keyA":  "foo",
+			}, "keyA:foo;keyB:bar;",
+		},
+		{
+			struct {
+				a int `protobuf:"bytes,1" hash:"-"`
 			}{1},
-			"{}",
-		},
-		{
-			struct {
-				a interface{} `hash:"name:a"`
-			}{nil},
-			"{a:nil}",
-		},
-		{
-			struct {
-				a interface{} `hash:"name:a"`
-			}{
-				struct {
-					b map[string]int `hash:"name:b"`
-				}{
-					map[string]int{
-						"c": 1,
-					},
-				},
-			},
-			"{a:{b:(\"c\":1)}}",
-		},
-		{
-			struct {
-				a interface{} `hash:"name:a"`
-			}{
-				struct {
-					c map[string]int `hash:"name:c"`
-					b map[string]int `hash:"name:b"`
-				}{
-					c: map[string]int{
-						"100": 1,
-						"1":   1,
-					},
-					b: map[string]int{
-						"100": 1,
-						"1":   1,
-					},
-				},
-			},
-			"{a:{b:(\"1\":1,\"100\":1),c:(\"1\":1,\"100\":1)}}",
-		},
-		// NOTE: structhash will allow to process all interface types.
-		// gogo/protobuf is not able to set tags for directly oneof interface.
-		// see: https://github.com/gogo/protobuf/issues/623
-		{
-			struct {
-				a interface{}
-			}{
-				struct {
-					b map[string]int `hash:"name:b"`
-				}{
-					map[string]int{
-						"c": 1,
-					},
-				},
-			},
-			"{a:{b:(\"c\":1)}}",
-		},
-		{
-			struct {
-				A interface{} `hash:"name:A"`
-			}{0},
-			"{A:0}",
-		},
-		{
-			struct {
-				a int `hash:"name:a"`
-			}{0},
-			"{a:0}",
-		},
-		{
-			struct {
-				a int `hash:"name:a"`
-				b int `hash:"name:b"`
-			}{0, 1},
-			"{a:0,b:1}",
-		},
-		{
-			struct {
-				a struct {
-					a bool `hash:"name:a"`
-				} `hash:"name:a"`
-			}{a: struct {
-				a bool `hash:"name:a"`
-			}{a: false}},
-			"{a:{a:false}}",
-		},
-		{
-			struct {
-				a *struct {
-					b bool `hash:"name:b"`
-				} `hash:"name:a"`
-			}{a: &struct {
-				b bool `hash:"name:b"`
-			}{b: false}},
-			"{a:{b:false}}",
-		},
-		{
-			struct {
-				a interface{}
-			}{
-				struct {
-					b int
-					c interface{}
-				}{
-					b: 1,
-					c: 2,
-				},
-			},
-			"{a:{}}",
-		},
-		{
-			struct {
-				a interface{}
-			}{
-				&struct {
-					b int         `hash:"name:b"`
-					c interface{} `hash:"name:c"`
-				}{
-					b: 1,
-					c: 2,
-				},
-			},
-			"{a:{b:1,c:2}}",
-		},
-		{
-			struct {
-				a interface{}
-			}{
-				&struct {
-					b *int
-					c interface{}
-				}{
-					b: &int1,
-					c: &int1,
-				},
-			},
-			"{a:{}}",
-		},
-		{
-			struct {
-				a interface{}
-			}{
-				&struct {
-					b *int
-					c interface{}
-				}{
-					b: nil,
-					c: nil,
-				},
-			},
-			"{a:{}}",
-		},
-		{
-			struct {
-				a interface{}
-			}{nil},
-			"{}",
+			"",
 		},
 	}
 
 	for _, tt := range tests {
-		s := Dump(tt.v)
-		assert.Equalf(t, tt.s, string(s), "type %s: %v", reflect.TypeOf(tt.v), tt.v)
+		assert.Equalf(t, tt.s, serialize(tt.v), "type %s: %v", reflect.TypeOf(tt.v), tt.v)
 	}
-}
-
-//nolint:megacheck
-func TestTag(t *testing.T) {
-	tests := []struct {
-		v interface{}
-		s string
-	}{
-		{
-			struct {
-				a int         `hash:"-"`
-				b uint        `hash:"-"`
-				c bool        `hash:"-"`
-				d string      `hash:"-"`
-				e []int       `hash:"-"`
-				f float64     `hash:"-"`
-				g complex128  `hash:"-"`
-				h interface{} `hash:"-"`
-				i *struct{}   `hash:"-"`
-				j *[]uint     `hash:"-"`
-				k chan int    `hash:"-"`
-			}{},
-			"{}",
-		},
-		{
-			struct {
-				a int         `hash:"name:a,omitempty"`
-				b uint        `hash:"name:b,omitempty"`
-				c bool        `hash:"name:c,omitempty"`
-				d string      `hash:"name:d,omitempty"`
-				e []int       `hash:"name:e,omitempty"`
-				f float64     `hash:"name:f,omitempty"`
-				g complex128  `hash:"name:g,omitempty"`
-				h interface{} `hash:"name:h,omitempty"`
-				i *struct{}   `hash:"name:i,omitempty"`
-				j *[]uint     `hash:"name:j,omitempty"`
-				k chan int    `hash:"name:k,omitempty"`
-			}{},
-			"{}",
-		},
-		{
-			struct {
-				a int `hash:"name:b"`
-			}{},
-			"{b:0}",
-		},
-		{
-			struct {
-				a int `hash:"name:b"`
-				b int `hash:"name:a"`
-			}{0, 1},
-			"{a:1,b:0}",
-		},
-		{
-			struct {
-				a int `hash:"name:b,omitempty"`
-				b int `hash:"name:a,omitempty"`
-			}{0, 1},
-			"{a:1}",
-		},
-		{
-			struct {
-				a int
-				b int `hash:"-"`
-				c int `hash:"name:c"`
-			}{1, 2, 3},
-			"{c:3}",
-		},
-	}
-
-	for _, tt := range tests {
-		assert.Equalf(t, tt.s, string(serialize(tt.v)), "type %s: %v", reflect.TypeOf(tt.v), tt.v)
-	}
-}
-
-func TestTagPanicInvalidOption(t *testing.T) {
-	defer func() {
-		if r := recover(); r == nil {
-			t.Errorf("serialize did not panic with invalid option")
-		}
-	}()
-
-	serialize(struct {
-		a int `hash:"name:a,omitempty,invalid"`
-	}{0})
 }

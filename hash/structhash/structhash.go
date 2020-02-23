@@ -2,8 +2,7 @@ package structhash
 
 import (
 	"bytes"
-	"crypto/md5"
-	"crypto/sha1"
+	"crypto/sha256"
 	"fmt"
 	"reflect"
 	"sort"
@@ -11,7 +10,7 @@ import (
 	"strings"
 	"sync"
 
-	"golang.org/x/crypto/sha3"
+	"github.com/mr-tron/base58"
 )
 
 var bufPool = sync.Pool{
@@ -20,28 +19,130 @@ var bufPool = sync.Pool{
 	},
 }
 
-// Sha1 takes a data structure and returns its sha1 hash as string.
-func Sha1(v interface{}) [sha1.Size]byte {
-	return sha1.Sum(serialize(v))
-}
-
-// Sha3 takes a data structure and returns its sha3 hash as string.
-func Sha3(v interface{}) [64]byte {
-	return sha3.Sum512(serialize(v))
-}
-
-// Md5 takes a data structure and returns its md5 hash.
-func Md5(v interface{}) [md5.Size]byte {
-	return md5.Sum(serialize(v))
-}
-
 // Dump takes a data structure and returns its string representation.
-func Dump(v interface{}) []byte {
-	return serialize(v)
+func Dump(v interface{}) [sha256.Size]byte {
+	return sha256.Sum256([]byte(serialize(v)))
 }
 
-func serialize(v interface{}) []byte {
-	return []byte(valueToString(reflect.ValueOf(v)))
+func serialize(v interface{}) string {
+	return valueToString(reflect.ValueOf(v))
+}
+
+func valueToString(v reflect.Value) string {
+	buf := bufPool.Get().(*bytes.Buffer)
+	write(buf, v)
+	s := buf.String()
+	buf.Reset()
+	bufPool.Put(buf)
+	return s
+}
+
+//nolint:gocyclo
+func write(buf *bytes.Buffer, v reflect.Value) {
+	if isEmptyValue(v) {
+		return
+	}
+
+	switch v.Kind() {
+	case reflect.Bool:
+		buf.WriteString(strconv.FormatBool(v.Bool()))
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		buf.WriteString(strconv.FormatInt(v.Int(), 16))
+	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uintptr:
+		buf.WriteString(strconv.FormatUint(v.Uint(), 16))
+	case reflect.Float32, reflect.Float64:
+		buf.WriteString(strconv.FormatFloat(v.Float(), 'f', -1, 64))
+	case reflect.String:
+		buf.WriteString(v.String())
+	case reflect.Ptr, reflect.Interface:
+		write(buf, v.Elem())
+	case reflect.Struct:
+		vt := v.Type()
+		items := make(map[int]string)
+		isOneof := make(map[int]bool)
+		keys := make([]int, 0, v.NumField())
+		for i := 0; i < v.NumField(); i++ {
+			vf := v.Field(i)
+			if isEmptyValue(vf) {
+				continue
+			}
+
+			to := parseTag(vt.Field(i))
+			if to.skip {
+				continue
+			}
+
+			if val := valueToString(vf); val != "" {
+				// if field string == "" then it is chan,
+				// func or invalid type and it can be skipped
+				if to.index == 0 {
+					// oneof interface - get the index of the field.
+					str := strings.Split(val, ":")[0]
+					index, err := strconv.ParseInt(str, 10, 64)
+					if err != nil {
+						panic(fmt.Sprintf("structhash: value in field %s is not a struct: %v", vt.Field(i).Name, err))
+					}
+
+					to.index = int(index)
+					isOneof[to.index] = true
+				}
+
+				switch vf.Kind() {
+				case reflect.Array, reflect.Slice, reflect.Map, reflect.Interface:
+					h := sha256.Sum256([]byte(val))
+					items[to.index] = base58.Encode(h[:])
+				case reflect.Ptr:
+					if vf.Elem().Kind() == reflect.Struct {
+						h := sha256.Sum256([]byte(val))
+						items[to.index] = base58.Encode(h[:])
+						break
+					}
+					fallthrough
+				default:
+					items[to.index] = val
+				}
+				keys = append(keys, to.index)
+			}
+		}
+
+		sort.Ints(keys)
+		for _, index := range keys {
+			if isOneof[index] {
+				buf.WriteString(items[index])
+			} else {
+				buf.WriteString(strconv.Itoa(index))
+				buf.WriteByte(':')
+				buf.WriteString(items[index])
+				buf.WriteByte(';')
+			}
+		}
+	case reflect.Map:
+		keys := v.MapKeys()
+		if len(keys) == 0 {
+			return
+		}
+		sort.Sort(byValue(keys))
+
+		// Extract and sort the keys.
+		for _, key := range keys {
+			if val := valueToString(v.MapIndex(key)); val != "" {
+				buf.WriteString(valueToString(key))
+				buf.WriteByte(':')
+				buf.WriteString(val)
+				buf.WriteByte(';')
+			}
+		}
+
+	case reflect.Slice, reflect.Array:
+		for i := 0; i < v.Len(); i++ {
+			if val := valueToString(v.Index(i)); val != "" {
+				buf.WriteString(strconv.FormatInt(int64(i), 16))
+				buf.WriteByte(':')
+				buf.WriteString(val)
+				buf.WriteByte(';')
+			}
+		}
+	}
 }
 
 func isEmptyValue(v reflect.Value) bool {
@@ -65,160 +166,55 @@ func isEmptyValue(v reflect.Value) bool {
 	return false
 }
 
-func valueToString(v reflect.Value) string {
-	buf := bufPool.Get().(*bytes.Buffer)
-	s := write(buf, v).String()
-	buf.Reset()
-	bufPool.Put(buf)
-	return s
-}
-
-//nolint:gocyclo
-func write(buf *bytes.Buffer, v reflect.Value) *bytes.Buffer {
-	switch v.Kind() {
-	case reflect.Bool:
-		buf.WriteString(strconv.FormatBool(v.Bool()))
-	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-		buf.WriteString(strconv.FormatInt(v.Int(), 16))
-	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uintptr:
-		buf.WriteString(strconv.FormatUint(v.Uint(), 16))
-	case reflect.Float32, reflect.Float64:
-		buf.WriteString(strconv.FormatFloat(v.Float(), 'e', -1, 64))
-	case reflect.String:
-		buf.WriteString("\"" + v.String() + "\"")
-	case reflect.Interface:
-		if v.IsNil() {
-			buf.WriteString("nil")
-			return buf
-		}
-		write(buf, v.Elem())
-	case reflect.Struct:
-		vt := v.Type()
-		items := make([]string, 0)
-		for i := 0; i < v.NumField(); i++ {
-			sf := vt.Field(i)
-			to := parseTag(sf)
-
-			// NOTE: structhash will allow to process all interface types.
-			// gogo/protobuf is not able to set tags for directly oneof interface.
-			// see: https://github.com/gogo/protobuf/issues/623
-			if to.name == "" && reflect.Zero(sf.Type).Kind() == reflect.Interface && (v.Field(i).Elem().Kind() == reflect.Struct || (v.Field(i).Elem().Kind() == reflect.Ptr && v.Field(i).Elem().Elem().Kind() == reflect.Struct)) {
-				to.skip = false
-				to.name = sf.Name
-			}
-
-			if to.skip || to.omitempty && isEmptyValue(v.Field(i)) {
-				continue
-			}
-
-			str := valueToString(v.Field(i))
-			// if field string == "" then it is chan,func or invalid type
-			// and skip it
-			if str == "" {
-				continue
-			}
-			items = append(items, to.name+":"+str)
-		}
-		sort.Strings(items)
-
-		buf.WriteByte('{')
-		for i := range items {
-			if i != 0 {
-				buf.WriteByte(',')
-			}
-			buf.WriteString(items[i])
-		}
-		buf.WriteByte('}')
-	case reflect.Map:
-		if v.IsNil() {
-			buf.WriteString("()nil")
-			return buf
-		}
-		buf.WriteByte('(')
-
-		keys := v.MapKeys()
-		items := make([]string, len(keys))
-
-		// Extract and sort the keys.
-		for i, key := range keys {
-			items[i] = valueToString(key) + ":" + valueToString(v.MapIndex(key))
-		}
-		sort.Strings(items)
-
-		for i := range items {
-			if i > 0 {
-				buf.WriteByte(',')
-			}
-			buf.WriteString(items[i])
-		}
-		buf.WriteByte(')')
-	case reflect.Slice:
-		if v.IsNil() {
-			buf.WriteString("[]nil")
-			return buf
-		}
-		fallthrough
-	case reflect.Array:
-		buf.WriteByte('[')
-		for i := 0; i < v.Len(); i++ {
-			if i != 0 {
-				buf.WriteByte(',')
-			}
-			write(buf, v.Index(i))
-		}
-		buf.WriteByte(']')
-	case reflect.Ptr:
-		if v.IsNil() {
-			buf.WriteString("nil")
-			return buf
-		}
-		write(buf, v.Elem())
-	case reflect.Complex64, reflect.Complex128:
-		c := v.Complex()
-		buf.WriteString(strconv.FormatFloat(real(c), 'e', -1, 64))
-		buf.WriteString(strconv.FormatFloat(imag(c), 'e', -1, 64))
-		buf.WriteString("i")
-	}
-	return buf
-}
-
 // tagOptions is the string struct field's "hash"
 type tagOptions struct {
-	name      string
-	omitempty bool
-	skip      bool
+	index int
+	oneof bool
+	skip  bool
 }
 
-// parseTag splits a struct field's hash tag into its name and
-// comma-separated options.
+// parseTag splits a struct field's protobuf tag into its name and index.
 func parseTag(f reflect.StructField) tagOptions {
-	tag := f.Tag.Get("hash")
+	tag := f.Tag.Get("protobuf_oneof")
+	if tag != "" {
+		return tagOptions{oneof: true}
+	}
+
+	if tag = f.Tag.Get("hash"); tag == "-" {
+		return tagOptions{skip: true}
+	}
+
+	tag = f.Tag.Get("protobuf")
 	if tag == "" {
-		// NOTE: skip - interface with no tags can still be serialzied
 		return tagOptions{skip: true}
 	}
 
-	if tag == "-" {
-		// force skip - set name for "-"
-		return tagOptions{name: "-", skip: true}
-	}
-
-	var to tagOptions
 	options := strings.Split(tag, ",")
-	for _, option := range options {
-		switch {
-		case option == "omitempty":
-			to.omitempty = true
-		case strings.HasPrefix(option, "name:"):
-			to.name = option[len("name:"):]
-		default:
-			panic(fmt.Sprintf("structhash: field %s with tag hash:%q has invalid option %q", f.Name, tag, option))
-		}
-	}
-
-	// skip fields without name
-	if to.name == "" {
+	if len(options) < 2 {
 		return tagOptions{skip: true}
 	}
-	return to
+
+	index, err := strconv.Atoi(options[1])
+	if err != nil {
+		return tagOptions{skip: true}
+	}
+
+	return tagOptions{index: index}
+}
+
+type byValue []reflect.Value
+
+func (a byValue) Len() int      { return len(a) }
+func (a byValue) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
+func (a byValue) Less(i, j int) bool {
+	switch a[i].Kind() {
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		return a[i].Int() < a[j].Int()
+	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uintptr:
+		return a[i].Uint() < a[j].Uint()
+	case reflect.String:
+		return a[i].String() < a[j].String()
+	default:
+		panic("value sort: type not supported")
+	}
 }

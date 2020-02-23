@@ -8,7 +8,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"hash"
 
 	"github.com/mesg-foundation/engine/hash/structhash"
 	"github.com/mr-tron/base58"
@@ -22,37 +21,13 @@ var size = DefaultHash().Size()
 
 var errInvalidLen = errors.New("hash: invalid length")
 
-// Digest represents the partial evaluation of a checksum.
-type Digest struct {
-	hash.Hash
-}
-
-// Sum appends the current checksum to b and returns the Hash.
-func (d *Digest) Sum(b []byte) Hash {
-	return Hash(d.Hash.Sum(b))
-}
-
-// WriteObject  adds an interface data to the running hash.
-// It never retruns an error.
-func (d *Digest) WriteObject(v interface{}) (int, error) {
-	return d.Write(structhash.Dump(v))
-}
-
 // A Hash is a type for representing common hash.
 type Hash []byte
 
-// New returns new hash from a given integer.
-func New() *Digest {
-	return &Digest{
-		Hash: DefaultHash(),
-	}
-}
-
 // Dump takes an interface and returns its hash representation.
 func Dump(v interface{}) Hash {
-	d := New()
-	d.WriteObject(v)
-	return d.Sum(nil)
+	h := structhash.Dump(v)
+	return Hash(h[:])
 }
 
 // Int returns a new hash from a given integer.

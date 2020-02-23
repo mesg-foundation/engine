@@ -24,6 +24,10 @@ issues:
       linters:
         - golint
       text: "exported var Translator should have its own declaration"
+    - path: hash/structhash/structhash_test.go
+      linters:
+        - maligned
+      text: "struct of size 136 bytes could be of size 128 bytes"
 
 linters:
   disable-all: true

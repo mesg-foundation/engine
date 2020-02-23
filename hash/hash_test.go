@@ -14,16 +14,8 @@ var (
 	one  = Int(1)
 )
 
-func TestDigest(t *testing.T) {
-	d := New()
-	d.Write([]byte{0})
-
-	hash := d.Sum(nil)
-	assert.Equal(t, hash.String(), "8RBsoeyoRwajj86MZfZE6gMDJQVYGYcdSfx1zxqxNHbr")
-}
-
 func TestDump(t *testing.T) {
-	assert.Equal(t, Dump(struct{}{}).String(), "5ajuwjHoLj33yG5t5UFsJtUb3vnRaJQEMPqSLz6VyoHK")
+	assert.Equal(t, "GKot5hBsd81kMupNCXHaqbhv3huEbxAFMLnpcX2hniwn", Dump(struct{}{}).String())
 }
 
 func TestInt(t *testing.T) {
