@@ -5,7 +5,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/params"
 	"github.com/mesg-foundation/engine/hash"
 	instancepb "github.com/mesg-foundation/engine/instance"
-	ownershippb "github.com/mesg-foundation/engine/ownership"
 	processpb "github.com/mesg-foundation/engine/process"
 	runnerpb "github.com/mesg-foundation/engine/runner"
 	servicepb "github.com/mesg-foundation/engine/service"
@@ -42,9 +41,4 @@ type RunnerKeeper interface {
 // ProcessKeeper module interface.
 type ProcessKeeper interface {
 	Get(ctx sdk.Context, hash hash.Hash) (*processpb.Process, error)
-}
-
-// OwnershipKeeper module interface.
-type OwnershipKeeper interface {
-	GetOwners(ctx sdk.Context, resourceHash hash.Hash) ([]*ownershippb.Ownership, error)
 }

@@ -248,7 +248,7 @@ func NewInitApp(
 	app.processKeeper = process.NewKeeper(app.cdc, keys[process.StoreKey], app.instanceKeeper, app.ownershipKeeper)
 	app.serviceKeeper = service.NewKeeper(app.cdc, keys[service.StoreKey], app.ownershipKeeper)
 	app.runnerKeeper = runner.NewKeeper(app.cdc, keys[runner.StoreKey], app.instanceKeeper)
-	app.executionKeeper = execution.NewKeeper(app.cdc, keys[execution.StoreKey], app.bankKeeper, app.serviceKeeper, app.instanceKeeper, app.runnerKeeper, app.processKeeper, app.ownershipKeeper)
+	app.executionKeeper = execution.NewKeeper(app.cdc, keys[execution.StoreKey], app.bankKeeper, app.serviceKeeper, app.instanceKeeper, app.runnerKeeper, app.processKeeper)
 
 	// NOTE: Any module instantiated in the module manager that is later modified
 	// must be passed by reference here.

@@ -27,25 +27,23 @@ type Keeper struct {
 	storeKey sdk.StoreKey
 	cdc      *codec.Codec
 
-	bankKeeper      types.BankKeeper
-	serviceKeeper   types.ServiceKeeper
-	instanceKeeper  types.InstanceKeeper
-	runnerKeeper    types.RunnerKeeper
-	processKeeper   types.ProcessKeeper
-	ownershipKeeper types.OwnershipKeeper
+	bankKeeper     types.BankKeeper
+	serviceKeeper  types.ServiceKeeper
+	instanceKeeper types.InstanceKeeper
+	runnerKeeper   types.RunnerKeeper
+	processKeeper  types.ProcessKeeper
 }
 
 // NewKeeper creates a execution keeper
-func NewKeeper(cdc *codec.Codec, key sdk.StoreKey, bankKeeper types.BankKeeper, serviceKeeper types.ServiceKeeper, instanceKeeper types.InstanceKeeper, runnerKeeper types.RunnerKeeper, processKeeper types.ProcessKeeper, ownershipKeeper types.OwnershipKeeper) Keeper {
+func NewKeeper(cdc *codec.Codec, key sdk.StoreKey, bankKeeper types.BankKeeper, serviceKeeper types.ServiceKeeper, instanceKeeper types.InstanceKeeper, runnerKeeper types.RunnerKeeper, processKeeper types.ProcessKeeper) Keeper {
 	return Keeper{
-		storeKey:        key,
-		cdc:             cdc,
-		bankKeeper:      bankKeeper,
-		serviceKeeper:   serviceKeeper,
-		instanceKeeper:  instanceKeeper,
-		runnerKeeper:    runnerKeeper,
-		processKeeper:   processKeeper,
-		ownershipKeeper: ownershipKeeper,
+		storeKey:       key,
+		cdc:            cdc,
+		bankKeeper:     bankKeeper,
+		serviceKeeper:  serviceKeeper,
+		instanceKeeper: instanceKeeper,
+		runnerKeeper:   runnerKeeper,
+		processKeeper:  processKeeper,
 	}
 }
 
