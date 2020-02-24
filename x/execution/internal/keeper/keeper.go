@@ -88,6 +88,8 @@ func (k *Keeper) Create(ctx sdk.Context, msg types.MsgCreateExecution) (*executi
 		msg.Request.Tags,
 		msg.Request.ExecutorHash,
 	)
+	exec.BlockHeight = ctx.BlockHeight()
+
 	store := ctx.KVStore(k.storeKey)
 	if store.Has(exec.Hash) {
 		return nil, fmt.Errorf("execution %q already exists", exec.Hash)
