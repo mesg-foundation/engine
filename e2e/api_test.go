@@ -9,6 +9,8 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/types/rest"
 	"github.com/mesg-foundation/engine/app"
+	"github.com/mesg-foundation/engine/config"
+	"github.com/mesg-foundation/engine/cosmos"
 	pb "github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc"
@@ -66,6 +68,12 @@ func TestAPI(t *testing.T) {
 	if testing.Short() {
 		t.Skip()
 	}
+
+	cfg, err := config.New()
+	if err != nil {
+		panic(err)
+	}
+	cosmos.CustomizeConfig(cfg)
 
 	conn, err := grpc.DialContext(context.Background(), "localhost:50052", grpc.WithInsecure())
 	require.NoError(t, err)
