@@ -5,12 +5,14 @@ import (
 	"sync"
 	"testing"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/mesg-foundation/engine/execution"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/protobuf/acknowledgement"
 	pb "github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/mesg-foundation/engine/protobuf/types"
 	"github.com/stretchr/testify/require"
+	"github.com/tendermint/tendermint/crypto"
 )
 
 func testExecution(t *testing.T) {
@@ -210,12 +212,42 @@ func testExecution(t *testing.T) {
 		})
 		require.NoError(t, err)
 
+		// check balance of execution before completed
+		t.Run("execution balance before completed", func(t *testing.T) {
+			coins := sdk.Coins{}
+			execAddress := sdk.AccAddress(crypto.AddressHash(resp.Hash))
+			lcdGet(t, "bank/balances/"+execAddress.String(), &coins)
+			require.True(t, coins.AmountOf("atto").Equal(sdk.NewInt(50)))
+		})
+
 		_, err = streamInProgress.Recv()
 		require.NoError(t, err)
 
 		exec, err := streamCompleted.Recv()
 		require.NoError(t, err)
 		require.Equal(t, resp.Hash, exec.Hash)
+
+		// check balance of executor
+		t.Run("executor balance", func(t *testing.T) {
+			coins := sdk.Coins{}
+			executorAddress := sdk.AccAddress(crypto.AddressHash(executorHash))
+			lcdGet(t, "bank/balances/"+executorAddress.String(), &coins)
+			require.True(t, coins.AmountOf("atto").Equal(sdk.NewInt(45)))
+		})
+		// check balance of service
+		t.Run("service balance", func(t *testing.T) {
+			coins := sdk.Coins{}
+			serviceAddress := sdk.AccAddress(crypto.AddressHash(testServiceHash))
+			lcdGet(t, "bank/balances/"+serviceAddress.String(), &coins)
+			require.True(t, coins.AmountOf("atto").Equal(sdk.NewInt(5)))
+		})
+		// check balance of execution
+		t.Run("execution balance", func(t *testing.T) {
+			coins := sdk.Coins{}
+			execAddress := sdk.AccAddress(crypto.AddressHash(resp.Hash))
+			lcdGet(t, "bank/balances/"+execAddress.String(), &coins)
+			require.True(t, coins.AmountOf("atto").Equal(sdk.NewInt(0)))
+		})
 	})
 
 	t.Run("many executions in parallel", func(t *testing.T) {
