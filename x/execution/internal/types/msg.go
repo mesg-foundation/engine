@@ -34,8 +34,15 @@ func (msg MsgCreateExecution) Type() string {
 
 // ValidateBasic runs stateless checks on the message.
 func (msg MsgCreateExecution) ValidateBasic() error {
+	price, err := sdk.ParseCoins(msg.Request.Price)
+	if err != nil {
+		return sdkerrors.Wrap(errors.ErrValidation, "cannot parse price")
+	}
+	if price.IsAnyNegative() {
+		return sdkerrors.Wrap(sdkerrors.ErrInsufficientFunds, "price must be positive")
+	}
 	if err := xvalidator.Validate.Struct(msg); err != nil {
-		return err
+		return sdkerrors.Wrap(errors.ErrValidation, err.Error())
 	}
 	if !msg.Request.ParentHash.IsZero() && !msg.Request.EventHash.IsZero() {
 		return sdkerrors.Wrap(errors.ErrValidation, "cannot have both parent and event hash")

@@ -2,6 +2,7 @@ package types
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/x/bank"
 	"github.com/cosmos/cosmos-sdk/x/params"
 	"github.com/mesg-foundation/engine/hash"
 	instancepb "github.com/mesg-foundation/engine/instance"
@@ -16,6 +17,12 @@ type ParamSubspace interface {
 	Get(ctx sdk.Context, key []byte, ptr interface{})
 	GetParamSet(ctx sdk.Context, ps params.ParamSet)
 	SetParamSet(ctx sdk.Context, ps params.ParamSet)
+}
+
+// BankKeeper module interface.
+type BankKeeper interface {
+	SendCoins(ctx sdk.Context, fromAddr sdk.AccAddress, toAddr sdk.AccAddress, amt sdk.Coins) error
+	InputOutputCoins(ctx sdk.Context, inputs []bank.Input, outputs []bank.Output) error
 }
 
 // ServiceKeeper module interface.
