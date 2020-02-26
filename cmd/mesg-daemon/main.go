@@ -85,7 +85,7 @@ func newApp(logger log.Logger, db dbm.DB, traceStore io.Writer) abci.Application
 		cache = store.NewCommitKVStoreCacheManager()
 	}
 
-	return app.NewInitApp(
+	initApp, err := app.NewInitApp(
 		logger, db, traceStore, true, invCheckPeriod,
 		baseapp.SetPruning(store.NewPruningOptionsFromString(viper.GetString("pruning"))),
 		baseapp.SetMinGasPrices(viper.GetString(server.FlagMinGasPrices)),
@@ -93,22 +93,30 @@ func newApp(logger log.Logger, db dbm.DB, traceStore io.Writer) abci.Application
 		baseapp.SetHaltTime(viper.GetUint64(server.FlagHaltTime)),
 		baseapp.SetInterBlockCache(cache),
 	)
+	if err != nil {
+		panic(err)
+	}
+	return initApp
 }
 
 func exportAppStateAndTMValidators(
 	logger log.Logger, db dbm.DB, traceStore io.Writer, height int64, forZeroHeight bool, jailWhiteList []string,
 ) (json.RawMessage, []tmtypes.GenesisValidator, error) {
 	if height != -1 {
-		aApp := app.NewInitApp(logger, db, traceStore, false, uint(1))
-		err := aApp.LoadHeight(height)
+		aApp, err := app.NewInitApp(logger, db, traceStore, false, uint(1))
 		if err != nil {
+			return nil, nil, err
+		}
+		if err := aApp.LoadHeight(height); err != nil {
 			return nil, nil, err
 		}
 		return aApp.ExportAppStateAndValidators(forZeroHeight, jailWhiteList)
 	}
 
-	aApp := app.NewInitApp(logger, db, traceStore, true, uint(1))
-
+	aApp, err := app.NewInitApp(logger, db, traceStore, true, uint(1))
+	if err != nil {
+		return nil, nil, err
+	}
 	return aApp.ExportAppStateAndValidators(forZeroHeight, jailWhiteList)
 }
 

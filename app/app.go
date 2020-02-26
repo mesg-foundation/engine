@@ -7,7 +7,6 @@ import (
 
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/libs/log"
-	tmos "github.com/tendermint/tendermint/libs/os"
 	dbm "github.com/tendermint/tm-db"
 
 	bam "github.com/cosmos/cosmos-sdk/baseapp"
@@ -136,7 +135,7 @@ var _ simapp.App = (*NewApp)(nil)
 func NewInitApp(
 	logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest bool,
 	invCheckPeriod uint, baseAppOptions ...func(*bam.BaseApp),
-) *NewApp {
+) (*NewApp, error) {
 	// First define the top level codec that will be shared by the different modules
 	cdc := MakeCodec()
 
@@ -334,13 +333,12 @@ func NewInitApp(
 	app.MountTransientStores(tKeys)
 
 	if loadLatest {
-		err := app.LoadLatestVersion(app.keys[bam.MainStoreKey])
-		if err != nil {
-			tmos.Exit(err.Error())
+		if err := app.LoadLatestVersion(app.keys[bam.MainStoreKey]); err != nil {
+			return nil, err
 		}
 	}
 
-	return app
+	return app, nil
 }
 
 // GenesisState represents chain state at the start of the chain. Any initial state (account balances) are stored here.
