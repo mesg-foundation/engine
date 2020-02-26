@@ -20,10 +20,10 @@ import (
 // New creates a new Process instance
 func New(mc *cosmos.ModuleClient, ep *publisher.EventPublisher) *Orchestrator {
 	return &Orchestrator{
-		mc:   mc,
-		ep:   ep,
-		ErrC: make(chan error),
-		stopC:     make(chan bool),
+		mc:    mc,
+		ep:    ep,
+		ErrC:  make(chan error),
+		stopC: make(chan bool),
 	}
 }
 
