@@ -145,7 +145,10 @@ func main() {
 		logrus.WithField("module", "main").Fatalln(err)
 	}
 
-	initApp := app.NewInitApp(tendermintLogger, db, nil, true, 0, bam.SetMinGasPrices(cfg.Cosmos.MinGasPrices))
+	initApp, err := app.NewInitApp(tendermintLogger, db, nil, true, 0, bam.SetMinGasPrices(cfg.Cosmos.MinGasPrices))
+	if err != nil {
+		logrus.WithField("module", "main").Fatalln(err)
+	}
 	cdc := initApp.Codec()
 
 	// init key manager
