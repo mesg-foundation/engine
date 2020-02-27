@@ -126,6 +126,8 @@ type NewApp struct {
 
 	// simulation manager
 	sm *module.SimulationManager
+
+	executionIndexer []string
 }
 
 // verify app interface at compile time
@@ -166,12 +168,13 @@ func NewInitApp(
 
 	// Here you initialize your application with the store keys it requires
 	var app = &NewApp{
-		BaseApp:        bApp,
-		cdc:            cdc,
-		invCheckPeriod: invCheckPeriod,
-		keys:           keys,
-		tKeys:          tKeys,
-		subspaces:      make(map[string]params.Subspace),
+		BaseApp:          bApp,
+		cdc:              cdc,
+		invCheckPeriod:   invCheckPeriod,
+		keys:             keys,
+		tKeys:            tKeys,
+		subspaces:        make(map[string]params.Subspace),
+		executionIndexer: make([]string, 0),
 	}
 
 	// The ParamsKeeper handles parameter storage for the application
@@ -246,7 +249,7 @@ func NewInitApp(
 	app.processKeeper = process.NewKeeper(app.cdc, keys[process.StoreKey], app.instanceKeeper, app.ownershipKeeper)
 	app.serviceKeeper = service.NewKeeper(app.cdc, keys[service.StoreKey], app.ownershipKeeper)
 	app.runnerKeeper = runner.NewKeeper(app.cdc, keys[runner.StoreKey], app.instanceKeeper)
-	app.executionKeeper = execution.NewKeeper(app.cdc, keys[execution.StoreKey], app.bankKeeper, app.serviceKeeper, app.instanceKeeper, app.runnerKeeper, app.processKeeper)
+	app.executionKeeper = execution.NewKeeper(app.cdc, keys[execution.StoreKey], app.bankKeeper, app.serviceKeeper, app.instanceKeeper, app.runnerKeeper, app.processKeeper, app.executionIndexer)
 
 	// NOTE: Any module instantiated in the module manager that is later modified
 	// must be passed by reference here.
@@ -365,7 +368,29 @@ func (app *NewApp) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abc
 
 // EndBlocker application updates every end block
 func (app *NewApp) EndBlocker(ctx sdk.Context, req abci.RequestEndBlock) abci.ResponseEndBlock {
-	return app.mm.EndBlock(ctx, req)
+	endBlockResponse := app.mm.EndBlock(ctx, req)
+
+	for _, evt := range endBlockResponse.Events {
+		if evt.GetType() == "message" {
+			if app.findAttribute(evt, "module") == "execution" {
+				if app.findAttribute(evt, "action") == "CreateExecution" {
+					if resourceHash := app.findAttribute(evt, "hash"); resourceHash != "" {
+						app.executionIndexer = append(app.executionIndexer, resourceHash)
+					}
+				}
+			}
+		}
+	}
+	return endBlockResponse
+}
+
+func (app *NewApp) findAttribute(evt abci.Event, key string) string {
+	for _, attr := range evt.GetAttributes() {
+		if string(attr.GetKey()) == key {
+			return string(attr.GetValue())
+		}
+	}
+	return ""
 }
 
 // LoadHeight loads a particular height

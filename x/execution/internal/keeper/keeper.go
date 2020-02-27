@@ -30,10 +30,12 @@ type Keeper struct {
 	instanceKeeper types.InstanceKeeper
 	runnerKeeper   types.RunnerKeeper
 	processKeeper  types.ProcessKeeper
+
+	index []string
 }
 
 // NewKeeper creates a execution keeper
-func NewKeeper(cdc *codec.Codec, key sdk.StoreKey, bankKeeper types.BankKeeper, serviceKeeper types.ServiceKeeper, instanceKeeper types.InstanceKeeper, runnerKeeper types.RunnerKeeper, processKeeper types.ProcessKeeper) Keeper {
+func NewKeeper(cdc *codec.Codec, key sdk.StoreKey, bankKeeper types.BankKeeper, serviceKeeper types.ServiceKeeper, instanceKeeper types.InstanceKeeper, runnerKeeper types.RunnerKeeper, processKeeper types.ProcessKeeper, index []string) Keeper {
 	return Keeper{
 		storeKey:       key,
 		cdc:            cdc,
@@ -42,6 +44,7 @@ func NewKeeper(cdc *codec.Codec, key sdk.StoreKey, bankKeeper types.BankKeeper, 
 		instanceKeeper: instanceKeeper,
 		runnerKeeper:   runnerKeeper,
 		processKeeper:  processKeeper,
+		index:          index,
 	}
 }
 
@@ -222,19 +225,23 @@ func (k *Keeper) Get(ctx sdk.Context, hash hash.Hash) (*executionpb.Execution, e
 
 // List returns all executions.
 func (k *Keeper) List(ctx sdk.Context) ([]*executionpb.Execution, error) {
+	page := 0
+	count := 10
 	var (
 		execs []*executionpb.Execution
-		iter  = ctx.KVStore(k.storeKey).Iterator(nil, nil)
 	)
-	for iter.Valid() {
-		var exec *executionpb.Execution
-		value := iter.Value()
-		if err := k.cdc.UnmarshalBinaryLengthPrefixed(value, &exec); err != nil {
+	start := page * count
+	stop := start+count
+	for _, h := range k.index[start : stop] {
+		decodedHash, err := hash.Decode(h)
+		if err != nil {
+			return nil, err
+		}
+		exec, err := k.Get(ctx, decodedHash)
+		if err != nil {
 			return nil, err
 		}
 		execs = append(execs, exec)
-		iter.Next()
 	}
-	iter.Close()
 	return execs, nil
 }
