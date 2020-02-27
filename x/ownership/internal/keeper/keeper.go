@@ -5,9 +5,11 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/ownership"
 	"github.com/mesg-foundation/engine/x/ownership/internal/types"
+	"github.com/tendermint/tendermint/crypto"
 	"github.com/tendermint/tendermint/libs/log"
 )
 
@@ -15,13 +17,16 @@ import (
 type Keeper struct {
 	storeKey sdk.StoreKey
 	cdc      *codec.Codec
+
+	bankKeeper types.BankKeeper
 }
 
 // NewKeeper creates a ownership keeper
-func NewKeeper(cdc *codec.Codec, key sdk.StoreKey) Keeper {
+func NewKeeper(cdc *codec.Codec, key sdk.StoreKey, bankKeeper types.BankKeeper) Keeper {
 	keeper := Keeper{
-		storeKey: key,
-		cdc:      cdc,
+		storeKey:   key,
+		cdc:        cdc,
+		bankKeeper: bankKeeper,
 	}
 	return keeper
 }
@@ -81,6 +86,15 @@ func (k Keeper) Delete(ctx sdk.Context, owner sdk.AccAddress, resourceHash hash.
 		store.Delete(hash)
 	}
 	return nil
+}
+
+// WithdrawCoins try to withdraw coins to owner rom specific resource.
+func (k Keeper) WithdrawCoins(ctx sdk.Context, msg types.MsgWithdrawCoins) error {
+	if len(k.findOwnerships(ctx.KVStore(k.storeKey), msg.Owner.String(), msg.Hash)) == 0 {
+		return sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, "address %s is not owner of resource %s", msg.Owner, msg.Hash)
+	}
+	addr := sdk.AccAddress(crypto.AddressHash(msg.Hash))
+	return k.bankKeeper.SendCoins(ctx, addr, msg.Owner, msg.Amount)
 }
 
 // hasOwner checks if given resource has owner. Returns all ownership hash and true if has one

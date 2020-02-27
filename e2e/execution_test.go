@@ -2,15 +2,18 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"sync"
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/mesg-foundation/engine/execution"
 	"github.com/mesg-foundation/engine/hash"
+	"github.com/mesg-foundation/engine/ownership"
 	"github.com/mesg-foundation/engine/protobuf/acknowledgement"
 	pb "github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/mesg-foundation/engine/protobuf/types"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/tendermint/tendermint/crypto"
 )
@@ -247,6 +250,41 @@ func testExecution(t *testing.T) {
 			execAddress := sdk.AccAddress(crypto.AddressHash(resp.Hash))
 			lcdGet(t, "bank/balances/"+execAddress.String(), &coins)
 			require.True(t, coins.AmountOf("atto").Equal(sdk.NewInt(0)))
+		})
+
+		// check balance of execution
+		t.Run("withdraw from service", func(t *testing.T) {
+			var os []*ownership.Ownership
+			lcdGet(t, "ownership/list", &os)
+
+			var owner string
+			for _, o := range os {
+				if o.ResourceHash.Equal(testServiceHash) {
+					owner = o.Owner
+					break
+				}
+			}
+			assert.NotEmpty(t, owner)
+
+			withdrawCoinsReq := struct {
+				Amount string    `json:"amount"`
+				Hash   hash.Hash `json:"hash"`
+				Owner  string    `json:"owner"`
+			}{"5atto", testServiceHash, owner}
+
+			lcdPost(t, "ownership/withdraw-coins", withdrawCoinsReq, nil)
+
+			coins := sdk.Coins{}
+
+			serviceAddress := sdk.AccAddress(crypto.AddressHash(testServiceHash))
+			lcdGet(t, "bank/balances/"+serviceAddress.String(), &coins)
+			fmt.Println(coins)
+			// require.True(t, coins.AmountOf("atto").Equal(sdk.NewInt(0)))
+
+			lcdGet(t, "bank/balances/"+owner, &coins)
+			fmt.Println(coins)
+			t.FailNow()
+			// require.True(t, coins.AmountOf("atto").Equal(sdk.NewInt(5)))
 		})
 	})
 

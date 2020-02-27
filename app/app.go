@@ -241,7 +241,7 @@ func NewInitApp(
 	)
 
 	// Engine's module keepers
-	app.ownershipKeeper = ownership.NewKeeper(app.cdc, keys[ownership.StoreKey])
+	app.ownershipKeeper = ownership.NewKeeper(app.cdc, keys[ownership.StoreKey], app.bankKeeper)
 	app.instanceKeeper = instance.NewKeeper(app.cdc, keys[instance.StoreKey])
 	app.processKeeper = process.NewKeeper(app.cdc, keys[process.StoreKey], app.instanceKeeper, app.ownershipKeeper)
 	app.serviceKeeper = service.NewKeeper(app.cdc, keys[service.StoreKey], app.ownershipKeeper)
