@@ -73,13 +73,13 @@ func queryListHandlerFn(cliCtx context.CLIContext) http.HandlerFunc {
 			return
 		}
 
-		sortedExecs := sort.Interface(execution.ByBlockHeight(execs))
+		sortFunc := sort.Interface(execution.ByBlockHeight(execs))
 		for _, tag := range tags {
 			if tag == "sort='reverse'" {
-				sortedExecs = sort.Reverse(sortedExecs)
+				sortFunc = sort.Reverse(sortFunc)
 			}
 		}
-		sort.Sort(sortedExecs)
+		sort.Sort(sortFunc)
 
 		start, end := client.Paginate(len(execs), page, limit, limit)
 		if start < 0 || end < 0 {
