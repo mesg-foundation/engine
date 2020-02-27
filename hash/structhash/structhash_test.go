@@ -116,7 +116,7 @@ func TestDump(t *testing.T) {
 				r: &int1,
 				s: "1",
 			},
-			"1:true;2:1;3:1;4:1;5:1;6:1;7:1;8:1;9:1;10:1;11:1;12:1.1;13:1.1;14:CMvDhwpnsTgALRFiAzwi7GR9GUbFwo3xhp9MjifExAW7;15:EUBJnuc9DVgYJtdGABsukyTmTgpoGkUZBEBCZ2GR7HFJ;16:H19PMHCjrY3wgrYpS5qDxGPbfftEpqg68eri5JuPC8qY;17:1;18:1;",
+			"1:true;2:1;3:1;4:1;5:1;6:1;7:1;8:1;9:1;10:1;11:1;12:1.1;13:1.1;14:CMvDhwpnsTgALRFiAzwi7GR9GUbFwo3xhp9MjifExAW7;15:A5bv3mUtGbxU4cZAoXU29d1jALCwz1dyT1wWaGEx6sbW;16:H19PMHCjrY3wgrYpS5qDxGPbfftEpqg68eri5JuPC8qY;17:1;18:1;",
 		},
 		{
 			struct {

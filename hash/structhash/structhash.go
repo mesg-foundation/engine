@@ -120,15 +120,18 @@ func write(buf *bytes.Buffer, v reflect.Value) {
 		}
 	case reflect.Map:
 		keys := v.MapKeys()
-		if len(keys) == 0 {
-			return
-		}
 		sort.Sort(byValue(keys))
+
+		isStringKey := keys[0].Kind() == reflect.String
 
 		// Extract and sort the keys.
 		for _, key := range keys {
 			if val := valueToString(v.MapIndex(key)); val != "" {
-				buf.WriteString(valueToString(key))
+				keyStr := valueToString(key)
+				if keyStr == "" && !isStringKey {
+					keyStr = "0"
+				}
+				buf.WriteString(keyStr)
 				buf.WriteByte(':')
 				buf.WriteString(val)
 				buf.WriteByte(';')
