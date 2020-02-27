@@ -3,10 +3,13 @@ package rest
 import (
 	"fmt"
 	"net/http"
+	"sort"
 
+	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/types/rest"
 	"github.com/gorilla/mux"
+	"github.com/mesg-foundation/engine/execution"
 	"github.com/mesg-foundation/engine/x/execution/internal/types"
 )
 
@@ -50,6 +53,12 @@ func queryListHandlerFn(cliCtx context.CLIContext) http.HandlerFunc {
 			return
 		}
 
+		tags, page, limit, err := rest.ParseHTTPArgs(r)
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
+			return
+		}
+
 		route := fmt.Sprintf("custom/%s/%s", types.QuerierRoute, types.QueryListExecution)
 
 		res, height, err := cliCtx.QueryWithData(route, nil)
@@ -58,7 +67,28 @@ func queryListHandlerFn(cliCtx context.CLIContext) http.HandlerFunc {
 			return
 		}
 
+		execs := make([]*execution.Execution, 0)
+		if err := cliCtx.Codec.UnmarshalJSON(res, &execs); err != nil {
+			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
+			return
+		}
+
+		sortedExecs := sort.Interface(execution.ByBlockHeight(execs))
+		for _, tag := range tags {
+			if tag == "sort='reverse'" {
+				sortedExecs = sort.Reverse(sortedExecs)
+			}
+		}
+		sort.Sort(sortedExecs)
+
+		start, end := client.Paginate(len(execs), page, limit, limit)
+		if start < 0 || end < 0 {
+			execs = make([]*execution.Execution, 0)
+		} else {
+			execs = execs[start:end]
+		}
+
 		cliCtx = cliCtx.WithHeight(height)
-		rest.PostProcessResponse(w, cliCtx, res)
+		rest.PostProcessResponse(w, cliCtx, execs)
 	}
 }
