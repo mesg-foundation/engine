@@ -47,10 +47,12 @@ func write(buf *bytes.Buffer, v reflect.Value) {
 	case reflect.Bool:
 		buf.WriteString(strconv.FormatBool(v.Bool()))
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-		buf.WriteString(strconv.FormatInt(v.Int(), 16))
+		buf.WriteString(strconv.FormatInt(v.Int(), 10))
 	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uintptr:
-		buf.WriteString(strconv.FormatUint(v.Uint(), 16))
-	case reflect.Float32, reflect.Float64:
+		buf.WriteString(strconv.FormatUint(v.Uint(), 10))
+	case reflect.Float32:
+		buf.WriteString(strconv.FormatFloat(v.Float(), 'f', -1, 32))
+	case reflect.Float64:
 		buf.WriteString(strconv.FormatFloat(v.Float(), 'f', -1, 64))
 	case reflect.String:
 		buf.WriteString(v.String())
@@ -136,7 +138,7 @@ func write(buf *bytes.Buffer, v reflect.Value) {
 	case reflect.Slice, reflect.Array:
 		for i := 0; i < v.Len(); i++ {
 			if val := valueToString(v.Index(i)); val != "" {
-				buf.WriteString(strconv.FormatInt(int64(i), 16))
+				buf.WriteString(strconv.FormatInt(int64(i), 10))
 				buf.WriteByte(':')
 				buf.WriteString(val)
 				buf.WriteByte(';')
