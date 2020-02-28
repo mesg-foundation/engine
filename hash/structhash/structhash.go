@@ -90,7 +90,7 @@ func write(buf *bytes.Buffer, v reflect.Value) {
 				}
 
 				switch vf.Kind() {
-				case reflect.Array, reflect.Slice, reflect.Map, reflect.Interface:
+				case reflect.Array, reflect.Slice, reflect.Map, reflect.Interface, reflect.Struct:
 					h := sha256.Sum256([]byte(val))
 					items[to.index] = base58.Encode(h[:])
 				case reflect.Ptr:

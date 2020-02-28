@@ -61,47 +61,50 @@ func TestDump(t *testing.T) {
 		{(chan int)(nil), ""},
 		{
 			struct {
-				a bool           `protobuf:"bytes,1"`
-				b int            `protobuf:"bytes,2"`
-				c int8           `protobuf:"bytes,3"`
-				d int16          `protobuf:"bytes,4"`
-				e int32          `protobuf:"bytes,5"`
-				f int64          `protobuf:"bytes,6"`
-				g uint           `protobuf:"bytes,7"`
-				h uint8          `protobuf:"bytes,8"`
-				i uint16         `protobuf:"bytes,9"`
-				j uint32         `protobuf:"bytes,10"`
-				k uint64         `protobuf:"bytes,11"`
-				l float32        `protobuf:"bytes,12"`
-				m float64        `protobuf:"bytes,13"`
-				n []int          `protobuf:"bytes,14"`
-				o map[int]int    `protobuf:"bytes,15"`
-				p map[string]int `protobuf:"bytes,16"`
-				r *int           `protobuf:"bytes,17"`
-				s string         `protobuf:"bytes,18"`
+				a bool                `protobuf:"bytes,1"`
+				b int                 `protobuf:"bytes,2"`
+				c int8                `protobuf:"bytes,3"`
+				d int16               `protobuf:"bytes,4"`
+				e int32               `protobuf:"bytes,5"`
+				f int64               `protobuf:"bytes,6"`
+				g uint                `protobuf:"bytes,7"`
+				h uint8               `protobuf:"bytes,8"`
+				i uint16              `protobuf:"bytes,9"`
+				j uint32              `protobuf:"bytes,10"`
+				k uint64              `protobuf:"bytes,11"`
+				l float32             `protobuf:"bytes,12"`
+				m float64             `protobuf:"bytes,13"`
+				n []int               `protobuf:"bytes,14"`
+				p map[string]int      `protobuf:"bytes,16"`
+				r *int                `protobuf:"bytes,17"`
+				s string              `protobuf:"bytes,18"`
+				t map[int]map[int]int `protobuf:"bytes,19"`
+				u [][]int             `protobuf:"bytes,20"`
 			}{},
 			"",
 		},
 		{
 			struct {
-				a bool           `protobuf:"bytes,1"`
-				b int            `protobuf:"bytes,2"`
-				c int8           `protobuf:"bytes,3"`
-				d int16          `protobuf:"bytes,4"`
-				e int32          `protobuf:"bytes,5"`
-				f int64          `protobuf:"bytes,6"`
-				g uint           `protobuf:"bytes,7"`
-				h uint8          `protobuf:"bytes,8"`
-				i uint16         `protobuf:"bytes,9"`
-				j uint32         `protobuf:"bytes,10"`
-				k uint64         `protobuf:"bytes,11"`
-				l float32        `protobuf:"bytes,12"`
-				m float64        `protobuf:"bytes,13"`
-				n []int          `protobuf:"bytes,14"`
-				o map[int]int    `protobuf:"bytes,15"`
-				p map[string]int `protobuf:"bytes,16"`
-				r *int           `protobuf:"bytes,17"`
-				s string         `protobuf:"bytes,18"`
+				a bool                `protobuf:"bytes,1"`
+				b int                 `protobuf:"bytes,2"`
+				c int8                `protobuf:"bytes,3"`
+				d int16               `protobuf:"bytes,4"`
+				e int32               `protobuf:"bytes,5"`
+				f int64               `protobuf:"bytes,6"`
+				g uint                `protobuf:"bytes,7"`
+				h uint8               `protobuf:"bytes,8"`
+				i uint16              `protobuf:"bytes,9"`
+				j uint32              `protobuf:"bytes,10"`
+				k uint64              `protobuf:"bytes,11"`
+				l float32             `protobuf:"bytes,12"`
+				m float64             `protobuf:"bytes,13"`
+				n []int               `protobuf:"bytes,14"`
+				o map[int]int         `protobuf:"bytes,15"`
+				p map[string]int      `protobuf:"bytes,16"`
+				r *int                `protobuf:"bytes,17"`
+				s string              `protobuf:"bytes,18"`
+				t map[int]map[int]int `protobuf:"bytes,19"`
+				u [][]int             `protobuf:"bytes,20"`
 			}{
 				a: true,
 				b: 1,
@@ -121,15 +124,29 @@ func TestDump(t *testing.T) {
 				p: map[string]int{"0": 1, "1": 0, "2": 2},
 				r: &int1,
 				s: "1",
+				t: map[int]map[int]int{
+					0: map[int]int{0: 1, 1: 0},
+				},
+				u: [][]int{
+					[]int{1, 0, 1},
+				},
 			},
-			"1:true;2:1;3:1;4:1;5:1;6:1;7:1;8:1;9:1;10:1;11:1;12:1.1;13:1.1;14:CMvDhwpnsTgALRFiAzwi7GR9GUbFwo3xhp9MjifExAW7;15:A5bv3mUtGbxU4cZAoXU29d1jALCwz1dyT1wWaGEx6sbW;16:H19PMHCjrY3wgrYpS5qDxGPbfftEpqg68eri5JuPC8qY;17:1;18:1;",
+			"1:true;2:1;3:1;4:1;5:1;6:1;7:1;8:1;9:1;10:1;11:1;12:1.1;13:1.1;14:CMvDhwpnsTgALRFiAzwi7GR9GUbFwo3xhp9MjifExAW7;15:A5bv3mUtGbxU4cZAoXU29d1jALCwz1dyT1wWaGEx6sbW;16:H19PMHCjrY3wgrYpS5qDxGPbfftEpqg68eri5JuPC8qY;17:1;18:1;19:3px43ifbusR7jD4atnns71FACgEEdTBoUc1K38wYRask;20:77t8bwdmggBxbnnx4ABmy4oHpgA3WwfCMnbtePKt31pS;",
 		},
 		{
 			struct {
-				b int `protobuf:"bytes,2"`
+				b int         `protobuf:"bytes,2"`
+				a int         `protobuf:"bytes,1"`
+				c interface{} `protobuf:"bytes,3"`
+				d struct {
+					a int `protobuf:"bytes,1"`
+				} `protobuf:"bytes,4"`
+			}{b: 2, a: 1, c: struct {
 				a int `protobuf:"bytes,1"`
-			}{2, 1},
-			"1:1;2:2;",
+			}{a: 1}, d: struct {
+				a int `protobuf:"bytes,1"`
+			}{a: 1}},
+			"1:1;2:2;3:GzU95qoQC52gf7mNvSS1DEnouMsqK4KnS8XFNoA74aJX;4:GzU95qoQC52gf7mNvSS1DEnouMsqK4KnS8XFNoA74aJX;",
 		},
 		{
 			struct {
