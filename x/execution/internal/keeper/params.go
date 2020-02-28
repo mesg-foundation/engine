@@ -11,14 +11,10 @@ const (
 )
 
 // MinPrice - Minimum price of an execution
-func (k Keeper) MinPrice(ctx sdk.Context) sdk.Coins {
-	var coinstr string
-	k.paramstore.Get(ctx, types.KeyMinPrice, &coinstr)
-	price, err := sdk.ParseCoins(coinstr)
-	if err != nil {
-		panic(err)
-	}
-	return price
+func (k Keeper) MinPrice(ctx sdk.Context) string {
+	var coins string
+	k.paramstore.Get(ctx, types.KeyMinPrice, &coins)
+	return coins
 }
 
 // SetParams will populate all the params

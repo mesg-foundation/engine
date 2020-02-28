@@ -60,9 +60,12 @@ func (k *Keeper) Create(ctx sdk.Context, msg types.MsgCreateExecution) (*executi
 		return nil, err
 	}
 
-	minPrice := k.MinPrice(ctx)
-	if !price.IsAllGTE(minPrice) {
-		return nil, fmt.Errorf("execution price too low. Min value: %q", minPrice)
+	minPriceCoin, err := sdk.ParseCoins(k.MinPrice(ctx))
+	if err != nil {
+		return nil, err
+	}
+	if !price.IsAllGTE(minPriceCoin) {
+		return nil, fmt.Errorf("execution price too low. Min value: %q", minPriceCoin.String())
 	}
 
 	run, err := k.runnerKeeper.Get(ctx, msg.Request.ExecutorHash)
