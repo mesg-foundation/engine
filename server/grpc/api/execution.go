@@ -11,16 +11,20 @@ import (
 
 // ExecutionServer serve execution functions.
 type ExecutionServer struct {
-	mc *cosmos.ModuleClient
+	mc        *cosmos.ModuleClient
+	execPrice string
 }
 
 // NewExecutionServer creates a new ExecutionServer.
-func NewExecutionServer(mc *cosmos.ModuleClient) *ExecutionServer {
-	return &ExecutionServer{mc: mc}
+func NewExecutionServer(mc *cosmos.ModuleClient, execPrice string) *ExecutionServer {
+	return &ExecutionServer{mc: mc, execPrice: execPrice}
 }
 
 // Create creates an execution.
 func (s *ExecutionServer) Create(ctx context.Context, req *api.CreateExecutionRequest) (*api.CreateExecutionResponse, error) {
+	if req.Price == "" {
+		req.Price = s.execPrice
+	}
 	exec, err := s.mc.CreateExecution(req)
 	if err != nil {
 		return nil, err
