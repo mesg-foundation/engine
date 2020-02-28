@@ -8,6 +8,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/x/bank"
+	"github.com/cosmos/cosmos-sdk/x/params"
 	executionpb "github.com/mesg-foundation/engine/execution"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/protobuf/api"
@@ -30,10 +31,11 @@ type Keeper struct {
 	instanceKeeper types.InstanceKeeper
 	runnerKeeper   types.RunnerKeeper
 	processKeeper  types.ProcessKeeper
+	paramstore     params.Subspace
 }
 
 // NewKeeper creates a execution keeper
-func NewKeeper(cdc *codec.Codec, key sdk.StoreKey, bankKeeper types.BankKeeper, serviceKeeper types.ServiceKeeper, instanceKeeper types.InstanceKeeper, runnerKeeper types.RunnerKeeper, processKeeper types.ProcessKeeper) Keeper {
+func NewKeeper(cdc *codec.Codec, key sdk.StoreKey, bankKeeper types.BankKeeper, serviceKeeper types.ServiceKeeper, instanceKeeper types.InstanceKeeper, runnerKeeper types.RunnerKeeper, processKeeper types.ProcessKeeper, paramstore params.Subspace) Keeper {
 	return Keeper{
 		storeKey:       key,
 		cdc:            cdc,
@@ -42,6 +44,7 @@ func NewKeeper(cdc *codec.Codec, key sdk.StoreKey, bankKeeper types.BankKeeper, 
 		instanceKeeper: instanceKeeper,
 		runnerKeeper:   runnerKeeper,
 		processKeeper:  processKeeper,
+		paramstore:     paramstore.WithKeyTable(types.ParamKeyTable()),
 	}
 }
 
