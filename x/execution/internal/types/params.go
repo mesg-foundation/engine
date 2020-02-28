@@ -21,7 +21,7 @@ var (
 
 // Params - used for initializing default parameter for instance at genesis
 type Params struct {
-	MinPrice string `json:"min_price" yaml:"min_price"` // min price to pay for an execution
+	MinPrice string `json:"minPrice" yaml:"minPrice"` // min price to pay for an execution
 }
 
 // NewParams creates a new Params object
