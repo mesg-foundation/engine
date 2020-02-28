@@ -53,7 +53,7 @@ func queryListHandlerFn(cliCtx context.CLIContext) http.HandlerFunc {
 			return
 		}
 
-		tags, page, limit, err := rest.ParseHTTPArgs(r)
+		_, page, limit, err := rest.ParseHTTPArgs(r)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
@@ -73,17 +73,11 @@ func queryListHandlerFn(cliCtx context.CLIContext) http.HandlerFunc {
 			return
 		}
 
-		sortFunc := sort.Interface(execution.ByBlockHeight(execs))
-		for _, tag := range tags {
-			if tag == "sort='reverse'" {
-				sortFunc = sort.Reverse(sortFunc)
-			}
-		}
-		sort.Sort(sortFunc)
+		sort.Sort(sort.Reverse(execution.ByBlockHeight(execs)))
 
 		start, end := client.Paginate(len(execs), page, limit, limit)
 		if start < 0 || end < 0 {
-			execs = make([]*execution.Execution, 0)
+			execs = []*execution.Execution{}
 		} else {
 			execs = execs[start:end]
 		}
