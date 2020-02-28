@@ -207,7 +207,7 @@ func testExecution(t *testing.T) {
 			TaskKey:      "task1",
 			EventHash:    hash.Int(1),
 			ExecutorHash: executorHash,
-			Price:        "50atto",
+			Price:        "50000atto",
 			Inputs:       inputs,
 		})
 		require.NoError(t, err)
@@ -217,7 +217,7 @@ func testExecution(t *testing.T) {
 			coins := sdk.Coins{}
 			execAddress := sdk.AccAddress(crypto.AddressHash(resp.Hash))
 			lcdGet(t, "bank/balances/"+execAddress.String(), &coins)
-			require.True(t, coins.AmountOf("atto").Equal(sdk.NewInt(50)))
+			require.True(t, coins.AmountOf("atto").Equal(sdk.NewInt(50000)))
 		})
 
 		_, err = streamInProgress.Recv()
@@ -232,14 +232,14 @@ func testExecution(t *testing.T) {
 			coins := sdk.Coins{}
 			executorAddress := sdk.AccAddress(crypto.AddressHash(executorHash))
 			lcdGet(t, "bank/balances/"+executorAddress.String(), &coins)
-			require.True(t, coins.AmountOf("atto").Equal(sdk.NewInt(45)))
+			require.True(t, coins.AmountOf("atto").Equal(sdk.NewInt(45000)))
 		})
 		// check balance of service
 		t.Run("service balance", func(t *testing.T) {
 			coins := sdk.Coins{}
 			serviceAddress := sdk.AccAddress(crypto.AddressHash(testServiceHash))
 			lcdGet(t, "bank/balances/"+serviceAddress.String(), &coins)
-			require.True(t, coins.AmountOf("atto").Equal(sdk.NewInt(5)))
+			require.True(t, coins.AmountOf("atto").Equal(sdk.NewInt(5000)))
 		})
 		// check balance of execution
 		t.Run("execution balance", func(t *testing.T) {
