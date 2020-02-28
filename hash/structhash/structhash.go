@@ -132,13 +132,12 @@ func write(buf *bytes.Buffer, v reflect.Value) {
 				case reflect.Array, reflect.Slice, reflect.Map, reflect.Interface:
 					h := sha256.Sum256([]byte(val))
 					val = base58.Encode(h[:])
-					// case reflect.Ptr:
-					// 	if vf.Elem().Kind() == reflect.Struct {
-					// 		h := sha256.Sum256([]byte(val))
-					// 		val = base58.Encode(h[:])
-					// 	}
+				case reflect.Ptr:
+					if vf.Elem().Kind() == reflect.Struct {
+						h := sha256.Sum256([]byte(val))
+						val = base58.Encode(h[:])
+					}
 				}
-
 				keyStr := valueToString(key)
 				if keyStr == "" && !isStringKey {
 					keyStr = "0"
@@ -158,11 +157,11 @@ func write(buf *bytes.Buffer, v reflect.Value) {
 				case reflect.Array, reflect.Slice, reflect.Map, reflect.Interface:
 					h := sha256.Sum256([]byte(val))
 					val = base58.Encode(h[:])
-					// case reflect.Ptr:
-					// 	if vf.Elem().Kind() == reflect.Struct {
-					// 		h := sha256.Sum256([]byte(val))
-					// 		val = base58.Encode(h[:])
-					// 	}
+				case reflect.Ptr:
+					if vf.Elem().Kind() == reflect.Struct {
+						h := sha256.Sum256([]byte(val))
+						val = base58.Encode(h[:])
+					}
 				}
 				buf.WriteString(strconv.FormatInt(int64(i), 10))
 				buf.WriteByte(':')
