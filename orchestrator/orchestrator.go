@@ -18,12 +18,13 @@ import (
 )
 
 // New creates a new Process instance
-func New(mc *cosmos.ModuleClient, ep *publisher.EventPublisher) *Orchestrator {
+func New(mc *cosmos.ModuleClient, ep *publisher.EventPublisher, execPrice string) *Orchestrator {
 	return &Orchestrator{
-		mc:    mc,
-		ep:    ep,
-		ErrC:  make(chan error),
-		stopC: make(chan bool),
+		mc:        mc,
+		ep:        ep,
+		ErrC:      make(chan error),
+		stopC:     make(chan bool),
+		execPrice: execPrice,
 	}
 }
 
@@ -273,6 +274,7 @@ func (s *Orchestrator) processTask(nodeKey string, task *process.Process_Node_Ta
 		TaskKey:      task.TaskKey,
 		Inputs:       data,
 		ExecutorHash: executor.Hash,
+		Price:        s.execPrice,
 		Tags:         nil,
 	})
 	return err

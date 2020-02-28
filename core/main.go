@@ -220,7 +220,7 @@ func main() {
 	}()
 
 	logrus.WithField("module", "main").Info("starting process engine")
-	orch := orchestrator.New(mc, ep)
+	orch := orchestrator.New(mc, ep, cfg.DefaultExecutionPrice)
 	defer func() {
 		logrus.WithField("module", "main").Info("stopping orchestrator")
 		orch.Stop()
