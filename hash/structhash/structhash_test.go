@@ -39,6 +39,12 @@ func TestDump(t *testing.T) {
 		{map[int]int{2: 2, 0: 0, 1: 1}, "1:1;2:2;"},
 		{map[string]int{"0": 1, "1": 0, "2": 2}, "0:1;2:2;"},
 		{map[string]int{"g": 1, "1": 0, "f": 2}, "f:2;g:1;"},
+		{map[int]map[int]int{
+			0: map[int]int{0: 1, 1: 0},
+		}, "0:A5bv3mUtGbxU4cZAoXU29d1jALCwz1dyT1wWaGEx6sbW;"},
+		{[][]int{
+			[]int{1, 0, 1},
+		}, "0:CMvDhwpnsTgALRFiAzwi7GR9GUbFwo3xhp9MjifExAW7;"},
 		{[]int(nil), ""},
 		{[]*int{nil}, ""},
 		{[]int{}, ""},
