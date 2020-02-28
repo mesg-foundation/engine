@@ -90,7 +90,7 @@ func write(buf *bytes.Buffer, v reflect.Value) {
 				}
 
 				switch vf.Kind() {
-				case reflect.Array, reflect.Slice, reflect.Map, reflect.Interface:
+				case reflect.Array, reflect.Slice, reflect.Map, reflect.Interface, reflect.Struct:
 					h := sha256.Sum256([]byte(val))
 					items[to.index] = base58.Encode(h[:])
 				case reflect.Ptr:
@@ -126,7 +126,18 @@ func write(buf *bytes.Buffer, v reflect.Value) {
 
 		// Extract and sort the keys.
 		for _, key := range keys {
-			if val := valueToString(v.MapIndex(key)); val != "" {
+			vf := v.MapIndex(key)
+			if val := valueToString(vf); val != "" {
+				switch vf.Kind() {
+				case reflect.Array, reflect.Slice, reflect.Map, reflect.Interface:
+					h := sha256.Sum256([]byte(val))
+					val = base58.Encode(h[:])
+				case reflect.Ptr:
+					if vf.Elem().Kind() == reflect.Struct {
+						h := sha256.Sum256([]byte(val))
+						val = base58.Encode(h[:])
+					}
+				}
 				keyStr := valueToString(key)
 				if keyStr == "" && !isStringKey {
 					keyStr = "0"
@@ -140,7 +151,18 @@ func write(buf *bytes.Buffer, v reflect.Value) {
 
 	case reflect.Slice, reflect.Array:
 		for i := 0; i < v.Len(); i++ {
-			if val := valueToString(v.Index(i)); val != "" {
+			vf := v.Index(i)
+			if val := valueToString(vf); val != "" {
+				switch vf.Kind() {
+				case reflect.Array, reflect.Slice, reflect.Map, reflect.Interface:
+					h := sha256.Sum256([]byte(val))
+					val = base58.Encode(h[:])
+				case reflect.Ptr:
+					if vf.Elem().Kind() == reflect.Struct {
+						h := sha256.Sum256([]byte(val))
+						val = base58.Encode(h[:])
+					}
+				}
 				buf.WriteString(strconv.FormatInt(int64(i), 10))
 				buf.WriteByte(':')
 				buf.WriteString(val)
