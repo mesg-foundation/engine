@@ -84,7 +84,7 @@ func (k Keeper) Delete(ctx sdk.Context, owner sdk.AccAddress, resourceHash hash.
 
 	// transfer all spendable coins from resource address to owner
 	addr := sdk.AccAddress(crypto.AddressHash(resourceHash))
-	coins := k.bankKeeper.SpendableCoins(ctx, addr)
+	coins := k.bankKeeper.GetCoins(ctx, addr)
 	if err := k.bankKeeper.SendCoins(ctx, addr, owner, coins); err != nil {
 		return err
 	}
