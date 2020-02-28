@@ -40,10 +40,10 @@ func TestDump(t *testing.T) {
 		{map[string]int{"0": 1, "1": 0, "2": 2}, "0:1;2:2;"},
 		{map[string]int{"g": 1, "1": 0, "f": 2}, "f:2;g:1;"},
 		{map[int]map[int]int{
-			0: map[int]int{0: 1, 1: 0},
+			0: {0: 1, 1: 0},
 		}, "0:A5bv3mUtGbxU4cZAoXU29d1jALCwz1dyT1wWaGEx6sbW;"},
 		{[][]int{
-			[]int{1, 0, 1},
+			{1, 0, 1},
 		}, "0:CMvDhwpnsTgALRFiAzwi7GR9GUbFwo3xhp9MjifExAW7;"},
 		{[]int(nil), ""},
 		{[]*int{nil}, ""},
@@ -125,10 +125,10 @@ func TestDump(t *testing.T) {
 				r: &int1,
 				s: "1",
 				t: map[int]map[int]int{
-					0: map[int]int{0: 1, 1: 0},
+					0: {0: 1, 1: 0},
 				},
 				u: [][]int{
-					[]int{1, 0, 1},
+					{1, 0, 1},
 				},
 			},
 			"1:true;2:1;3:1;4:1;5:1;6:1;7:1;8:1;9:1;10:1;11:1;12:1.1;13:1.1;14:CMvDhwpnsTgALRFiAzwi7GR9GUbFwo3xhp9MjifExAW7;15:A5bv3mUtGbxU4cZAoXU29d1jALCwz1dyT1wWaGEx6sbW;16:H19PMHCjrY3wgrYpS5qDxGPbfftEpqg68eri5JuPC8qY;17:1;18:1;19:3px43ifbusR7jD4atnns71FACgEEdTBoUc1K38wYRask;20:77t8bwdmggBxbnnx4ABmy4oHpgA3WwfCMnbtePKt31pS;",
