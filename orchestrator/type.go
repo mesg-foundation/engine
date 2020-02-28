@@ -15,5 +15,6 @@ type Orchestrator struct {
 	eventStream     *event.Listener
 	executionStream <-chan *execution.Execution
 
-	ErrC chan error
+	ErrC  chan error
+	stopC chan bool
 }

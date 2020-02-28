@@ -20,9 +20,10 @@ import (
 // New creates a new Process instance
 func New(mc *cosmos.ModuleClient, ep *publisher.EventPublisher) *Orchestrator {
 	return &Orchestrator{
-		mc:   mc,
-		ep:   ep,
-		ErrC: make(chan error),
+		mc:    mc,
+		ep:    ep,
+		ErrC:  make(chan error),
+		stopC: make(chan bool),
 	}
 }
 
@@ -55,8 +56,15 @@ func (s *Orchestrator) Start() error {
 			go s.execute(s.dependencyFilter(execution), execution, nil, execution.Outputs)
 		case err := <-errC:
 			s.ErrC <- err
+		case <-s.stopC:
+			return nil
 		}
 	}
+}
+
+// Stop stops the orchestrator engine
+func (s *Orchestrator) Stop() {
+	s.stopC <- true
 }
 
 func (s *Orchestrator) eventFilter(event *event.Event) func(wf *process.Process, node *process.Process_Node) (bool, error) {

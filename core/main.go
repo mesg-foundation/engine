@@ -116,6 +116,7 @@ func loadOrGenDevGenesis(cdc *codec.Codec, kb *cosmos.Keybase, cfg *config.Confi
 	return cosmos.GenGenesis(cdc, kb, app.NewDefaultGenesisState(), cfg.DevGenesis.ChainID, cfg.DevGenesis.InitialBalances, cfg.DevGenesis.ValidatorDelegationCoin, cfg.Tendermint.Config.GenesisFile(), []cosmos.GenesisValidator{validator})
 }
 
+//nolint:gocyclo
 func main() {
 	xrand.SeedInit()
 
@@ -145,7 +146,10 @@ func main() {
 		logrus.WithField("module", "main").Fatalln(err)
 	}
 
-	initApp := app.NewInitApp(tendermintLogger, db, nil, true, 0, bam.SetMinGasPrices(cfg.Cosmos.MinGasPrices))
+	initApp, err := app.NewInitApp(tendermintLogger, db, nil, true, 0, bam.SetMinGasPrices(cfg.Cosmos.MinGasPrices))
+	if err != nil {
+		logrus.WithField("module", "main").Fatalln(err)
+	}
 	cdc := initApp.Codec()
 
 	// init key manager
@@ -172,6 +176,14 @@ func main() {
 	if err != nil {
 		logrus.WithField("module", "main").Fatalln(err)
 	}
+	defer func() {
+		logrus.WithField("module", "main").Info("stopping tendermint")
+		if node.IsRunning() {
+			if err := node.Stop(); err != nil {
+				logrus.WithField("module", "main").Errorln(err)
+			}
+		}
+	}()
 
 	// create cosmos client
 	client, err := cosmos.NewClient(node, cdc, kb, genesis.ChainID, cfg.Account.Name, cfg.Account.Password, cfg.Cosmos.MinGasPrices)
@@ -196,6 +208,10 @@ func main() {
 	// init gRPC server.
 	server := grpc.New(mc, ep, b)
 	logrus.WithField("module", "main").Infof("starting MESG Engine version %s", version.Version)
+	defer func() {
+		logrus.WithField("module", "main").Info("stopping grpc server")
+		server.Close()
+	}()
 
 	go func() {
 		if err := server.Serve(cfg.Server.Address); err != nil {
@@ -204,14 +220,18 @@ func main() {
 	}()
 
 	logrus.WithField("module", "main").Info("starting process engine")
-	s := orchestrator.New(mc, ep)
+	orch := orchestrator.New(mc, ep)
+	defer func() {
+		logrus.WithField("module", "main").Info("stopping orchestrator")
+		orch.Stop()
+	}()
 	go func() {
-		if err := s.Start(); err != nil {
+		if err := orch.Start(); err != nil {
 			logrus.WithField("module", "main").Fatalln(err)
 		}
 	}()
 	go func() {
-		for err := range s.ErrC {
+		for err := range orch.ErrC {
 			logrus.WithField("module", "orchestrator").Warn(err)
 		}
 	}()
@@ -222,6 +242,12 @@ func main() {
 	if err != nil {
 		logrus.WithField("module", "main").Fatalln(err)
 	}
+	defer func() {
+		logrus.WithField("module", "main").Info("stopping lcd server")
+		if err := lcdServer.Close(); err != nil {
+			logrus.WithField("module", "main").Errorln(err)
+		}
+	}()
 
 	cliCtx := context.NewCLIContext().
 		WithCodec(cdc).
@@ -239,23 +265,13 @@ func main() {
 
 	<-xsignal.WaitForInterrupt()
 
-	logrus.WithField("module", "main").Info("stopping lcd server")
-	if err := lcdServer.Close(); err != nil {
-		logrus.WithField("module", "main").Fatalln(err)
-	}
-
 	logrus.WithField("module", "main").Info("stopping running services")
 	if err := stopRunningServices(mc, b, acc.GetAddress().String()); err != nil {
-		logrus.WithField("module", "main").Fatalln(err)
+		logrus.WithField("module", "main").Errorln(err)
 	}
 
 	logrus.WithField("module", "main").Info("cleanup container")
 	if err := container.Cleanup(); err != nil {
-		logrus.WithField("module", "main").Fatalln(err)
+		logrus.WithField("module", "main").Errorln(err)
 	}
-
-	logrus.WithField("module", "main").Info("stopping grpc server")
-	server.Close()
-
-	logrus.WithField("module", "main").Info("everything is stopped")
 }
