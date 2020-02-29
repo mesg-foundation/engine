@@ -5,6 +5,7 @@ import (
 	"testing"
 	"testing/quick"
 
+	"github.com/mesg-foundation/engine/hash/serializer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -14,16 +15,22 @@ var (
 	one  = Int(1)
 )
 
-func TestDigest(t *testing.T) {
-	d := New()
-	d.Write([]byte{0})
+type testDump struct {
+	a int
+	b string
+	c []string
+}
 
-	hash := d.Sum(nil)
-	assert.Equal(t, hash.String(), "8RBsoeyoRwajj86MZfZE6gMDJQVYGYcdSfx1zxqxNHbr")
+func (data testDump) Serialize() string {
+	ser := serializer.New()
+	ser.AddInt("1", data.a)
+	ser.AddString("2", data.b)
+	ser.AddStringSlice("3", data.c)
+	return ser.Serialize()
 }
 
 func TestDump(t *testing.T) {
-	assert.Equal(t, Dump(struct{}{}).String(), "5ajuwjHoLj33yG5t5UFsJtUb3vnRaJQEMPqSLz6VyoHK")
+	assert.Equal(t, "2MREjs2XD2Lcyea4XhsAXBU6zrJE39JRHKrpHU4Q2dgj", Dump(testDump{42, "hello", []string{"c", "b", "a"}}).String())
 }
 
 func TestInt(t *testing.T) {
