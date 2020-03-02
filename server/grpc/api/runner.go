@@ -3,57 +3,61 @@ package api
 import (
 	"context"
 
-	protobuf_api "github.com/mesg-foundation/engine/protobuf/api"
+	"github.com/mesg-foundation/engine/cosmos"
+	"github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/mesg-foundation/engine/runner"
-	"github.com/mesg-foundation/engine/sdk"
-	runnersdk "github.com/mesg-foundation/engine/sdk/runner"
+	"github.com/mesg-foundation/engine/runner/builder"
 )
 
 // RunnerServer is the type to aggregate all Runner APIs.
 type RunnerServer struct {
-	sdk *sdk.SDK
+	mc *cosmos.ModuleClient
+	b  *builder.Builder
 }
 
 // NewRunnerServer creates a new RunnerServer.
-func NewRunnerServer(sdk *sdk.SDK) *RunnerServer {
-	return &RunnerServer{sdk: sdk}
+func NewRunnerServer(mc *cosmos.ModuleClient, b *builder.Builder) *RunnerServer {
+	return &RunnerServer{
+		mc: mc,
+		b:  b,
+	}
 }
 
 // Create creates a new runner.
-func (s *RunnerServer) Create(ctx context.Context, req *protobuf_api.CreateRunnerRequest) (*protobuf_api.CreateRunnerResponse, error) {
-	srv, err := s.sdk.Runner.Create(req)
+func (s *RunnerServer) Create(ctx context.Context, req *api.CreateRunnerRequest) (*api.CreateRunnerResponse, error) {
+	r, err := s.b.Create(req)
 	if err != nil {
 		return nil, err
 	}
-	return &protobuf_api.CreateRunnerResponse{Hash: srv.Hash}, nil
+	return &api.CreateRunnerResponse{Hash: r.Hash}, nil
 }
 
 // Delete deletes a runner.
-func (s *RunnerServer) Delete(ctx context.Context, req *protobuf_api.DeleteRunnerRequest) (*protobuf_api.DeleteRunnerResponse, error) {
-	if err := s.sdk.Runner.Delete(req); err != nil {
+func (s *RunnerServer) Delete(ctx context.Context, req *api.DeleteRunnerRequest) (*api.DeleteRunnerResponse, error) {
+	if err := s.b.Delete(req); err != nil {
 		return nil, err
 	}
-	return &protobuf_api.DeleteRunnerResponse{}, nil
+	return &api.DeleteRunnerResponse{}, nil
 }
 
 // Get returns runner from given hash.
-func (s *RunnerServer) Get(ctx context.Context, req *protobuf_api.GetRunnerRequest) (*runner.Runner, error) {
-	return s.sdk.Runner.Get(req.Hash)
+func (s *RunnerServer) Get(ctx context.Context, req *api.GetRunnerRequest) (*runner.Runner, error) {
+	return s.mc.GetRunner(req.Hash)
 }
 
 // List returns all runners.
-func (s *RunnerServer) List(ctx context.Context, req *protobuf_api.ListRunnerRequest) (*protobuf_api.ListRunnerResponse, error) {
-	var filter *runnersdk.Filter
+func (s *RunnerServer) List(ctx context.Context, req *api.ListRunnerRequest) (*api.ListRunnerResponse, error) {
+	var f *cosmos.FilterRunner
 	if req.Filter != nil {
-		filter = &runnersdk.Filter{
+		f = &cosmos.FilterRunner{
 			Address:      req.Filter.Address,
 			InstanceHash: req.Filter.InstanceHash,
 		}
 	}
-	runners, err := s.sdk.Runner.List(filter)
+	runners, err := s.mc.ListRunner(f)
 	if err != nil {
 		return nil, err
 	}
 
-	return &protobuf_api.ListRunnerResponse{Runners: runners}, nil
+	return &api.ListRunnerResponse{Runners: runners}, nil
 }

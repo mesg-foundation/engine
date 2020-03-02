@@ -3,26 +3,25 @@ package api
 import (
 	"context"
 
-	protobuf_api "github.com/mesg-foundation/engine/protobuf/api"
-	"github.com/mesg-foundation/engine/sdk"
+	"github.com/mesg-foundation/engine/cosmos"
+	"github.com/mesg-foundation/engine/protobuf/api"
 )
 
 // OwnershipServer is the type to aggregate all Ownership APIs.
 type OwnershipServer struct {
-	sdk *sdk.SDK
+	mc *cosmos.ModuleClient
 }
 
 // NewOwnershipServer creates a new OwnershipServer.
-func NewOwnershipServer(sdk *sdk.SDK) *OwnershipServer {
-	return &OwnershipServer{sdk: sdk}
+func NewOwnershipServer(mc *cosmos.ModuleClient) *OwnershipServer {
+	return &OwnershipServer{mc: mc}
 }
 
 // List returns all ownerships.
-func (s *OwnershipServer) List(ctx context.Context, req *protobuf_api.ListOwnershipRequest) (*protobuf_api.ListOwnershipResponse, error) {
-	ownerships, err := s.sdk.Ownership.List()
+func (s *OwnershipServer) List(ctx context.Context, req *api.ListOwnershipRequest) (*api.ListOwnershipResponse, error) {
+	out, err := s.mc.ListOwnership()
 	if err != nil {
 		return nil, err
 	}
-
-	return &protobuf_api.ListOwnershipResponse{Ownerships: ownerships}, nil
+	return &api.ListOwnershipResponse{Ownerships: out}, nil
 }

@@ -8,17 +8,17 @@ import (
 	"time"
 
 	"github.com/cosmos/cosmos-sdk/client/flags"
+	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/crypto/keys"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	authutils "github.com/cosmos/cosmos-sdk/x/auth/client/utils"
+	authExported "github.com/cosmos/cosmos-sdk/x/auth/exported"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	"github.com/mesg-foundation/engine/codec"
+	"github.com/mesg-foundation/engine/ext/xreflect"
+	"github.com/mesg-foundation/engine/ext/xstrings"
 	"github.com/mesg-foundation/engine/hash"
-	"github.com/mesg-foundation/engine/x/xreflect"
-	"github.com/mesg-foundation/engine/x/xstrings"
 	abci "github.com/tendermint/tendermint/abci/types"
-	tmquery "github.com/tendermint/tendermint/libs/pubsub/query"
 	"github.com/tendermint/tendermint/node"
 	rpcclient "github.com/tendermint/tendermint/rpc/client"
 	tenderminttypes "github.com/tendermint/tendermint/types"
@@ -27,6 +27,7 @@ import (
 // Client is a tendermint client with helper functions.
 type Client struct {
 	*rpcclient.Local
+	cdc          *codec.Codec
 	kb           keys.Keybase
 	chainID      string
 	accName      string
@@ -34,19 +35,20 @@ type Client struct {
 	minGasPrices sdktypes.DecCoins
 
 	// Local state
-	acc             auth.Account
+	acc             authExported.Account
 	getAccountMutex sync.Mutex
 	broadcastMutex  sync.Mutex
 }
 
 // NewClient returns a rpc tendermint client.
-func NewClient(node *node.Node, kb keys.Keybase, chainID, accName, accPassword, minGasPrices string) (*Client, error) {
+func NewClient(node *node.Node, cdc *codec.Codec, kb keys.Keybase, chainID, accName, accPassword, minGasPrices string) (*Client, error) {
 	minGasPricesDecoded, err := sdktypes.ParseDecCoins(minGasPrices)
 	if err != nil {
 		return nil, err
 	}
 	return &Client{
 		Local:        rpcclient.NewLocal(node),
+		cdc:          cdc,
 		kb:           kb,
 		chainID:      chainID,
 		accName:      accName,
@@ -55,21 +57,22 @@ func NewClient(node *node.Node, kb keys.Keybase, chainID, accName, accPassword, 
 	}, nil
 }
 
-// Query is abci.query wrapper with errors check and decode data.
-func (c *Client) Query(path string, qdata, ptr interface{}) error {
+// QueryJSON is abci.query wrapper with errors check and decode data.
+func (c *Client) QueryJSON(path string, qdata, ptr interface{}) error {
 	var data []byte
 	if !xreflect.IsNil(qdata) {
-		b, err := codec.MarshalBinaryBare(qdata)
+		b, err := c.cdc.MarshalJSON(qdata)
 		if err != nil {
 			return err
 		}
 		data = b
 	}
+
 	result, _, err := c.QueryWithData(path, data)
 	if err != nil {
 		return err
 	}
-	return codec.UnmarshalBinaryBare(result, ptr)
+	return c.cdc.UnmarshalJSON(result, ptr)
 }
 
 // QueryWithData performs a query to a Tendermint node with the provided path
@@ -136,11 +139,7 @@ func (c *Client) BuildAndBroadcastMsg(msg sdktypes.Msg) (*abci.ResponseDeliverTx
 // Stream subscribes to the provided query and returns the hash of the matching ressources.
 func (c *Client) Stream(ctx context.Context, query string) (chan hash.Hash, chan error, error) {
 	subscriber := xstrings.RandASCIILetters(8)
-	q, err := tmquery.New(query)
-	if err != nil {
-		return nil, nil, err
-	}
-	msgStream, err := c.EventBus.SubscribeUnbuffered(ctx, subscriber, q)
+	eventStream, err := c.Subscribe(ctx, subscriber, query, 0)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -150,8 +149,8 @@ func (c *Client) Stream(ctx context.Context, query string) (chan hash.Hash, chan
 	loop:
 		for {
 			select {
-			case msg := <-msgStream.Out():
-				attrs := msg.Events()[EventHashType]
+			case event := <-eventStream:
+				attrs := event.Events[EventHashType]
 				// The following error might be too much as MAYBE if one transaction contains many messages, the events will be merged across the whole transaction
 				if len(attrs) != 1 {
 					errC <- fmt.Errorf("event %s has %d tag(s), but only 1 is expected", EventHashType, len(attrs))
@@ -164,9 +163,6 @@ func (c *Client) Stream(ctx context.Context, query string) (chan hash.Hash, chan
 						hashC <- hash
 					}
 				}
-			case <-msgStream.Cancelled():
-				errC <- msgStream.Err()
-				break loop
 			case <-ctx.Done():
 				break loop
 			}
@@ -179,7 +175,7 @@ func (c *Client) Stream(ctx context.Context, query string) (chan hash.Hash, chan
 }
 
 // GetAccount returns the local account.
-func (c *Client) GetAccount() (auth.Account, error) {
+func (c *Client) GetAccount() (authExported.Account, error) {
 	c.getAccountMutex.Lock()
 	defer c.getAccountMutex.Unlock()
 	if c.acc == nil {
@@ -219,7 +215,7 @@ func (c *Client) createAndSignTx(msgs []sdktypes.Msg) (tenderminttypes.Tx, error
 
 	// Create TxBuilder
 	txBuilder := authtypes.NewTxBuilder(
-		authutils.GetTxEncoder(codec.Codec),
+		authutils.GetTxEncoder(c.cdc),
 		accR.GetAccountNumber(),
 		sequence,
 		flags.DefaultGasLimit,
@@ -237,7 +233,7 @@ func (c *Client) createAndSignTx(msgs []sdktypes.Msg) (tenderminttypes.Tx, error
 		if err != nil {
 			return nil, err
 		}
-		_, adjusted, err := authutils.CalculateGas(c.QueryWithData, codec.Codec, txBytes, txBuilder.GasAdjustment())
+		_, adjusted, err := authutils.CalculateGas(c.QueryWithData, c.cdc, txBytes, txBuilder.GasAdjustment())
 		if err != nil {
 			return nil, err
 		}

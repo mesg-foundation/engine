@@ -9,9 +9,9 @@ import (
 	"os"
 	"time"
 
+	"github.com/mesg-foundation/engine/ext/xsignal"
 	"github.com/mesg-foundation/engine/hash"
 	pb "github.com/mesg-foundation/engine/protobuf/api"
-	"github.com/mesg-foundation/engine/x/xsignal"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/keepalive"
 )

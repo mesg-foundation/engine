@@ -6,36 +6,37 @@ import (
 	"strconv"
 	"sync"
 
+	bam "github.com/cosmos/cosmos-sdk/baseapp"
 	cosmosclient "github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/context"
+	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/crypto/keys"
-	"github.com/cosmos/cosmos-sdk/types/module"
 	authrest "github.com/cosmos/cosmos-sdk/x/auth/client/rest"
 	"github.com/gorilla/mux"
-	"github.com/mesg-foundation/engine/codec"
+	"github.com/mesg-foundation/engine/app"
 	"github.com/mesg-foundation/engine/config"
 	"github.com/mesg-foundation/engine/container"
 	"github.com/mesg-foundation/engine/cosmos"
+	"github.com/mesg-foundation/engine/event/publisher"
+	"github.com/mesg-foundation/engine/ext/xerrors"
+	"github.com/mesg-foundation/engine/ext/xnet"
+	"github.com/mesg-foundation/engine/ext/xrand"
+	"github.com/mesg-foundation/engine/ext/xsignal"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/logger"
 	"github.com/mesg-foundation/engine/orchestrator"
 	"github.com/mesg-foundation/engine/protobuf/api"
-	enginesdk "github.com/mesg-foundation/engine/sdk"
-	runnersdk "github.com/mesg-foundation/engine/sdk/runner"
+	"github.com/mesg-foundation/engine/runner/builder"
 	"github.com/mesg-foundation/engine/server/grpc"
 	"github.com/mesg-foundation/engine/version"
-	"github.com/mesg-foundation/engine/x/xerrors"
-	"github.com/mesg-foundation/engine/x/xnet"
-	"github.com/mesg-foundation/engine/x/xrand"
-	"github.com/mesg-foundation/engine/x/xsignal"
 	"github.com/sirupsen/logrus"
 	rpcserver "github.com/tendermint/tendermint/rpc/lib/server"
 	tmtypes "github.com/tendermint/tendermint/types"
 	db "github.com/tendermint/tm-db"
 )
 
-func stopRunningServices(sdk *enginesdk.SDK, address string) error {
-	runners, err := sdk.Runner.List(&runnersdk.Filter{Address: address})
+func stopRunningServices(mc *cosmos.ModuleClient, b *builder.Builder, address string) error {
+	runners, err := mc.ListRunner(&cosmos.FilterRunner{Address: address})
 	if err != nil {
 		return err
 	}
@@ -48,7 +49,7 @@ func stopRunningServices(sdk *enginesdk.SDK, address string) error {
 	for _, instance := range runners {
 		go func(hash hash.Hash) {
 			defer wg.Done()
-			err := sdk.Runner.Delete(&api.DeleteRunnerRequest{
+			err := b.Delete(&api.DeleteRunnerRequest{
 				Hash:       hash,
 				DeleteData: false,
 			})
@@ -69,7 +70,7 @@ func stopRunningServices(sdk *enginesdk.SDK, address string) error {
 func loadOrGenConfigAccount(kb *cosmos.Keybase, cfg *config.Config) (keys.Info, error) {
 	if cfg.Account.Mnemonic != "" {
 		logrus.WithField("module", "main").Warn("Config account mnemonic presents. Generating account with it...")
-		return kb.CreateAccount(cfg.Account.Name, cfg.Account.Mnemonic, "", cfg.Account.Password, cfg.Account.Number, cfg.Account.Index)
+		return kb.CreateAccount(cfg.Account.Name, cfg.Account.Mnemonic, "", cfg.Account.Password, keys.CreateHDPath(cfg.Account.Number, cfg.Account.Index).String(), cosmos.DefaultAlgo)
 	}
 
 	exist, err := kb.Exist(cfg.Account.Name)
@@ -89,10 +90,10 @@ func loadOrGenConfigAccount(kb *cosmos.Keybase, cfg *config.Config) (keys.Info, 
 		"password": cfg.Account.Password,
 		"mnemonic": mnemonic,
 	}).Warn("Account")
-	return kb.CreateAccount(cfg.Account.Name, mnemonic, "", cfg.Account.Password, cfg.Account.Number, cfg.Account.Index)
+	return kb.CreateAccount(cfg.Account.Name, mnemonic, "", cfg.Account.Password, keys.CreateHDPath(cfg.Account.Number, cfg.Account.Index).String(), cosmos.DefaultAlgo)
 }
 
-func loadOrGenDevGenesis(basicManager *module.BasicManager, kb *cosmos.Keybase, cfg *config.Config) (*tmtypes.GenesisDoc, error) {
+func loadOrGenDevGenesis(cdc *codec.Codec, kb *cosmos.Keybase, cfg *config.Config) (*tmtypes.GenesisDoc, error) {
 	if cosmos.GenesisExist(cfg.Tendermint.Config.GenesisFile()) {
 		return cosmos.LoadGenesis(cfg.Tendermint.Config.GenesisFile())
 	}
@@ -112,9 +113,10 @@ func loadOrGenDevGenesis(basicManager *module.BasicManager, kb *cosmos.Keybase, 
 		"nodeID": validator.NodeID,
 		"peer":   fmt.Sprintf("%s@%s:26656", validator.NodeID, validator.Name),
 	}).Warnln("Validator")
-	return cosmos.GenGenesis(kb, basicManager.DefaultGenesis(), cfg.DevGenesis.ChainID, cfg.DevGenesis.InitialBalances, cfg.DevGenesis.ValidatorDelegationCoin, cfg.Tendermint.Config.GenesisFile(), []cosmos.GenesisValidator{validator})
+	return cosmos.GenGenesis(cdc, kb, app.NewDefaultGenesisState(), cfg.DevGenesis.ChainID, cfg.DevGenesis.InitialBalances, cfg.DevGenesis.ValidatorDelegationCoin, cfg.Tendermint.Config.GenesisFile(), []cosmos.GenesisValidator{validator})
 }
 
+//nolint:gocyclo
 func main() {
 	xrand.SeedInit()
 
@@ -126,9 +128,6 @@ func main() {
 
 	// init logger.
 	logger.Init(cfg.Log.Format, cfg.Log.Level, cfg.Log.ForceColors)
-
-	// init basicManager
-	basicManager := enginesdk.NewBasicManager()
 
 	// init tendermint logger
 	tendermintLogger := logger.TendermintLogger()
@@ -147,11 +146,11 @@ func main() {
 		logrus.WithField("module", "main").Fatalln(err)
 	}
 
-	// init app
-	app, err := enginesdk.NewApp(tendermintLogger, db, cfg.Cosmos.MinGasPrices)
+	initApp, err := app.NewInitApp(tendermintLogger, db, nil, true, 0, bam.SetMinGasPrices(cfg.Cosmos.MinGasPrices))
 	if err != nil {
 		logrus.WithField("module", "main").Fatalln(err)
 	}
+	cdc := initApp.Codec()
 
 	// init key manager
 	kb, err := cosmos.NewKeybase(filepath.Join(cfg.Path, cfg.Cosmos.RelativePath))
@@ -167,25 +166,38 @@ func main() {
 	logrus.WithField("address", acc.GetAddress().String()).Info("engine account")
 
 	// load or gen genesis
-	genesis, err := loadOrGenDevGenesis(basicManager, kb, cfg)
+	genesis, err := loadOrGenDevGenesis(cdc, kb, cfg)
 	if err != nil {
 		logrus.WithField("module", "main").Fatalln(err)
 	}
 
 	// create cosmos node
-	node, err := cosmos.NewNode(app, cfg.Tendermint.Config, genesis)
+	node, err := cosmos.NewNode(initApp.BaseApp, cfg.Tendermint.Config, genesis)
 	if err != nil {
 		logrus.WithField("module", "main").Fatalln(err)
 	}
+	defer func() {
+		logrus.WithField("module", "main").Info("stopping tendermint")
+		if node.IsRunning() {
+			if err := node.Stop(); err != nil {
+				logrus.WithField("module", "main").Errorln(err)
+			}
+		}
+	}()
 
 	// create cosmos client
-	client, err := cosmos.NewClient(node, kb, genesis.ChainID, cfg.Account.Name, cfg.Account.Password, cfg.Cosmos.MinGasPrices)
+	client, err := cosmos.NewClient(node, cdc, kb, genesis.ChainID, cfg.Account.Name, cfg.Account.Password, cfg.Cosmos.MinGasPrices)
 	if err != nil {
 		logrus.WithField("module", "main").Fatalln(err)
 	}
 
-	// init sdk
-	sdk := enginesdk.New(client, kb, container, cfg.Name, strconv.Itoa(port), cfg.IpfsEndpoint)
+	mc := cosmos.NewModuleClient(client)
+
+	// init runner builder
+	b := builder.New(mc, container, cfg.Name, strconv.Itoa(port), cfg.IpfsEndpoint)
+
+	// init event publisher
+	ep := publisher.New(mc)
 
 	// start tendermint node
 	logrus.WithField("module", "main").WithField("seeds", cfg.Tendermint.Config.P2P.Seeds).Info("starting tendermint node")
@@ -194,9 +206,12 @@ func main() {
 	}
 
 	// init gRPC server.
-	server := grpc.New(sdk, cfg)
-
+	server := grpc.New(mc, ep, b, cfg.DefaultExecutionPrice)
 	logrus.WithField("module", "main").Infof("starting MESG Engine version %s", version.Version)
+	defer func() {
+		logrus.WithField("module", "main").Info("stopping grpc server")
+		server.Close()
+	}()
 
 	go func() {
 		if err := server.Serve(cfg.Server.Address); err != nil {
@@ -205,14 +220,18 @@ func main() {
 	}()
 
 	logrus.WithField("module", "main").Info("starting process engine")
-	s := orchestrator.New(sdk.Event, sdk.Execution, sdk.Process, sdk.Runner)
+	orch := orchestrator.New(mc, ep, cfg.DefaultExecutionPrice)
+	defer func() {
+		logrus.WithField("module", "main").Info("stopping orchestrator")
+		orch.Stop()
+	}()
 	go func() {
-		if err := s.Start(); err != nil {
+		if err := orch.Start(); err != nil {
 			logrus.WithField("module", "main").Fatalln(err)
 		}
 	}()
 	go func() {
-		for err := range s.ErrC {
+		for err := range orch.ErrC {
 			logrus.WithField("module", "orchestrator").Warn(err)
 		}
 	}()
@@ -223,12 +242,21 @@ func main() {
 	if err != nil {
 		logrus.WithField("module", "main").Fatalln(err)
 	}
+	defer func() {
+		logrus.WithField("module", "main").Info("stopping lcd server")
+		if err := lcdServer.Close(); err != nil {
+			logrus.WithField("module", "main").Errorln(err)
+		}
+	}()
 
-	cliCtx := context.NewCLIContext().WithCodec(codec.Codec).WithClient(client)
+	cliCtx := context.NewCLIContext().
+		WithCodec(cdc).
+		WithClient(client).
+		WithTrustNode(true)
 	mux := mux.NewRouter()
 	cosmosclient.RegisterRoutes(cliCtx, mux)
 	authrest.RegisterTxRoutes(cliCtx, mux)
-	basicManager.RegisterRESTRoutes(cliCtx, mux)
+	app.ModuleBasics.RegisterRESTRoutes(cliCtx, mux)
 	go func() {
 		if err := rpcserver.StartHTTPServer(lcdServer, mux, tendermintLogger, cfgLcd); err != nil {
 			logrus.WithField("module", "main").Warnln(err) // not a fatal because closing the connection return an error here
@@ -237,23 +265,13 @@ func main() {
 
 	<-xsignal.WaitForInterrupt()
 
-	logrus.WithField("module", "main").Info("stopping lcd server")
-	if err := lcdServer.Close(); err != nil {
-		logrus.WithField("module", "main").Fatalln(err)
-	}
-
 	logrus.WithField("module", "main").Info("stopping running services")
-	if err := stopRunningServices(sdk, acc.GetAddress().String()); err != nil {
-		logrus.WithField("module", "main").Fatalln(err)
+	if err := stopRunningServices(mc, b, acc.GetAddress().String()); err != nil {
+		logrus.WithField("module", "main").Errorln(err)
 	}
 
 	logrus.WithField("module", "main").Info("cleanup container")
 	if err := container.Cleanup(); err != nil {
-		logrus.WithField("module", "main").Fatalln(err)
+		logrus.WithField("module", "main").Errorln(err)
 	}
-
-	logrus.WithField("module", "main").Info("stopping grpc server")
-	server.Close()
-
-	logrus.WithField("module", "main").Info("everything is stopped")
 }

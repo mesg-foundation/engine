@@ -7,20 +7,28 @@ import (
 	"path/filepath"
 	"testing"
 
-	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	"github.com/mesg-foundation/engine/codec"
+	"github.com/cosmos/cosmos-sdk/codec"
+	"github.com/cosmos/cosmos-sdk/crypto/keys"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/x/auth"
+	"github.com/cosmos/cosmos-sdk/x/staking"
 	"github.com/stretchr/testify/require"
 )
 
 func TestGenesis(t *testing.T) {
+	// codec
+	cdc := codec.New()
+	sdk.RegisterCodec(cdc)
+	codec.RegisterCrypto(cdc)
+	auth.RegisterCodec(cdc)
+	staking.RegisterCodec(cdc)
+
 	// path
 	path, _ := ioutil.TempDir("", "TestGenesis")
 	defer os.RemoveAll(path)
 	// keybase
 	kb, err := NewKeybase(filepath.Join(path, "kb"))
 	require.NoError(t, err)
-	// codec
-	stakingtypes.RegisterCodec(codec.Codec)
 	// variables
 	var (
 		chainID                 = "test-chainID"
@@ -37,7 +45,7 @@ func TestGenesis(t *testing.T) {
 	)
 	// init account
 	mnemonic, _ := kb.NewMnemonic()
-	kb.CreateAccount(name, mnemonic, "", password, 0, 0)
+	kb.CreateAccount(name, mnemonic, "", password, keys.CreateHDPath(0, 0).String(), DefaultAlgo)
 	// start tests
 	t.Run("generate validator", func(t *testing.T) {
 		v, err := NewGenesisValidator(kb, name, password, privValidatorKeyFile, privValidatorStateFile, nodeKeyFile)
@@ -55,7 +63,7 @@ func TestGenesis(t *testing.T) {
 		require.False(t, GenesisExist(genesisPath))
 	})
 	t.Run("generate genesis", func(t *testing.T) {
-		genesis, err := GenGenesis(kb, defaultGenesisState, chainID, initialBalances, validatorDelegationCoin, genesisPath, validators)
+		genesis, err := GenGenesis(cdc, kb, defaultGenesisState, chainID, initialBalances, validatorDelegationCoin, genesisPath, validators)
 		require.NoError(t, err)
 		require.NotEmpty(t, genesis)
 	})

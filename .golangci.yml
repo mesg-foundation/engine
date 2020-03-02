@@ -20,26 +20,34 @@ issues:
     - "ineffective break statement. Did you mean to break out of the outer loop"
 
   exclude-rules:
-    - path: x/xvalidator/validator.go
+    - path: ext/xvalidator/validator.go
       linters:
         - golint
       text: "exported var Translator should have its own declaration"
 
 linters:
-  enable-all: true
-  disable:
-    - depguard
-    - dupl
-    - errcheck
-    - funlen
-    - gochecknoglobals
-    - gocognit
-    - goconst
-    - godox
-    - gosec
-    - interfacer
-    - lll
-    - prealloc
-    - stylecheck
-    - wsl
-    - gochecknoinits
+  disable-all: true
+  enable: 
+    - bodyclose
+    - deadcode
+    - dogsled
+    - gocritic
+    - gocyclo
+    - gofmt
+    - goimports
+    - golint
+    - gosimple
+    - govet
+    - ineffassign
+    - maligned
+    - misspell
+    - nakedret
+    - scopelint
+    - staticcheck
+    - structcheck
+    - typecheck
+    - unconvert
+    - unparam
+    - unused
+    - varcheck
+    - whitespace

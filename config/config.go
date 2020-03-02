@@ -29,6 +29,8 @@ type Config struct {
 
 	IpfsEndpoint string `validate:"required"`
 
+	DefaultExecutionPrice string `validate:"required"`
+
 	Server struct {
 		Address string `validate:"required"`
 	}
@@ -95,6 +97,8 @@ func defaultConfig() (*Config, error) {
 
 	c.IpfsEndpoint = "http://ipfs.app.mesg.com:8080/ipfs/"
 
+	c.DefaultExecutionPrice = "10000atto" // /x/execution/internal/type/params.go#DefaultMinPrice
+
 	c.Server.Address = ":50052"
 	c.Log.Format = "text"
 	c.Log.Level = "info"
@@ -108,13 +112,14 @@ func defaultConfig() (*Config, error) {
 	c.Tendermint.Config.Consensus.TimeoutCommit = 5 * time.Second
 	c.Tendermint.Config.Instrumentation.Prometheus = true
 	c.Tendermint.Config.Instrumentation.PrometheusListenAddr = "0.0.0.0:26660"
+	c.Tendermint.Config.TxIndex.IndexAllKeys = true
 
 	c.Cosmos.RelativePath = "cosmos"
 	c.Cosmos.MinGasPrices = "1.0atto"
 	c.Cosmos.StakeTokenDenom = "atto"
 	c.Cosmos.Bech32MainPrefix = "mesgtest"
 	c.Cosmos.CoinType = 470
-	c.Cosmos.FullFundraiserPath = "44'/470'/0'/0/0"
+	c.Cosmos.FullFundraiserPath = "44'/470'/0'/0/0" // TODO: is it really useful?
 	c.Cosmos.PowerReduction = 18
 
 	c.DevGenesis.ChainID = "mesg-dev-chain"
