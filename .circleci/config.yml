@@ -95,6 +95,22 @@ jobs:
       - run: docker login -u $DOCKER_USER -p $DOCKER_PASS
       - run: make docker-publish version=$CIRCLE_TAG
 
+  "release_cli_dev":
+    <<: *run_on_docker
+    steps:
+      - checkout
+      - run: make build-cmd-all version="dev build `echo $CIRCLE_SHA1 | cut -c1-7`"
+      - run: go get -u github.com/tcnksm/ghr
+      - run: ghr -u mesg-foundation -r engine -delete -prerelease -n "Developer Release" -b "Warning - this is a developer release, use it only if you know what are doing. Make sure to pull the latest \`mesg/engine:dev\` image." release-dev ./bin
+
+  "release_cli_prod":
+    <<: *run_on_docker
+    steps:
+      - checkout
+      - run: make build-cmd-all version=$CIRCLE_TAG
+      - run: go get -u github.com/tcnksm/ghr
+      - run: ghr -u mesg-foundation -r engine -replace $CIRCLE_TAG ./bin
+
 workflows:
   version: 2
 
@@ -142,6 +158,9 @@ workflows:
       - "publish_docker_dev":
           requires:
             - "test_e2e"
+      - "release_cli_dev":
+          requires:
+            - "test_e2e"
 
   test_prod:
     jobs:
@@ -186,6 +205,14 @@ workflows:
             - "test"
             - "lint"
       - "publish_docker_prod":
+          filters:
+            tags:
+              only: /^v.*/
+            branches:
+              ignore: /.*/
+          requires:
+            - "test_e2e"
+      - "release_cli_prod":
           filters:
             tags:
               only: /^v.*/
