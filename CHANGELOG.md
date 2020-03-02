@@ -1,5 +1,34 @@
 # Changelog
 
+## [v0.19.0](https://github.com/mesg-foundation/engine/releases/tag/v0.19.0)
+
+#### Added
+
+- ([#1651](https://github.com/mesg-foundation/engine/pull/1651)) Refactor ownership module to cosmos style.
+- ([#1653](https://github.com/mesg-foundation/engine/pull/1653)) Refactor instance module to cosmos style.
+- ([#1654](https://github.com/mesg-foundation/engine/pull/1654)) Add e2e lcd tests for ownerships.
+- ([#1657](https://github.com/mesg-foundation/engine/pull/1657)) Refactor runner module to cosmos style.
+- ([#1658](https://github.com/mesg-foundation/engine/pull/1658)) Refactor process module to cosmos style.
+- ([#1661](https://github.com/mesg-foundation/engine/pull/1661)) Refactor service module to cosmos style.
+- ([#1662](https://github.com/mesg-foundation/engine/pull/1662)) Refactor execution module to cosmos style.
+- ([#1663](https://github.com/mesg-foundation/engine/pull/1663)) Add e2e tests using the light client daemon of Cosmos.
+- ([#1670](https://github.com/mesg-foundation/engine/pull/1670)) Implement first iteration of the execution economy.
+- ([#1680](https://github.com/mesg-foundation/engine/pull/1680)) Add block height to execution data.
+- ([#1689](https://github.com/mesg-foundation/engine/pull/1689)) Add pagination system to http endpoint executions/list.
+- ([#1691](https://github.com/mesg-foundation/engine/pull/1691)) Add min price for execution.
+
+#### Changed
+
+- ([#1640](https://github.com/mesg-foundation/engine/pull/1640)) Update to cosmos v0.38 and tendermint v0.33.
+- ([#1645](https://github.com/mesg-foundation/engine/pull/1645)) Add trusted config to LCD server and index all events.
+- ([#1650](https://github.com/mesg-foundation/engine/pull/1650)) Refactor cosmos modules.
+- ([#1669](https://github.com/mesg-foundation/engine/pull/1669)) Use disable-all instead of enable-all in golangci config.
+
+#### Fixed
+
+- ([#1682](https://github.com/mesg-foundation/engine/pull/1682)) Fix Tendermint graceful stop.
+- ([#1683](https://github.com/mesg-foundation/engine/pull/1683)) Call end block function in each cosmos modules.
+
 ## [v0.18.3](https://github.com/mesg-foundation/engine/releases/tag/v0.18.3)
 
 #### Added
