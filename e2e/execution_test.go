@@ -255,17 +255,11 @@ func testExecution(t *testing.T) {
 			acc, err := cclient.GetAccount()
 			require.NoError(t, err)
 			coins := sdk.NewCoins(sdk.NewCoin("atto", sdk.NewInt(5)))
-			_, err = cclient.BuildAndBroadcastMsg(ownership.NewMsgWithdrawCoins(testServiceHash, coins, acc.GetAddress()))
+			msg := ownership.NewMsgWithdrawCoins(testServiceHash, coins, acc.GetAddress())
+			signed, err := cclient.CreateAndSignTx([]sdk.Msg{msg})
 			require.NoError(t, err)
-
-			// coins := sdk.Coins{}
-
-			// serviceAddress := sdk.AccAddress(crypto.AddressHash(testServiceHash))
-			// lcdGet(t, "bank/balances/"+serviceAddress.String(), &coins)
-			// // require.True(t, coins.AmountOf("atto").Equal(sdk.NewInt(0)))
-
-			// lcdGet(t, "bank/balances/"+owner, &coins)
-			// // require.True(t, coins.AmountOf("atto").Equal(sdk.NewInt(5)))
+			_, err = cclient.BroadcastTxSync(signed)
+			require.NoError(t, err)
 		})
 	})
 

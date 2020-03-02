@@ -92,7 +92,7 @@ func (c *Client) QueryWithData(path string, data []byte) ([]byte, int64, error) 
 // BuildAndBroadcastMsg builds and signs message and broadcast it to node.
 func (c *Client) BuildAndBroadcastMsg(msg sdktypes.Msg) (*abci.ResponseDeliverTx, error) {
 	c.broadcastMutex.Lock() // Lock the whole signature + broadcast of the transaction
-	signedTx, err := c.createAndSignTx([]sdktypes.Msg{msg})
+	signedTx, err := c.CreateAndSignTx([]sdktypes.Msg{msg})
 	if err != nil {
 		c.broadcastMutex.Unlock()
 		return nil, err
@@ -203,7 +203,7 @@ func (c *Client) GetAccount() (authExported.Account, error) {
 	return c.acc, nil
 }
 
-func (c *Client) createAndSignTx(msgs []sdktypes.Msg) (tenderminttypes.Tx, error) {
+func (c *Client) CreateAndSignTx(msgs []sdktypes.Msg) (tenderminttypes.Tx, error) {
 	// retrieve account
 	accR, err := c.GetAccount()
 	if err != nil {

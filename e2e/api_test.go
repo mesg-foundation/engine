@@ -67,10 +67,6 @@ func lcdPost(t *testing.T, path string, req interface{}, ptr interface{}) {
 	}
 }
 
-func c() {
-
-}
-
 func TestAPI(t *testing.T) {
 	if testing.Short() {
 		t.Skip()
@@ -85,9 +81,9 @@ func TestAPI(t *testing.T) {
 	conn, err := grpc.DialContext(context.Background(), "localhost:50052", grpc.WithInsecure())
 	require.NoError(t, err)
 
-	httpclient, err := rpcclient.NewHTTP("http://localhost:26657", "/websocket")
-	require.NoError(t, err)
 	kb, err := cosmos.NewKeybase(filepath.Join(cfg.Path, cfg.Cosmos.RelativePath))
+	require.NoError(t, err)
+	httpclient, err := rpcclient.NewHTTP("http://localhost:26657", "/websocket")
 	require.NoError(t, err)
 	cclient, err = cosmos.NewClient(httpclient, cdc, kb, cfg.DevGenesis.ChainID, cfg.Account.Name, cfg.Account.Password, cfg.Cosmos.MinGasPrices)
 	require.NoError(t, err)
