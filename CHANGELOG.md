@@ -29,6 +29,12 @@
 - ([#1682](https://github.com/mesg-foundation/engine/pull/1682)) Fix Tendermint graceful stop.
 - ([#1683](https://github.com/mesg-foundation/engine/pull/1683)) Call end block function in each cosmos modules.
 
+#### Dependencies
+
+- ([#1646](https://github.com/mesg-foundation/engine/pull/1646)) Bump google.golang.org/grpc from 1.27.0 to 1.27.1.
+- ([#1648](https://github.com/mesg-foundation/engine/pull/1648)) Bump github.com/prometheus/client_golang from 1.4.0 to 1.4.1.
+- ([#1656](https://github.com/mesg-foundation/engine/pull/1656)) Bump github.com/cosmos/cosmos-sdk from 0.38.0 to 0.38.1.
+
 ## [v0.18.3](https://github.com/mesg-foundation/engine/releases/tag/v0.18.3)
 
 #### Added
