@@ -22,18 +22,20 @@ import (
 
 // Server contains the server config.
 type Server struct {
-	instance *grpc.Server
-	mc       *cosmos.ModuleClient
-	ep       *publisher.EventPublisher
-	b        *builder.Builder
+	instance  *grpc.Server
+	mc        *cosmos.ModuleClient
+	ep        *publisher.EventPublisher
+	b         *builder.Builder
+	execPrice string
 }
 
 // New returns a new gRPC server.
-func New(mc *cosmos.ModuleClient, ep *publisher.EventPublisher, b *builder.Builder) *Server {
+func New(mc *cosmos.ModuleClient, ep *publisher.EventPublisher, b *builder.Builder, execPrice string) *Server {
 	return &Server{
-		mc: mc,
-		ep: ep,
-		b:  b,
+		mc:        mc,
+		ep:        ep,
+		b:         b,
+		execPrice: execPrice,
 	}
 }
 
@@ -82,7 +84,7 @@ func validateInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryS
 // register all server
 func (s *Server) register() {
 	protobuf_api.RegisterEventServer(s.instance, api.NewEventServer(s.ep))
-	protobuf_api.RegisterExecutionServer(s.instance, api.NewExecutionServer(s.mc))
+	protobuf_api.RegisterExecutionServer(s.instance, api.NewExecutionServer(s.mc, s.execPrice))
 	protobuf_api.RegisterInstanceServer(s.instance, api.NewInstanceServer(s.mc))
 	protobuf_api.RegisterServiceServer(s.instance, api.NewServiceServer(s.mc))
 	protobuf_api.RegisterProcessServer(s.instance, api.NewProcessServer(s.mc))
