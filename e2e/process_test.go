@@ -124,12 +124,12 @@ func testProcess(t *testing.T) {
 		t.Run("lcd", func(t *testing.T) {
 			ownerships := make([]*ownership.Ownership, 0)
 			lcdGet(t, "ownership/list", &ownerships)
-			require.Len(t, ownerships, 1)
+			require.Len(t, ownerships, 2)
 		})
 		t.Run("grpc", func(t *testing.T) {
 			ownerships, err := client.OwnershipClient.List(context.Background(), &pb.ListOwnershipRequest{})
 			require.NoError(t, err)
-			require.Len(t, ownerships.Ownerships, 1)
+			require.Len(t, ownerships.Ownerships, 2)
 		})
 	})
 }

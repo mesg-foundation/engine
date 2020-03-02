@@ -5,6 +5,7 @@ import (
 	"context"
 	"io/ioutil"
 	"net/http"
+	"path/filepath"
 	"testing"
 
 	"github.com/cosmos/cosmos-sdk/types/rest"
@@ -13,6 +14,7 @@ import (
 	"github.com/mesg-foundation/engine/cosmos"
 	pb "github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/stretchr/testify/require"
+	rpcclient "github.com/tendermint/tendermint/rpc/client"
 	"google.golang.org/grpc"
 )
 
@@ -27,8 +29,9 @@ type apiclient struct {
 }
 
 var (
-	client apiclient
-	cdc    = app.MakeCodec()
+	client  apiclient
+	cclient *cosmos.Client
+	cdc     = app.MakeCodec()
 )
 
 const (
@@ -64,6 +67,10 @@ func lcdPost(t *testing.T, path string, req interface{}, ptr interface{}) {
 	}
 }
 
+func c() {
+
+}
+
 func TestAPI(t *testing.T) {
 	if testing.Short() {
 		t.Skip()
@@ -76,6 +83,13 @@ func TestAPI(t *testing.T) {
 	cosmos.CustomizeConfig(cfg)
 
 	conn, err := grpc.DialContext(context.Background(), "localhost:50052", grpc.WithInsecure())
+	require.NoError(t, err)
+
+	httpclient, err := rpcclient.NewHTTP("http://localhost:26657", "/websocket")
+	require.NoError(t, err)
+	kb, err := cosmos.NewKeybase(filepath.Join(cfg.Path, cfg.Cosmos.RelativePath))
+	require.NoError(t, err)
+	cclient, err = cosmos.NewClient(httpclient, cdc, kb, cfg.DevGenesis.ChainID, cfg.Account.Name, cfg.Account.Password, cfg.Cosmos.MinGasPrices)
 	require.NoError(t, err)
 
 	client = apiclient{

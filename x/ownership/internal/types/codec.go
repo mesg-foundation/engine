@@ -5,7 +5,9 @@ import (
 )
 
 // RegisterCodec registers concrete types on codec.
-func RegisterCodec(cdc *codec.Codec) {}
+func RegisterCodec(cdc *codec.Codec) {
+	cdc.RegisterConcrete(MsgWithdrawCoins{}, "ownership/WithdrawCoins", nil)
+}
 
 // ModuleCdc defines the module codec.
 var ModuleCdc *codec.Codec

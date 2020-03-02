@@ -19,14 +19,13 @@ import (
 	"github.com/mesg-foundation/engine/ext/xstrings"
 	"github.com/mesg-foundation/engine/hash"
 	abci "github.com/tendermint/tendermint/abci/types"
-	"github.com/tendermint/tendermint/node"
 	rpcclient "github.com/tendermint/tendermint/rpc/client"
 	tenderminttypes "github.com/tendermint/tendermint/types"
 )
 
 // Client is a tendermint client with helper functions.
 type Client struct {
-	*rpcclient.Local
+	rpcclient.Client
 	cdc          *codec.Codec
 	kb           keys.Keybase
 	chainID      string
@@ -41,13 +40,13 @@ type Client struct {
 }
 
 // NewClient returns a rpc tendermint client.
-func NewClient(node *node.Node, cdc *codec.Codec, kb keys.Keybase, chainID, accName, accPassword, minGasPrices string) (*Client, error) {
+func NewClient(client rpcclient.Client, cdc *codec.Codec, kb keys.Keybase, chainID, accName, accPassword, minGasPrices string) (*Client, error) {
 	minGasPricesDecoded, err := sdktypes.ParseDecCoins(minGasPrices)
 	if err != nil {
 		return nil, err
 	}
 	return &Client{
-		Local:        rpcclient.NewLocal(node),
+		Client:       client,
 		cdc:          cdc,
 		kb:           kb,
 		chainID:      chainID,

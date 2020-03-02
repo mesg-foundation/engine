@@ -2,18 +2,16 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"sync"
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/mesg-foundation/engine/execution"
 	"github.com/mesg-foundation/engine/hash"
-	"github.com/mesg-foundation/engine/ownership"
 	"github.com/mesg-foundation/engine/protobuf/acknowledgement"
 	pb "github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/mesg-foundation/engine/protobuf/types"
-	"github.com/stretchr/testify/assert"
+	"github.com/mesg-foundation/engine/x/ownership"
 	"github.com/stretchr/testify/require"
 	"github.com/tendermint/tendermint/crypto"
 )
@@ -254,37 +252,20 @@ func testExecution(t *testing.T) {
 
 		// check balance of execution
 		t.Run("withdraw from service", func(t *testing.T) {
-			var os []*ownership.Ownership
-			lcdGet(t, "ownership/list", &os)
+			acc, err := cclient.GetAccount()
+			require.NoError(t, err)
+			coins := sdk.NewCoins(sdk.NewCoin("atto", sdk.NewInt(5)))
+			_, err = cclient.BuildAndBroadcastMsg(ownership.NewMsgWithdrawCoins(testServiceHash, coins, acc.GetAddress()))
+			require.NoError(t, err)
 
-			var owner string
-			for _, o := range os {
-				if o.ResourceHash.Equal(testServiceHash) {
-					owner = o.Owner
-					break
-				}
-			}
-			assert.NotEmpty(t, owner)
+			// coins := sdk.Coins{}
 
-			withdrawCoinsReq := struct {
-				Amount string    `json:"amount"`
-				Hash   hash.Hash `json:"hash"`
-				Owner  string    `json:"owner"`
-			}{"5atto", testServiceHash, owner}
+			// serviceAddress := sdk.AccAddress(crypto.AddressHash(testServiceHash))
+			// lcdGet(t, "bank/balances/"+serviceAddress.String(), &coins)
+			// // require.True(t, coins.AmountOf("atto").Equal(sdk.NewInt(0)))
 
-			lcdPost(t, "ownership/withdraw-coins", withdrawCoinsReq, nil)
-
-			coins := sdk.Coins{}
-
-			serviceAddress := sdk.AccAddress(crypto.AddressHash(testServiceHash))
-			lcdGet(t, "bank/balances/"+serviceAddress.String(), &coins)
-			fmt.Println(coins)
-			// require.True(t, coins.AmountOf("atto").Equal(sdk.NewInt(0)))
-
-			lcdGet(t, "bank/balances/"+owner, &coins)
-			fmt.Println(coins)
-			t.FailNow()
-			// require.True(t, coins.AmountOf("atto").Equal(sdk.NewInt(5)))
+			// lcdGet(t, "bank/balances/"+owner, &coins)
+			// // require.True(t, coins.AmountOf("atto").Equal(sdk.NewInt(5)))
 		})
 	})
 
