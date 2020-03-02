@@ -182,6 +182,7 @@ func NewInitApp(
 	app.subspaces[staking.ModuleName] = app.paramsKeeper.Subspace(staking.DefaultParamspace)
 	app.subspaces[distr.ModuleName] = app.paramsKeeper.Subspace(distr.DefaultParamspace)
 	app.subspaces[slashing.ModuleName] = app.paramsKeeper.Subspace(slashing.DefaultParamspace)
+	app.subspaces[execution.ModuleName] = app.paramsKeeper.Subspace(execution.DefaultParamspace)
 
 	// The AccountKeeper handles address -> account lookups
 	app.accountKeeper = auth.NewAccountKeeper(
@@ -246,7 +247,16 @@ func NewInitApp(
 	app.processKeeper = process.NewKeeper(app.cdc, keys[process.StoreKey], app.instanceKeeper, app.ownershipKeeper)
 	app.serviceKeeper = service.NewKeeper(app.cdc, keys[service.StoreKey], app.ownershipKeeper)
 	app.runnerKeeper = runner.NewKeeper(app.cdc, keys[runner.StoreKey], app.instanceKeeper)
-	app.executionKeeper = execution.NewKeeper(app.cdc, keys[execution.StoreKey], app.bankKeeper, app.serviceKeeper, app.instanceKeeper, app.runnerKeeper, app.processKeeper)
+	app.executionKeeper = execution.NewKeeper(
+		app.cdc,
+		keys[execution.StoreKey],
+		app.bankKeeper,
+		app.serviceKeeper,
+		app.instanceKeeper,
+		app.runnerKeeper,
+		app.processKeeper,
+		app.subspaces[execution.ModuleName],
+	)
 
 	// NOTE: Any module instantiated in the module manager that is later modified
 	// must be passed by reference here.

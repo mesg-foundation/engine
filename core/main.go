@@ -206,7 +206,7 @@ func main() {
 	}
 
 	// init gRPC server.
-	server := grpc.New(mc, ep, b)
+	server := grpc.New(mc, ep, b, cfg.DefaultExecutionPrice)
 	logrus.WithField("module", "main").Infof("starting MESG Engine version %s", version.Version)
 	defer func() {
 		logrus.WithField("module", "main").Info("stopping grpc server")
@@ -220,7 +220,7 @@ func main() {
 	}()
 
 	logrus.WithField("module", "main").Info("starting process engine")
-	orch := orchestrator.New(mc, ep)
+	orch := orchestrator.New(mc, ep, cfg.DefaultExecutionPrice)
 	defer func() {
 		logrus.WithField("module", "main").Info("stopping orchestrator")
 		orch.Stop()
