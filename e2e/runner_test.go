@@ -35,6 +35,17 @@ func testRunner(t *testing.T) {
 		require.NoError(t, err)
 	})
 
+	t.Run("recreate", func(t *testing.T) {
+		_, err := client.RunnerClient.Delete(context.Background(), &pb.DeleteRunnerRequest{Hash: testRunnerHash})
+		require.NoError(t, err)
+		resp, err := client.RunnerClient.Create(context.Background(), &pb.CreateRunnerRequest{
+			ServiceHash: testServiceHash,
+			Env:         []string{"BAR=3", "REQUIRED=4"},
+		})
+		require.NoError(t, err)
+		testRunnerHash = resp.Hash
+	})
+
 	t.Run("get", func(t *testing.T) {
 		t.Run("grpc", func(t *testing.T) {
 			resp, err := client.RunnerClient.Get(context.Background(), &pb.GetRunnerRequest{Hash: testRunnerHash})

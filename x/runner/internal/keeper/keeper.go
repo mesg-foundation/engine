@@ -6,6 +6,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/mesg-foundation/engine/hash"
 	ownershippb "github.com/mesg-foundation/engine/ownership"
 	"github.com/mesg-foundation/engine/runner"
@@ -42,7 +43,7 @@ func (k Keeper) Create(ctx sdk.Context, msg *types.MsgCreateRunner) (*runner.Run
 	store := ctx.KVStore(k.storeKey)
 	inst, err := k.instanceKeeper.FetchOrCreate(ctx, msg.ServiceHash, msg.EnvHash)
 	if err != nil {
-		return nil, err
+		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, err.Error())
 	}
 
 	r := &runner.Runner{
@@ -51,16 +52,16 @@ func (k Keeper) Create(ctx sdk.Context, msg *types.MsgCreateRunner) (*runner.Run
 	}
 	r.Hash = hash.Dump(r)
 	if store.Has(r.Hash) {
-		return nil, fmt.Errorf("runner %q already exists", r.Hash)
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "runner %q already exists", r.Hash)
 	}
 
 	value, err := k.cdc.MarshalBinaryLengthPrefixed(r)
 	if err != nil {
-		return nil, err
+		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, err.Error())
 	}
 
 	if _, err := k.ownershipKeeper.Set(ctx, msg.Address, r.Hash, ownershippb.Ownership_Runner); err != nil {
-		return nil, err
+		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, err.Error())
 	}
 
 	store.Set(r.Hash, value)
@@ -81,6 +82,9 @@ func (k Keeper) Delete(ctx sdk.Context, msg *types.MsgDeleteRunner) error {
 	}
 	if r.Address != msg.Address.String() {
 		return errors.New("only the runner owner can remove itself")
+	}
+	if err := k.ownershipKeeper.Delete(ctx, msg.Address, r.Hash); err != nil {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, err.Error())
 	}
 	store.Delete(msg.RunnerHash)
 	return nil
