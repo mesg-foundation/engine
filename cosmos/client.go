@@ -203,6 +203,7 @@ func (c *Client) GetAccount() (authExported.Account, error) {
 	return c.acc, nil
 }
 
+// CreateAndSignTx build and sign a msg with client account.
 func (c *Client) CreateAndSignTx(msgs []sdktypes.Msg) (tenderminttypes.Tx, error) {
 	// retrieve account
 	accR, err := c.GetAccount()
