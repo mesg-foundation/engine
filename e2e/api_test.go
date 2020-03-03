@@ -85,6 +85,8 @@ func TestAPI(t *testing.T) {
 	require.NoError(t, err)
 	httpclient, err := rpcclient.NewHTTP("http://localhost:26657", "/websocket")
 	require.NoError(t, err)
+	require.NoError(t, httpclient.OnStart())
+	defer httpclient.Stop()
 	cclient, err = cosmos.NewClient(httpclient, cdc, kb, cfg.DevGenesis.ChainID, cfg.Account.Name, cfg.Account.Password, cfg.Cosmos.MinGasPrices)
 	require.NoError(t, err)
 
