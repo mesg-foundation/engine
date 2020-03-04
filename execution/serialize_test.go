@@ -66,12 +66,12 @@ var exec = New(nil, instanceHash, nil, nil, "", "taskKey", "", &types.Struct{
 }, nil, nil)
 
 func TestSerialize(t *testing.T) {
-	require.Equal(t, "5:5M8pQvBCPYwzwxe2bZUbV2g8bSgpsotp441xYvVBNMhd;6:taskKey;7:1:a:3:b;;b:2:3.14159265359;;c:4:true;;d:6:1:1:3:hello;;;;;f:5:1:a:3:hello;;;;;;;", exec.Serialize())
+	require.Equal(t, "5:5M8pQvBCPYwzwxe2bZUbV2g8bSgpsotp441xYvVBNMhd;6:taskKey;7:1:a:3:b;;b:2:3.14159265359;;c:4:true;;d:6:1:1:3:hello;;;;;f:5:1:a:3:hello;;;;;;;", exec.HashSerialize())
 	require.Equal(t, "CNT7drUzuRuv59bbTXhoD2AUzs8vrQgi7XqfAxeHvxGf", hash.Dump(exec).String())
 }
 
 func BenchmarkSerialize(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		exec.Serialize()
+		exec.HashSerialize()
 	}
 }

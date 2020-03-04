@@ -16,7 +16,7 @@ import (
 	"github.com/mesg-foundation/engine/ext/xerrors"
 	"github.com/mesg-foundation/engine/ext/xos"
 	"github.com/mesg-foundation/engine/hash"
-	"github.com/mesg-foundation/engine/hash/serializer"
+	"github.com/mesg-foundation/engine/hash/hashserializer"
 	"github.com/mesg-foundation/engine/service"
 )
 
@@ -268,7 +268,7 @@ func convertVolumesFrom(s *service.Service, dVolumesFrom []string) ([]container.
 // volumeKey creates a key for service's volume based on the sid to make sure that the volume
 // will stay the same for different versions of the service.
 func volumeKey(s *service.Service, dependency, volume string) string {
-	return hash.Dump(serializer.StringSlice([]string{
+	return hash.Dump(hashserializer.StringSlice([]string{
 		s.Sid,
 		dependency,
 		volume,

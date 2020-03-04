@@ -5,7 +5,7 @@ import (
 	"testing"
 	"testing/quick"
 
-	"github.com/mesg-foundation/engine/hash/serializer"
+	"github.com/mesg-foundation/engine/hash/hashserializer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -21,12 +21,12 @@ type testDump struct {
 	c []string
 }
 
-func (data testDump) Serialize() string {
-	ser := serializer.New()
+func (data testDump) HashSerialize() string {
+	ser := hashserializer.New()
 	ser.AddInt("1", data.a)
 	ser.AddString("2", data.b)
 	ser.AddStringSlice("3", data.c)
-	return ser.Serialize()
+	return ser.HashSerialize()
 }
 
 func TestDump(t *testing.T) {

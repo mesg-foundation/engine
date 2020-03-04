@@ -4,22 +4,22 @@ import (
 	"sort"
 	"strconv"
 
-	"github.com/mesg-foundation/engine/hash/serializer"
+	"github.com/mesg-foundation/engine/hash/hashserializer"
 )
 
-func (data *Struct) Serialize() string {
+func (data *Struct) HashSerialize() string {
 	if data == nil {
 		return ""
 	}
-	ser := serializer.New()
+	ser := hashserializer.New()
 	ser.Add("1", mapValue(data.Fields))
-	return ser.Serialize()
+	return ser.HashSerialize()
 }
 
 type mapValue map[string]*Value
 
-func (data mapValue) Serialize() string {
-	ser := serializer.New()
+func (data mapValue) HashSerialize() string {
+	ser := hashserializer.New()
 	keys := make([]string, 0, len(data))
 	for k := range data {
 		keys = append(keys, k)
@@ -28,40 +28,40 @@ func (data mapValue) Serialize() string {
 	for _, key := range keys {
 		ser.Add(key, data[key])
 	}
-	return ser.Serialize()
+	return ser.HashSerialize()
 }
 
-func (data *Value) Serialize() string {
+func (data *Value) HashSerialize() string {
 	if data == nil {
 		return ""
 	}
-	ser := serializer.New()
+	ser := hashserializer.New()
 	ser.AddFloat("2", data.GetNumberValue())
 	ser.AddString("3", data.GetStringValue())
 	ser.AddBool("4", data.GetBoolValue())
 	ser.Add("5", data.GetStructValue())
 	ser.Add("6", data.GetListValue())
-	return ser.Serialize()
+	return ser.HashSerialize()
 }
 
-func (data *ListValue) Serialize() string {
+func (data *ListValue) HashSerialize() string {
 	if data == nil {
 		return ""
 	}
-	ser := serializer.New()
+	ser := hashserializer.New()
 	ser.Add("1", values(data.Values))
-	return ser.Serialize()
+	return ser.HashSerialize()
 }
 
 type values []*Value
 
-func (data values) Serialize() string {
+func (data values) HashSerialize() string {
 	if data == nil {
 		return ""
 	}
-	ser := serializer.New()
+	ser := hashserializer.New()
 	for i, value := range data {
 		ser.Add(strconv.Itoa(i), value)
 	}
-	return ser.Serialize()
+	return ser.HashSerialize()
 }

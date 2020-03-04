@@ -34,13 +34,13 @@ var s = &Service{
 }
 
 func TestSerialize(t *testing.T) {
-	require.Equal(t, "1:world;5:0:6:0:3:Number;4:true;8:key;;;7:0:3:Number;4:true;8:key;;;8:task;;;6:0:3:0:3:Number;4:true;8:key;;;4:event;;;12:hello;", s.Serialize())
+	require.Equal(t, "1:world;5:0:6:0:3:Number;4:true;8:key;;;7:0:3:Number;4:true;8:key;;;8:task;;;6:0:3:0:3:Number;4:true;8:key;;;4:event;;;12:hello;", s.HashSerialize())
 	require.Equal(t, "5Hwubvgm5eDFJyXXpEEnTcYNFR7Jppmq94vmQb7oxXfX", hash.Dump(s).String())
 }
 
 func BenchmarkSerialize(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		s.Serialize()
+		s.HashSerialize()
 	}
 }
 

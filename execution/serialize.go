@@ -1,11 +1,9 @@
 package execution
 
-import (
-	"github.com/mesg-foundation/engine/hash/serializer"
-)
+import "github.com/mesg-foundation/engine/hash/hashserializer"
 
-func (data *Execution) Serialize() string {
-	ser := serializer.New()
+func (data *Execution) HashSerialize() string {
+	ser := hashserializer.New()
 	ser.AddString("2", data.ParentHash.String())
 	ser.AddString("3", data.EventHash.String())
 	ser.AddString("5", data.InstanceHash.String())
@@ -16,5 +14,5 @@ func (data *Execution) Serialize() string {
 	ser.AddString("12", data.NodeKey)
 	ser.AddString("13", data.ExecutorHash.String())
 	ser.AddString("14", data.Price)
-	return ser.Serialize()
+	return ser.HashSerialize()
 }

@@ -9,7 +9,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/mesg-foundation/engine/hash/serializer"
+	"github.com/mesg-foundation/engine/hash/hashserializer"
 	"github.com/mr-tron/base58"
 )
 
@@ -24,9 +24,9 @@ var errInvalidLen = errors.New("hash: invalid length")
 // A Hash is a type for representing common hash.
 type Hash []byte
 
-// Dump takes a structure that implement Serializable and returns its hash.
-func Dump(v serializer.Serializable) Hash {
-	h := sumFunc([]byte(v.Serialize()))
+// Dump takes a structure that implement HashSerializable and returns its hash.
+func Dump(v hashserializer.HashSerializable) Hash {
+	h := sumFunc([]byte(v.HashSerialize()))
 	return Hash(h[:])
 }
 
