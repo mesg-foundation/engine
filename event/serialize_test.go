@@ -13,7 +13,7 @@ var data = &Event{
 	InstanceHash: hash.Int(10),
 	Data: &types.Struct{
 		Fields: map[string]*types.Value{
-			"foo": &types.Value{
+			"foo": {
 				Kind: &types.Value_StringValue{StringValue: "bar"},
 			},
 		},

@@ -10,7 +10,7 @@ import (
 var data = &Process{
 	Name: "name",
 	Nodes: []*Process_Node{
-		&Process_Node{
+		{
 			Key: "nodeKey1",
 			Type: &Process_Node_Event_{
 				&Process_Node_Event{
@@ -18,7 +18,7 @@ var data = &Process{
 					EventKey:     "eventKey",
 				},
 			},
-		}, &Process_Node{
+		}, {
 			Key: "nodeKey2",
 			Type: &Process_Node_Task_{&Process_Node_Task{
 				InstanceHash: hash.Int(2),
@@ -27,7 +27,7 @@ var data = &Process{
 		},
 	},
 	Edges: []*Process_Edge{
-		&Process_Edge{Src: "nodeKey1", Dst: "nodeKey2"},
+		{Src: "nodeKey1", Dst: "nodeKey2"},
 	},
 }
 
