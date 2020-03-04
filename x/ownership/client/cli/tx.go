@@ -26,7 +26,9 @@ func GetTxCmd(cdc *codec.Codec) *cobra.Command {
 		RunE:                       client.ValidateCmd,
 	}
 
-	ownershipTxCmd.AddCommand(flags.PostCommands()...)
+	ownershipTxCmd.AddCommand(flags.PostCommands(
+		GetCmdWithdrawCoins(cdc),
+	)...)
 	return ownershipTxCmd
 }
 
