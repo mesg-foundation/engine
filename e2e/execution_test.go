@@ -270,6 +270,19 @@ func testExecution(t *testing.T) {
 			require.NoError(t, cclient.QueryJSON("custom/bank/balances", param, &coins))
 			require.True(t, coins.IsZero(), coins)
 		})
+
+		t.Run("withdraw from runner", func(t *testing.T) {
+			acc, err := cclient.GetAccount()
+			require.NoError(t, err)
+			coins := sdk.NewCoins(sdk.NewCoin("atto", sdk.NewInt(63000)))
+			msg := ownership.NewMsgWithdrawCoins(testRunnerHash, coins, acc.GetAddress())
+			_, err = cclient.BuildAndBroadcastMsg(msg)
+			require.NoError(t, err)
+
+			param := bank.NewQueryBalanceParams(sdk.AccAddress(crypto.AddressHash(testRunnerHash)))
+			require.NoError(t, cclient.QueryJSON("custom/bank/balances", param, &coins))
+			require.True(t, coins.IsZero(), coins)
+		})
 	})
 
 	t.Run("many executions in parallel", func(t *testing.T) {
