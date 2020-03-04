@@ -257,7 +257,6 @@ func testExecution(t *testing.T) {
 			require.True(t, coins.AmountOf("atto").Equal(sdk.NewInt(0)))
 		})
 
-		// check balance of execution
 		t.Run("withdraw from service", func(t *testing.T) {
 			acc, err := cclient.GetAccount()
 			require.NoError(t, err)
