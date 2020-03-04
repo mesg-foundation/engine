@@ -7,6 +7,7 @@ import (
 	"github.com/mesg-foundation/engine/hash/hashserializer"
 )
 
+// HashSerialize returns the hashserialized string of this type
 func (data *Struct) HashSerialize() string {
 	if data == nil {
 		return ""
@@ -18,6 +19,7 @@ func (data *Struct) HashSerialize() string {
 
 type mapValue map[string]*Value
 
+// HashSerialize returns the hashserialized string of this type
 func (data mapValue) HashSerialize() string {
 	ser := hashserializer.New()
 	keys := make([]string, 0, len(data))
@@ -31,6 +33,7 @@ func (data mapValue) HashSerialize() string {
 	return ser.HashSerialize()
 }
 
+// HashSerialize returns the hashserialized string of this type
 func (data *Value) HashSerialize() string {
 	if data == nil {
 		return ""
@@ -44,6 +47,7 @@ func (data *Value) HashSerialize() string {
 	return ser.HashSerialize()
 }
 
+// HashSerialize returns the hashserialized string of this type
 func (data *ListValue) HashSerialize() string {
 	if data == nil {
 		return ""
@@ -55,6 +59,7 @@ func (data *ListValue) HashSerialize() string {
 
 type values []*Value
 
+// HashSerialize returns the hashserialized string of this type
 func (data values) HashSerialize() string {
 	if data == nil {
 		return ""

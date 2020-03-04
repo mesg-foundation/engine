@@ -2,6 +2,7 @@ package instance
 
 import "github.com/mesg-foundation/engine/hash/hashserializer"
 
+// HashSerialize returns the hashserialized string of this type
 func (data *Instance) HashSerialize() string {
 	if data == nil {
 		return ""

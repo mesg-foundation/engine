@@ -6,6 +6,7 @@ import (
 	"github.com/mesg-foundation/engine/hash/hashserializer"
 )
 
+// HashSerialize returns the hashserialized string of this type
 func (data *Service) HashSerialize() string {
 	if data == nil {
 		return ""
@@ -23,6 +24,7 @@ func (data *Service) HashSerialize() string {
 	return ser.HashSerialize()
 }
 
+// HashSerialize returns the hashserialized string of this type
 func (data Service_Configuration) HashSerialize() string {
 	ser := hashserializer.New()
 	ser.AddStringSlice("1", data.Volumes)
@@ -34,6 +36,7 @@ func (data Service_Configuration) HashSerialize() string {
 	return ser.HashSerialize()
 }
 
+// HashSerialize returns the hashserialized string of this type
 func (data *Service_Task) HashSerialize() string {
 	if data == nil {
 		return ""
@@ -47,6 +50,7 @@ func (data *Service_Task) HashSerialize() string {
 	return ser.HashSerialize()
 }
 
+// HashSerialize returns the hashserialized string of this type
 func (data *Service_Parameter) HashSerialize() string {
 	if data == nil {
 		return ""
@@ -62,6 +66,7 @@ func (data *Service_Parameter) HashSerialize() string {
 	return ser.HashSerialize()
 }
 
+// HashSerialize returns the hashserialized string of this type
 func (data *Service_Event) HashSerialize() string {
 	if data == nil {
 		return ""
@@ -74,6 +79,7 @@ func (data *Service_Event) HashSerialize() string {
 	return ser.HashSerialize()
 }
 
+// HashSerialize returns the hashserialized string of this type
 func (data *Service_Dependency) HashSerialize() string {
 	if data == nil {
 		return ""
@@ -92,6 +98,7 @@ func (data *Service_Dependency) HashSerialize() string {
 
 type serviceTasks []*Service_Task
 
+// HashSerialize returns the hashserialized string of this type
 func (data serviceTasks) HashSerialize() string {
 	if data == nil {
 		return ""
@@ -105,6 +112,7 @@ func (data serviceTasks) HashSerialize() string {
 
 type serviceParameters []*Service_Parameter
 
+// HashSerialize returns the hashserialized string of this type
 func (data serviceParameters) HashSerialize() string {
 	if data == nil {
 		return ""
@@ -118,6 +126,7 @@ func (data serviceParameters) HashSerialize() string {
 
 type serviceEvents []*Service_Event
 
+// HashSerialize returns the hashserialized string of this type
 func (data serviceEvents) HashSerialize() string {
 	if data == nil {
 		return ""
@@ -131,6 +140,7 @@ func (data serviceEvents) HashSerialize() string {
 
 type serviceDependencies []*Service_Dependency
 
+// HashSerialize returns the hashserialized string of this type
 func (data serviceDependencies) HashSerialize() string {
 	if data == nil {
 		return ""

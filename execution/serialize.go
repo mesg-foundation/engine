@@ -2,6 +2,7 @@ package execution
 
 import "github.com/mesg-foundation/engine/hash/hashserializer"
 
+// HashSerialize returns the hashserialized string of this type
 func (data *Execution) HashSerialize() string {
 	ser := hashserializer.New()
 	ser.AddString("2", data.ParentHash.String())

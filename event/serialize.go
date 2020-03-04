@@ -2,6 +2,7 @@ package event
 
 import "github.com/mesg-foundation/engine/hash/hashserializer"
 
+// HashSerialize returns the hashserialized string of this type
 func (data *Event) HashSerialize() string {
 	if data == nil {
 		return ""

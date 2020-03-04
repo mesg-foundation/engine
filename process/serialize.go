@@ -7,6 +7,7 @@ import (
 	"github.com/mesg-foundation/engine/hash/hashserializer"
 )
 
+// HashSerialize returns the hashserialized string of this type
 func (data *Process) HashSerialize() string {
 	if data == nil {
 		return ""
@@ -18,6 +19,7 @@ func (data *Process) HashSerialize() string {
 	return ser.HashSerialize()
 }
 
+// HashSerialize returns the hashserialized string of this type
 func (data *Process_Node) HashSerialize() string {
 	if data == nil {
 		return ""
@@ -32,6 +34,7 @@ func (data *Process_Node) HashSerialize() string {
 	return ser.HashSerialize()
 }
 
+// HashSerialize returns the hashserialized string of this type
 func (data *Process_Node_Result) HashSerialize() string {
 	if data == nil {
 		return ""
@@ -42,6 +45,7 @@ func (data *Process_Node_Result) HashSerialize() string {
 	return ser.HashSerialize()
 }
 
+// HashSerialize returns the hashserialized string of this type
 func (data *Process_Node_Event) HashSerialize() string {
 	if data == nil {
 		return ""
@@ -52,6 +56,7 @@ func (data *Process_Node_Event) HashSerialize() string {
 	return ser.HashSerialize()
 }
 
+// HashSerialize returns the hashserialized string of this type
 func (data *Process_Node_Task) HashSerialize() string {
 	if data == nil {
 		return ""
@@ -62,6 +67,7 @@ func (data *Process_Node_Task) HashSerialize() string {
 	return ser.HashSerialize()
 }
 
+// HashSerialize returns the hashserialized string of this type
 func (data *Process_Node_Map) HashSerialize() string {
 	if data == nil {
 		return ""
@@ -73,6 +79,7 @@ func (data *Process_Node_Map) HashSerialize() string {
 
 type mapProcessNodeMapOutput map[string]*Process_Node_Map_Output
 
+// HashSerialize returns the hashserialized string of this type
 func (data mapProcessNodeMapOutput) HashSerialize() string {
 	ser := hashserializer.New()
 	keys := make([]string, 0, len(data))
@@ -86,6 +93,7 @@ func (data mapProcessNodeMapOutput) HashSerialize() string {
 	return ser.HashSerialize()
 }
 
+// HashSerialize returns the hashserialized string of this type
 func (data *Process_Node_Map_Output) HashSerialize() string {
 	if data == nil {
 		return ""
@@ -100,6 +108,7 @@ func (data *Process_Node_Map_Output) HashSerialize() string {
 	return ser.HashSerialize()
 }
 
+// HashSerialize returns the hashserialized string of this type
 func (data *Process_Node_Map_Output_Map) HashSerialize() string {
 	if data == nil {
 		return ""
@@ -109,6 +118,7 @@ func (data *Process_Node_Map_Output_Map) HashSerialize() string {
 	return ser.HashSerialize()
 }
 
+// HashSerialize returns the hashserialized string of this type
 func (data *Process_Node_Map_Output_List) HashSerialize() string {
 	if data == nil {
 		return ""
@@ -120,6 +130,7 @@ func (data *Process_Node_Map_Output_List) HashSerialize() string {
 
 type processNodeMapOutputs []*Process_Node_Map_Output
 
+// HashSerialize returns the hashserialized string of this type
 func (data processNodeMapOutputs) HashSerialize() string {
 	if data == nil {
 		return ""
@@ -131,6 +142,7 @@ func (data processNodeMapOutputs) HashSerialize() string {
 	return ser.HashSerialize()
 }
 
+// HashSerialize returns the hashserialized string of this type
 func (data *Process_Node_Map_Output_Reference) HashSerialize() string {
 	if data == nil {
 		return ""
@@ -141,6 +153,7 @@ func (data *Process_Node_Map_Output_Reference) HashSerialize() string {
 	return ser.HashSerialize()
 }
 
+// HashSerialize returns the hashserialized string of this type
 func (data *Process_Node_Map_Output_Reference_Path) HashSerialize() string {
 	if data == nil {
 		return ""
@@ -152,6 +165,7 @@ func (data *Process_Node_Map_Output_Reference_Path) HashSerialize() string {
 	return ser.HashSerialize()
 }
 
+// HashSerialize returns the hashserialized string of this type
 func (data *Process_Node_Filter) HashSerialize() string {
 	if data == nil {
 		return ""
@@ -163,6 +177,7 @@ func (data *Process_Node_Filter) HashSerialize() string {
 
 type processNodeFilterConditions []Process_Node_Filter_Condition
 
+// HashSerialize returns the hashserialized string of this type
 func (data processNodeFilterConditions) HashSerialize() string {
 	if data == nil {
 		return ""
@@ -174,6 +189,7 @@ func (data processNodeFilterConditions) HashSerialize() string {
 	return ser.HashSerialize()
 }
 
+// HashSerialize returns the hashserialized string of this type
 func (data Process_Node_Filter_Condition) HashSerialize() string {
 	ser := hashserializer.New()
 	ser.AddString("1", data.Key)
@@ -181,6 +197,7 @@ func (data Process_Node_Filter_Condition) HashSerialize() string {
 	return ser.HashSerialize()
 }
 
+// HashSerialize returns the hashserialized string of this type
 func (data *Process_Edge) HashSerialize() string {
 	if data == nil {
 		return ""
@@ -193,6 +210,7 @@ func (data *Process_Edge) HashSerialize() string {
 
 type processNodes []*Process_Node
 
+// HashSerialize returns the hashserialized string of this type
 func (data processNodes) HashSerialize() string {
 	if data == nil {
 		return ""
@@ -206,6 +224,7 @@ func (data processNodes) HashSerialize() string {
 
 type processEdges []*Process_Edge
 
+// HashSerialize returns the hashserialized string of this type
 func (data processEdges) HashSerialize() string {
 	if data == nil {
 		return ""
