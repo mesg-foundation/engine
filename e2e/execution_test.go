@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/x/bank"
 	"github.com/mesg-foundation/engine/execution"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/protobuf/acknowledgement"
@@ -260,10 +261,14 @@ func testExecution(t *testing.T) {
 		t.Run("withdraw from service", func(t *testing.T) {
 			acc, err := cclient.GetAccount()
 			require.NoError(t, err)
-			coins := sdk.NewCoins(sdk.NewCoin("atto", sdk.NewInt(5)))
+			coins := sdk.NewCoins(sdk.NewCoin("atto", sdk.NewInt(7000)))
 			msg := ownership.NewMsgWithdrawCoins(testServiceHash, coins, acc.GetAddress())
 			_, err = cclient.BuildAndBroadcastMsg(msg)
 			require.NoError(t, err)
+
+			param := bank.NewQueryBalanceParams(sdk.AccAddress(crypto.AddressHash(testServiceHash)))
+			require.NoError(t, cclient.QueryJSON("custom/bank/balances", param, &coins))
+			require.True(t, coins.IsZero(), coins)
 		})
 	})
 
