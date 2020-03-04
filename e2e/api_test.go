@@ -5,6 +5,7 @@ import (
 	"context"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"path/filepath"
 	"testing"
 
@@ -81,6 +82,11 @@ func TestAPI(t *testing.T) {
 	conn, err := grpc.DialContext(context.Background(), "localhost:50052", grpc.WithInsecure())
 	require.NoError(t, err)
 
+	// change and recreate cosmos relative path because CI dir permissions
+	cfg.Cosmos.RelativePath = "e2e.cosmos"
+	err = os.MkdirAll(filepath.Join(cfg.Path, cfg.Cosmos.RelativePath), os.FileMode(0755))
+	require.NoError(t, err)
+
 	kb, err := cosmos.NewKeybase(filepath.Join(cfg.Path, cfg.Cosmos.RelativePath))
 	require.NoError(t, err)
 	if cfg.Account.Mnemonic != "" {
@@ -90,7 +96,7 @@ func TestAPI(t *testing.T) {
 
 	httpclient, err := rpcclient.NewHTTP("http://localhost:26657", "/websocket")
 	require.NoError(t, err)
-	require.NoError(t, httpclient.OnStart())
+	require.NoError(t, httpclient.Start())
 	defer httpclient.Stop()
 	cclient, err = cosmos.NewClient(httpclient, cdc, kb, cfg.DevGenesis.ChainID, cfg.Account.Name, cfg.Account.Password, cfg.Cosmos.MinGasPrices)
 	require.NoError(t, err)
