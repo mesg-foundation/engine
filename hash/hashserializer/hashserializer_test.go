@@ -20,7 +20,7 @@ func (data testSerializable) HashSerialize() string {
 	return ser.HashSerialize()
 }
 
-func TestSerializer(t *testing.T) {
+func TestHashSerializer(t *testing.T) {
 	tests := []struct {
 		f func(*HashSerializer)
 		s string
