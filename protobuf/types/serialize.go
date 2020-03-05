@@ -12,9 +12,9 @@ func (data *Struct) HashSerialize() string {
 	if data == nil {
 		return ""
 	}
-	ser := hashserializer.New()
-	ser.Add("1", mapValue(data.Fields))
-	return ser.HashSerialize()
+	return hashserializer.New().
+		Add("1", mapValue(data.Fields)).
+		HashSerialize()
 }
 
 type mapValue map[string]*Value
@@ -38,14 +38,14 @@ func (data *Value) HashSerialize() string {
 	if data == nil {
 		return ""
 	}
-	ser := hashserializer.New()
-	ser.AddInt("1", int(data.GetNullValue()))
-	ser.AddFloat("2", data.GetNumberValue())
-	ser.AddString("3", data.GetStringValue())
-	ser.AddBool("4", data.GetBoolValue())
-	ser.Add("5", data.GetStructValue())
-	ser.Add("6", data.GetListValue())
-	return ser.HashSerialize()
+	return hashserializer.New().
+		AddInt("1", int(data.GetNullValue())).
+		AddFloat("2", data.GetNumberValue()).
+		AddString("3", data.GetStringValue()).
+		AddBool("4", data.GetBoolValue()).
+		Add("5", data.GetStructValue()).
+		Add("6", data.GetListValue()).
+		HashSerialize()
 }
 
 // HashSerialize returns the hashserialized string of this type
@@ -53,9 +53,9 @@ func (data *ListValue) HashSerialize() string {
 	if data == nil {
 		return ""
 	}
-	ser := hashserializer.New()
-	ser.Add("1", values(data.Values))
-	return ser.HashSerialize()
+	return hashserializer.New().
+		Add("1", values(data.Values)).
+		HashSerialize()
 }
 
 type values []*Value

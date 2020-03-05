@@ -22,11 +22,11 @@ type testDump struct {
 }
 
 func (data testDump) HashSerialize() string {
-	ser := hashserializer.New()
-	ser.AddInt("1", data.a)
-	ser.AddString("2", data.b)
-	ser.AddStringSlice("3", data.c)
-	return ser.HashSerialize()
+	return hashserializer.New().
+		AddInt("1", data.a).
+		AddString("2", data.b).
+		AddStringSlice("3", data.c).
+		HashSerialize()
 }
 
 func TestDump(t *testing.T) {
