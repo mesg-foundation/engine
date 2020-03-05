@@ -9,8 +9,8 @@ import (
 	"os"
 	"time"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/mesg-foundation/engine/ext/xsignal"
-	"github.com/mesg-foundation/engine/hash"
 	pb "github.com/mesg-foundation/engine/protobuf/api"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/keepalive"
@@ -29,7 +29,7 @@ type Client struct {
 	pb.ExecutionClient
 
 	// instance hash that could be used in api calls.
-	InstanceHash hash.Hash
+	InstanceHash sdk.AccAddress
 }
 
 // New creates a new client from env variables supplied by mesg engine.
@@ -39,7 +39,7 @@ func New() (*Client, error) {
 		return nil, fmt.Errorf("client: mesg server address env(%s) is empty", envMesgEndpoint)
 	}
 
-	instanceHash, err := hash.Decode(os.Getenv(envMesgInstanceHash))
+	instanceHash, err := sdk.AccAddressFromBech32(os.Getenv(envMesgInstanceHash))
 	if err != nil {
 		return nil, fmt.Errorf("client: error with mesg's instance hash env(%s): %s", envMesgInstanceHash, err.Error())
 	}

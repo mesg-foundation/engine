@@ -95,7 +95,7 @@ func New() (*validator.Validate, ut.Translator) {
 func IsHash(fl validator.FieldLevel) bool {
 	switch v := fl.Field(); v.Kind() {
 	case reflect.String:
-		_, err := hash.Decode(v.String())
+		_, err := sdk.AccAddressFromBech32(v.String())
 		return err == nil
 	case reflect.Slice:
 		if v.Type().Elem().Kind() != reflect.Uint8 {

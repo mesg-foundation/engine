@@ -5,11 +5,11 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/mesg-foundation/engine/hash"
 	ownershippb "github.com/mesg-foundation/engine/ownership"
 	"github.com/mesg-foundation/engine/process"
 	processpb "github.com/mesg-foundation/engine/process"
 	"github.com/mesg-foundation/engine/x/process/internal/types"
+	"github.com/tendermint/tendermint/crypto"
 	"github.com/tendermint/tendermint/libs/log"
 )
 
@@ -45,7 +45,7 @@ func (k Keeper) Create(ctx sdk.Context, msg *types.MsgCreateProcess) (*processpb
 		Nodes: msg.Request.Nodes,
 		Edges: msg.Request.Edges,
 	}
-	p.Hash = hash.Dump(p)
+	p.Hash = sdk.AccAddress(crypto.AddressHash([]byte(p.HashSerialize())))
 	if store.Has(p.Hash) {
 		return nil, fmt.Errorf("process %q already exists", p.Hash)
 	}
@@ -90,7 +90,7 @@ func (k Keeper) Delete(ctx sdk.Context, msg *types.MsgDeleteProcess) error {
 }
 
 // Get returns the process that matches given hash.
-func (k Keeper) Get(ctx sdk.Context, hash hash.Hash) (*processpb.Process, error) {
+func (k Keeper) Get(ctx sdk.Context, hash sdk.AccAddress) (*processpb.Process, error) {
 	store := ctx.KVStore(k.storeKey)
 	if !store.Has(hash) {
 		return nil, fmt.Errorf("process %q not found", hash)

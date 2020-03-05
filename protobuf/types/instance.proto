@@ -6,18 +6,18 @@ package mesg.types;
 option go_package = "github.com/mesg-foundation/engine/instance";
 
 option (gogoproto.goproto_getters_all) = false;
-option (gogoproto.equal_all) = true;
+// option (gogoproto.equal_all) = true;
 
 // Instance represents service's instance.
 message Instance {
   bytes hash = 1 [
-    (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.AccAddress",
     (gogoproto.nullable) = false
   ];
 
   bytes serviceHash = 2 [
     (gogoproto.moretags) = 'hash:"name:2"',
-    (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.AccAddress",
     (gogoproto.nullable) = false
   ];
 

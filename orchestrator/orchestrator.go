@@ -6,11 +6,11 @@ import (
 	"fmt"
 	"math/rand"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/mesg-foundation/engine/cosmos"
 	"github.com/mesg-foundation/engine/event"
 	"github.com/mesg-foundation/engine/event/publisher"
 	"github.com/mesg-foundation/engine/execution"
-	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/process"
 	"github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/mesg-foundation/engine/protobuf/types"
@@ -71,7 +71,7 @@ func (s *Orchestrator) Stop() {
 func (s *Orchestrator) eventFilter(event *event.Event) func(wf *process.Process, node *process.Process_Node) (bool, error) {
 	return func(wf *process.Process, node *process.Process_Node) (bool, error) {
 		if e := node.GetEvent(); e != nil {
-			return e.InstanceHash.Equal(event.InstanceHash) && e.EventKey == event.Key, nil
+			return e.InstanceHash.Equals(event.InstanceHash) && e.EventKey == event.Key, nil
 		}
 		return false, nil
 	}
@@ -80,7 +80,7 @@ func (s *Orchestrator) eventFilter(event *event.Event) func(wf *process.Process,
 func (s *Orchestrator) resultFilter(exec *execution.Execution) func(wf *process.Process, node *process.Process_Node) (bool, error) {
 	return func(wf *process.Process, node *process.Process_Node) (bool, error) {
 		if result := node.GetResult(); result != nil {
-			return result.InstanceHash.Equal(exec.InstanceHash) && result.TaskKey == exec.TaskKey, nil
+			return result.InstanceHash.Equals(exec.InstanceHash) && result.TaskKey == exec.TaskKey, nil
 		}
 		return false, nil
 	}
@@ -88,7 +88,7 @@ func (s *Orchestrator) resultFilter(exec *execution.Execution) func(wf *process.
 
 func (s *Orchestrator) dependencyFilter(exec *execution.Execution) func(wf *process.Process, node *process.Process_Node) (bool, error) {
 	return func(wf *process.Process, node *process.Process_Node) (bool, error) {
-		if !exec.ProcessHash.Equal(wf.Hash) {
+		if !exec.ProcessHash.Equals(wf.Hash) {
 			return false, nil
 		}
 		parents := wf.ParentKeys(node.Key)
@@ -234,8 +234,8 @@ func (s *Orchestrator) outputToValue(nodeKey string, output *process.Process_Nod
 	}
 }
 
-func (s *Orchestrator) resolveInput(wfHash hash.Hash, exec *execution.Execution, nodeKey string, path *process.Process_Node_Map_Output_Reference_Path) (*types.Value, error) {
-	if !wfHash.Equal(exec.ProcessHash) {
+func (s *Orchestrator) resolveInput(wfHash sdk.AccAddress, exec *execution.Execution, nodeKey string, path *process.Process_Node_Map_Output_Reference_Path) (*types.Value, error) {
+	if !wfHash.Equals(exec.ProcessHash) {
 		return nil, fmt.Errorf("reference's nodeKey not found")
 	}
 	if exec.NodeKey != nodeKey {
@@ -249,7 +249,7 @@ func (s *Orchestrator) resolveInput(wfHash hash.Hash, exec *execution.Execution,
 }
 
 func (s *Orchestrator) processTask(nodeKey string, task *process.Process_Node_Task, wf *process.Process, exec *execution.Execution, event *event.Event, data *types.Struct) error {
-	var eventHash, execHash hash.Hash
+	var eventHash, execHash sdk.AccAddress
 	if event != nil {
 		eventHash = event.Hash
 	}

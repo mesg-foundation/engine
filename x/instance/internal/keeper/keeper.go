@@ -9,6 +9,7 @@ import (
 	"github.com/mesg-foundation/engine/instance"
 	"github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/mesg-foundation/engine/x/instance/internal/types"
+	"github.com/tendermint/tendermint/crypto"
 	"github.com/tendermint/tendermint/libs/log"
 )
 
@@ -33,14 +34,14 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 }
 
 // FetchOrCreate creates a new instance if needed.
-func (k Keeper) FetchOrCreate(ctx sdk.Context, serviceHash hash.Hash, envHash hash.Hash) (*instance.Instance, error) {
+func (k Keeper) FetchOrCreate(ctx sdk.Context, serviceHash sdk.AccAddress, envHash hash.Hash) (*instance.Instance, error) {
 	store := ctx.KVStore(k.storeKey)
 
 	inst := &instance.Instance{
 		ServiceHash: serviceHash,
 		EnvHash:     envHash,
 	}
-	inst.Hash = hash.Dump(inst)
+	inst.Hash = sdk.AccAddress(crypto.AddressHash([]byte(inst.HashSerialize())))
 
 	if !store.Has(inst.Hash) {
 		value, err := k.cdc.MarshalBinaryLengthPrefixed(inst)
@@ -54,7 +55,7 @@ func (k Keeper) FetchOrCreate(ctx sdk.Context, serviceHash hash.Hash, envHash ha
 }
 
 // Get returns the instance from the keeper.
-func (k Keeper) Get(ctx sdk.Context, instanceHash hash.Hash) (*instance.Instance, error) {
+func (k Keeper) Get(ctx sdk.Context, instanceHash sdk.AccAddress) (*instance.Instance, error) {
 	store := ctx.KVStore(k.storeKey)
 	if !store.Has(instanceHash) {
 		return nil, fmt.Errorf("instance %q not found", instanceHash)
@@ -78,7 +79,7 @@ func (k Keeper) List(ctx sdk.Context, f *api.ListInstanceRequest_Filter) ([]*ins
 		if err := k.cdc.UnmarshalBinaryLengthPrefixed(iter.Value(), &item); err != nil {
 			return nil, err
 		}
-		if f == nil || f.ServiceHash.IsZero() || item.ServiceHash.Equal(f.ServiceHash) {
+		if f == nil || f.ServiceHash.Empty() || item.ServiceHash.Equals(f.ServiceHash) {
 			items = append(items, item)
 		}
 		iter.Next()

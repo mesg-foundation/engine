@@ -5,17 +5,17 @@ import (
 	"testing"
 	"time"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/mesg-foundation/engine/execution"
-	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/process"
 	pb "github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/mesg-foundation/engine/protobuf/types"
 	"github.com/stretchr/testify/require"
 )
 
-func testOrchestratorEventTask(executionStream pb.Execution_StreamClient, instanceHash hash.Hash) func(t *testing.T) {
+func testOrchestratorEventTask(executionStream pb.Execution_StreamClient, instanceHash sdk.AccAddress) func(t *testing.T) {
 	return func(t *testing.T) {
-		var processHash hash.Hash
+		var processHash sdk.AccAddress
 
 		t.Run("create process", func(t *testing.T) {
 			respProc, err := client.ProcessClient.Create(context.Background(), &pb.CreateProcessRequest{
@@ -73,7 +73,7 @@ func testOrchestratorEventTask(executionStream pb.Execution_StreamClient, instan
 			require.NoError(t, err)
 			require.Equal(t, "task1", exec.TaskKey)
 			require.Equal(t, "n1", exec.NodeKey)
-			require.True(t, processHash.Equal(exec.ProcessHash))
+			require.True(t, processHash.Equals(exec.ProcessHash))
 			require.Equal(t, execution.Status_InProgress, exec.Status)
 			require.Equal(t, "foo_1", exec.Inputs.Fields["msg"].GetStringValue())
 		})
@@ -82,7 +82,7 @@ func testOrchestratorEventTask(executionStream pb.Execution_StreamClient, instan
 			require.NoError(t, err)
 			require.Equal(t, "task1", exec.TaskKey)
 			require.Equal(t, "n1", exec.NodeKey)
-			require.True(t, processHash.Equal(exec.ProcessHash))
+			require.True(t, processHash.Equals(exec.ProcessHash))
 			require.Equal(t, execution.Status_Completed, exec.Status)
 			require.Equal(t, "foo_1", exec.Outputs.Fields["msg"].GetStringValue())
 			require.NotEmpty(t, exec.Outputs.Fields["timestamp"].GetNumberValue())

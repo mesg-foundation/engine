@@ -7,7 +7,7 @@ package mesg.types;
 option go_package = "github.com/mesg-foundation/engine/execution";
 
 option (gogoproto.goproto_getters_all) = false;
-option (gogoproto.equal_all) = true;
+// option (gogoproto.equal_all) = true;
 
 // Status represents the status of a single execution.
 // Note that a valid execution must have only one status
@@ -34,7 +34,7 @@ message Execution {
   // Hash is a unique hash to identify execution.
   bytes hash = 1 [
     (gogoproto.moretags) = 'hash:"-"',
-    (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.AccAddress",
     (gogoproto.nullable) = false
   ];
 
@@ -43,14 +43,14 @@ message Execution {
   // dependency execution considered as the parent.
   bytes parentHash = 2 [
     (gogoproto.moretags) = 'hash:"name:2"',
-    (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.AccAddress",
     (gogoproto.nullable) = false
   ];
 
   // eventHash is unique event hash.
   bytes eventHash = 3 [
     (gogoproto.moretags) = 'hash:"name:3"',
-    (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.AccAddress",
     (gogoproto.nullable) = false
   ];
 
@@ -62,7 +62,7 @@ message Execution {
   // instanceHash is hash of the instance that can proceed an execution
   bytes instanceHash = 5 [
     (gogoproto.moretags) = 'hash:"name:5"',
-    (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.AccAddress",
     (gogoproto.nullable) = false
   ];
 
@@ -94,7 +94,7 @@ message Execution {
   // processHash is the unique hash of the process associated to this execution.
   bytes processHash = 11 [
     (gogoproto.moretags) = 'hash:"name:11"',
-    (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.AccAddress",
     (gogoproto.nullable) = false
   ];
 
@@ -106,7 +106,7 @@ message Execution {
   // runner that should execute this execution.
   bytes executorHash = 13 [
     (gogoproto.moretags) = 'hash:"name:13"',
-    (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.AccAddress",
     (gogoproto.nullable) = false
   ];
 

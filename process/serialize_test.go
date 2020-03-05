@@ -3,8 +3,9 @@ package process
 import (
 	"testing"
 
-	"github.com/mesg-foundation/engine/hash"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
+	"github.com/tendermint/tendermint/crypto"
 )
 
 var data = &Process{
@@ -14,14 +15,14 @@ var data = &Process{
 			Key: "nodeKey1",
 			Type: &Process_Node_Event_{
 				&Process_Node_Event{
-					InstanceHash: hash.Int(5),
+					InstanceHash: sdk.AccAddress(crypto.AddressHash([]byte("5"))),
 					EventKey:     "eventKey",
 				},
 			},
 		}, {
 			Key: "nodeKey2",
 			Type: &Process_Node_Task_{&Process_Node_Task{
-				InstanceHash: hash.Int(2),
+				InstanceHash: sdk.AccAddress(crypto.AddressHash([]byte("2"))),
 				TaskKey:      "-",
 			}},
 		},
@@ -32,8 +33,8 @@ var data = &Process{
 }
 
 func TestHashSerialize(t *testing.T) {
-	require.Equal(t, "2:name;4:0:1:nodeKey1;3:2:LX3EUdRUBUa3TbsYXLEUdj9J3prXkWXvLYSWyYyc2Jj;3:eventKey;;;1:1:nodeKey2;4:2:8opHzTAnfzRpPEx21XtnrVTX28YQuCpAjcn1PczScKh;3:-;;;;5:0:1:nodeKey1;2:nodeKey2;;;", data.HashSerialize())
-	require.Equal(t, "HUQ6EKW3fQPDhpCZu65x5ETQxtSCDKLJk9Qw9PKkLvzg", hash.Dump(data).String())
+	require.Equal(t, "2:name;4:0:1:nodeKey1;3:2:cosmos1auk3yl0r0w2zh2ksv9z72jcvvxdp7g3jseahyw;3:eventKey;;;1:1:nodeKey2;4:2:cosmos163e4uw3xtctwacplt9cchx6aqvqecp7cfc5u00;3:-;;;;5:0:1:nodeKey1;2:nodeKey2;;;", data.HashSerialize())
+	require.Equal(t, "cosmos1n9awwtu5972rrjcgxp2lysk7ca2kfxf89np8wk", sdk.AccAddress(crypto.AddressHash([]byte(data.HashSerialize()))).String())
 }
 
 func BenchmarkHashSerialize(b *testing.B) {

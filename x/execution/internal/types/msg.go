@@ -44,13 +44,13 @@ func (msg MsgCreateExecution) ValidateBasic() error {
 	if err := xvalidator.Validate.Struct(msg); err != nil {
 		return sdkerrors.Wrap(errors.ErrValidation, err.Error())
 	}
-	if !msg.Request.ParentHash.IsZero() && !msg.Request.EventHash.IsZero() {
+	if !msg.Request.ParentHash.Empty() && !msg.Request.EventHash.Empty() {
 		return sdkerrors.Wrap(errors.ErrValidation, "cannot have both parent and event hash")
 	}
-	if msg.Request.ParentHash.IsZero() && msg.Request.EventHash.IsZero() {
+	if msg.Request.ParentHash.Empty() && msg.Request.EventHash.Empty() {
 		return sdkerrors.Wrap(errors.ErrValidation, "should have at least an event hash or parent hash")
 	}
-	if msg.Request.ExecutorHash.IsZero() {
+	if msg.Request.ExecutorHash.Empty() {
 		return sdkerrors.Wrap(errors.ErrValidation, "should have a executor hash")
 	}
 	return nil

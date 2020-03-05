@@ -3,14 +3,15 @@ package event
 import (
 	"testing"
 
-	"github.com/mesg-foundation/engine/hash"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/mesg-foundation/engine/protobuf/types"
 	"github.com/stretchr/testify/require"
+	"github.com/tendermint/tendermint/crypto"
 )
 
 var data = &Event{
 	Key:          "eventKey",
-	InstanceHash: hash.Int(10),
+	InstanceHash: sdk.AccAddress(crypto.AddressHash([]byte("10"))),
 	Data: &types.Struct{
 		Fields: map[string]*types.Value{
 			"foo": {
@@ -21,8 +22,8 @@ var data = &Event{
 }
 
 func TestHashSerialize(t *testing.T) {
-	require.Equal(t, "2:g35TxFqwMx95vCk63fTxGTHb6ei4W24qg5t2x6xD3cT;3:eventKey;4:1:foo:3:bar;;;;", data.HashSerialize())
-	require.Equal(t, "CGQ1DWeSsf13BDovLNb9zHXTVMUPNcTWY4DaSAFNN88T", hash.Dump(data).String())
+	require.Equal(t, "2:cosmos1ffzdc9fkggz2srlgp6grj32uc9sg9qvzu4jym8;3:eventKey;4:1:foo:3:bar;;;;", data.HashSerialize())
+	require.Equal(t, "cosmos186j7ddz0046caf63h566ez5nxd23svd44ga94h", sdk.AccAddress(crypto.AddressHash([]byte(data.HashSerialize()))).String())
 }
 
 func BenchmarkHashSerialize(b *testing.B) {

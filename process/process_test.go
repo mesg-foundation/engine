@@ -3,8 +3,9 @@ package process
 import (
 	"testing"
 
-	"github.com/mesg-foundation/engine/hash"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/assert"
+	"github.com/tendermint/tendermint/crypto"
 )
 
 func TestValidateProcess(t *testing.T) {
@@ -12,7 +13,7 @@ func TestValidateProcess(t *testing.T) {
 		Key: "trigger:result",
 		Type: &Process_Node_Result_{
 			Result: &Process_Node_Result{
-				InstanceHash: hash.Int(2),
+				InstanceHash: sdk.AccAddress(crypto.AddressHash([]byte("2"))),
 				TaskKey:      "-",
 			},
 		},
@@ -23,14 +24,14 @@ func TestValidateProcess(t *testing.T) {
 		{
 			Key: "nodeKey1",
 			Type: &Process_Node_Task_{&Process_Node_Task{
-				InstanceHash: hash.Int(2),
+				InstanceHash: sdk.AccAddress(crypto.AddressHash([]byte("2"))),
 				TaskKey:      "-",
 			}},
 		},
 		{
 			Key: "nodeKey2",
 			Type: &Process_Node_Task_{&Process_Node_Task{
-				InstanceHash: hash.Int(3),
+				InstanceHash: sdk.AccAddress(crypto.AddressHash([]byte("3"))),
 				TaskKey:      "-",
 			}},
 		},
@@ -46,32 +47,32 @@ func TestValidateProcess(t *testing.T) {
 		err   string
 	}{
 		{w: &Process{
-			Hash: hash.Int(1),
+			Hash: sdk.AccAddress(crypto.AddressHash([]byte("1"))),
 			Name: "invalid-struct",
 		}, err: "should contain exactly one trigger"},
 		{w: &Process{
 			Nodes: []*Process_Node{
 				{
-					Type: &Process_Node_Result_{&Process_Node_Result{InstanceHash: hash.Int(1)}},
+					Type: &Process_Node_Result_{&Process_Node_Result{InstanceHash: sdk.AccAddress(crypto.AddressHash([]byte("1")))}},
 				},
 			},
-			Hash: hash.Int(1),
+			Hash: sdk.AccAddress(crypto.AddressHash([]byte("1"))),
 			Name: "missing-key",
 		}, err: "Error:Field validation for 'TaskKey' failed on the 'required' tag"},
 		{w: &Process{
-			Hash:  hash.Int(1),
+			Hash:  sdk.AccAddress(crypto.AddressHash([]byte("1"))),
 			Name:  "edge-src-missing-node",
 			Nodes: nodes,
 			Edges: append(edges, &Process_Edge{Src: "-", Dst: "nodeKey2"}),
 		}, err: "node \"-\" not found"},
 		{w: &Process{
-			Hash:  hash.Int(1),
+			Hash:  sdk.AccAddress(crypto.AddressHash([]byte("1"))),
 			Name:  "edge-dst-missing-node",
 			Nodes: nodes,
 			Edges: append(edges, &Process_Edge{Src: "nodeKey1", Dst: "-"}),
 		}, err: "node \"-\" not found"},
 		{w: &Process{
-			Hash:  hash.Int(1),
+			Hash:  sdk.AccAddress(crypto.AddressHash([]byte("1"))),
 			Name:  "cyclic-graph",
 			Nodes: nodes,
 			Edges: append(edges,
@@ -80,18 +81,18 @@ func TestValidateProcess(t *testing.T) {
 			),
 		}, err: "process should not contain any cycles"},
 		{w: &Process{
-			Hash: hash.Int(1),
+			Hash: sdk.AccAddress(crypto.AddressHash([]byte("1"))),
 			Name: "non-connected-graph",
 			Nodes: append(nodes, &Process_Node{
 				Key: "nodeKey3",
 				Type: &Process_Node_Task_{&Process_Node_Task{
-					InstanceHash: hash.Int(2),
+					InstanceHash: sdk.AccAddress(crypto.AddressHash([]byte("2"))),
 					TaskKey:      "-",
 				}},
 			}, &Process_Node{
 				Key: "nodeKey4",
 				Type: &Process_Node_Task_{&Process_Node_Task{
-					InstanceHash: hash.Int(2),
+					InstanceHash: sdk.AccAddress(crypto.AddressHash([]byte("2"))),
 					TaskKey:      "-",
 				}},
 			}),
@@ -101,18 +102,18 @@ func TestValidateProcess(t *testing.T) {
 			),
 		}, err: "process should be a connected graph"},
 		{w: &Process{
-			Hash: hash.Int(1),
+			Hash: sdk.AccAddress(crypto.AddressHash([]byte("1"))),
 			Name: "multiple-parent-graph",
 			Nodes: append(nodes, &Process_Node{
 				Key: "nodeKey3",
 				Type: &Process_Node_Task_{&Process_Node_Task{
-					InstanceHash: hash.Int(2),
+					InstanceHash: sdk.AccAddress(crypto.AddressHash([]byte("2"))),
 					TaskKey:      "-",
 				}},
 			}, &Process_Node{
 				Key: "nodeKey4",
 				Type: &Process_Node_Task_{&Process_Node_Task{
-					InstanceHash: hash.Int(2),
+					InstanceHash: sdk.AccAddress(crypto.AddressHash([]byte("2"))),
 					TaskKey:      "-",
 				}},
 			}),
@@ -124,36 +125,36 @@ func TestValidateProcess(t *testing.T) {
 			),
 		}, err: "process should contain nodes with one parent maximum"},
 		{w: &Process{
-			Hash: hash.Int(1),
+			Hash: sdk.AccAddress(crypto.AddressHash([]byte("1"))),
 			Name: "multiple-parent-graph",
 			Nodes: append(nodes, &Process_Node{
 				Key: "nodeKey3",
 				Type: &Process_Node_Task_{&Process_Node_Task{
-					InstanceHash: hash.Int(2),
+					InstanceHash: sdk.AccAddress(crypto.AddressHash([]byte("2"))),
 					TaskKey:      "-",
 				}},
 			}, &Process_Node{
 				Key: "nodeKey4",
 				Type: &Process_Node_Task_{&Process_Node_Task{
-					InstanceHash: hash.Int(2),
+					InstanceHash: sdk.AccAddress(crypto.AddressHash([]byte("2"))),
 					TaskKey:      "-",
 				}},
 			}, &Process_Node{
 				Key: "nodeKey5",
 				Type: &Process_Node_Task_{&Process_Node_Task{
-					InstanceHash: hash.Int(2),
+					InstanceHash: sdk.AccAddress(crypto.AddressHash([]byte("2"))),
 					TaskKey:      "-",
 				}},
 			}, &Process_Node{
 				Key: "nodeKey6",
 				Type: &Process_Node_Task_{&Process_Node_Task{
-					InstanceHash: hash.Int(2),
+					InstanceHash: sdk.AccAddress(crypto.AddressHash([]byte("2"))),
 					TaskKey:      "-",
 				}},
 			}, &Process_Node{
 				Key: "nodeKey7",
 				Type: &Process_Node_Task_{&Process_Node_Task{
-					InstanceHash: hash.Int(2),
+					InstanceHash: sdk.AccAddress(crypto.AddressHash([]byte("2"))),
 					TaskKey:      "-",
 				}},
 			}),
@@ -167,7 +168,7 @@ func TestValidateProcess(t *testing.T) {
 			),
 		}, valid: true},
 		{w: &Process{
-			Hash: hash.Int(1),
+			Hash: sdk.AccAddress(crypto.AddressHash([]byte("1"))),
 			Name: "inputs-with-invalid-node",
 			Nodes: append(nodes, &Process_Node{
 				Key: "mapping",
@@ -183,7 +184,7 @@ func TestValidateProcess(t *testing.T) {
 			}),
 		}, err: "node \"invalid\" not found"},
 		{w: &Process{
-			Hash: hash.Int(1),
+			Hash: sdk.AccAddress(crypto.AddressHash([]byte("1"))),
 			Name: "inputs-with-valid-ref",
 			Nodes: append(nodes, &Process_Node{
 				Key: "mapping",

@@ -4,18 +4,19 @@ import (
 	"context"
 	"testing"
 
-	"github.com/mesg-foundation/engine/hash"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/mesg-foundation/engine/ownership"
 	"github.com/mesg-foundation/engine/process"
 	pb "github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/stretchr/testify/require"
+	"github.com/tendermint/tendermint/crypto"
 )
 
-var testProcessHash hash.Hash
+var testProcessHash sdk.AccAddress
 
 func testProcess(t *testing.T) {
 	var (
-		processHash hash.Hash
+		processHash sdk.AccAddress
 		req         = &pb.CreateProcessRequest{
 			Name: "test-process",
 			Nodes: []*process.Process_Node{
@@ -54,26 +55,23 @@ func testProcess(t *testing.T) {
 	})
 
 	t.Run("get", func(t *testing.T) {
+		processForHash := &process.Process{
+			Name:  req.Name,
+			Nodes: req.Nodes,
+			Edges: req.Edges,
+		}
+		expectedHash := sdk.AccAddress(crypto.AddressHash([]byte(processForHash.HashSerialize())))
 		t.Run("grpc", func(t *testing.T) {
 			p, err := client.ProcessClient.Get(context.Background(), &pb.GetProcessRequest{Hash: testProcessHash})
 			require.NoError(t, err)
-			require.True(t, p.Equal(&process.Process{
-				Hash:  p.Hash,
-				Name:  req.Name,
-				Nodes: req.Nodes,
-				Edges: req.Edges,
-			}))
+
+			require.True(t, p.Hash.Equals(expectedHash))
 			processHash = p.Hash
 		})
 		t.Run("lcd", func(t *testing.T) {
 			var p *process.Process
 			lcdGet(t, "process/get/"+testProcessHash.String(), &p)
-			require.True(t, p.Equal(&process.Process{
-				Hash:  p.Hash,
-				Name:  req.Name,
-				Nodes: req.Nodes,
-				Edges: req.Edges,
-			}))
+			require.True(t, p.Hash.Equals(expectedHash))
 		})
 	})
 
@@ -83,7 +81,7 @@ func testProcess(t *testing.T) {
 			lcdGet(t, "ownership/list", &ownerships)
 			owners := make([]*ownership.Ownership, 0)
 			for _, o := range ownerships {
-				if o.ResourceHash.Equal(processHash) && o.Resource == ownership.Ownership_Process && o.Owner != "" {
+				if o.ResourceHash.Equals(processHash) && o.Resource == ownership.Ownership_Process && o.Owner != "" {
 					owners = append(owners, o)
 				}
 			}
@@ -94,7 +92,7 @@ func testProcess(t *testing.T) {
 			require.NoError(t, err)
 			owners := make([]*ownership.Ownership, 0)
 			for _, o := range ownerships.Ownerships {
-				if o.ResourceHash.Equal(processHash) && o.Resource == ownership.Ownership_Process && o.Owner != "" {
+				if o.ResourceHash.Equals(processHash) && o.Resource == ownership.Ownership_Process && o.Owner != "" {
 					owners = append(owners, o)
 				}
 			}

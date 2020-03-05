@@ -4,9 +4,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/mesg-foundation/engine/ext/xvalidator"
-	"github.com/mesg-foundation/engine/hash"
 	processpb "github.com/mesg-foundation/engine/process"
 	"github.com/mesg-foundation/engine/protobuf/api"
+	"github.com/tendermint/tendermint/crypto"
 )
 
 // MsgCreateProcess defines a state transition to create a process.
@@ -46,7 +46,7 @@ func (msg MsgCreateProcess) ValidateBasic() error {
 		Nodes: msg.Request.Nodes,
 		Edges: msg.Request.Edges,
 	}
-	p.Hash = hash.Dump(p)
+	p.Hash = sdk.AccAddress(crypto.AddressHash([]byte(p.HashSerialize())))
 	if err := p.Validate(); err != nil {
 		return err
 	}

@@ -3,11 +3,12 @@ package cosmos
 import (
 	"context"
 	"fmt"
+	"strings"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	executionpb "github.com/mesg-foundation/engine/execution"
 	"github.com/mesg-foundation/engine/ext/xos"
 	"github.com/mesg-foundation/engine/hash"
-	"github.com/mesg-foundation/engine/hash/hashserializer"
 	instancepb "github.com/mesg-foundation/engine/instance"
 	ownershippb "github.com/mesg-foundation/engine/ownership"
 	processpb "github.com/mesg-foundation/engine/process"
@@ -51,7 +52,7 @@ func (mc *ModuleClient) CreateService(req *api.CreateServiceRequest) (*servicepb
 }
 
 // GetService returns the service that matches given hash.
-func (mc *ModuleClient) GetService(hash hash.Hash) (*servicepb.Service, error) {
+func (mc *ModuleClient) GetService(hash sdk.AccAddress) (*servicepb.Service, error) {
 	var out *servicepb.Service
 	route := sroutef("%s/%s/%s", service.QuerierRoute, service.QueryGetService, hash)
 	return out, mc.QueryJSON(route, nil, &out)
@@ -65,15 +66,15 @@ func (mc *ModuleClient) ListService() ([]*servicepb.Service, error) {
 }
 
 // ExistService returns if a service already exists.
-func (mc *ModuleClient) ExistService(hash hash.Hash) (bool, error) {
+func (mc *ModuleClient) ExistService(hash sdk.AccAddress) (bool, error) {
 	var out bool
 	route := sroutef("%s/%s/%s", service.QuerierRoute, service.QueryExistService, hash)
 	return out, mc.QueryJSON(route, nil, &out)
 }
 
 // HashService returns the calculate hash of a service.
-func (mc *ModuleClient) HashService(req *api.CreateServiceRequest) (hash.Hash, error) {
-	var out hash.Hash
+func (mc *ModuleClient) HashService(req *api.CreateServiceRequest) (sdk.AccAddress, error) {
+	var out sdk.AccAddress
 	route := sroutef("%s/%s", service.QuerierRoute, service.QueryHashService)
 	return out, mc.QueryJSON(route, req, &out)
 }
@@ -93,7 +94,7 @@ func (mc *ModuleClient) CreateProcess(req *api.CreateProcessRequest) (*processpb
 }
 
 // GetInstance returns the instance that matches given hash.
-func (mc *ModuleClient) GetInstance(hash hash.Hash) (*instancepb.Instance, error) {
+func (mc *ModuleClient) GetInstance(hash sdk.AccAddress) (*instancepb.Instance, error) {
 	var out *instancepb.Instance
 	route := sroutef("%s/%s/%s", instance.QuerierRoute, instance.QueryGetInstance, hash)
 	return out, mc.QueryJSON(route, nil, &out)
@@ -125,7 +126,7 @@ func (mc *ModuleClient) DeleteProcess(req *api.DeleteProcessRequest) error {
 }
 
 // GetProcess returns the process that matches given hash.
-func (mc *ModuleClient) GetProcess(hash hash.Hash) (*processpb.Process, error) {
+func (mc *ModuleClient) GetProcess(hash sdk.AccAddress) (*processpb.Process, error) {
 	var out *processpb.Process
 	route := sroutef("%s/%s/%s", process.QuerierRoute, process.QueryGetProcess, hash.String())
 	return out, mc.QueryJSON(route, nil, &out)
@@ -167,7 +168,7 @@ func (mc *ModuleClient) UpdateExecution(req *api.UpdateExecutionRequest) (*execu
 }
 
 // GetExecution returns the execution that matches given hash.
-func (mc *ModuleClient) GetExecution(hash hash.Hash) (*executionpb.Execution, error) {
+func (mc *ModuleClient) GetExecution(hash sdk.AccAddress) (*executionpb.Execution, error) {
 	var out *executionpb.Execution
 	route := sroutef("%s/%s/%s", execution.QuerierRoute, execution.QueryGetExecution, hash)
 	return out, mc.QueryJSON(route, nil, &out)
@@ -224,7 +225,7 @@ func (mc *ModuleClient) CreateRunner(req *api.CreateRunnerRequest) (*runnerpb.Ru
 	if err != nil {
 		return nil, err
 	}
-	envHash := hash.Dump(hashserializer.StringSlice(xos.EnvMergeSlices(s.Configuration.Env, req.Env)))
+	envHash := hash.Sum([]byte(strings.Join(xos.EnvMergeSlices(s.Configuration.Env, req.Env), ",")))
 	acc, err := mc.GetAccount()
 	if err != nil {
 		return nil, err
@@ -250,7 +251,7 @@ func (mc *ModuleClient) DeleteRunner(req *api.DeleteRunnerRequest) error {
 }
 
 // GetRunner returns the runner that matches given hash.
-func (mc *ModuleClient) GetRunner(hash hash.Hash) (*runnerpb.Runner, error) {
+func (mc *ModuleClient) GetRunner(hash sdk.AccAddress) (*runnerpb.Runner, error) {
 	var out *runnerpb.Runner
 	route := sroutef("%s/%s/%s", runner.QuerierRoute, runner.QueryGetRunner, hash)
 	return out, mc.QueryJSON(route, nil, &out)
@@ -259,7 +260,7 @@ func (mc *ModuleClient) GetRunner(hash hash.Hash) (*runnerpb.Runner, error) {
 // FilterRunner to apply while listing runners.
 type FilterRunner struct {
 	Address      string
-	InstanceHash hash.Hash
+	InstanceHash sdk.AccAddress
 }
 
 // ListRunner returns all runners.
@@ -279,7 +280,7 @@ func (mc *ModuleClient) ListRunner(f *FilterRunner) ([]*runnerpb.Runner, error) 
 	out := make([]*runnerpb.Runner, 0)
 	for _, r := range rs {
 		if (f.Address == "" || r.Address == f.Address) &&
-			(f.InstanceHash.IsZero() || r.InstanceHash.Equal(f.InstanceHash)) {
+			(f.InstanceHash.Empty() || r.InstanceHash.Equals(f.InstanceHash)) {
 			out = append(out, r)
 		}
 	}

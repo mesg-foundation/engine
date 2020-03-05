@@ -3,6 +3,7 @@ package api
 import (
 	fmt "fmt"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	execution "github.com/mesg-foundation/engine/execution"
 	"github.com/mesg-foundation/engine/ext/xstrings"
 )
@@ -13,12 +14,16 @@ func (f *StreamExecutionRequest_Filter) Validate() error {
 		return nil
 	}
 
-	if !f.ExecutorHash.Valid() {
-		return fmt.Errorf("stream filter: executor hash is invalid")
+	if !f.ExecutorHash.Empty() {
+		if err := sdk.VerifyAddressFormat(f.ExecutorHash); err != nil {
+			return fmt.Errorf("stream filter: executor hash is invalid: %w", err)
+		}
 	}
 
-	if !f.InstanceHash.Valid() {
-		return fmt.Errorf("stream filter: instance hash is invalid")
+	if !f.InstanceHash.Empty() {
+		if err := sdk.VerifyAddressFormat(f.InstanceHash); err != nil {
+			return fmt.Errorf("stream filter: instance hash is invalid: %w", err)
+		}
 	}
 
 	// TODO: add validation (after adding in protobuf with print ascii)
@@ -34,10 +39,10 @@ func (f *StreamExecutionRequest_Filter) Match(e *execution.Execution) bool {
 	if f == nil {
 		return true
 	}
-	if !f.ExecutorHash.IsZero() && !f.ExecutorHash.Equal(e.ExecutorHash) {
+	if !f.ExecutorHash.Empty() && !f.ExecutorHash.Equals(e.ExecutorHash) {
 		return false
 	}
-	if !f.InstanceHash.IsZero() && !f.InstanceHash.Equal(e.InstanceHash) {
+	if !f.InstanceHash.Empty() && !f.InstanceHash.Equals(e.InstanceHash) {
 		return false
 	}
 	if f.TaskKey != "" && f.TaskKey != "*" && f.TaskKey != e.TaskKey {

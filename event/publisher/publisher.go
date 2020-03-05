@@ -4,8 +4,8 @@ import (
 	"github.com/cskr/pubsub"
 	"github.com/mesg-foundation/engine/cosmos"
 	"github.com/mesg-foundation/engine/event"
-	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/protobuf/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 const (
@@ -28,7 +28,7 @@ func New(mc *cosmos.ModuleClient) *EventPublisher {
 }
 
 // Publish a MESG event eventKey with eventData for service token.
-func (ep *EventPublisher) Publish(instanceHash hash.Hash, eventKey string, eventData *types.Struct) (*event.Event, error) {
+func (ep *EventPublisher) Publish(instanceHash sdk.AccAddress, eventKey string, eventData *types.Struct) (*event.Event, error) {
 	i, err := ep.mc.GetInstance(instanceHash)
 	if err != nil {
 		return nil, err

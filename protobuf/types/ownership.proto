@@ -6,7 +6,7 @@ package mesg.types;
 option go_package = "github.com/mesg-foundation/engine/ownership";
 
 option (gogoproto.goproto_getters_all) = false;
-option (gogoproto.equal_all) = true;
+// option (gogoproto.equal_all) = true;
 
 
 // Ownership is a ownership relation between one owner and a resource.
@@ -15,7 +15,7 @@ message Ownership {
   // Service's hash.
   bytes hash = 1 [
     (gogoproto.moretags) = 'hash:"-" validate:"required"',
-    (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.AccAddress",
     (gogoproto.nullable) = false
   ];
 
@@ -27,7 +27,7 @@ message Ownership {
   // Resource's hash.
   bytes resourceHash = 3 [
     (gogoproto.moretags) = 'hash:"name:3"',
-    (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.AccAddress",
     (gogoproto.nullable) = false
   ];
 

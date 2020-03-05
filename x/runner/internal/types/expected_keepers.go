@@ -17,5 +17,5 @@ type ParamSubspace interface {
 
 // InstanceKeeper module interface.
 type InstanceKeeper interface {
-	FetchOrCreate(ctx sdk.Context, serviceHash hash.Hash, envHash hash.Hash) (*instance.Instance, error)
+	FetchOrCreate(ctx sdk.Context, serviceHash sdk.AccAddress, envHash hash.Hash) (*instance.Instance, error)
 }

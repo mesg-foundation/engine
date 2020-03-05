@@ -9,7 +9,6 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/mesg-foundation/engine/hash/hashserializer"
 	"github.com/mr-tron/base58"
 )
 
@@ -25,10 +24,10 @@ var errInvalidLen = errors.New("hash: invalid length")
 type Hash []byte
 
 // Dump takes a structure that implement HashSerializable and returns its hash.
-func Dump(v hashserializer.HashSerializable) Hash {
-	h := sumFunc([]byte(v.HashSerialize()))
-	return Hash(h[:])
-}
+// func Dump(v hashserializer.HashSerializable) Hash {
+// 	h := sumFunc([]byte(v.HashSerialize()))
+// 	return Hash(h[:])
+// }
 
 // Sum takes a slice of byte and returns its hash.
 func Sum(v []byte) Hash {
@@ -44,7 +43,7 @@ func Int(h int) Hash {
 	return hash
 }
 
-// Random returns a new random hash.
+// // Random returns a new random hash.
 func Random() (Hash, error) {
 	hash := make(Hash, size)
 	n, err := rand.Reader.Read(hash)
@@ -57,18 +56,18 @@ func Random() (Hash, error) {
 	return hash, nil
 }
 
-// Decode decodes the base58 encoded hash. It returns error
-// when a hash isn't base58,encoded or hash length is invalid.
-func Decode(h string) (Hash, error) {
-	hash, err := base58.Decode(h)
-	if err != nil {
-		return nil, fmt.Errorf("hash: %s", err)
-	}
-	if len(hash) != size {
-		return nil, errInvalidLen
-	}
-	return Hash(hash), nil
-}
+// // Decode decodes the base58 encoded hash. It returns error
+// // when a hash isn't base58,encoded or hash length is invalid.
+// func Decode(h string) (Hash, error) {
+// 	hash, err := base58.Decode(h)
+// 	if err != nil {
+// 		return nil, fmt.Errorf("hash: %s", err)
+// 	}
+// 	if len(hash) != size {
+// 		return nil, errInvalidLen
+// 	}
+// 	return Hash(hash), nil
+// }
 
 // DecodeFromBytes decodes hash and checks it length.
 // It returns empty hash on nil slice of bytes.

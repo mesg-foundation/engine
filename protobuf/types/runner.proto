@@ -6,14 +6,14 @@ package mesg.types;
 option go_package = "github.com/mesg-foundation/engine/runner";
 
 option (gogoproto.goproto_getters_all) = false;
-option (gogoproto.equal_all) = true;
+// option (gogoproto.equal_all) = true;
 
 // Runner represents one node service's instance.
 message Runner {
   // Runner's hash
   bytes hash = 1 [
     (gogoproto.moretags) = 'hash:"-"',
-    (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.AccAddress",
     (gogoproto.nullable) = false
   ];
 
@@ -25,7 +25,7 @@ message Runner {
   // instanceHash is hash of the instance that runner will handle
   bytes instanceHash = 3 [
     (gogoproto.moretags) = 'hash:"name:3"',
-    (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.AccAddress",
     (gogoproto.nullable) = false
   ];
 }

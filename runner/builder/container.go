@@ -10,13 +10,13 @@ import (
 	"strings"
 	"sync"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/docker/docker/client"
 	"github.com/docker/docker/pkg/archive"
 	"github.com/mesg-foundation/engine/container"
 	"github.com/mesg-foundation/engine/ext/xerrors"
 	"github.com/mesg-foundation/engine/ext/xos"
 	"github.com/mesg-foundation/engine/hash"
-	"github.com/mesg-foundation/engine/hash/hashserializer"
 	"github.com/mesg-foundation/engine/service"
 )
 
@@ -52,7 +52,7 @@ func build(cont container.Container, srv *service.Service, ipfsEndpoint string) 
 }
 
 // Start starts the service.
-func start(cont container.Container, srv *service.Service, instanceHash hash.Hash, runnerHash hash.Hash, imageHash string, env []string, engineName, port string) (serviceIDs []string, err error) {
+func start(cont container.Container, srv *service.Service, instanceHash sdk.AccAddress, runnerHash sdk.AccAddress, imageHash string, env []string, engineName, port string) (serviceIDs []string, err error) {
 	endpoint := net.JoinHostPort(engineName, port)
 	namespace := namespace(runnerHash)
 	networkID, err := cont.CreateNetwork(namespace)
@@ -141,7 +141,7 @@ func start(cont container.Container, srv *service.Service, instanceHash hash.Has
 }
 
 // Stop stops an instance.
-func stop(cont container.Container, runnerHash hash.Hash, dependencies []*service.Service_Dependency) error {
+func stop(cont container.Container, runnerHash sdk.AccAddress, dependencies []*service.Service_Dependency) error {
 	var (
 		wg         sync.WaitGroup
 		errs       xerrors.SyncErrors
@@ -204,7 +204,7 @@ func deleteData(cont container.Container, s *service.Service) error {
 }
 
 // namespace returns the namespace of the service.
-func namespace(hash hash.Hash) string {
+func namespace(hash sdk.AccAddress) string {
 	return hash.String()
 }
 
@@ -268,9 +268,9 @@ func convertVolumesFrom(s *service.Service, dVolumesFrom []string) ([]container.
 // volumeKey creates a key for service's volume based on the sid to make sure that the volume
 // will stay the same for different versions of the service.
 func volumeKey(s *service.Service, dependency, volume string) string {
-	return hash.Dump(hashserializer.StringSlice([]string{
+	return hash.Sum([]byte(strings.Join([]string{
 		s.Sid,
 		dependency,
 		volume,
-	})).String()
+	}, ","))).String()
 }

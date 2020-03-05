@@ -7,7 +7,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/codec"
-	"github.com/mesg-foundation/engine/hash"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/mesg-foundation/engine/service"
 	"github.com/mesg-foundation/engine/x/service/internal/types"
 	"github.com/spf13/cobra"
@@ -88,7 +88,7 @@ func GetCmdHashService(queryRoute string, cdc *codec.Codec) *cobra.Command {
 				return nil
 			}
 
-			var out hash.Hash
+			var out sdk.AccAddress
 			cdc.MustUnmarshalJSON(res, &out)
 			return cliCtx.PrintOutput(out)
 		},

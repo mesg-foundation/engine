@@ -3,9 +3,10 @@ package api
 import (
 	"testing"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/mesg-foundation/engine/execution"
-	"github.com/mesg-foundation/engine/hash"
 	"github.com/stretchr/testify/assert"
+	"github.com/tendermint/tendermint/crypto"
 )
 
 func TestFilter(t *testing.T) {
@@ -25,23 +26,23 @@ func TestFilter(t *testing.T) {
 			true,
 		},
 		{
-			&StreamExecutionRequest_Filter{InstanceHash: hash.Int(1)},
-			&execution.Execution{InstanceHash: hash.Int(1)},
+			&StreamExecutionRequest_Filter{InstanceHash: sdk.AccAddress(crypto.AddressHash([]byte("1")))},
+			&execution.Execution{InstanceHash: sdk.AccAddress(crypto.AddressHash([]byte("1")))},
 			true,
 		},
 		{
-			&StreamExecutionRequest_Filter{InstanceHash: hash.Int(1)},
-			&execution.Execution{InstanceHash: hash.Int(2)},
+			&StreamExecutionRequest_Filter{InstanceHash: sdk.AccAddress(crypto.AddressHash([]byte("1")))},
+			&execution.Execution{InstanceHash: sdk.AccAddress(crypto.AddressHash([]byte("2")))},
 			false,
 		},
 		{
-			&StreamExecutionRequest_Filter{ExecutorHash: hash.Int(1)},
-			&execution.Execution{ExecutorHash: hash.Int(1)},
+			&StreamExecutionRequest_Filter{ExecutorHash: sdk.AccAddress(crypto.AddressHash([]byte("1")))},
+			&execution.Execution{ExecutorHash: sdk.AccAddress(crypto.AddressHash([]byte("1")))},
 			true,
 		},
 		{
-			&StreamExecutionRequest_Filter{ExecutorHash: hash.Int(1)},
-			&execution.Execution{ExecutorHash: hash.Int(2)},
+			&StreamExecutionRequest_Filter{ExecutorHash: sdk.AccAddress(crypto.AddressHash([]byte("1")))},
+			&execution.Execution{ExecutorHash: sdk.AccAddress(crypto.AddressHash([]byte("2")))},
 			false,
 		},
 		{

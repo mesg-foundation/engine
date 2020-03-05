@@ -49,10 +49,10 @@ func testExecution(t *testing.T) {
 
 	t.Run("simple execution", func(t *testing.T) {
 		var (
-			executionHash hash.Hash
+			executionHash sdk.AccAddress
 			exec          *execution.Execution
 			taskKey       = "task1"
-			eventHash     = hash.Int(1)
+			eventHash     = sdk.AccAddress(crypto.AddressHash([]byte("1")))
 			inputs        = &types.Struct{
 				Fields: map[string]*types.Value{
 					"msg": {
@@ -98,16 +98,16 @@ func testExecution(t *testing.T) {
 		t.Run("get", func(t *testing.T) {
 			exec, err := client.ExecutionClient.Get(context.Background(), &pb.GetExecutionRequest{Hash: executionHash})
 			require.NoError(t, err)
-			require.True(t, exec.Equal(exec))
+			require.True(t, exec.Hash.Equals(exec.Hash))
 		})
 	})
 
 	t.Run("complex execution", func(t *testing.T) {
 		var (
-			executionHash hash.Hash
+			executionHash sdk.AccAddress
 			exec          *execution.Execution
 			taskKey       = "task_complex"
-			eventHash     = hash.Int(2)
+			eventHash     = sdk.AccAddress(crypto.AddressHash([]byte("2")))
 			inputs        = &types.Struct{
 				Fields: map[string]*types.Value{
 					"msg": {
@@ -174,7 +174,7 @@ func testExecution(t *testing.T) {
 		t.Run("get", func(t *testing.T) {
 			exec, err := client.ExecutionClient.Get(context.Background(), &pb.GetExecutionRequest{Hash: executionHash})
 			require.NoError(t, err)
-			require.True(t, exec.Equal(exec))
+			require.True(t, exec.Hash.Equals(exec.Hash))
 		})
 	})
 
@@ -205,28 +205,24 @@ func testExecution(t *testing.T) {
 		)
 		resp, err := client.ExecutionClient.Create(context.Background(), &pb.CreateExecutionRequest{
 			TaskKey:      "task1",
-			EventHash:    hash.Int(1),
+			EventHash:    sdk.AccAddress(crypto.AddressHash([]byte("1"))),
 			ExecutorHash: executorHash,
 			Price:        "50000atto",
 			Inputs:       inputs,
 		})
 		require.NoError(t, err)
 
-		execAddress := sdk.AccAddress(crypto.AddressHash(resp.Hash))
-		executorAddress := sdk.AccAddress(crypto.AddressHash(executorHash))
-		serviceAddress := sdk.AccAddress(crypto.AddressHash(testServiceHash))
-
 		// check balance of execution before completed
 		t.Run("execution balance before completed", func(t *testing.T) {
 			coins := sdk.Coins{}
-			lcdGet(t, "bank/balances/"+execAddress.String(), &coins)
+			lcdGet(t, "bank/balances/"+resp.Hash.String(), &coins)
 			require.True(t, coins.AmountOf("atto").Equal(sdk.NewInt(50000)))
 		})
 
 		var executorBalance sdk.Coins
 		var serviceBalance sdk.Coins
-		lcdGet(t, "bank/balances/"+executorAddress.String(), &executorBalance)
-		lcdGet(t, "bank/balances/"+serviceAddress.String(), &serviceBalance)
+		lcdGet(t, "bank/balances/"+executorHash.String(), &executorBalance)
+		lcdGet(t, "bank/balances/"+testServiceHash.String(), &serviceBalance)
 
 		_, err = streamInProgress.Recv()
 		require.NoError(t, err)
@@ -238,20 +234,19 @@ func testExecution(t *testing.T) {
 		// check balance of executor
 		t.Run("executor balance", func(t *testing.T) {
 			coins := sdk.Coins{}
-			lcdGet(t, "bank/balances/"+executorAddress.String(), &coins)
+			lcdGet(t, "bank/balances/"+executorHash.String(), &coins)
 			require.True(t, coins.AmountOf("atto").Equal(sdk.NewInt(45000).Add(executorBalance.AmountOf("atto"))))
 		})
 		// check balance of service
 		t.Run("service balance", func(t *testing.T) {
 			coins := sdk.Coins{}
-			lcdGet(t, "bank/balances/"+serviceAddress.String(), &coins)
+			lcdGet(t, "bank/balances/"+testServiceHash.String(), &coins)
 			require.True(t, coins.AmountOf("atto").Equal(sdk.NewInt(5000).Add(serviceBalance.AmountOf("atto"))))
 		})
 		// check balance of execution
 		t.Run("execution balance", func(t *testing.T) {
 			coins := sdk.Coins{}
-			execAddress := sdk.AccAddress(crypto.AddressHash(resp.Hash))
-			lcdGet(t, "bank/balances/"+execAddress.String(), &coins)
+			lcdGet(t, "bank/balances/"+resp.Hash.String(), &coins)
 			require.True(t, coins.AmountOf("atto").Equal(sdk.NewInt(0)))
 		})
 	})
@@ -259,7 +254,7 @@ func testExecution(t *testing.T) {
 	t.Run("many executions in parallel", func(t *testing.T) {
 		var (
 			n          = 10
-			executions = make([]hash.Hash, 0)
+			executions = make([]sdk.AccAddress, 0)
 			taskKey    = "task1"
 			inputs     = &types.Struct{
 				Fields: map[string]*types.Value{
@@ -282,7 +277,7 @@ func testExecution(t *testing.T) {
 					require.Nil(t, err)
 					resp, err := client.ExecutionClient.Create(context.Background(), &pb.CreateExecutionRequest{
 						TaskKey:      taskKey,
-						EventHash:    hash,
+						EventHash:    sdk.AccAddress(crypto.AddressHash(hash)),
 						ExecutorHash: executorHash,
 						Inputs:       inputs,
 					})
@@ -297,7 +292,7 @@ func testExecution(t *testing.T) {
 			require.Len(t, executions, n)
 		})
 		t.Run("check in progress", func(t *testing.T) {
-			execs := make([]hash.Hash, 0)
+			execs := make([]sdk.AccAddress, 0)
 			for i := 1; i <= n; i++ {
 				exec, err := streamInProgress.Recv()
 				require.NoError(t, err)
@@ -308,7 +303,7 @@ func testExecution(t *testing.T) {
 			require.Len(t, execs, n)
 		})
 		t.Run("check completed", func(t *testing.T) {
-			execs := make([]hash.Hash, 0)
+			execs := make([]sdk.AccAddress, 0)
 			for i := 1; i <= n; i++ {
 				exec, err := streamCompleted.Recv()
 				require.NoError(t, err)

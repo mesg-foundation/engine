@@ -8,21 +8,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestStructHash(t *testing.T) {
-	hashes := make(map[string]bool)
-	structs := []*Struct{
-		{Fields: map[string]*Value{"v": {Kind: &Value_NumberValue{NumberValue: 1}}}},
-		{Fields: map[string]*Value{"v": {Kind: &Value_StringValue{StringValue: "1"}}}},
-		{Fields: map[string]*Value{"v": {Kind: &Value_BoolValue{BoolValue: true}}}},
-		{Fields: map[string]*Value{"v": {Kind: &Value_StructValue{StructValue: &Struct{Fields: map[string]*Value{"1": {}}}}}}},
-		{Fields: map[string]*Value{"v": {Kind: &Value_ListValue{ListValue: &ListValue{Values: []*Value{{Kind: &Value_NumberValue{NumberValue: 1}}}}}}}},
-	}
-	for _, s := range structs {
-		hashes[hash.Dump(s).String()] = true
-	}
-	require.Equal(t, len(structs), len(hashes))
-}
-
 func TestStructMarshal(t *testing.T) {
 	cdc := codec.New()
 	RegisterCodec(cdc)

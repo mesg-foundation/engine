@@ -11,12 +11,12 @@ import (
 // MsgCreateRunner defines a state transition to create a runner.
 type MsgCreateRunner struct {
 	Address     sdk.AccAddress `json:"address" validate:"required,accaddress"`
-	ServiceHash hash.Hash      `json:"serviceHash" validate:"required,hash"`
+	ServiceHash sdk.AccAddress `json:"serviceHash" validate:"required,hash"`
 	EnvHash     hash.Hash      `json:"envHash" validate:"omitempty,hash"`
 }
 
 // NewMsgCreateRunner is a constructor function for MsgCreateRunner.
-func NewMsgCreateRunner(address sdk.AccAddress, serviceHash hash.Hash, envHash hash.Hash) *MsgCreateRunner {
+func NewMsgCreateRunner(address sdk.AccAddress, serviceHash sdk.AccAddress, envHash hash.Hash) *MsgCreateRunner {
 	return &MsgCreateRunner{
 		Address:     address,
 		ServiceHash: serviceHash,
@@ -39,7 +39,7 @@ func (msg MsgCreateRunner) ValidateBasic() error {
 	if err := xvalidator.Validate.Struct(msg); err != nil {
 		return err
 	}
-	if msg.ServiceHash.IsZero() {
+	if msg.ServiceHash.Empty() {
 		return sdkerrors.Wrap(errors.ErrValidation, "serviceHash is missing")
 	}
 	if msg.EnvHash.IsZero() {
@@ -64,11 +64,11 @@ func (msg MsgCreateRunner) GetSigners() []sdk.AccAddress {
 // MsgDeleteRunner defines a state transition to delete a runner.
 type MsgDeleteRunner struct {
 	Address    sdk.AccAddress `json:"address" validate:"required,accaddress"`
-	RunnerHash hash.Hash      `json:"runnerHash" validate:"required,hash"`
+	RunnerHash sdk.AccAddress `json:"runnerHash" validate:"required,hash"`
 }
 
 // NewMsgDeleteRunner is a constructor function for MsgDeleteRunner.
-func NewMsgDeleteRunner(address sdk.AccAddress, runnerHash hash.Hash) *MsgDeleteRunner {
+func NewMsgDeleteRunner(address sdk.AccAddress, runnerHash sdk.AccAddress) *MsgDeleteRunner {
 	return &MsgDeleteRunner{
 		Address:    address,
 		RunnerHash: runnerHash,
@@ -90,7 +90,7 @@ func (msg MsgDeleteRunner) ValidateBasic() error {
 	if err := xvalidator.Validate.Struct(msg); err != nil {
 		return sdkerrors.Wrap(errors.ErrValidation, err.Error())
 	}
-	if msg.RunnerHash.IsZero() {
+	if msg.RunnerHash.Empty() {
 		return sdkerrors.Wrap(errors.ErrValidation, "runnerHash is missing")
 	}
 	if msg.Address.Empty() {

@@ -10,6 +10,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/crypto/keys"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	authutils "github.com/cosmos/cosmos-sdk/x/auth/client/utils"
@@ -17,7 +18,6 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/mesg-foundation/engine/ext/xreflect"
 	"github.com/mesg-foundation/engine/ext/xstrings"
-	"github.com/mesg-foundation/engine/hash"
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/node"
 	rpcclient "github.com/tendermint/tendermint/rpc/client"
@@ -137,13 +137,13 @@ func (c *Client) BuildAndBroadcastMsg(msg sdktypes.Msg) (*abci.ResponseDeliverTx
 }
 
 // Stream subscribes to the provided query and returns the hash of the matching ressources.
-func (c *Client) Stream(ctx context.Context, query string) (chan hash.Hash, chan error, error) {
+func (c *Client) Stream(ctx context.Context, query string) (chan sdk.AccAddress, chan error, error) {
 	subscriber := xstrings.RandASCIILetters(8)
 	eventStream, err := c.Subscribe(ctx, subscriber, query, 0)
 	if err != nil {
 		return nil, nil, err
 	}
-	hashC := make(chan hash.Hash)
+	hashC := make(chan sdk.AccAddress)
 	errC := make(chan error)
 	go func() {
 	loop:
@@ -156,7 +156,7 @@ func (c *Client) Stream(ctx context.Context, query string) (chan hash.Hash, chan
 					errC <- fmt.Errorf("event %s has %d tag(s), but only 1 is expected", EventHashType, len(attrs))
 				}
 				for _, attr := range attrs {
-					hash, err := hash.Decode(attr)
+					hash, err := sdk.AccAddressFromBech32(attr)
 					if err != nil {
 						errC <- err
 					} else {

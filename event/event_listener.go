@@ -1,14 +1,14 @@
 package event
 
 import (
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cskr/pubsub"
-	"github.com/mesg-foundation/engine/hash"
 )
 
 // Filter store fileds for matching events.
 type Filter struct {
-	Hash         hash.Hash
-	InstanceHash hash.Hash
+	Hash         sdk.AccAddress
+	InstanceHash sdk.AccAddress
 	Key          string
 }
 
@@ -18,11 +18,11 @@ func (f *Filter) Match(e *Event) bool {
 		return true
 	}
 
-	if !f.Hash.IsZero() && !f.Hash.Equal(e.Hash) {
+	if !f.Hash.Empty() && !f.Hash.Equals(e.Hash) {
 		return false
 	}
 
-	if !f.InstanceHash.IsZero() && !f.InstanceHash.Equal(e.InstanceHash) {
+	if !f.InstanceHash.Empty() && !f.InstanceHash.Equals(e.InstanceHash) {
 		return false
 	}
 

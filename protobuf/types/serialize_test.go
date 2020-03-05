@@ -3,7 +3,6 @@ package types
 import (
 	"testing"
 
-	"github.com/mesg-foundation/engine/hash"
 	"github.com/stretchr/testify/require"
 )
 
@@ -62,9 +61,7 @@ var (
 
 func TestHashSerialize(t *testing.T) {
 	require.Equal(t, "1:1:3:value;;10000:2:10;;bool:4:true;;list:6:1:0:3:value;;;;;number:2:10;;string:3:value;;struct:5:1:1:3:value;;10000:2:10;;number:2:10;;struct:5:1:1:3:value;;10000:2:10;;number:2:10;;;;;;;;;", structSort1.HashSerialize())
-	require.Equal(t, "GbNibbLgXTJsUVKgkCkiw5AYMVmD7JawqFHbtdkeZqka", hash.Dump(structSort1).String())
 	require.Equal(t, structSort1.HashSerialize(), structSort2.HashSerialize())
-	require.Equal(t, hash.Dump(structSort1).String(), hash.Dump(structSort2).String())
 }
 
 func BenchmarkHashSerialize(b *testing.B) {

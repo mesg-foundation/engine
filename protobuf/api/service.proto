@@ -83,7 +83,7 @@ message CreateServiceRequest {
 message CreateServiceResponse {
   // The service's hash created.
   bytes hash = 1 [
-    (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.AccAddress",
     (gogoproto.nullable) = false
   ];
 }
@@ -93,7 +93,7 @@ message GetServiceRequest {
   // The service's hash to fetch.
   bytes hash = 1 [
     (gogoproto.moretags) = 'validate:"required,hash"',
-    (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.AccAddress",
     (gogoproto.nullable) = false
   ];
 }
@@ -112,7 +112,7 @@ message ExistsServiceRequest {
   // The service's hash of the existing service. This hash is nil if exists is fals.
   bytes hash = 1 [
     (gogoproto.moretags) = 'validate:"required,hash"',
-    (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.AccAddress",
     (gogoproto.nullable) = false
   ];
 }
@@ -127,7 +127,7 @@ message ExistsServiceResponse {
 message HashServiceResponse {
   // Hash of the service calculated.
   bytes hash = 1 [
-    (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.AccAddress",
     (gogoproto.nullable) = false
   ];
 }

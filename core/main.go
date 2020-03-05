@@ -11,6 +11,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/crypto/keys"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	authrest "github.com/cosmos/cosmos-sdk/x/auth/client/rest"
 	"github.com/gorilla/mux"
 	"github.com/mesg-foundation/engine/app"
@@ -22,7 +23,6 @@ import (
 	"github.com/mesg-foundation/engine/ext/xnet"
 	"github.com/mesg-foundation/engine/ext/xrand"
 	"github.com/mesg-foundation/engine/ext/xsignal"
-	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/logger"
 	"github.com/mesg-foundation/engine/orchestrator"
 	"github.com/mesg-foundation/engine/protobuf/api"
@@ -47,7 +47,7 @@ func stopRunningServices(mc *cosmos.ModuleClient, b *builder.Builder, address st
 	)
 	wg.Add(runnersLen)
 	for _, instance := range runners {
-		go func(hash hash.Hash) {
+		go func(hash sdk.AccAddress) {
 			defer wg.Done()
 			err := b.Delete(&api.DeleteRunnerRequest{
 				Hash:       hash,

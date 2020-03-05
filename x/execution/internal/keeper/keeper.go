@@ -10,11 +10,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/bank"
 	"github.com/cosmos/cosmos-sdk/x/params"
 	executionpb "github.com/mesg-foundation/engine/execution"
-	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/protobuf/api"
 	typespb "github.com/mesg-foundation/engine/protobuf/types"
 	"github.com/mesg-foundation/engine/x/execution/internal/types"
-	"github.com/tendermint/tendermint/crypto"
 	"github.com/tendermint/tendermint/libs/log"
 )
 
@@ -80,7 +78,7 @@ func (k *Keeper) Create(ctx sdk.Context, msg types.MsgCreateExecution) (*executi
 	if err != nil {
 		return nil, err
 	}
-	if !msg.Request.ProcessHash.IsZero() {
+	if !msg.Request.ProcessHash.Empty() {
 		if _, err := k.processKeeper.Get(ctx, msg.Request.ProcessHash); err != nil {
 			return nil, err
 		}
@@ -118,8 +116,7 @@ func (k *Keeper) Create(ctx sdk.Context, msg types.MsgCreateExecution) (*executi
 		M.InProgress.Add(1)
 	}
 
-	execAddress := sdk.AccAddress(crypto.AddressHash(exec.Hash))
-	if err := k.bankKeeper.SendCoins(ctx, msg.Signer, execAddress, price); err != nil {
+	if err := k.bankKeeper.SendCoins(ctx, msg.Signer, exec.Hash, price); err != nil {
 		return nil, err
 	}
 
@@ -175,10 +172,7 @@ func (k *Keeper) Update(ctx sdk.Context, msg types.MsgUpdateExecution) (*executi
 		return nil, err
 	}
 
-	execAddress := sdk.AccAddress(crypto.AddressHash(exec.Hash))
-	runnerAddress := sdk.AccAddress(crypto.AddressHash(run.Hash))
-	serviceAddress := sdk.AccAddress(crypto.AddressHash(srv.Hash))
-	if err := k.distributePriceShares(ctx, execAddress, runnerAddress, serviceAddress, exec.Price); err != nil {
+	if err := k.distributePriceShares(ctx, exec.Hash, run.Hash, srv.Hash, exec.Price); err != nil {
 		return nil, err
 	}
 
@@ -210,7 +204,7 @@ func (k *Keeper) distributePriceShares(ctx sdk.Context, execAddress, runnerAddre
 	return nil
 }
 
-func (k *Keeper) validateExecutionOutput(ctx sdk.Context, instanceHash hash.Hash, taskKey string, outputs *typespb.Struct) error {
+func (k *Keeper) validateExecutionOutput(ctx sdk.Context, instanceHash sdk.AccAddress, taskKey string, outputs *typespb.Struct) error {
 	inst, err := k.instanceKeeper.Get(ctx, instanceHash)
 	if err != nil {
 		return err
@@ -223,7 +217,7 @@ func (k *Keeper) validateExecutionOutput(ctx sdk.Context, instanceHash hash.Hash
 }
 
 // Get returns the execution that matches given hash.
-func (k *Keeper) Get(ctx sdk.Context, hash hash.Hash) (*executionpb.Execution, error) {
+func (k *Keeper) Get(ctx sdk.Context, hash sdk.AccAddress) (*executionpb.Execution, error) {
 	var exec *executionpb.Execution
 	store := ctx.KVStore(k.storeKey)
 	if !store.Has(hash) {

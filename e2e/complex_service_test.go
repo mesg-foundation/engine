@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/mesg-foundation/engine/hash"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/mesg-foundation/engine/protobuf/acknowledgement"
 	pb "github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/stretchr/testify/require"
@@ -12,9 +12,9 @@ import (
 
 func testComplexService(t *testing.T) {
 	var (
-		testServiceHash  hash.Hash
-		testRunnerHashC  hash.Hash
-		testInstanceHash hash.Hash
+		testServiceHash  sdk.AccAddress
+		testRunnerHashC  sdk.AccAddress
+		testInstanceHash sdk.AccAddress
 	)
 
 	req := newTestComplexCreateServiceRequest()
@@ -48,7 +48,7 @@ func testComplexService(t *testing.T) {
 			ev, err := stream.Recv()
 			require.NoError(t, err)
 
-			if !ev.InstanceHash.Equal(testInstanceHash) {
+			if !ev.InstanceHash.Equals(testInstanceHash) {
 				continue
 			}
 			i++

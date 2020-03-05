@@ -4,18 +4,18 @@ import (
 	"context"
 	"testing"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/mesg-foundation/engine/execution"
-	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/process"
 	pb "github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/mesg-foundation/engine/protobuf/types"
 	"github.com/stretchr/testify/require"
 )
 
-func testOrchestratorNestedMap(executionStream pb.Execution_StreamClient, instanceHash hash.Hash) func(t *testing.T) {
+func testOrchestratorNestedMap(executionStream pb.Execution_StreamClient, instanceHash sdk.AccAddress) func(t *testing.T) {
 	return func(t *testing.T) {
 		var (
-			processHash hash.Hash
+			processHash sdk.AccAddress
 			dataEvent   = &types.Struct{
 				Fields: map[string]*types.Value{
 					"msg": {
@@ -119,7 +119,7 @@ func testOrchestratorNestedMap(executionStream pb.Execution_StreamClient, instan
 				require.NoError(t, err)
 				require.Equal(t, "task_complex", exec.TaskKey)
 				require.Equal(t, "n2", exec.NodeKey)
-				require.True(t, processHash.Equal(exec.ProcessHash))
+				require.True(t, processHash.Equals(exec.ProcessHash))
 				require.Equal(t, execution.Status_InProgress, exec.Status)
 				require.Equal(t, "isAConstant", exec.Inputs.Fields["msg"].GetStructValue().Fields["msg"].GetStringValue())
 				require.Len(t, exec.Inputs.Fields["msg"].GetStructValue().Fields["array"].GetListValue().Values, 4)
@@ -133,7 +133,7 @@ func testOrchestratorNestedMap(executionStream pb.Execution_StreamClient, instan
 				require.NoError(t, err)
 				require.Equal(t, "task_complex", exec.TaskKey)
 				require.Equal(t, "n2", exec.NodeKey)
-				require.True(t, processHash.Equal(exec.ProcessHash))
+				require.True(t, processHash.Equals(exec.ProcessHash))
 				require.Equal(t, execution.Status_Completed, exec.Status)
 				require.Equal(t, "isAConstant", exec.Outputs.Fields["msg"].GetStructValue().Fields["msg"].GetStringValue())
 				require.Len(t, exec.Outputs.Fields["msg"].GetStructValue().Fields["array"].GetListValue().Values, 4)
