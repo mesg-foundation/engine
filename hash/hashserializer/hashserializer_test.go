@@ -20,21 +20,21 @@ func (data testSerializable) HashSerialize() string {
 
 func ExampleHashSerializer() {
 	ser := New()
-	ser.AddBool("1", true)
-	ser.AddBool("2", false)
-	ser.AddFloat("3", 3.14159265359)
-	ser.AddFloat("4", 0.0)
-	ser.AddFloat("5", -42.14159265359)
-	ser.AddInt("6", 42)
-	ser.AddInt("7", 0.0)
-	ser.AddInt("8", -42)
-	ser.AddString("9", "")
-	ser.AddString("10", "hello")
-	ser.AddStringSlice("11", []string{"c", "b", "a"})
-	ser.AddStringSlice("12", []string{})
-	ser.AddStringSlice("13", []string{"c", "", "a"})
-	ser.Add("14", testSerializable{42, "hello", []string{"c", "b", "a"}})
-	ser.Add("15", testSerializable{})
+	ser.AddBool("1", true)                                                // 1:true;
+	ser.AddBool("2", false)                                               // discarded
+	ser.AddFloat("3", 3.14159265359)                                      // 3:3.14159265359;
+	ser.AddFloat("4", 0.0)                                                // discarded
+	ser.AddFloat("5", -42.14159265359)                                    // 5:-42.14159265359;
+	ser.AddInt("6", 42)                                                   // 6:42;
+	ser.AddInt("7", 0.0)                                                  // discarded
+	ser.AddInt("8", -42)                                                  // 8:-42;
+	ser.AddString("9", "")                                                // discarded
+	ser.AddString("10", "hello")                                          // 10:hello;
+	ser.AddStringSlice("11", []string{"c", "b", "a"})                     // 11:0:c;1:b;2:a;;
+	ser.AddStringSlice("12", []string{})                                  // discarded
+	ser.AddStringSlice("13", []string{"c", "", "a"})                      // 13:0:c;2:a;;
+	ser.Add("14", testSerializable{42, "hello", []string{"c", "b", "a"}}) // 14:1:42;2:hello;3:0:c;1:b;2:a;;;
+	ser.Add("15", testSerializable{})                                     // discarded
 	fmt.Println(ser.HashSerialize())
 	// Output: 1:true;3:3.14159265359;5:-42.14159265359;6:42;8:-42;10:hello;11:0:c;1:b;2:a;;13:0:c;2:a;;14:1:42;2:hello;3:0:c;1:b;2:a;;;
 }
