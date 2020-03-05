@@ -11,7 +11,7 @@ import (
 // MsgCreateRunner defines a state transition to create a runner.
 type MsgCreateRunner struct {
 	Address     sdk.AccAddress `json:"address" validate:"required,accaddress"`
-	ServiceHash sdk.AccAddress `json:"serviceHash" validate:"required,hash"`
+	ServiceHash sdk.AccAddress `json:"serviceHash" validate:"required,accaddress"`
 	EnvHash     hash.Hash      `json:"envHash" validate:"omitempty,hash"`
 }
 
@@ -64,7 +64,7 @@ func (msg MsgCreateRunner) GetSigners() []sdk.AccAddress {
 // MsgDeleteRunner defines a state transition to delete a runner.
 type MsgDeleteRunner struct {
 	Address    sdk.AccAddress `json:"address" validate:"required,accaddress"`
-	RunnerHash sdk.AccAddress `json:"runnerHash" validate:"required,hash"`
+	RunnerHash sdk.AccAddress `json:"runnerHash" validate:"required,accaddress"`
 }
 
 // NewMsgDeleteRunner is a constructor function for MsgDeleteRunner.
