@@ -179,6 +179,9 @@ type StringSlice []string
 
 // HashSerialize returns the hash-serialized string of this type.
 func (s StringSlice) HashSerialize() string {
+	if s == nil || len(s) == 0 {
+		return ""
+	}
 	ser := New()
 	for i, value := range s {
 		ser.AddString(strconv.Itoa(i), value)

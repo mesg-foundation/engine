@@ -81,12 +81,15 @@ type mapProcessNodeMapOutput map[string]*Process_Node_Map_Output
 
 // HashSerialize returns the hashserialized string of this type
 func (data mapProcessNodeMapOutput) HashSerialize() string {
-	ser := hashserializer.New()
+	if data == nil || len(data) == 0 {
+		return ""
+	}
 	keys := make([]string, 0, len(data))
 	for k := range data {
 		keys = append(keys, k)
 	}
 	sort.Strings(keys)
+	ser := hashserializer.New()
 	for _, key := range keys {
 		ser.Add(key, data[key])
 	}
@@ -133,7 +136,7 @@ type processNodeMapOutputs []*Process_Node_Map_Output
 
 // HashSerialize returns the hashserialized string of this type
 func (data processNodeMapOutputs) HashSerialize() string {
-	if data == nil {
+	if data == nil || len(data) == 0 {
 		return ""
 	}
 	ser := hashserializer.New()
@@ -180,7 +183,7 @@ type processNodeFilterConditions []Process_Node_Filter_Condition
 
 // HashSerialize returns the hashserialized string of this type
 func (data processNodeFilterConditions) HashSerialize() string {
-	if data == nil {
+	if data == nil || len(data) == 0 {
 		return ""
 	}
 	ser := hashserializer.New()
@@ -214,7 +217,7 @@ type processNodes []*Process_Node
 
 // HashSerialize returns the hashserialized string of this type
 func (data processNodes) HashSerialize() string {
-	if data == nil {
+	if data == nil || len(data) == 0 {
 		return ""
 	}
 	ser := hashserializer.New()
@@ -228,7 +231,7 @@ type processEdges []*Process_Edge
 
 // HashSerialize returns the hashserialized string of this type
 func (data processEdges) HashSerialize() string {
-	if data == nil {
+	if data == nil || len(data) == 0 {
 		return ""
 	}
 	ser := hashserializer.New()

@@ -21,12 +21,15 @@ type mapValue map[string]*Value
 
 // HashSerialize returns the hashserialized string of this type
 func (data mapValue) HashSerialize() string {
-	ser := hashserializer.New()
+	if data == nil || len(data) == 0 {
+		return ""
+	}
 	keys := make([]string, 0, len(data))
 	for k := range data {
 		keys = append(keys, k)
 	}
 	sort.Strings(keys)
+	ser := hashserializer.New()
 	for _, key := range keys {
 		ser.Add(key, data[key])
 	}
@@ -62,7 +65,7 @@ type values []*Value
 
 // HashSerialize returns the hashserialized string of this type
 func (data values) HashSerialize() string {
-	if data == nil {
+	if data == nil || len(data) == 0 {
 		return ""
 	}
 	ser := hashserializer.New()

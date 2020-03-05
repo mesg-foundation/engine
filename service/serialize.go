@@ -100,7 +100,7 @@ type serviceTasks []*Service_Task
 
 // HashSerialize returns the hashserialized string of this type
 func (data serviceTasks) HashSerialize() string {
-	if data == nil {
+	if data == nil || len(data) == 0 {
 		return ""
 	}
 	ser := hashserializer.New()
@@ -114,7 +114,7 @@ type serviceParameters []*Service_Parameter
 
 // HashSerialize returns the hashserialized string of this type
 func (data serviceParameters) HashSerialize() string {
-	if data == nil {
+	if data == nil || len(data) == 0 {
 		return ""
 	}
 	ser := hashserializer.New()
@@ -128,7 +128,7 @@ type serviceEvents []*Service_Event
 
 // HashSerialize returns the hashserialized string of this type
 func (data serviceEvents) HashSerialize() string {
-	if data == nil {
+	if data == nil || len(data) == 0 {
 		return ""
 	}
 	ser := hashserializer.New()
@@ -142,7 +142,7 @@ type serviceDependencies []*Service_Dependency
 
 // HashSerialize returns the hashserialized string of this type
 func (data serviceDependencies) HashSerialize() string {
-	if data == nil {
+	if data == nil || len(data) == 0 {
 		return ""
 	}
 	ser := hashserializer.New()
