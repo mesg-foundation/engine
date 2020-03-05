@@ -1,11 +1,11 @@
 package publisher
 
 import (
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cskr/pubsub"
 	"github.com/mesg-foundation/engine/cosmos"
 	"github.com/mesg-foundation/engine/event"
 	"github.com/mesg-foundation/engine/protobuf/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 const (
