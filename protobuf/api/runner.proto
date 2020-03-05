@@ -30,7 +30,7 @@ service Runner {
 // The request's data for the `Get` API.
 message GetRunnerRequest {
   bytes hash = 1 [
-    (gogoproto.moretags) = 'validate:"required,hash"',
+    (gogoproto.moretags) = 'validate:"required,accaddress"',
     (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"
   ];
 }
@@ -41,7 +41,7 @@ message ListRunnerRequest {
   message Filter {
     // Filter by instance hash.
     bytes instanceHash = 1 [
-      (gogoproto.moretags) = 'validate:"hash"',
+      (gogoproto.moretags) = 'validate:"accaddress"',
       (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"
     ];
 
@@ -65,7 +65,7 @@ message ListRunnerResponse {
 message CreateRunnerRequest {
   // Service's hash to start the runner with.
   bytes serviceHash = 1 [
-    (gogoproto.moretags) = 'validate:"hash"',
+    (gogoproto.moretags) = 'validate:"accaddress"',
     (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"
   ];
 
@@ -87,7 +87,7 @@ message CreateRunnerResponse {
 message DeleteRunnerRequest {
   // Runner's hash
   bytes hash = 1 [
-    (gogoproto.moretags) = 'validate:"required,hash"',
+    (gogoproto.moretags) = 'validate:"required,accaddress"',
     (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"
   ];
 

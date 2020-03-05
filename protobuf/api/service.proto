@@ -91,7 +91,7 @@ message CreateServiceResponse {
 message GetServiceRequest {
   // The service's hash to fetch.
   bytes hash = 1 [
-    (gogoproto.moretags) = 'validate:"required,hash"',
+    (gogoproto.moretags) = 'validate:"required,accaddress"',
     (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"
   ];
 }
@@ -109,7 +109,7 @@ message ListServiceResponse {
 message ExistsServiceRequest {
   // The service's hash of the existing service. This hash is nil if exists is fals.
   bytes hash = 1 [
-    (gogoproto.moretags) = 'validate:"required,hash"',
+    (gogoproto.moretags) = 'validate:"required,accaddress"',
     (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"
   ];
 }

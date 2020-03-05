@@ -54,7 +54,7 @@ message CreateProcessResponse {
 message DeleteProcessRequest {
   // The process's hash to delete.
   bytes hash = 1 [
-    (gogoproto.moretags) = 'validate:"required,hash"',
+    (gogoproto.moretags) = 'validate:"required,accaddress"',
     (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"
   ];
 }
