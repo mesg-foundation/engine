@@ -47,28 +47,24 @@ message CreateExecutionRequest {
 
   bytes parentHash = 5 [
     (gogoproto.moretags) = 'validate:"omitempty,hash"',
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.AccAddress",
-    (gogoproto.nullable) = false
+    (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"
   ];
 
   bytes eventHash = 6 [
     (gogoproto.moretags) = 'validate:"omitempty,hash"',
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.AccAddress",
-    (gogoproto.nullable) = false
+    (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"
   ];
 
   bytes processHash = 7 [
     (gogoproto.moretags) = 'validate:"omitempty,hash"',
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.AccAddress",
-    (gogoproto.nullable) = false
+    (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"
   ];
 
   string nodeKey = 8;
 
   bytes executorHash = 9 [
     (gogoproto.moretags) = 'validate:"omitempty,hash"',
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.AccAddress",
-    (gogoproto.nullable) = false
+    (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"
   ];
 
   // price of running the execution.
@@ -81,8 +77,7 @@ message CreateExecutionRequest {
 message CreateExecutionResponse {
   // Execution's hash.
   bytes hash = 1 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.AccAddress",
-    (gogoproto.nullable) = false
+    (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"
   ];
 }
 
@@ -91,8 +86,7 @@ message GetExecutionRequest {
   // Execution's hash to fetch.
   bytes hash = 1 [
     (gogoproto.moretags) = 'validate:"required,hash"',
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.AccAddress",
-    (gogoproto.nullable) = false
+    (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"
   ];
 }
 
@@ -106,8 +100,7 @@ message StreamExecutionRequest{
     // Instance's hash to filter executions.
     bytes instanceHash = 2 [
       (gogoproto.moretags) = 'validate:"omitempty,hash"',
-      (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.AccAddress",
-      (gogoproto.nullable) = false
+      (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"
     ];
 
     // taskKey to filter executions.
@@ -123,8 +116,7 @@ message StreamExecutionRequest{
     // Executor's hash to filter executions.
     bytes executorHash = 5 [
       (gogoproto.moretags) = 'validate:"omitempty,hash"',
-      (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.AccAddress",
-      (gogoproto.nullable) = false
+      (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"
     ];
   }
 
@@ -137,8 +129,7 @@ message UpdateExecutionRequest {
   // Hash represents execution.
   bytes hash = 1 [
     (gogoproto.moretags) = 'validate:"required,hash"',
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.AccAddress",
-    (gogoproto.nullable) = false
+    (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"
   ];
 
   // result pass to execution

@@ -13,8 +13,7 @@ message Runner {
   // Runner's hash
   bytes hash = 1 [
     (gogoproto.moretags) = 'hash:"-"',
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.AccAddress",
-    (gogoproto.nullable) = false
+    (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"
   ];
 
   // address of the engine of this runner
@@ -25,7 +24,6 @@ message Runner {
   // instanceHash is hash of the instance that runner will handle
   bytes instanceHash = 3 [
     (gogoproto.moretags) = 'hash:"name:3"',
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.AccAddress",
-    (gogoproto.nullable) = false
+    (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"
   ];
 }

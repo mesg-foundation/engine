@@ -15,8 +15,7 @@ message Ownership {
   // Service's hash.
   bytes hash = 1 [
     (gogoproto.moretags) = 'hash:"-" validate:"required"',
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.AccAddress",
-    (gogoproto.nullable) = false
+    (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"
   ];
 
   // The owner of the resource.
@@ -27,8 +26,7 @@ message Ownership {
   // Resource's hash.
   bytes resourceHash = 3 [
     (gogoproto.moretags) = 'hash:"name:3"',
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.AccAddress",
-    (gogoproto.nullable) = false
+    (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"
   ];
 
   enum Resource {

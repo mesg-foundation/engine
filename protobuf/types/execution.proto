@@ -34,8 +34,7 @@ message Execution {
   // Hash is a unique hash to identify execution.
   bytes hash = 1 [
     (gogoproto.moretags) = 'hash:"-"',
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.AccAddress",
-    (gogoproto.nullable) = false
+    (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"
   ];
 
   // parentHash is the unique hash of parent execution.
@@ -43,15 +42,13 @@ message Execution {
   // dependency execution considered as the parent.
   bytes parentHash = 2 [
     (gogoproto.moretags) = 'hash:"name:2"',
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.AccAddress",
-    (gogoproto.nullable) = false
+    (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"
   ];
 
   // eventHash is unique event hash.
   bytes eventHash = 3 [
     (gogoproto.moretags) = 'hash:"name:3"',
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.AccAddress",
-    (gogoproto.nullable) = false
+    (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"
   ];
 
   // Status is the current status of execution.
@@ -62,8 +59,7 @@ message Execution {
   // instanceHash is hash of the instance that can proceed an execution
   bytes instanceHash = 5 [
     (gogoproto.moretags) = 'hash:"name:5"',
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.AccAddress",
-    (gogoproto.nullable) = false
+    (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"
   ];
 
   // taskKey is the key of the task of this execution.
@@ -94,8 +90,7 @@ message Execution {
   // processHash is the unique hash of the process associated to this execution.
   bytes processHash = 11 [
     (gogoproto.moretags) = 'hash:"name:11"',
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.AccAddress",
-    (gogoproto.nullable) = false
+    (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"
   ];
 
   // node key of the process.
@@ -106,8 +101,7 @@ message Execution {
   // runner that should execute this execution.
   bytes executorHash = 13 [
     (gogoproto.moretags) = 'hash:"name:13"',
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.AccAddress",
-    (gogoproto.nullable) = false
+    (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"
   ];
 
   // price of running the exeuction.

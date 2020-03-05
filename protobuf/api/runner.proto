@@ -31,8 +31,7 @@ service Runner {
 message GetRunnerRequest {
   bytes hash = 1 [
     (gogoproto.moretags) = 'validate:"required,hash"',
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.AccAddress",
-    (gogoproto.nullable) = false
+    (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"
   ];
 }
 
@@ -43,8 +42,7 @@ message ListRunnerRequest {
     // Filter by instance hash.
     bytes instanceHash = 1 [
       (gogoproto.moretags) = 'validate:"hash"',
-      (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.AccAddress",
-      (gogoproto.nullable) = false
+      (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"
     ];
 
     // Filter by address
@@ -68,8 +66,7 @@ message CreateRunnerRequest {
   // Service's hash to start the runner with.
   bytes serviceHash = 1 [
     (gogoproto.moretags) = 'validate:"hash"',
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.AccAddress",
-    (gogoproto.nullable) = false
+    (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"
   ];
 
   // Environmental variables to start the runner with.
@@ -82,8 +79,7 @@ message CreateRunnerRequest {
 message CreateRunnerResponse {
   // The runner's hash created.
   bytes hash = 1 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.AccAddress",
-    (gogoproto.nullable) = false
+    (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"
   ];
 }
 
@@ -92,8 +88,7 @@ message DeleteRunnerRequest {
   // Runner's hash
   bytes hash = 1 [
     (gogoproto.moretags) = 'validate:"required,hash"',
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.AccAddress",
-    (gogoproto.nullable) = false
+    (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"
   ];
 
   // If true, any persistent data (volumes) that belongs to the runner's container and its dependencies will also be deleted.

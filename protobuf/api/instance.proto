@@ -24,8 +24,7 @@ service Instance {
 message GetInstanceRequest {
   bytes hash = 1 [
     (gogoproto.moretags) = 'validate:"required,hash"',
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.AccAddress",
-    (gogoproto.nullable) = false
+    (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"
   ];
 }
 
@@ -36,8 +35,7 @@ message ListInstanceRequest {
     // Service hash to filter executions.
     bytes serviceHash = 1 [
       (gogoproto.moretags) = 'validate:"omitempty,hash"',
-      (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.AccAddress",
-      (gogoproto.nullable) = false
+      (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"
     ];
   }
 
