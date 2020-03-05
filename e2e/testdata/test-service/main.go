@@ -8,8 +8,9 @@ import (
 	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/mesg-foundation/engine/config"
+	"github.com/mesg-foundation/engine/cosmos"
 	"github.com/mesg-foundation/engine/execution"
-	"github.com/mesg-foundation/engine/hash"
 	pb "github.com/mesg-foundation/engine/protobuf/api"
 	types "github.com/mesg-foundation/engine/protobuf/types"
 	"google.golang.org/grpc"
@@ -38,6 +39,12 @@ type Client struct {
 
 // New creates a new client from env variables supplied by mesg engine.
 func New() (*Client, error) {
+	cfg, err := config.New()
+	if err != nil {
+		return nil, err
+	}
+	cosmos.CustomizeConfig(cfg)
+
 	endpoint := os.Getenv(envMesgEndpoint)
 	if endpoint == "" {
 		return nil, fmt.Errorf("client: mesg server address env(%s) is empty", envMesgEndpoint)

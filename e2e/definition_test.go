@@ -38,7 +38,7 @@ func newTestComplexCreateServiceRequest() *pb.CreateServiceRequest {
 			{Key: "resolve_dependence_ok"},
 			{Key: "resolve_dependence_error"},
 		},
-		Source: "QmSuVcdic2dhS5QKQGWp66SJQUkDRqAqCHpU6Sx9uXJcdc",
+		Source: "QmYyMUSK2X825reW1DSkxhVFkeh6JiV1UrUKWMqoXdg3vS",
 	}
 }
 
@@ -187,6 +187,6 @@ func newTestCreateServiceRequest() *pb.CreateServiceRequest {
 				},
 			},
 		},
-		Source: "QmXcPDajWN55n1UPV5VNJDEKE96xJFJMe3X7GwN3qx8p7r",
+		Source: "QmaowaN7rBH99JnCod9U9UJD7AJnpTxGVzAiMNjWWi4oMC",
 	}
 }
