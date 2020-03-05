@@ -19,7 +19,10 @@ import (
 )
 
 // price share for the execution runner
-var runnerShare = sdk.NewDecWithPrec(9, 1)
+var (
+	runnerShare   = sdk.NewDecWithPrec(8, 1)
+	emittersShare = sdk.NewDecWithPrec(1, 1)
+)
 
 // Keeper of the execution store
 type Keeper struct {
@@ -200,7 +203,7 @@ func (k *Keeper) Update(ctx sdk.Context, msg types.MsgUpdateExecution) (*executi
 	execAddress := sdk.AccAddress(crypto.AddressHash(exec.Hash))
 	runnerAddress := sdk.AccAddress(crypto.AddressHash(run.Hash))
 	serviceAddress := sdk.AccAddress(crypto.AddressHash(srv.Hash))
-	if err := k.distributePriceShares(ctx, execAddress, runnerAddress, serviceAddress, exec.Price); err != nil {
+	if err := k.distributePriceShares(ctx, exec.Hash, execAddress, runnerAddress, serviceAddress, exec.Price); err != nil {
 		return nil, err
 	}
 
@@ -211,7 +214,8 @@ func (k *Keeper) Update(ctx sdk.Context, msg types.MsgUpdateExecution) (*executi
 	return exec, nil
 }
 
-func (k *Keeper) distributePriceShares(ctx sdk.Context, execAddress, runnerAddress, serviceAddress sdk.AccAddress, price string) error {
+func (k *Keeper) distributePriceShares(ctx sdk.Context, execHash hash.Hash, execAddress, runnerAddress, serviceAddress sdk.AccAddress, price string) error {
+	store := ctx.KVStore(k.storeKey)
 	coins, err := sdk.ParseCoins(price)
 	if err != nil {
 		return fmt.Errorf("cannot parse coins: %w", err)
@@ -221,13 +225,29 @@ func (k *Keeper) distributePriceShares(ctx sdk.Context, execAddress, runnerAddre
 	}
 
 	runnerCoins, _ := sdk.NewDecCoinsFromCoins(coins...).MulDecTruncate(runnerShare).TruncateDecimal()
-	serviceCoins := coins.Sub(runnerCoins)
-	// TODO: add emitters share
+	emittersCoins, _ := sdk.NewDecCoinsFromCoins(coins...).MulDecTruncate(emittersShare).TruncateDecimal()
+	serviceCoins := coins.Sub(runnerCoins).Sub(emittersCoins)
+
+	var voters []sdk.AccAddress
+	var emitterCoins sdk.Coins
+	if store.Has(voteKey(execHash)) {
+		k.cdc.MustUnmarshalBinaryLengthPrefixed(store.Get(voteKey(execHash)), &voters)
+		// divide coins for each emitter
+		emitterCoins, _ = sdk.NewDecCoinsFromCoins(emittersCoins...).QuoDec(sdk.NewDec(int64(len(voters)))).TruncateDecimal()
+	}
+
+	// if there is no emitter get rest coins to runner
+	if emitterCoins.IsZero() {
+		runnerCoins = runnerCoins.Add(emittersCoins...)
+	}
 
 	inputs := []bank.Input{bank.NewInput(execAddress, coins)}
 	outputs := []bank.Output{
 		bank.NewOutput(runnerAddress, runnerCoins),
 		bank.NewOutput(serviceAddress, serviceCoins),
+	}
+	for _, voter := range voters {
+		outputs = append(outputs, bank.NewOutput(voter, emitterCoins))
 	}
 
 	if err := k.bankKeeper.InputOutputCoins(ctx, inputs, outputs); err != nil {
