@@ -16,8 +16,8 @@ enum Status {
   // Unknown status represents any status unknown to execution.
   Unknown = 0;
 
-  // Created is an initial status after execution creation.
-  Created = 1;
+  // Passed is an status after voting phase.
+  Passed = 1;
 
   // InProgress informs that processing of execution has been started.
   InProgress = 2;
@@ -27,6 +27,9 @@ enum Status {
 
   // Failed is an error status after execution was processed.
   Failed = 4;
+
+  // Voting is an initial status after execution creation.
+  Voting = 5;
 }
 
 // Execution represents a single execution run in engine.
@@ -117,6 +120,11 @@ message Execution {
 
   // blockHeight where the execution was included into blockchain.
   int64 blockHeight = 15 [
+    (gogoproto.moretags) = 'hash:"-"'
+  ];
+
+  // confs is the number of conrimations the exeuction needs to have before chaingin status to passed
+  int64 confs = 16 [
     (gogoproto.moretags) = 'hash:"-"'
   ];
 }

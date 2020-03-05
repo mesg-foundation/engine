@@ -75,6 +75,9 @@ message CreateExecutionRequest {
   string price = 10 [
     (gogoproto.moretags) = 'validate:"coins"'
   ];
+
+    // confs is the number of conrimations the exeuction needs to have before chaingin status to passed
+  int64 confs = 11;
 }
 
 // CreateExecutionResponse defines response for execution creation.

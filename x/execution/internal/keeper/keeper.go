@@ -99,31 +99,53 @@ func (k *Keeper) Create(ctx sdk.Context, msg types.MsgCreateExecution) (*executi
 		msg.Request.Inputs,
 		msg.Request.Tags,
 		msg.Request.ExecutorHash,
+		msg.Request.Confs,
 	)
 	exec.BlockHeight = ctx.BlockHeight()
 
 	store := ctx.KVStore(k.storeKey)
-	if store.Has(exec.Hash) {
-		return nil, fmt.Errorf("execution %q already exists", exec.Hash)
-	}
-	if err := exec.Execute(); err != nil {
-		return nil, err
-	}
-	value, err := k.cdc.MarshalBinaryLengthPrefixed(exec)
-	if err != nil {
-		return nil, err
+	execExist := store.Has(exec.Hash)
+
+	if execExist {
+		if err := k.cdc.UnmarshalBinaryLengthPrefixed(store.Get(exec.Hash), &exec); err != nil {
+			return nil, err
+		}
+
+		if exec.Status != executionpb.Status_Voting {
+			return nil, fmt.Errorf("execution %q already exists", exec.Hash)
+		}
+	} else {
+		value, err := k.cdc.MarshalBinaryLengthPrefixed(exec)
+		if err != nil {
+			return nil, err
+		}
+		store.Set(exec.Hash, value)
+
+		execAddress := sdk.AccAddress(crypto.AddressHash(exec.Hash))
+		if err := k.bankKeeper.SendCoins(ctx, msg.Signer, execAddress, price); err != nil {
+			return nil, err
+		}
 	}
 
-	if !ctx.IsCheckTx() {
-		M.InProgress.Add(1)
+	var count int64
+	if exec.Confs > 0 && execExist {
+		// do not add exec creator to voter list.
+		count, err = k.addVoter(ctx, exec.Hash, msg.Signer)
+		if err != nil {
+			return nil, err
+		}
 	}
 
-	execAddress := sdk.AccAddress(crypto.AddressHash(exec.Hash))
-	if err := k.bankKeeper.SendCoins(ctx, msg.Signer, execAddress, price); err != nil {
-		return nil, err
+	// reached consensus
+	if count >= exec.Confs {
+		exec.Status = executionpb.Status_InProgress
+		store.Set(exec.Hash, k.cdc.MustMarshalBinaryLengthPrefixed(exec))
+
+		if !ctx.IsCheckTx() {
+			M.InProgress.Add(1)
+		}
 	}
 
-	store.Set(exec.Hash, value)
 	return exec, nil
 }
 
@@ -182,6 +204,9 @@ func (k *Keeper) Update(ctx sdk.Context, msg types.MsgUpdateExecution) (*executi
 		return nil, err
 	}
 
+	// after coins distribution the list of voters is not needed anymore
+	store.Delete(voteKey(exec.Hash))
+
 	store.Set(exec.Hash, value)
 	return exec, nil
 }
@@ -197,6 +222,7 @@ func (k *Keeper) distributePriceShares(ctx sdk.Context, execAddress, runnerAddre
 
 	runnerCoins, _ := sdk.NewDecCoinsFromCoins(coins...).MulDecTruncate(runnerShare).TruncateDecimal()
 	serviceCoins := coins.Sub(runnerCoins)
+	// TODO: add emitters share
 
 	inputs := []bank.Input{bank.NewInput(execAddress, coins)}
 	outputs := []bank.Output{
@@ -249,4 +275,27 @@ func (k *Keeper) List(ctx sdk.Context) ([]*executionpb.Execution, error) {
 	}
 	iter.Close()
 	return execs, nil
+}
+
+var voteKeyPrefix = []byte{0x01}
+
+func voteKey(hash hash.Hash) []byte {
+	return append(voteKeyPrefix, []byte(hash)...)
+}
+
+// addVoter adds an emitter address to list of voters and returns updated voters count.
+func (k *Keeper) addVoter(ctx sdk.Context, execHash hash.Hash, emitter sdk.AccAddress) (int64, error) {
+	store := ctx.KVStore(k.storeKey)
+	var voters []sdk.AccAddress
+	key := voteKey(execHash)
+	if err := k.cdc.UnmarshalBinaryLengthPrefixed(store.Get(key), &voters); err != nil {
+		return 0, sdkerrors.Wrapf(sdkerrors.ErrJSONUnmarshal, "can't unmarshal voters")
+	}
+	voters = append(voters, emitter)
+	bz, err := k.cdc.MarshalBinaryLengthPrefixed(voters)
+	if err != nil {
+		return 0, sdkerrors.Wrapf(sdkerrors.ErrJSONMarshal, "can't marshal voters")
+	}
+	store.Set(key, bz)
+	return int64(len(voters)), nil
 }

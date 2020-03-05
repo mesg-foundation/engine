@@ -6,7 +6,7 @@ import (
 )
 
 // New returns a new execution. It returns an error if inputs are invalid.
-func New(processHash, instanceHash, parentHash, eventHash hash.Hash, nodeKey, taskKey, price string, inputs *types.Struct, tags []string, executorHash hash.Hash) *Execution {
+func New(processHash, instanceHash, parentHash, eventHash hash.Hash, nodeKey, taskKey, price string, inputs *types.Struct, tags []string, executorHash hash.Hash, confs int64) *Execution {
 	exec := &Execution{
 		ProcessHash:  processHash,
 		EventHash:    eventHash,
@@ -17,19 +17,20 @@ func New(processHash, instanceHash, parentHash, eventHash hash.Hash, nodeKey, ta
 		NodeKey:      nodeKey,
 		Tags:         tags,
 		Price:        price,
-		Status:       Status_Created,
+		Status:       Status_Voting,
 		ExecutorHash: executorHash,
+		Confs:        confs,
 	}
 	exec.Hash = hash.Dump(exec)
 	return exec
 }
 
 // Execute changes executions status to in progres and update its execute time.
-// It returns an error if the status is different then Created.
+// It returns an error if the status is different then Passed.
 func (execution *Execution) Execute() error {
-	if execution.Status != Status_Created {
+	if execution.Status != Status_Passed {
 		return StatusError{
-			ExpectedStatus: Status_Created,
+			ExpectedStatus: Status_Passed,
 			ActualStatus:   execution.Status,
 		}
 	}
