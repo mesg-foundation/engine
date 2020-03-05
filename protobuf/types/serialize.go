@@ -39,6 +39,7 @@ func (data *Value) HashSerialize() string {
 		return ""
 	}
 	ser := hashserializer.New()
+	ser.AddInt("1", int(data.GetNullValue()))
 	ser.AddFloat("2", data.GetNumberValue())
 	ser.AddString("3", data.GetStringValue())
 	ser.AddBool("4", data.GetBoolValue())

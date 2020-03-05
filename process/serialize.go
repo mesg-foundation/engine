@@ -99,6 +99,7 @@ func (data *Process_Node_Map_Output) HashSerialize() string {
 		return ""
 	}
 	ser := hashserializer.New()
+	ser.AddInt("1", int(data.GetNull()))
 	ser.AddString("2", data.GetStringConst())
 	ser.AddFloat("3", data.GetDoubleConst())
 	ser.AddBool("4", data.GetBoolConst())
@@ -194,6 +195,7 @@ func (data Process_Node_Filter_Condition) HashSerialize() string {
 	ser := hashserializer.New()
 	ser.AddString("1", data.Key)
 	ser.AddInt("2", int(data.Predicate))
+	ser.AddString("3", data.Value)
 	return ser.HashSerialize()
 }
 
