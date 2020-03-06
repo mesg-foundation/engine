@@ -158,11 +158,63 @@ func (k *Keeper) Update(ctx sdk.Context, msg types.MsgUpdateExecution) (*executi
 	if !store.Has(msg.Request.Hash) {
 		return nil, fmt.Errorf("execution %q doesn't exist", msg.Request.Hash)
 	}
+
 	var exec *executionpb.Execution
 	if err := k.cdc.UnmarshalBinaryLengthPrefixed(store.Get(msg.Request.Hash), &exec); err != nil {
 		return nil, err
 	}
-	switch res := msg.Request.Result.(type) {
+
+	var updateReq = msg.Request
+	// if not then jus right to save results
+	if exec.UpdateConfs > 0 {
+		key := resultKey(exec.Hash)
+		if !store.Has(key) {
+			bz := k.cdc.MustMarshalBinaryLengthPrefixed([]*api.UpdateExecutionRequest{msg.Request})
+			store.Set(key, bz)
+			// first result && updateConfs > 0 , no way to set consensus
+			return exec, nil
+		}
+
+		var requests []*api.UpdateExecutionRequest
+		k.cdc.MustUnmarshalBinaryLengthPrefixed(store.Get(key), &requests)
+
+		if exec.UpdateConfs-int64(len(requests)) > 1 {
+			// no way to set consensus , too early, just append request to the list and save it
+			bz := k.cdc.MustMarshalBinaryLengthPrefixed(append(requests, msg.Request))
+			store.Set(key, bz)
+			return exec, nil
+		}
+
+		// here we can try to find a consensus
+		var m = make(map[string]int64)
+		for _, r := range requests {
+			m[string(hash.Dump(r))]++
+		}
+
+		found := false
+		var reqHash hash.Hash
+		for h, confs := range m {
+			if confs >= exec.UpdateConfs {
+				// found it
+				found = true
+				reqHash = hash.Hash(h)
+			}
+		}
+		if !found {
+			return exec, nil
+		}
+
+		// assing new value to request
+		for _, r := range requests {
+			if hash.Dump(r).Equal(reqHash) {
+				updateReq = msg.Request
+				break
+			}
+		}
+		store.Delete(key)
+	}
+
+	switch res := updateReq.Result.(type) {
 	case *api.UpdateExecutionRequest_Outputs:
 		if err := k.validateExecutionOutput(ctx, exec.InstanceHash, exec.TaskKey, res.Outputs); err != nil {
 			if err1 := exec.Failed(err); err1 != nil {
@@ -178,6 +230,7 @@ func (k *Keeper) Update(ctx sdk.Context, msg types.MsgUpdateExecution) (*executi
 	default:
 		return nil, errors.New("no execution result supplied")
 	}
+
 	value, err := k.cdc.MarshalBinaryLengthPrefixed(exec)
 	if err != nil {
 		return nil, err
@@ -297,10 +350,17 @@ func (k *Keeper) List(ctx sdk.Context) ([]*executionpb.Execution, error) {
 	return execs, nil
 }
 
-var voteKeyPrefix = []byte{0x01}
+var (
+	voteKeyPrefix   = []byte{0x01}
+	resultKeyPrefix = []byte{0x02}
+)
 
 func voteKey(hash hash.Hash) []byte {
 	return append(voteKeyPrefix, []byte(hash)...)
+}
+
+func resultKey(hash hash.Hash) []byte {
+	return append(resultKeyPrefix, []byte(hash)...)
 }
 
 // addVoter adds an emitter address to list of voters and returns updated voters count.

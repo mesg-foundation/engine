@@ -127,4 +127,8 @@ message Execution {
   int64 confs = 16 [
     (gogoproto.moretags) = 'hash:"-"'
   ];
+
+  int64 updateConfs = 17 [
+    (gogoproto.moretags) = 'hash:"-"'
+  ];
 }
