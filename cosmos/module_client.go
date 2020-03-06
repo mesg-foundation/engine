@@ -7,6 +7,7 @@ import (
 	executionpb "github.com/mesg-foundation/engine/execution"
 	"github.com/mesg-foundation/engine/ext/xos"
 	"github.com/mesg-foundation/engine/hash"
+	"github.com/mesg-foundation/engine/hash/hashserializer"
 	instancepb "github.com/mesg-foundation/engine/instance"
 	ownershippb "github.com/mesg-foundation/engine/ownership"
 	processpb "github.com/mesg-foundation/engine/process"
@@ -223,7 +224,7 @@ func (mc *ModuleClient) CreateRunner(req *api.CreateRunnerRequest) (*runnerpb.Ru
 	if err != nil {
 		return nil, err
 	}
-	envHash := hash.Dump(xos.EnvMergeSlices(s.Configuration.Env, req.Env))
+	envHash := hash.Dump(hashserializer.StringSlice(xos.EnvMergeSlices(s.Configuration.Env, req.Env)))
 	acc, err := mc.GetAccount()
 	if err != nil {
 		return nil, err
