@@ -66,7 +66,11 @@ func (k Keeper) Set(ctx sdk.Context, owner sdk.AccAddress, resourceHash sdk.Addr
 	}
 	ownership.Hash = address.OwnAddress(crypto.AddressHash([]byte(ownership.HashSerialize())))
 
-	store.Set(ownership.Hash, k.cdc.MustMarshalBinaryLengthPrefixed(ownership))
+	value, err := k.cdc.MarshalBinaryLengthPrefixed(ownership)
+	if err != nil {
+		return nil, err
+	}
+	store.Set(ownership.Hash, value)
 	return ownership, nil
 }
 

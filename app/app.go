@@ -25,6 +25,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/slashing"
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	"github.com/cosmos/cosmos-sdk/x/supply"
+	"github.com/mesg-foundation/engine/cosmos/address"
 	"github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/mesg-foundation/engine/protobuf/types"
 	"github.com/mesg-foundation/engine/x/execution"
@@ -86,6 +87,7 @@ func MakeCodec() *codec.Codec {
 	codec.RegisterCrypto(cdc)
 	types.RegisterCodec(cdc)
 	api.RegisterCodec(cdc)
+	address.RegisterCodec(cdc)
 
 	return cdc.Seal()
 }
