@@ -11,7 +11,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/crypto/keys"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	authutils "github.com/cosmos/cosmos-sdk/x/auth/client/utils"
 	authExported "github.com/cosmos/cosmos-sdk/x/auth/exported"
@@ -32,7 +31,7 @@ type Client struct {
 	chainID      string
 	accName      string
 	accPassword  string
-	minGasPrices sdktypes.DecCoins
+	minGasPrices sdk.DecCoins
 
 	// Local state
 	acc             authExported.Account
@@ -42,7 +41,7 @@ type Client struct {
 
 // NewClient returns a rpc tendermint client.
 func NewClient(node *node.Node, cdc *codec.Codec, kb keys.Keybase, chainID, accName, accPassword, minGasPrices string) (*Client, error) {
-	minGasPricesDecoded, err := sdktypes.ParseDecCoins(minGasPrices)
+	minGasPricesDecoded, err := sdk.ParseDecCoins(minGasPrices)
 	if err != nil {
 		return nil, err
 	}
@@ -91,9 +90,9 @@ func (c *Client) QueryWithData(path string, data []byte) ([]byte, int64, error) 
 }
 
 // BuildAndBroadcastMsg builds and signs message and broadcast it to node.
-func (c *Client) BuildAndBroadcastMsg(msg sdktypes.Msg) (*abci.ResponseDeliverTx, error) {
+func (c *Client) BuildAndBroadcastMsg(msg sdk.Msg) (*abci.ResponseDeliverTx, error) {
 	c.broadcastMutex.Lock() // Lock the whole signature + broadcast of the transaction
-	signedTx, err := c.createAndSignTx([]sdktypes.Msg{msg})
+	signedTx, err := c.createAndSignTx([]sdk.Msg{msg})
 	if err != nil {
 		c.broadcastMutex.Unlock()
 		return nil, err
@@ -204,7 +203,7 @@ func (c *Client) GetAccount() (authExported.Account, error) {
 	return c.acc, nil
 }
 
-func (c *Client) createAndSignTx(msgs []sdktypes.Msg) (tenderminttypes.Tx, error) {
+func (c *Client) createAndSignTx(msgs []sdk.Msg) (tenderminttypes.Tx, error) {
 	// retrieve account
 	accR, err := c.GetAccount()
 	if err != nil {
