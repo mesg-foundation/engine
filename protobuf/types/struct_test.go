@@ -1,10 +1,10 @@
 package types
 
 import (
+	"bytes"
 	"testing"
 
 	"github.com/cosmos/cosmos-sdk/codec"
-	"github.com/mesg-foundation/engine/hash"
 	"github.com/stretchr/testify/require"
 )
 
@@ -76,7 +76,7 @@ func TestStructMarshal(t *testing.T) {
 			require.NoError(t, err)
 			structValueSort2, err = cdc.MarshalBinaryLengthPrefixed(structSort2)
 			require.NoError(t, err)
-			require.True(t, hash.Sum(structValueSort1).Equal(hash.Sum(structValueSort2)))
+			require.True(t, bytes.Equal(structValueSort1, structValueSort2))
 		})
 		t.Run("Unmarshal", func(t *testing.T) {
 			require.NoError(t, cdc.UnmarshalBinaryLengthPrefixed(structValueSort1, &structUnm1))
@@ -99,7 +99,7 @@ func TestStructMarshal(t *testing.T) {
 			require.NoError(t, err)
 			structValueSort2, err = cdc.MarshalJSON(structSort2)
 			require.NoError(t, err)
-			require.True(t, hash.Sum(structValueSort1).Equal(hash.Sum(structValueSort2)))
+			require.True(t, bytes.Equal(structValueSort1, structValueSort2))
 		})
 		t.Run("Unmarshal", func(t *testing.T) {
 			require.NoError(t, cdc.UnmarshalJSON(structValueSort1, &structUnm1))
