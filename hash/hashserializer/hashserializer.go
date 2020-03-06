@@ -7,14 +7,14 @@
 // The order to add the value should always be the same if you want the created string to be deterministic.
 //
 // Each value can be added to the HashSerializer using one of the AddXXX function alongside the prefix:
-//  ser := New()
-//  ser.AddBool(prefix, value)
-//  ser.AddFloat(prefix, value)
-//  ser.AddInt(prefix, value)
-//  ser.AddString(prefix, value)
-//  ser.AddStringSlice(prefix, value)
-//  ser.Add(prefix, value) // value must implement function `HashSerialize() string`
-//  hashSerialized := ser.HashSerialize()
+//  New().
+//    AddBool(prefix, value).
+//    AddFloat(prefix, value).
+//    AddInt(prefix, value).
+//    AddString(prefix, value).
+//    AddStringSlice(prefix, value).
+//    Add(prefix, value) // value must implement function `HashSerialize() string`.
+//    HashSerialize()
 //
 // Format
 //
@@ -122,50 +122,56 @@ func (s *HashSerializer) HashSerialize() string {
 
 // AddString adds a string to the serializer.
 // If value is empty, nothing is added to the HashSerializer.
-func (s *HashSerializer) AddString(prefix string, value string) {
+func (s *HashSerializer) AddString(prefix string, value string) *HashSerializer {
 	if value != "" {
 		s.buf.WriteString(prefix)
 		s.buf.WriteString(":")
 		s.buf.WriteString(value)
 		s.buf.WriteString(";")
 	}
+	return s
 }
 
 // AddBool adds a boolean to the serializer.
 // If value is false, nothing is added to the HashSerializer.
-func (s *HashSerializer) AddBool(prefix string, value bool) {
+func (s *HashSerializer) AddBool(prefix string, value bool) *HashSerializer {
 	if value {
 		s.AddString(prefix, "true")
 	}
+	return s
 }
 
 // AddFloat adds a float to the serializer.
 // If value is 0, nothing is added to the HashSerializer.
-func (s *HashSerializer) AddFloat(prefix string, value float64) {
+func (s *HashSerializer) AddFloat(prefix string, value float64) *HashSerializer {
 	if value != 0 {
 		s.AddString(prefix, strconv.FormatFloat(value, 'f', -1, 64))
 	}
+	return s
 }
 
 // AddInt adds a int to the serializer.
 // If value is 0, nothing is added to the HashSerializer.
-func (s *HashSerializer) AddInt(prefix string, value int) {
+func (s *HashSerializer) AddInt(prefix string, value int) *HashSerializer {
 	if value != 0 {
 		s.AddString(prefix, strconv.Itoa(value))
 	}
+	return s
 }
 
 // Add adds a struct implementing HashSerializable to the serializer.
 // The function HashSerialize will be called on value and its result injected as a string in HashSerializer.
 // If value.HashSerialize() returns an empty string, nothing is added to the HashSerializer.
-func (s *HashSerializer) Add(prefix string, value HashSerializable) {
+func (s *HashSerializer) Add(prefix string, value HashSerializable) *HashSerializer {
 	s.AddString(prefix, value.HashSerialize())
+	return s
 }
 
 // AddStringSlice adds a slice of string to the serializer.
 // If value is an empty slice or each element is empty, nothing is added to the HashSerializer.
-func (s *HashSerializer) AddStringSlice(prefix string, value []string) {
+func (s *HashSerializer) AddStringSlice(prefix string, value []string) *HashSerializer {
 	s.Add(prefix, StringSlice(value))
+	return s
 }
 
 // StringSlice is an helper type to easily hash-serialized slice of string.
@@ -173,6 +179,9 @@ type StringSlice []string
 
 // HashSerialize returns the hash-serialized string of this type.
 func (s StringSlice) HashSerialize() string {
+	if s == nil || len(s) == 0 {
+		return ""
+	}
 	ser := New()
 	for i, value := range s {
 		ser.AddString(strconv.Itoa(i), value)

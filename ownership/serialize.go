@@ -7,8 +7,8 @@ func (data *Ownership) HashSerialize() string {
 	if data == nil {
 		return ""
 	}
-	ser := hashserializer.New()
-	ser.AddString("2", data.Owner)
-	ser.AddString("3", data.ResourceHash.String())
-	return ser.HashSerialize()
+	return hashserializer.New().
+		AddString("2", data.Owner).
+		AddString("3", data.ResourceHash.String()).
+		HashSerialize()
 }
