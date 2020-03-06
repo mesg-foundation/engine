@@ -6,11 +6,13 @@ import (
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/x/bank"
 	"github.com/mesg-foundation/engine/execution"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/protobuf/acknowledgement"
 	pb "github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/mesg-foundation/engine/protobuf/types"
+	"github.com/mesg-foundation/engine/x/ownership"
 	"github.com/stretchr/testify/require"
 	"github.com/tendermint/tendermint/crypto"
 )
@@ -253,6 +255,32 @@ func testExecution(t *testing.T) {
 			execAddress := sdk.AccAddress(crypto.AddressHash(resp.Hash))
 			lcdGet(t, "bank/balances/"+execAddress.String(), &coins)
 			require.True(t, coins.AmountOf("atto").Equal(sdk.NewInt(0)))
+		})
+
+		t.Run("withdraw from service", func(t *testing.T) {
+			acc, err := cclient.GetAccount()
+			require.NoError(t, err)
+			coins := sdk.NewCoins(sdk.NewCoin("atto", sdk.NewInt(7000)))
+			msg := ownership.NewMsgWithdrawCoins(testServiceHash, coins, acc.GetAddress())
+			_, err = cclient.BuildAndBroadcastMsg(msg)
+			require.NoError(t, err)
+
+			param := bank.NewQueryBalanceParams(sdk.AccAddress(crypto.AddressHash(testServiceHash)))
+			require.NoError(t, cclient.QueryJSON("custom/bank/balances", param, &coins))
+			require.True(t, coins.IsZero(), coins)
+		})
+
+		t.Run("withdraw from runner", func(t *testing.T) {
+			acc, err := cclient.GetAccount()
+			require.NoError(t, err)
+			coins := sdk.NewCoins(sdk.NewCoin("atto", sdk.NewInt(63000)))
+			msg := ownership.NewMsgWithdrawCoins(testRunnerHash, coins, acc.GetAddress())
+			_, err = cclient.BuildAndBroadcastMsg(msg)
+			require.NoError(t, err)
+
+			param := bank.NewQueryBalanceParams(sdk.AccAddress(crypto.AddressHash(testRunnerHash)))
+			require.NoError(t, cclient.QueryJSON("custom/bank/balances", param, &coins))
+			require.True(t, coins.IsZero(), coins)
 		})
 	})
 

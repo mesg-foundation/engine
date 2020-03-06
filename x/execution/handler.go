@@ -24,7 +24,7 @@ func NewHandler(k Keeper) sdk.Handler {
 	}
 }
 
-// handleMsgCreateExecution creates a new process.
+// handleMsgCreateExecution creates a new execution.
 func handleMsgCreateExecution(ctx sdk.Context, k Keeper, msg MsgCreateExecution) (*sdk.Result, error) {
 	s, err := k.Create(ctx, msg)
 	if err != nil {
