@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/mesg-foundation/engine/cosmos/address"
 	"github.com/mesg-foundation/engine/ownership"
 	"github.com/mesg-foundation/engine/process"
 	pb "github.com/mesg-foundation/engine/protobuf/api"
@@ -12,11 +12,11 @@ import (
 	"github.com/tendermint/tendermint/crypto"
 )
 
-var testProcessHash sdk.AccAddress
+var testProcessHash address.testProcessAddress
 
 func testProcess(t *testing.T) {
 	var (
-		processHash sdk.AccAddress
+		processHash address.ProcAddress
 		req         = &pb.CreateProcessRequest{
 			Name: "test-process",
 			Nodes: []*process.Process_Node{
@@ -60,7 +60,7 @@ func testProcess(t *testing.T) {
 			Nodes: req.Nodes,
 			Edges: req.Edges,
 		}
-		expectedHash := sdk.AccAddress(crypto.AddressHash([]byte(processForHash.HashSerialize())))
+		expectedHash := address.expectedAddress(crypto.AddressHash([]byte(processForHash.HashSerialize())))
 		t.Run("grpc", func(t *testing.T) {
 			p, err := client.ProcessClient.Get(context.Background(), &pb.GetProcessRequest{Hash: testProcessHash})
 			require.NoError(t, err)

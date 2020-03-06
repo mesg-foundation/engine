@@ -7,7 +7,6 @@ import (
 	"os"
 	"time"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/mesg-foundation/engine/config"
 	"github.com/mesg-foundation/engine/cosmos"
 	"github.com/mesg-foundation/engine/execution"
@@ -31,10 +30,10 @@ type Client struct {
 	pb.ExecutionClient
 
 	// instance hash that could be used in api calls.
-	InstanceHash sdk.AccAddress
+	InstanceHash address.InstAddress
 
 	// runner hash that could be used in api calls.
-	RunnerHash sdk.AccAddress
+	RunnerHash address.RunAddress
 }
 
 // New creates a new client from env variables supplied by mesg engine.
@@ -50,12 +49,12 @@ func New() (*Client, error) {
 		return nil, fmt.Errorf("client: mesg server address env(%s) is empty", envMesgEndpoint)
 	}
 
-	instanceHash, err := sdk.AccAddressFromBech32(os.Getenv(envMesgInstanceHash))
+	instanceHash, err := address.InstAddressFromBech32(os.Getenv(envMesgInstanceHash))
 	if err != nil {
 		return nil, fmt.Errorf("client: error with mesg's instance hash env(%s): %s", envMesgInstanceHash, err.Error())
 	}
 
-	runnerHash, err := sdk.AccAddressFromBech32(os.Getenv(envMesgRunnerHash))
+	runnerHash, err := address.RunAddressFromBech32(os.Getenv(envMesgRunnerHash))
 	if err != nil {
 		return nil, fmt.Errorf("client: error with mesg's runner hash env(%s): %s", envMesgRunnerHash, err.Error())
 	}

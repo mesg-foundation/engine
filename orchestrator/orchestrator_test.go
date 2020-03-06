@@ -7,13 +7,13 @@ package orchestrator
 // func TestFilter(t *testing.T) {
 // 	o := New(&mocks.EventSDK{}, &mocks.ExecutionSDK{}, &mocks.ProcessSDK{}, &mocks.RunnerSDK{})
 // 	p := process.Process{
-// 		Hash: sdk.AccAddress(crypto.AddressHash([]byte("1"))),
+// 		Hash: address.ProcAddress(crypto.AddressHash([]byte("1"))),
 // 		Nodes: []*process.Process_Node{
 // 			{
 // 				Key: "1",
 // 				Type: &process.Process_Node_Event_{
 // 					Event: &process.Process_Node_Event{
-// 						InstanceHash: sdk.AccAddress(crypto.AddressHash([]byte("1"))),
+// 						InstanceHash: address.InstAddress(crypto.AddressHash([]byte("1"))),
 // 						EventKey:     "1",
 // 					},
 // 				},
@@ -21,13 +21,13 @@ package orchestrator
 // 			{
 // 				Key: "2",
 // 				Type: &process.Process_Node_Task_{Task: &process.Process_Node_Task{
-// 					InstanceHash: sdk.AccAddress(crypto.AddressHash([]byte("2"))),
+// 					InstanceHash: address.InstAddress(crypto.AddressHash([]byte("2"))),
 // 					TaskKey:      "2",
 // 				}}},
 // 			{
 // 				Key: "3",
 // 				Type: &process.Process_Node_Task_{Task: &process.Process_Node_Task{
-// 					InstanceHash: sdk.AccAddress(crypto.AddressHash([]byte("3"))),
+// 					InstanceHash: address.InstAddress(crypto.AddressHash([]byte("3"))),
 // 					TaskKey:      "3",
 // 				}}},
 // 		},
@@ -44,85 +44,85 @@ package orchestrator
 // 		err    error
 // 	}{
 // 		{
-// 			filter: o.eventFilter(&event.Event{InstanceHash: sdk.AccAddress(crypto.AddressHash([]byte("1"))), Key: "1"}),
+// 			filter: o.eventFilter(&event.Event{InstanceHash: address.InstAddress(crypto.AddressHash([]byte("1"))), Key: "1"}),
 // 			n:      p.Nodes[0],
 // 			res:    true,
 // 			err:    nil,
 // 		},
 // 		{
-// 			filter: o.eventFilter(&event.Event{InstanceHash: sdk.AccAddress(crypto.AddressHash([]byte("1"))), Key: "2"}),
+// 			filter: o.eventFilter(&event.Event{InstanceHash: address.InstAddress(crypto.AddressHash([]byte("1"))), Key: "2"}),
 // 			n:      p.Nodes[0],
 // 			res:    false,
 // 			err:    nil,
 // 		},
 // 		{
-// 			filter: o.eventFilter(&event.Event{InstanceHash: sdk.AccAddress(crypto.AddressHash([]byte("2"))), Key: "1"}),
+// 			filter: o.eventFilter(&event.Event{InstanceHash: address.InstAddress(crypto.AddressHash([]byte("2"))), Key: "1"}),
 // 			n:      p.Nodes[0],
 // 			res:    false,
 // 			err:    nil,
 // 		},
 // 		{
-// 			filter: o.eventFilter(&event.Event{InstanceHash: sdk.AccAddress(crypto.AddressHash([]byte("2"))), Key: "1"}),
+// 			filter: o.eventFilter(&event.Event{InstanceHash: address.InstAddress(crypto.AddressHash([]byte("2"))), Key: "1"}),
 // 			n:      p.Nodes[1],
 // 			res:    false,
 // 			err:    nil,
 // 		},
 // 		{
-// 			filter: o.resultFilter(&execution.Execution{InstanceHash: sdk.AccAddress(crypto.AddressHash([]byte("1"))), TaskKey: "1"}),
+// 			filter: o.resultFilter(&execution.Execution{InstanceHash: address.InstAddress(crypto.AddressHash([]byte("1"))), TaskKey: "1"}),
 // 			n: &process.Process_Node{Type: &process.Process_Node_Result_{Result: &process.Process_Node_Result{
-// 				InstanceHash: sdk.AccAddress(crypto.AddressHash([]byte("1"))),
+// 				InstanceHash: address.InstAddress(crypto.AddressHash([]byte("1"))),
 // 				TaskKey:      "1",
 // 			}}},
 // 			res: true,
 // 			err: nil,
 // 		},
 // 		{
-// 			filter: o.resultFilter(&execution.Execution{InstanceHash: sdk.AccAddress(crypto.AddressHash([]byte("1"))), TaskKey: "1"}),
+// 			filter: o.resultFilter(&execution.Execution{InstanceHash: address.InstAddress(crypto.AddressHash([]byte("1"))), TaskKey: "1"}),
 // 			n: &process.Process_Node{Type: &process.Process_Node_Result_{Result: &process.Process_Node_Result{
-// 				InstanceHash: sdk.AccAddress(crypto.AddressHash([]byte("1"))),
+// 				InstanceHash: address.InstAddress(crypto.AddressHash([]byte("1"))),
 // 				TaskKey:      "2",
 // 			}}},
 // 			res: false,
 // 			err: nil,
 // 		},
 // 		{
-// 			filter: o.resultFilter(&execution.Execution{InstanceHash: sdk.AccAddress(crypto.AddressHash([]byte("1"))), TaskKey: "1"}),
+// 			filter: o.resultFilter(&execution.Execution{InstanceHash: address.InstAddress(crypto.AddressHash([]byte("1"))), TaskKey: "1"}),
 // 			n: &process.Process_Node{Type: &process.Process_Node_Result_{Result: &process.Process_Node_Result{
-// 				InstanceHash: sdk.AccAddress(crypto.AddressHash([]byte("2"))),
+// 				InstanceHash: address.InstAddress(crypto.AddressHash([]byte("2"))),
 // 				TaskKey:      "1",
 // 			}}},
 // 			res: false,
 // 			err: nil,
 // 		},
 // 		{
-// 			filter: o.resultFilter(&execution.Execution{InstanceHash: sdk.AccAddress(crypto.AddressHash([]byte("1"))), TaskKey: "1"}),
+// 			filter: o.resultFilter(&execution.Execution{InstanceHash: address.InstAddress(crypto.AddressHash([]byte("1"))), TaskKey: "1"}),
 // 			n:      p.Nodes[0],
 // 			res:    false,
 // 			err:    nil,
 // 		},
 // 		{
-// 			filter: o.dependencyFilter(&execution.Execution{InstanceHash: sdk.AccAddress(crypto.AddressHash([]byte("3"))), TaskKey: "2", ProcessHash: sdk.AccAddress(crypto.AddressHash([]byte("1"))), NodeKey: "2"}),
+// 			filter: o.dependencyFilter(&execution.Execution{InstanceHash: address.InstAddress(crypto.AddressHash([]byte("3"))), TaskKey: "2", ProcessHash: address.InstAddress(crypto.AddressHash([]byte("1"))), NodeKey: "2"}),
 // 			p:      &p,
 // 			n:      p.Nodes[2],
 // 			res:    true,
 // 			err:    nil,
 // 		},
 // 		{
-// 			filter: o.dependencyFilter(&execution.Execution{InstanceHash: sdk.AccAddress(crypto.AddressHash([]byte("3"))), TaskKey: "2", ProcessHash: sdk.AccAddress(crypto.AddressHash([]byte("2"))), NodeKey: "2"}),
+// 			filter: o.dependencyFilter(&execution.Execution{InstanceHash: address.InstAddress(crypto.AddressHash([]byte("3"))), TaskKey: "2", ProcessHash: address.InstAddress(crypto.AddressHash([]byte("2"))), NodeKey: "2"}),
 // 			p:      &p,
 // 			n:      p.Nodes[2],
 // 			res:    false,
 // 			err:    nil,
 // 		},
 // 		{
-// 			filter: o.dependencyFilter(&execution.Execution{InstanceHash: sdk.AccAddress(crypto.AddressHash([]byte("3"))), TaskKey: "2", ProcessHash: sdk.AccAddress(crypto.AddressHash([]byte("1"))), NodeKey: "1"}),
+// 			filter: o.dependencyFilter(&execution.Execution{InstanceHash: address.InstAddress(crypto.AddressHash([]byte("3"))), TaskKey: "2", ProcessHash: address.InstAddress(crypto.AddressHash([]byte("1"))), NodeKey: "1"}),
 // 			p:      &p,
 // 			n:      p.Nodes[2],
 // 			res:    false,
 // 			err:    nil,
 // 		},
 // 		{
-// 			filter: o.dependencyFilter(&execution.Execution{InstanceHash: sdk.AccAddress(crypto.AddressHash([]byte("3"))), TaskKey: "2", ProcessHash: sdk.AccAddress(crypto.AddressHash([]byte("1"))), NodeKey: "2"}),
+// 			filter: o.dependencyFilter(&execution.Execution{InstanceHash: address.InstAddress(crypto.AddressHash([]byte("3"))), TaskKey: "2", ProcessHash: address.InstAddress(crypto.AddressHash([]byte("1"))), NodeKey: "2"}),
 // 			p:      &p,
 // 			n:      p.Nodes[0],
 // 			res:    false,
@@ -142,7 +142,7 @@ package orchestrator
 // func TestFindNode(t *testing.T) {
 // 	o := New(&mocks.EventSDK{}, &mocks.ExecutionSDK{}, &mocks.ProcessSDK{}, &mocks.RunnerSDK{})
 // 	data := &process.Process{
-// 		Hash: sdk.AccAddress(crypto.AddressHash([]byte("1"))),
+// 		Hash: address.ProcAddress(crypto.AddressHash([]byte("1"))),
 // 		Nodes: []*process.Process_Node{
 // 			{
 // 				Key: "1",
@@ -167,9 +167,9 @@ package orchestrator
 // // 	e := &mocks.ExecutionSDK{}
 // // 	o := New(&mocks.EventSDK{}, e, &mocks.ProcessSDK{})
 // // 	exec := &execution.Execution{
-// // 		ProcessHash: sdk.AccAddress(crypto.AddressHash([]byte("1"))),
+// // 		ProcessHash: address.ProcAddress(crypto.AddressHash([]byte("1"))),
 // // 		NodeKey:      "1",
-// // 		ParentHash:  sdk.AccAddress(crypto.AddressHash([]byte("2"))),
+// // 		ParentHash:  address.ExecAddress(crypto.AddressHash([]byte("2"))),
 // // 		Outputs: &types.Struct{
 // // 			Fields: map[string]*types.Value{
 // // 				"xxx": &types.Value{
@@ -187,9 +187,9 @@ package orchestrator
 // 	e := &mocks.ExecutionSDK{}
 // 	o := New(&mocks.EventSDK{}, e, &mocks.ProcessSDK{}, &mocks.RunnerSDK{})
 // 	exec := &execution.Execution{
-// 		ProcessHash: sdk.AccAddress(crypto.AddressHash([]byte("2"))),
+// 		ProcessHash: address.ProcAddress(crypto.AddressHash([]byte("2"))),
 // 		NodeKey:     "2",
-// 		ParentHash:  sdk.AccAddress(crypto.AddressHash([]byte("3"))),
+// 		ParentHash:  address.ExecAddress(crypto.AddressHash([]byte("3"))),
 // 		Outputs: &types.Struct{
 // 			Fields: map[string]*types.Value{
 // 				"xxx": {
@@ -199,20 +199,20 @@ package orchestrator
 // 		},
 // 	}
 // 	// Different processes
-// 	_, err := o.resolveInput(sdk.AccAddress(crypto.AddressHash([]byte("1"))), exec, "2", &process.Process_Node_Map_Output_Reference_Path{Selector: &process.Process_Node_Map_Output_Reference_Path_Key{Key: "xxx"}})
+// 	_, err := o.resolveInput(address.ProcAddress(crypto.AddressHash([]byte("1"))), exec, "2", &process.Process_Node_Map_Output_Reference_Path{Selector: &process.Process_Node_Map_Output_Reference_Path_Key{Key: "xxx"}})
 // 	require.Error(t, err)
 // 	// Different steps, should return the value of the data
-// 	val, err := o.resolveInput(sdk.AccAddress(crypto.AddressHash([]byte("2"))), exec, "2", &process.Process_Node_Map_Output_Reference_Path{Selector: &process.Process_Node_Map_Output_Reference_Path_Key{Key: "xxx"}})
+// 	val, err := o.resolveInput(address.ProcAddress(crypto.AddressHash([]byte("2"))), exec, "2", &process.Process_Node_Map_Output_Reference_Path{Selector: &process.Process_Node_Map_Output_Reference_Path_Key{Key: "xxx"}})
 // 	require.NoError(t, err)
 // 	require.Equal(t, val, exec.Outputs.Fields["xxx"])
 // 	// Invalid execution parent hash
 // 	e.On("Get", mock.Anything).Once().Return(nil, fmt.Errorf("err"))
-// 	_, err = o.resolveInput(sdk.AccAddress(crypto.AddressHash([]byte("2"))), exec, "-", &process.Process_Node_Map_Output_Reference_Path{Selector: &process.Process_Node_Map_Output_Reference_Path_Key{Key: "xxx"}})
+// 	_, err = o.resolveInput(address.ProcAddress(crypto.AddressHash([]byte("2"))), exec, "-", &process.Process_Node_Map_Output_Reference_Path{Selector: &process.Process_Node_Map_Output_Reference_Path_Key{Key: "xxx"}})
 // 	require.Error(t, err)
 // 	// Output from a previous exec
 // 	execMock := &execution.Execution{
 // 		NodeKey:     "3",
-// 		ProcessHash: sdk.AccAddress(crypto.AddressHash([]byte("2"))),
+// 		ProcessHash: address.ProcAddress(crypto.AddressHash([]byte("2"))),
 // 		Outputs: &types.Struct{
 // 			Fields: map[string]*types.Value{
 // 				"yyy": {
@@ -222,7 +222,7 @@ package orchestrator
 // 		},
 // 	}
 // 	e.On("Get", mock.Anything).Once().Return(execMock, nil)
-// 	val, err = o.resolveInput(sdk.AccAddress(crypto.AddressHash([]byte("2"))), exec, "3", &process.Process_Node_Map_Output_Reference_Path{Selector: &process.Process_Node_Map_Output_Reference_Path_Key{Key: "yyy"}})
+// 	val, err = o.resolveInput(address.ProcAddress(crypto.AddressHash([]byte("2"))), exec, "3", &process.Process_Node_Map_Output_Reference_Path{Selector: &process.Process_Node_Map_Output_Reference_Path_Key{Key: "yyy"}})
 // 	require.NoError(t, err)
 // 	require.Equal(t, val, execMock.Outputs.Fields["yyy"])
 // }
@@ -231,28 +231,28 @@ package orchestrator
 // 	e := &mocks.ExecutionSDK{}
 // 	e.On("Create", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Once().Return(nil, nil)
 // 	r := &mocks.RunnerSDK{}
-// 	r.On("List", mock.Anything).Once().Return([]*runner.Runner{{Hash: sdk.AccAddress(crypto.AddressHash([]byte("1")))}}, nil)
+// 	r.On("List", mock.Anything).Once().Return([]*runner.Runner{{Hash: address.RunAddress(crypto.AddressHash([]byte("1")))}}, nil)
 // 	o := New(&mocks.EventSDK{}, e, &mocks.ProcessSDK{}, r)
 // 	err := o.processTask("-", &process.Process_Node_Task{
-// 		InstanceHash: sdk.AccAddress(crypto.AddressHash([]byte("1"))),
+// 		InstanceHash: address.InstAddress(crypto.AddressHash([]byte("1"))),
 // 		TaskKey:      "-",
 // 	}, &process.Process{
-// 		Hash: sdk.AccAddress(crypto.AddressHash([]byte("2"))),
+// 		Hash: address.ProcAddress(crypto.AddressHash([]byte("2"))),
 // 	}, &execution.Execution{
-// 		Hash: sdk.AccAddress(crypto.AddressHash([]byte("3"))),
+// 		Hash: address.ProcAddress(crypto.AddressHash([]byte("3"))),
 // 	}, nil, &types.Struct{
 // 		Fields: map[string]*types.Value{},
 // 	})
 // 	require.NoError(t, err)
 // 	e.On("Create", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Once().Return(nil, fmt.Errorf("error"))
-// 	r.On("List", mock.Anything).Once().Return([]*runner.Runner{{Hash: sdk.AccAddress(crypto.AddressHash([]byte("1")))}}, nil)
+// 	r.On("List", mock.Anything).Once().Return([]*runner.Runner{{Hash: address.RunAddress(crypto.AddressHash([]byte("1")))}}, nil)
 // 	err = o.processTask("-", &process.Process_Node_Task{
-// 		InstanceHash: sdk.AccAddress(crypto.AddressHash([]byte("1"))),
+// 		InstanceHash: address.InstAddress(crypto.AddressHash([]byte("1"))),
 // 		TaskKey:      "-",
 // 	}, &process.Process{
-// 		Hash: sdk.AccAddress(crypto.AddressHash([]byte("2"))),
+// 		Hash: address.ProcAddress(crypto.AddressHash([]byte("2"))),
 // 	}, nil, &event.Event{
-// 		Hash: sdk.AccAddress(crypto.AddressHash([]byte("3"))),
+// 		Hash: address.ProcAddress(crypto.AddressHash([]byte("3"))),
 // 	}, &types.Struct{
 // 		Fields: map[string]*types.Value{},
 // 	})

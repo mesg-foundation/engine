@@ -180,7 +180,7 @@ message Service {
   // Service's hash.
   bytes hash = 10 [
     (gogoproto.moretags) = 'hash:"-" validate:"required"',
-    (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"
+    (gogoproto.casttype) = "github.com/mesg-foundation/engine/cosmos/address.ServAddress"
   ];
 
   // Service's sid.

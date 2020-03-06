@@ -1,13 +1,13 @@
 package execution
 
 import (
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/mesg-foundation/engine/cosmos/address"
 	"github.com/mesg-foundation/engine/protobuf/types"
 	"github.com/tendermint/tendermint/crypto"
 )
 
 // New returns a new execution. It returns an error if inputs are invalid.
-func New(processHash, instanceHash, parentHash, eventHash sdk.AccAddress, nodeKey, taskKey, price string, inputs *types.Struct, tags []string, executorHash sdk.AccAddress) *Execution {
+func New(processHash address.ProcAddress, instanceHash address.InstAddress, parentHash address.ExecAddress, eventHash address.EventAddress, nodeKey, taskKey, price string, inputs *types.Struct, tags []string, executorHash address.RunAddress) *Execution {
 	exec := &Execution{
 		ProcessHash:  processHash,
 		EventHash:    eventHash,
@@ -21,7 +21,7 @@ func New(processHash, instanceHash, parentHash, eventHash sdk.AccAddress, nodeKe
 		Status:       Status_Created,
 		ExecutorHash: executorHash,
 	}
-	exec.Hash = sdk.AccAddress(crypto.AddressHash([]byte(exec.HashSerialize())))
+	exec.Hash = address.ExecAddress(crypto.AddressHash([]byte(exec.HashSerialize())))
 	return exec
 }
 

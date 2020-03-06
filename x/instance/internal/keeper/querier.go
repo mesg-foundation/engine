@@ -3,6 +3,7 @@ package keeper
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/mesg-foundation/engine/cosmos/address"
 	"github.com/mesg-foundation/engine/cosmos/errors"
 	"github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/mesg-foundation/engine/x/instance/internal/types"
@@ -27,7 +28,7 @@ func getInstance(ctx sdk.Context, path []string, k Keeper) ([]byte, error) {
 	if len(path) == 0 {
 		return nil, errors.ErrMissingHash
 	}
-	hash, err := sdk.AccAddressFromBech32(path[0])
+	hash, err := address.InstAddressFromBech32(path[0])
 	if err != nil {
 		return nil, sdkerrors.Wrap(errors.ErrValidation, err.Error())
 	}

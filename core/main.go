@@ -11,13 +11,13 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/crypto/keys"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	authrest "github.com/cosmos/cosmos-sdk/x/auth/client/rest"
 	"github.com/gorilla/mux"
 	"github.com/mesg-foundation/engine/app"
 	"github.com/mesg-foundation/engine/config"
 	"github.com/mesg-foundation/engine/container"
 	"github.com/mesg-foundation/engine/cosmos"
+	"github.com/mesg-foundation/engine/cosmos/address"
 	"github.com/mesg-foundation/engine/event/publisher"
 	"github.com/mesg-foundation/engine/ext/xerrors"
 	"github.com/mesg-foundation/engine/ext/xnet"
@@ -35,8 +35,8 @@ import (
 	db "github.com/tendermint/tm-db"
 )
 
-func stopRunningServices(mc *cosmos.ModuleClient, b *builder.Builder, address string) error {
-	runners, err := mc.ListRunner(&cosmos.FilterRunner{Address: address})
+func stopRunningServices(mc *cosmos.ModuleClient, b *builder.Builder, addr string) error {
+	runners, err := mc.ListRunner(&cosmos.FilterRunner{Address: addr})
 	if err != nil {
 		return err
 	}
@@ -47,7 +47,7 @@ func stopRunningServices(mc *cosmos.ModuleClient, b *builder.Builder, address st
 	)
 	wg.Add(runnersLen)
 	for _, instance := range runners {
-		go func(hash sdk.AccAddress) {
+		go func(hash address.RunAddress) {
 			defer wg.Done()
 			err := b.Delete(&api.DeleteRunnerRequest{
 				Hash:       hash,

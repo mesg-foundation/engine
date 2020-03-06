@@ -46,25 +46,25 @@ message CreateExecutionRequest {
   ];
 
   bytes parentHash = 5 [
-    (gogoproto.moretags) = 'validate:"omitempty,accaddress"',
-    (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"
+    (gogoproto.moretags) = 'validate:"omitempty,execaddress"',
+    (gogoproto.casttype) = "github.com/mesg-foundation/engine/cosmos/address.ExecAddress"
   ];
 
   bytes eventHash = 6 [
-    (gogoproto.moretags) = 'validate:"omitempty,accaddress"',
-    (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"
+    (gogoproto.moretags) = 'validate:"omitempty,eventaddress"',
+    (gogoproto.casttype) = "github.com/mesg-foundation/engine/cosmos/address.EventAddress"
   ];
 
   bytes processHash = 7 [
-    (gogoproto.moretags) = 'validate:"omitempty,accaddress"',
-    (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"
+    (gogoproto.moretags) = 'validate:"omitempty,procaddress"',
+    (gogoproto.casttype) = "github.com/mesg-foundation/engine/cosmos/address.ProcAddress"
   ];
 
   string nodeKey = 8;
 
   bytes executorHash = 9 [
-    (gogoproto.moretags) = 'validate:"omitempty,accaddress"',
-    (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"
+    (gogoproto.moretags) = 'validate:"omitempty,runaddress"',
+    (gogoproto.casttype) = "github.com/mesg-foundation/engine/cosmos/address.RunAddress"
   ];
 
   // price of running the execution.
@@ -77,7 +77,7 @@ message CreateExecutionRequest {
 message CreateExecutionResponse {
   // Execution's hash.
   bytes hash = 1 [
-    (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"
+    (gogoproto.casttype) = "github.com/mesg-foundation/engine/cosmos/address.ExecAddress"
   ];
 }
 
@@ -85,8 +85,8 @@ message CreateExecutionResponse {
 message GetExecutionRequest {
   // Execution's hash to fetch.
   bytes hash = 1 [
-    (gogoproto.moretags) = 'validate:"required,accaddress"',
-    (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"
+    (gogoproto.moretags) = 'validate:"required,execaddress"',
+    (gogoproto.casttype) = "github.com/mesg-foundation/engine/cosmos/address.ExecAddress"
   ];
 }
 
@@ -99,8 +99,8 @@ message StreamExecutionRequest{
 
     // Instance's hash to filter executions.
     bytes instanceHash = 2 [
-      (gogoproto.moretags) = 'validate:"omitempty,accaddress"',
-      (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"
+      (gogoproto.moretags) = 'validate:"omitempty,instaddress"',
+      (gogoproto.casttype) = "github.com/mesg-foundation/engine/cosmos/address.InstAddress"
     ];
 
     // taskKey to filter executions.
@@ -115,8 +115,8 @@ message StreamExecutionRequest{
     
     // Executor's hash to filter executions.
     bytes executorHash = 5 [
-      (gogoproto.moretags) = 'validate:"omitempty,accaddress"',
-      (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"
+      (gogoproto.moretags) = 'validate:"omitempty,runaddress"',
+      (gogoproto.casttype) = "github.com/mesg-foundation/engine/cosmos/address.RunAddress"
     ];
   }
 
@@ -128,8 +128,8 @@ message StreamExecutionRequest{
 message UpdateExecutionRequest {
   // Hash represents execution.
   bytes hash = 1 [
-    (gogoproto.moretags) = 'validate:"required,accaddress"',
-    (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"
+    (gogoproto.moretags) = 'validate:"required,execaddress"',
+    (gogoproto.casttype) = "github.com/mesg-foundation/engine/cosmos/address.ExecAddress"
   ];
 
   // result pass to execution

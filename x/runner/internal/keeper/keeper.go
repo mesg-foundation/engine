@@ -6,6 +6,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/mesg-foundation/engine/cosmos/address"
 	"github.com/mesg-foundation/engine/runner"
 	"github.com/mesg-foundation/engine/x/runner/internal/types"
 	"github.com/tendermint/tendermint/crypto"
@@ -46,7 +47,7 @@ func (k Keeper) Create(ctx sdk.Context, msg *types.MsgCreateRunner) (*runner.Run
 		Address:      msg.Address.String(),
 		InstanceHash: inst.Hash,
 	}
-	r.Hash = sdk.AccAddress(crypto.AddressHash([]byte(r.HashSerialize())))
+	r.Hash = address.RunAddress(crypto.AddressHash([]byte(r.HashSerialize())))
 	if store.Has(r.Hash) {
 		return nil, fmt.Errorf("runner %q already exists", r.Hash)
 	}
@@ -79,7 +80,7 @@ func (k Keeper) Delete(ctx sdk.Context, msg *types.MsgDeleteRunner) error {
 }
 
 // Get returns the runner that matches given hash.
-func (k Keeper) Get(ctx sdk.Context, hash sdk.AccAddress) (*runner.Runner, error) {
+func (k Keeper) Get(ctx sdk.Context, hash address.RunAddress) (*runner.Runner, error) {
 	store := ctx.KVStore(k.storeKey)
 	if !store.Has(hash) {
 		return nil, fmt.Errorf("runner %q not found", hash)

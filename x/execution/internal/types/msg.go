@@ -68,15 +68,15 @@ func (msg MsgCreateExecution) GetSigners() []sdk.AccAddress {
 
 // MsgUpdateExecution defines a state transition to update a execution.
 type MsgUpdateExecution struct {
-	Request  *api.UpdateExecutionRequest `json:"request"`
-	Executor sdk.AccAddress              `json:"executor"`
+	Request *api.UpdateExecutionRequest `json:"request"`
+	Signer  sdk.AccAddress              `json:"signer"`
 }
 
 // NewMsgUpdateExecution is a constructor function for MsgUpdateExecution.
-func NewMsgUpdateExecution(req *api.UpdateExecutionRequest, executor sdk.AccAddress) *MsgUpdateExecution {
+func NewMsgUpdateExecution(req *api.UpdateExecutionRequest, signer sdk.AccAddress) *MsgUpdateExecution {
 	return &MsgUpdateExecution{
-		Request:  req,
-		Executor: executor,
+		Request: req,
+		Signer:  signer,
 	}
 }
 
@@ -92,8 +92,8 @@ func (msg MsgUpdateExecution) Type() string {
 
 // ValidateBasic runs stateless checks on the message.
 func (msg MsgUpdateExecution) ValidateBasic() error {
-	if msg.Executor.Empty() {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, "executor is missing")
+	if msg.Signer.Empty() {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, "signer is missing")
 	}
 	return nil
 }
@@ -105,5 +105,5 @@ func (msg MsgUpdateExecution) GetSignBytes() []byte {
 
 // GetSigners defines whose signature is required.
 func (msg MsgUpdateExecution) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{msg.Executor}
+	return []sdk.AccAddress{sdk.AccAddress(msg.Signer)}
 }

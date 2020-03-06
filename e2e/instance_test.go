@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/mesg-foundation/engine/cosmos/address"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/instance"
 	pb "github.com/mesg-foundation/engine/protobuf/api"
@@ -12,7 +12,7 @@ import (
 	"github.com/tendermint/tendermint/crypto"
 )
 
-var testInstanceHash sdk.AccAddress
+var testInstanceHash address.testInstanceAddress
 
 func testInstance(t *testing.T) {
 	t.Run("get", func(t *testing.T) {
@@ -48,7 +48,7 @@ func testInstance(t *testing.T) {
 		t.Run("do not match service", func(t *testing.T) {
 			resp, err := client.InstanceClient.List(context.Background(), &pb.ListInstanceRequest{
 				Filter: &pb.ListInstanceRequest_Filter{
-					ServiceHash: sdk.AccAddress(crypto.AddressHash([]byte("1"))),
+					ServiceHash: address.ServAddress(crypto.AddressHash([]byte("1"))),
 				},
 			})
 			require.NoError(t, err)

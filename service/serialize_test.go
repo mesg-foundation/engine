@@ -3,7 +3,7 @@ package service
 import (
 	"testing"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/mesg-foundation/engine/cosmos/address"
 	"github.com/stretchr/testify/require"
 	"github.com/tendermint/tendermint/crypto"
 )
@@ -36,7 +36,7 @@ var s = &Service{
 
 func TestHashSerialize(t *testing.T) {
 	require.Equal(t, "1:world;5:0:6:0:3:Number;4:true;8:key;;;7:0:3:Number;4:true;8:key;;;8:task;;;6:0:3:0:3:Number;4:true;8:key;;;4:event;;;12:hello;", s.HashSerialize())
-	require.Equal(t, "cosmos18lrpl337qh9t8ceeuta48k5sz3pjetqs9zjkqk", sdk.AccAddress(crypto.AddressHash([]byte(s.HashSerialize()))).String())
+	require.Equal(t, "cosmos18lrpl337qh9t8ceeuta48k5sz3pjetqs9zjkqk", address.ServAddress(crypto.AddressHash([]byte(s.HashSerialize()))).String())
 }
 
 func BenchmarkHashSerialize(b *testing.B) {

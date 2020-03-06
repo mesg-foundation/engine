@@ -5,7 +5,7 @@ import (
 	"testing"
 	"testing/quick"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/mesg-foundation/engine/cosmos/address"
 	"github.com/mesg-foundation/engine/protobuf/types"
 	"github.com/stretchr/testify/require"
 	"github.com/tendermint/tendermint/crypto"
@@ -13,9 +13,9 @@ import (
 
 func TestNewFromService(t *testing.T) {
 	var (
-		parentHash = sdk.AccAddress(crypto.AddressHash([]byte("2")))
-		eventHash  = sdk.AccAddress(crypto.AddressHash([]byte("3")))
-		hash       = sdk.AccAddress(crypto.AddressHash([]byte("1")))
+		parentHash = address.ExecAddress(crypto.AddressHash([]byte("2")))
+		eventHash  = address.EventAddress(crypto.AddressHash([]byte("3")))
+		hash       = address.ExecAddress(crypto.AddressHash([]byte("1")))
 		taskKey    = "key"
 		tags       = []string{"tag"}
 	)

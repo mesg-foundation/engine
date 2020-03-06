@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"strings"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/mesg-foundation/engine/container"
 	"github.com/mesg-foundation/engine/cosmos"
+	"github.com/mesg-foundation/engine/cosmos/address"
 	"github.com/mesg-foundation/engine/ext/xos"
 	"github.com/mesg-foundation/engine/hash"
 	instancepb "github.com/mesg-foundation/engine/instance"
@@ -53,7 +53,7 @@ func (b *Builder) Create(req *api.CreateRunnerRequest) (*runnerpb.Runner, error)
 		ServiceHash: srv.Hash,
 		EnvHash:     envHash,
 	}
-	instanceHash := sdk.AccAddress(crypto.AddressHash([]byte(instForHash.HashSerialize())))
+	instanceHash := address.InstAddress(crypto.AddressHash([]byte(instForHash.HashSerialize())))
 	acc, err := b.mc.GetAccount()
 	if err != nil {
 		return nil, err
@@ -62,7 +62,7 @@ func (b *Builder) Create(req *api.CreateRunnerRequest) (*runnerpb.Runner, error)
 		Address:      acc.GetAddress().String(),
 		InstanceHash: instanceHash,
 	}
-	expRunnerHash := sdk.AccAddress(crypto.AddressHash([]byte(runForHash.HashSerialize())))
+	expRunnerHash := address.RunAddress(crypto.AddressHash([]byte(runForHash.HashSerialize())))
 
 	if runExisting, _ := b.mc.GetRunner(expRunnerHash); runExisting != nil {
 		return nil, fmt.Errorf("runner %q already exists", runExisting.Hash)

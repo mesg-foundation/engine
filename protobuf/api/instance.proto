@@ -23,8 +23,8 @@ service Instance {
 // The request's data for the `Get` API.
 message GetInstanceRequest {
   bytes hash = 1 [
-    (gogoproto.moretags) = 'validate:"required,accaddress"',
-    (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"
+    (gogoproto.moretags) = 'validate:"required,instaddress"',
+    (gogoproto.casttype) = "github.com/mesg-foundation/engine/cosmos/address.InstAddress"
   ];
 }
 
@@ -34,8 +34,8 @@ message ListInstanceRequest {
   message Filter {
     // Service hash to filter executions.
     bytes serviceHash = 1 [
-      (gogoproto.moretags) = 'validate:"omitempty,accaddress"',
-      (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"
+      (gogoproto.moretags) = 'validate:"omitempty,servaddress"',
+      (gogoproto.casttype) = "github.com/mesg-foundation/engine/cosmos/address.ServAddress"
     ];
   }
 

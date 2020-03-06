@@ -5,6 +5,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/mesg-foundation/engine/cosmos/address"
 	ownershippb "github.com/mesg-foundation/engine/ownership"
 	"github.com/mesg-foundation/engine/protobuf/api"
 	servicepb "github.com/mesg-foundation/engine/service"
@@ -70,7 +71,7 @@ func (k Keeper) Create(ctx sdk.Context, msg *types.MsgCreateService) (*servicepb
 }
 
 // Get returns the service that matches given hash.
-func (k Keeper) Get(ctx sdk.Context, hash sdk.AccAddress) (*servicepb.Service, error) {
+func (k Keeper) Get(ctx sdk.Context, hash address.ServAddress) (*servicepb.Service, error) {
 	store := ctx.KVStore(k.storeKey)
 	if !store.Has(hash) {
 		return nil, fmt.Errorf("service %q not found", hash)
@@ -80,12 +81,12 @@ func (k Keeper) Get(ctx sdk.Context, hash sdk.AccAddress) (*servicepb.Service, e
 }
 
 // Exists returns true if a specific set of data exists in the database, false otherwise
-func (k Keeper) Exists(ctx sdk.Context, hash sdk.AccAddress) (bool, error) {
+func (k Keeper) Exists(ctx sdk.Context, hash address.ServAddress) (bool, error) {
 	return ctx.KVStore(k.storeKey).Has(hash), nil
 }
 
 // Hash returns the hash of a service request.
-func (k Keeper) Hash(_ sdk.Context, serviceRequest *api.CreateServiceRequest) sdk.AccAddress {
+func (k Keeper) Hash(_ sdk.Context, serviceRequest *api.CreateServiceRequest) address.ServAddress {
 	return initializeService(serviceRequest).Hash
 }
 
@@ -122,6 +123,6 @@ func initializeService(req *api.CreateServiceRequest) *servicepb.Service {
 	}
 
 	// calculate and apply hash to service.
-	srv.Hash = sdk.AccAddress(crypto.AddressHash([]byte(srv.HashSerialize())))
+	srv.Hash = address.ServAddress(crypto.AddressHash([]byte(srv.HashSerialize())))
 	return srv
 }

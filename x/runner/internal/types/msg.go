@@ -3,6 +3,7 @@ package types
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/mesg-foundation/engine/cosmos/address"
 	"github.com/mesg-foundation/engine/cosmos/errors"
 	"github.com/mesg-foundation/engine/ext/xvalidator"
 	"github.com/mesg-foundation/engine/hash"
@@ -10,13 +11,14 @@ import (
 
 // MsgCreateRunner defines a state transition to create a runner.
 type MsgCreateRunner struct {
-	Address     sdk.AccAddress `json:"address" validate:"required,accaddress"`
-	ServiceHash sdk.AccAddress `json:"serviceHash" validate:"required,accaddress"`
-	EnvHash     hash.Hash      `json:"envHash" validate:"omitempty,hash"`
+	// TODO: address should be deleted or renamed to nothung more explicit
+	Address     sdk.AccAddress      `json:"address" validate:"required,accaddress"`
+	ServiceHash address.ServAddress `json:"serviceHash" validate:"required,servaddress"`
+	EnvHash     hash.Hash           `json:"envHash" validate:"omitempty,hash"`
 }
 
 // NewMsgCreateRunner is a constructor function for MsgCreateRunner.
-func NewMsgCreateRunner(address sdk.AccAddress, serviceHash sdk.AccAddress, envHash hash.Hash) *MsgCreateRunner {
+func NewMsgCreateRunner(address sdk.AccAddress, serviceHash address.ServAddress, envHash hash.Hash) *MsgCreateRunner {
 	return &MsgCreateRunner{
 		Address:     address,
 		ServiceHash: serviceHash,
@@ -63,12 +65,12 @@ func (msg MsgCreateRunner) GetSigners() []sdk.AccAddress {
 
 // MsgDeleteRunner defines a state transition to delete a runner.
 type MsgDeleteRunner struct {
-	Address    sdk.AccAddress `json:"address" validate:"required,accaddress"`
-	RunnerHash sdk.AccAddress `json:"runnerHash" validate:"required,accaddress"`
+	Address    sdk.AccAddress     `json:"address" validate:"required,accaddress"`
+	RunnerHash address.RunAddress `json:"runnerHash" validate:"required,runaddress"`
 }
 
 // NewMsgDeleteRunner is a constructor function for MsgDeleteRunner.
-func NewMsgDeleteRunner(address sdk.AccAddress, runnerHash sdk.AccAddress) *MsgDeleteRunner {
+func NewMsgDeleteRunner(address sdk.AccAddress, runnerHash address.RunAddress) *MsgDeleteRunner {
 	return &MsgDeleteRunner{
 		Address:    address,
 		RunnerHash: runnerHash,

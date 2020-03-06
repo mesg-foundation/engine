@@ -27,14 +27,14 @@ message StreamEventRequest {
   message Filter {
     // hash to filter events.
     bytes hash = 1 [
-      (gogoproto.moretags) = 'validate:"omitempty,accaddress"',
-      (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"
+      (gogoproto.moretags) = 'validate:"omitempty,eventaddress"',
+      (gogoproto.casttype) = "github.com/mesg-foundation/engine/cosmos/address.EventAddress"
     ];
 
     // instance's hash to filter events.
     bytes instanceHash = 2 [
-      (gogoproto.moretags) = 'validate:"omitempty,accaddress"',
-      (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"
+      (gogoproto.moretags) = 'validate:"omitempty,instaddress"',
+      (gogoproto.casttype) = "github.com/mesg-foundation/engine/cosmos/address.InstAddress"
     ];
 
     // key is the key of the event.
@@ -51,8 +51,8 @@ message StreamEventRequest {
 message CreateEventRequest {
   // instanceHash is hash of instance that can proceed an execution.
   bytes instanceHash = 1 [
-    (gogoproto.moretags) = 'validate:"required,accaddress"',
-    (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"
+    (gogoproto.moretags) = 'validate:"required,instaddress"',
+    (gogoproto.casttype) = "github.com/mesg-foundation/engine/cosmos/address.InstAddress"
   ];
 
   // key is the key of the event.
@@ -68,6 +68,6 @@ message CreateEventRequest {
 message CreateEventResponse {
   // Hash represents event.
   bytes hash = 1 [
-    (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"
+    (gogoproto.casttype) = "github.com/mesg-foundation/engine/cosmos/address.EventAddress"
   ];
 }

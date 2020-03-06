@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"math/rand"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/mesg-foundation/engine/cosmos"
+	"github.com/mesg-foundation/engine/cosmos/address"
 	"github.com/mesg-foundation/engine/event"
 	"github.com/mesg-foundation/engine/event/publisher"
 	"github.com/mesg-foundation/engine/execution"
@@ -234,7 +234,7 @@ func (s *Orchestrator) outputToValue(nodeKey string, output *process.Process_Nod
 	}
 }
 
-func (s *Orchestrator) resolveInput(wfHash sdk.AccAddress, exec *execution.Execution, nodeKey string, path *process.Process_Node_Map_Output_Reference_Path) (*types.Value, error) {
+func (s *Orchestrator) resolveInput(wfHash address.ProcAddress, exec *execution.Execution, nodeKey string, path *process.Process_Node_Map_Output_Reference_Path) (*types.Value, error) {
 	if !wfHash.Equals(exec.ProcessHash) {
 		return nil, fmt.Errorf("reference's nodeKey not found")
 	}
@@ -249,7 +249,8 @@ func (s *Orchestrator) resolveInput(wfHash sdk.AccAddress, exec *execution.Execu
 }
 
 func (s *Orchestrator) processTask(nodeKey string, task *process.Process_Node_Task, wf *process.Process, exec *execution.Execution, event *event.Event, data *types.Struct) error {
-	var eventHash, execHash sdk.AccAddress
+	var eventHash address.EventAddress
+	var execHash address.ExecAddress
 	if event != nil {
 		eventHash = event.Hash
 	}

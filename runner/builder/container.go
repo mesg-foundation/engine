@@ -10,10 +10,10 @@ import (
 	"strings"
 	"sync"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/docker/docker/client"
 	"github.com/docker/docker/pkg/archive"
 	"github.com/mesg-foundation/engine/container"
+	"github.com/mesg-foundation/engine/cosmos/address"
 	"github.com/mesg-foundation/engine/ext/xerrors"
 	"github.com/mesg-foundation/engine/ext/xos"
 	"github.com/mesg-foundation/engine/hash"
@@ -52,7 +52,7 @@ func build(cont container.Container, srv *service.Service, ipfsEndpoint string) 
 }
 
 // Start starts the service.
-func start(cont container.Container, srv *service.Service, instanceHash sdk.AccAddress, runnerHash sdk.AccAddress, imageHash string, env []string, engineName, port string) (serviceIDs []string, err error) {
+func start(cont container.Container, srv *service.Service, instanceHash address.InstAddress, runnerHash address.RunAddress, imageHash string, env []string, engineName, port string) (serviceIDs []string, err error) {
 	endpoint := net.JoinHostPort(engineName, port)
 	namespace := namespace(runnerHash)
 	networkID, err := cont.CreateNetwork(namespace)
@@ -141,7 +141,7 @@ func start(cont container.Container, srv *service.Service, instanceHash sdk.AccA
 }
 
 // Stop stops an instance.
-func stop(cont container.Container, runnerHash sdk.AccAddress, dependencies []*service.Service_Dependency) error {
+func stop(cont container.Container, runnerHash address.RunAddress, dependencies []*service.Service_Dependency) error {
 	var (
 		wg         sync.WaitGroup
 		errs       xerrors.SyncErrors
@@ -204,7 +204,7 @@ func deleteData(cont container.Container, s *service.Service) error {
 }
 
 // namespace returns the namespace of the service.
-func namespace(hash sdk.AccAddress) string {
+func namespace(hash address.RunAddress) string {
 	return hash.String()
 }
 

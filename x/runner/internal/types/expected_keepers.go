@@ -3,6 +3,7 @@ package types
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/params"
+	"github.com/mesg-foundation/engine/cosmos/address"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/instance"
 )
@@ -17,5 +18,5 @@ type ParamSubspace interface {
 
 // InstanceKeeper module interface.
 type InstanceKeeper interface {
-	FetchOrCreate(ctx sdk.Context, serviceHash sdk.AccAddress, envHash hash.Hash) (*instance.Instance, error)
+	FetchOrCreate(ctx sdk.Context, serviceHash address.ServAddress, envHash hash.Hash) (*instance.Instance, error)
 }

@@ -3,6 +3,7 @@ package types
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/mesg-foundation/engine/cosmos/address"
 	"github.com/mesg-foundation/engine/ext/xvalidator"
 	processpb "github.com/mesg-foundation/engine/process"
 	"github.com/mesg-foundation/engine/protobuf/api"
@@ -46,7 +47,8 @@ func (msg MsgCreateProcess) ValidateBasic() error {
 		Nodes: msg.Request.Nodes,
 		Edges: msg.Request.Edges,
 	}
-	p.Hash = sdk.AccAddress(crypto.AddressHash([]byte(p.HashSerialize())))
+	// TODO: i don't think we need to generate the hash here
+	p.Hash = address.ProcAddress(crypto.AddressHash([]byte(p.HashSerialize())))
 	if err := p.Validate(); err != nil {
 		return err
 	}

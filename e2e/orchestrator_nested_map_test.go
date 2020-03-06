@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/mesg-foundation/engine/cosmos/address"
 	"github.com/mesg-foundation/engine/execution"
 	"github.com/mesg-foundation/engine/process"
 	pb "github.com/mesg-foundation/engine/protobuf/api"
@@ -12,10 +12,10 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func testOrchestratorNestedMap(executionStream pb.Execution_StreamClient, instanceHash sdk.AccAddress) func(t *testing.T) {
+func testOrchestratorNestedMap(executionStream pb.Execution_StreamClient, instanceHash address.InstAddress) func(t *testing.T) {
 	return func(t *testing.T) {
 		var (
-			processHash sdk.AccAddress
+			processHash address.ProcAddress
 			dataEvent   = &types.Struct{
 				Fields: map[string]*types.Value{
 					"msg": {

@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/mesg-foundation/engine/cosmos/address"
 	"github.com/mesg-foundation/engine/protobuf/acknowledgement"
 	pb "github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/stretchr/testify/require"
@@ -12,9 +12,9 @@ import (
 
 func testComplexService(t *testing.T) {
 	var (
-		testServiceHash  sdk.AccAddress
-		testRunnerHashC  sdk.AccAddress
-		testInstanceHash sdk.AccAddress
+		testServiceHash  address.ServAddress
+		testRunnerHashC  address.RunAddress
+		testInstanceHash address.InstAddress
 	)
 
 	req := newTestComplexCreateServiceRequest()

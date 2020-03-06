@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/mesg-foundation/engine/cosmos/address"
 	"github.com/mesg-foundation/engine/protobuf/acknowledgement"
 	pb "github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/mesg-foundation/engine/protobuf/types"
@@ -21,7 +21,7 @@ func testEvent(t *testing.T) {
 
 	t.Run("simple event", func(t *testing.T) {
 		var (
-			eventHash sdk.AccAddress
+			eventHash address.EventAddress
 			data      = &types.Struct{
 				Fields: map[string]*types.Value{
 					"msg": {
@@ -58,7 +58,7 @@ func testEvent(t *testing.T) {
 
 	t.Run("complex event", func(t *testing.T) {
 		var (
-			eventHash sdk.AccAddress
+			eventHash address.EventAddress
 			data      = &types.Struct{
 				Fields: map[string]*types.Value{
 					"msg": {

@@ -9,6 +9,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/go-playground/locales/en"
 	ut "github.com/go-playground/universal-translator"
+	"github.com/mesg-foundation/engine/cosmos/address"
 	"github.com/mesg-foundation/engine/ext/xnet"
 	"github.com/mesg-foundation/engine/hash"
 	validator "gopkg.in/go-playground/validator.v9"
@@ -67,7 +68,63 @@ func NewWithPrefix(prefix string) (*validator.Validate, ut.Translator) {
 
 	validate.RegisterValidation("accaddress", IsAccAddress)
 	validate.RegisterTranslation("accaddress", trans, func(ut ut.Translator) error {
-		return ut.Add("address", "{0} must be a valid address", false)
+		return ut.Add("accaddress", "{0} must be a valid address", false)
+	}, func(ut ut.Translator, fe validator.FieldError) string {
+		t, _ := ut.T(fe.Tag(), fe.Field(), prefix)
+		return t
+	})
+
+	validate.RegisterValidation("eventaddress", IsEventAddress)
+	validate.RegisterTranslation("eventaddress", trans, func(ut ut.Translator) error {
+		return ut.Add("eventaddress", "{0} must be a valid address", false)
+	}, func(ut ut.Translator, fe validator.FieldError) string {
+		t, _ := ut.T(fe.Tag(), fe.Field(), prefix)
+		return t
+	})
+
+	validate.RegisterValidation("execaddress", IsExecAddress)
+	validate.RegisterTranslation("execaddress", trans, func(ut ut.Translator) error {
+		return ut.Add("execaddress", "{0} must be a valid address", false)
+	}, func(ut ut.Translator, fe validator.FieldError) string {
+		t, _ := ut.T(fe.Tag(), fe.Field(), prefix)
+		return t
+	})
+
+	validate.RegisterValidation("instaddress", IsInstAddress)
+	validate.RegisterTranslation("instaddress", trans, func(ut ut.Translator) error {
+		return ut.Add("instaddress", "{0} must be a valid address", false)
+	}, func(ut ut.Translator, fe validator.FieldError) string {
+		t, _ := ut.T(fe.Tag(), fe.Field(), prefix)
+		return t
+	})
+
+	validate.RegisterValidation("ownaddress", IsOwnAddress)
+	validate.RegisterTranslation("ownaddress", trans, func(ut ut.Translator) error {
+		return ut.Add("ownaddress", "{0} must be a valid address", false)
+	}, func(ut ut.Translator, fe validator.FieldError) string {
+		t, _ := ut.T(fe.Tag(), fe.Field(), prefix)
+		return t
+	})
+
+	validate.RegisterValidation("procaddress", IsProcAddress)
+	validate.RegisterTranslation("procaddress", trans, func(ut ut.Translator) error {
+		return ut.Add("procaddress", "{0} must be a valid address", false)
+	}, func(ut ut.Translator, fe validator.FieldError) string {
+		t, _ := ut.T(fe.Tag(), fe.Field(), prefix)
+		return t
+	})
+
+	validate.RegisterValidation("runaddress", IsRunAddress)
+	validate.RegisterTranslation("runaddress", trans, func(ut ut.Translator) error {
+		return ut.Add("runaddress", "{0} must be a valid address", false)
+	}, func(ut ut.Translator, fe validator.FieldError) string {
+		t, _ := ut.T(fe.Tag(), fe.Field(), prefix)
+		return t
+	})
+
+	validate.RegisterValidation("servaddress", IsServAddress)
+	validate.RegisterTranslation("servaddress", trans, func(ut ut.Translator) error {
+		return ut.Add("servaddress", "{0} must be a valid address", false)
 	}, func(ut ut.Translator, fe validator.FieldError) string {
 		t, _ := ut.T(fe.Tag(), fe.Field(), prefix)
 		return t
@@ -113,6 +170,118 @@ func IsAccAddress(fl validator.FieldLevel) bool {
 	switch v := fl.Field(); v.Kind() {
 	case reflect.String:
 		_, err := sdk.AccAddressFromBech32(fl.Field().String())
+		return err == nil
+	case reflect.Slice:
+		if v.Type().Elem().Kind() != reflect.Uint8 {
+			// if it's not slice of bytes then break
+			break
+		}
+		return sdk.VerifyAddressFormat(v.Bytes()) == nil
+	}
+	return false
+}
+
+// IsEventAddress validates if given field is valid cosmos account address.
+func IsEventAddress(fl validator.FieldLevel) bool {
+	switch v := fl.Field(); v.Kind() {
+	case reflect.String:
+		_, err := address.EventAddressFromBech32(fl.Field().String())
+		return err == nil
+	case reflect.Slice:
+		if v.Type().Elem().Kind() != reflect.Uint8 {
+			// if it's not slice of bytes then break
+			break
+		}
+		return sdk.VerifyAddressFormat(v.Bytes()) == nil
+	}
+	return false
+}
+
+// IsExecAddress validates if given field is valid cosmos account address.
+func IsExecAddress(fl validator.FieldLevel) bool {
+	switch v := fl.Field(); v.Kind() {
+	case reflect.String:
+		_, err := address.ExecAddressFromBech32(fl.Field().String())
+		return err == nil
+	case reflect.Slice:
+		if v.Type().Elem().Kind() != reflect.Uint8 {
+			// if it's not slice of bytes then break
+			break
+		}
+		return sdk.VerifyAddressFormat(v.Bytes()) == nil
+	}
+	return false
+}
+
+// IsInstAddress validates if given field is valid cosmos account address.
+func IsInstAddress(fl validator.FieldLevel) bool {
+	switch v := fl.Field(); v.Kind() {
+	case reflect.String:
+		_, err := address.InstAddressFromBech32(fl.Field().String())
+		return err == nil
+	case reflect.Slice:
+		if v.Type().Elem().Kind() != reflect.Uint8 {
+			// if it's not slice of bytes then break
+			break
+		}
+		return sdk.VerifyAddressFormat(v.Bytes()) == nil
+	}
+	return false
+}
+
+// IsOwnAddress validates if given field is valid cosmos account address.
+func IsOwnAddress(fl validator.FieldLevel) bool {
+	switch v := fl.Field(); v.Kind() {
+	case reflect.String:
+		_, err := address.OwnAddressFromBech32(fl.Field().String())
+		return err == nil
+	case reflect.Slice:
+		if v.Type().Elem().Kind() != reflect.Uint8 {
+			// if it's not slice of bytes then break
+			break
+		}
+		return sdk.VerifyAddressFormat(v.Bytes()) == nil
+	}
+	return false
+}
+
+// IsProcAddress validates if given field is valid cosmos account address.
+func IsProcAddress(fl validator.FieldLevel) bool {
+	switch v := fl.Field(); v.Kind() {
+	case reflect.String:
+		_, err := address.ProcAddressFromBech32(fl.Field().String())
+		return err == nil
+	case reflect.Slice:
+		if v.Type().Elem().Kind() != reflect.Uint8 {
+			// if it's not slice of bytes then break
+			break
+		}
+		return sdk.VerifyAddressFormat(v.Bytes()) == nil
+	}
+	return false
+}
+
+// IsRunAddress validates if given field is valid cosmos account address.
+func IsRunAddress(fl validator.FieldLevel) bool {
+	switch v := fl.Field(); v.Kind() {
+	case reflect.String:
+		_, err := address.RunAddressFromBech32(fl.Field().String())
+		return err == nil
+	case reflect.Slice:
+		if v.Type().Elem().Kind() != reflect.Uint8 {
+			// if it's not slice of bytes then break
+			break
+		}
+		return sdk.VerifyAddressFormat(v.Bytes()) == nil
+	}
+	return false
+}
+
+// IsServAddress validates if given field is valid cosmos account address.
+func IsServAddress(fl validator.FieldLevel) bool {
+	switch v := fl.Field(); v.Kind() {
+	case reflect.String:
+		_, err := address.ServAddressFromBech32(fl.Field().String())
 		return err == nil
 	case reflect.Slice:
 		if v.Type().Elem().Kind() != reflect.Uint8 {

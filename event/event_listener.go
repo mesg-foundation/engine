@@ -1,14 +1,14 @@
 package event
 
 import (
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cskr/pubsub"
+	"github.com/mesg-foundation/engine/cosmos/address"
 )
 
 // Filter store fileds for matching events.
 type Filter struct {
-	Hash         sdk.AccAddress
-	InstanceHash sdk.AccAddress
+	Hash         address.EventAddress
+	InstanceHash address.InstAddress
 	Key          string
 }
 

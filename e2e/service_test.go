@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/mesg-foundation/engine/cosmos/address"
 	"github.com/mesg-foundation/engine/ownership"
 	pb "github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/mesg-foundation/engine/service"
@@ -12,7 +12,7 @@ import (
 	"github.com/tendermint/tendermint/crypto"
 )
 
-var testServiceHash sdk.AccAddress
+var testServiceHash address.testServiceAddress
 
 func testService(t *testing.T) {
 	req := newTestCreateServiceRequest()
@@ -55,7 +55,7 @@ func testService(t *testing.T) {
 			require.NoError(t, err)
 			require.True(t, resp.Exists)
 
-			resp, err = client.ServiceClient.Exists(context.Background(), &pb.ExistsServiceRequest{Hash: sdk.AccAddress(crypto.AddressHash([]byte("1")))})
+			resp, err = client.ServiceClient.Exists(context.Background(), &pb.ExistsServiceRequest{Hash: address.ServAddress(crypto.AddressHash([]byte("1")))})
 			require.NoError(t, err)
 			require.False(t, resp.Exists)
 		})
@@ -63,7 +63,7 @@ func testService(t *testing.T) {
 			var exist bool
 			lcdGet(t, "service/exist/"+testServiceHash.String(), &exist)
 			require.True(t, exist)
-			lcdGet(t, "service/exist/"+sdk.AccAddress(crypto.AddressHash([]byte("1"))).String(), &exist)
+			lcdGet(t, "service/exist/"+address.ServAddress(crypto.AddressHash([]byte("1"))).String(), &exist)
 			require.False(t, exist)
 		})
 	})
@@ -75,7 +75,7 @@ func testService(t *testing.T) {
 			require.Equal(t, testServiceHash, resp.Hash)
 		})
 		t.Run("lcd", func(t *testing.T) {
-			var hash sdk.AccAddress
+			var hash address.ServAddress
 			lcdPost(t, "service/hash", req, &hash)
 			require.Equal(t, testServiceHash, hash)
 		})

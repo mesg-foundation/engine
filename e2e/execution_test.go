@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/mesg-foundation/engine/cosmos/address"
 	"github.com/mesg-foundation/engine/execution"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/protobuf/acknowledgement"
@@ -49,10 +50,10 @@ func testExecution(t *testing.T) {
 
 	t.Run("simple execution", func(t *testing.T) {
 		var (
-			executionHash sdk.AccAddress
+			executionHash address.ExecAddress
 			exec          *execution.Execution
 			taskKey       = "task1"
-			eventHash     = sdk.AccAddress(crypto.AddressHash([]byte("1")))
+			eventHash     = address.EventAddress(crypto.AddressHash([]byte("1")))
 			inputs        = &types.Struct{
 				Fields: map[string]*types.Value{
 					"msg": {
@@ -104,10 +105,10 @@ func testExecution(t *testing.T) {
 
 	t.Run("complex execution", func(t *testing.T) {
 		var (
-			executionHash sdk.AccAddress
+			executionHash address.ExecAddress
 			exec          *execution.Execution
 			taskKey       = "task_complex"
-			eventHash     = sdk.AccAddress(crypto.AddressHash([]byte("2")))
+			eventHash     = address.EventAddress(crypto.AddressHash([]byte("2")))
 			inputs        = &types.Struct{
 				Fields: map[string]*types.Value{
 					"msg": {
@@ -205,7 +206,7 @@ func testExecution(t *testing.T) {
 		)
 		resp, err := client.ExecutionClient.Create(context.Background(), &pb.CreateExecutionRequest{
 			TaskKey:      "task1",
-			EventHash:    sdk.AccAddress(crypto.AddressHash([]byte("1"))),
+			EventHash:    address.EventAddress(crypto.AddressHash([]byte("1"))),
 			ExecutorHash: executorHash,
 			Price:        "50000atto",
 			Inputs:       inputs,
@@ -254,7 +255,7 @@ func testExecution(t *testing.T) {
 	t.Run("many executions in parallel", func(t *testing.T) {
 		var (
 			n          = 10
-			executions = make([]sdk.AccAddress, 0)
+			executions = make([]addres.ExecAddress, 0)
 			taskKey    = "task1"
 			inputs     = &types.Struct{
 				Fields: map[string]*types.Value{
@@ -277,7 +278,7 @@ func testExecution(t *testing.T) {
 					require.Nil(t, err)
 					resp, err := client.ExecutionClient.Create(context.Background(), &pb.CreateExecutionRequest{
 						TaskKey:      taskKey,
-						EventHash:    sdk.AccAddress(crypto.AddressHash(hash)),
+						EventHash:    address.EventAddress(crypto.AddressHash(hash)),
 						ExecutorHash: executorHash,
 						Inputs:       inputs,
 					})
@@ -292,7 +293,7 @@ func testExecution(t *testing.T) {
 			require.Len(t, executions, n)
 		})
 		t.Run("check in progress", func(t *testing.T) {
-			execs := make([]sdk.AccAddress, 0)
+			execs := make([]address.ExecAddress, 0)
 			for i := 1; i <= n; i++ {
 				exec, err := streamInProgress.Recv()
 				require.NoError(t, err)
@@ -303,7 +304,7 @@ func testExecution(t *testing.T) {
 			require.Len(t, execs, n)
 		})
 		t.Run("check completed", func(t *testing.T) {
-			execs := make([]sdk.AccAddress, 0)
+			execs := make([]address.ExecAddress, 0)
 			for i := 1; i <= n; i++ {
 				exec, err := streamCompleted.Recv()
 				require.NoError(t, err)

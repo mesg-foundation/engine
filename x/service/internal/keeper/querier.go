@@ -3,6 +3,7 @@ package keeper
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/mesg-foundation/engine/cosmos/address"
 	"github.com/mesg-foundation/engine/cosmos/errors"
 	"github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/mesg-foundation/engine/x/service/internal/types"
@@ -31,7 +32,7 @@ func getService(ctx sdk.Context, k Keeper, path []string) ([]byte, error) {
 	if len(path) == 0 {
 		return nil, errors.ErrMissingHash
 	}
-	hash, err := sdk.AccAddressFromBech32(path[0])
+	hash, err := address.ServAddressFromBech32(path[0])
 	if err != nil {
 		return nil, sdkerrors.Wrap(errors.ErrValidation, err.Error())
 	}
@@ -80,7 +81,7 @@ func existService(ctx sdk.Context, k Keeper, path []string) ([]byte, error) {
 	if len(path) == 0 {
 		return nil, errors.ErrMissingHash
 	}
-	hash, err := sdk.AccAddressFromBech32(path[0])
+	hash, err := address.ServAddressFromBech32(path[0])
 	if err != nil {
 		return nil, err
 	}

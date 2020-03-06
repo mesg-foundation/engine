@@ -4,14 +4,13 @@ import (
 	"context"
 	"testing"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/mesg-foundation/engine/protobuf/acknowledgement"
 	pb "github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/mesg-foundation/engine/runner"
 	"github.com/stretchr/testify/require"
 )
 
-var testRunnerHash sdk.AccAddress
+var testRunnerHash address.testRunnerAddress
 
 func testRunner(t *testing.T) {
 	t.Run("create", func(t *testing.T) {

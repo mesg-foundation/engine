@@ -1,4 +1,4 @@
-package cosmos
+package address
 
 import (
 	"fmt"
@@ -10,9 +10,10 @@ import (
 )
 
 func TestServiceAddress(t *testing.T) {
-	address := ServiceAddress(crypto.AddressHash([]byte("hello")))
+	address := ServAddress(crypto.AddressHash([]byte("hello")))
 	fmt.Println(address.String())
 	json, err := sdk.AccAddress(address).MarshalJSON()
 	require.NoError(t, err)
 	fmt.Println(string(json))
+	require.NoError(t, sdk.VerifyAddressFormat(address))
 }

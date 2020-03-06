@@ -4,6 +4,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/bank"
 	"github.com/cosmos/cosmos-sdk/x/params"
+	"github.com/mesg-foundation/engine/cosmos/address"
 	instancepb "github.com/mesg-foundation/engine/instance"
 	processpb "github.com/mesg-foundation/engine/process"
 	runnerpb "github.com/mesg-foundation/engine/runner"
@@ -26,20 +27,20 @@ type BankKeeper interface {
 
 // ServiceKeeper module interface.
 type ServiceKeeper interface {
-	Get(ctx sdk.Context, hash sdk.AccAddress) (*servicepb.Service, error)
+	Get(ctx sdk.Context, hash address.ServAddress) (*servicepb.Service, error)
 }
 
 // InstanceKeeper module interface.
 type InstanceKeeper interface {
-	Get(ctx sdk.Context, instanceHash sdk.AccAddress) (*instancepb.Instance, error)
+	Get(ctx sdk.Context, instanceHash address.InstAddress) (*instancepb.Instance, error)
 }
 
 // RunnerKeeper module interface.
 type RunnerKeeper interface {
-	Get(ctx sdk.Context, hash sdk.AccAddress) (*runnerpb.Runner, error)
+	Get(ctx sdk.Context, hash address.RunAddress) (*runnerpb.Runner, error)
 }
 
 // ProcessKeeper module interface.
 type ProcessKeeper interface {
-	Get(ctx sdk.Context, hash sdk.AccAddress) (*processpb.Process, error)
+	Get(ctx sdk.Context, hash address.ProcAddress) (*processpb.Process, error)
 }

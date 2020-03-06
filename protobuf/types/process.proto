@@ -16,7 +16,7 @@ message Process {
       // Hash of the instance that triggers the process.
       bytes instanceHash = 2 [
         (gogoproto.moretags) = 'hash:"name:2" validate:"required"',
-        (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"
+        (gogoproto.casttype) = "github.com/mesg-foundation/engine/cosmos/address.InstAddress"
       ];
 
       // Key of the task that triggers the process.
@@ -29,7 +29,7 @@ message Process {
       // Hash of the instance that triggers the process.
       bytes instanceHash = 2 [
         (gogoproto.moretags) = 'hash:"name:2" validate:"required"',
-        (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"
+        (gogoproto.casttype) = "github.com/mesg-foundation/engine/cosmos/address.InstAddress"
       ];
 
       // Key of the event that triggers the process.
@@ -42,7 +42,7 @@ message Process {
       // Hash of the instance to execute.
       bytes instanceHash = 2 [
         (gogoproto.moretags) = 'hash:"name:2" validate:"required"',
-        (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"
+        (gogoproto.casttype) = "github.com/mesg-foundation/engine/cosmos/address.InstAddress"
       ];
 
       // Task of the instance to execute.
@@ -215,7 +215,7 @@ message Process {
   // Process's hash
   bytes hash = 1 [
     (gogoproto.moretags) = 'hash:"-" validate:"required"',
-    (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"
+    (gogoproto.casttype) = "github.com/mesg-foundation/engine/cosmos/address.ProcAddress"
   ];
 
   // Process's name

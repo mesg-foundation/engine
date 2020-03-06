@@ -5,6 +5,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/mesg-foundation/engine/cosmos/address"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/instance"
 	"github.com/mesg-foundation/engine/protobuf/api"
@@ -34,14 +35,14 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 }
 
 // FetchOrCreate creates a new instance if needed.
-func (k Keeper) FetchOrCreate(ctx sdk.Context, serviceHash sdk.AccAddress, envHash hash.Hash) (*instance.Instance, error) {
+func (k Keeper) FetchOrCreate(ctx sdk.Context, serviceHash address.ServAddress, envHash hash.Hash) (*instance.Instance, error) {
 	store := ctx.KVStore(k.storeKey)
 
 	inst := &instance.Instance{
 		ServiceHash: serviceHash,
 		EnvHash:     envHash,
 	}
-	inst.Hash = sdk.AccAddress(crypto.AddressHash([]byte(inst.HashSerialize())))
+	inst.Hash = address.InstAddress(crypto.AddressHash([]byte(inst.HashSerialize())))
 
 	if !store.Has(inst.Hash) {
 		value, err := k.cdc.MarshalBinaryLengthPrefixed(inst)
@@ -55,7 +56,7 @@ func (k Keeper) FetchOrCreate(ctx sdk.Context, serviceHash sdk.AccAddress, envHa
 }
 
 // Get returns the instance from the keeper.
-func (k Keeper) Get(ctx sdk.Context, instanceHash sdk.AccAddress) (*instance.Instance, error) {
+func (k Keeper) Get(ctx sdk.Context, instanceHash address.InstAddress) (*instance.Instance, error) {
 	store := ctx.KVStore(k.storeKey)
 	if !store.Has(instanceHash) {
 		return nil, fmt.Errorf("instance %q not found", instanceHash)

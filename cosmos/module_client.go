@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/mesg-foundation/engine/cosmos/address"
 	executionpb "github.com/mesg-foundation/engine/execution"
 	"github.com/mesg-foundation/engine/ext/xos"
 	"github.com/mesg-foundation/engine/hash"
@@ -52,7 +52,7 @@ func (mc *ModuleClient) CreateService(req *api.CreateServiceRequest) (*servicepb
 }
 
 // GetService returns the service that matches given hash.
-func (mc *ModuleClient) GetService(hash sdk.AccAddress) (*servicepb.Service, error) {
+func (mc *ModuleClient) GetService(hash address.ServAddress) (*servicepb.Service, error) {
 	var out *servicepb.Service
 	route := sroutef("%s/%s/%s", service.QuerierRoute, service.QueryGetService, hash)
 	return out, mc.QueryJSON(route, nil, &out)
@@ -66,15 +66,15 @@ func (mc *ModuleClient) ListService() ([]*servicepb.Service, error) {
 }
 
 // ExistService returns if a service already exists.
-func (mc *ModuleClient) ExistService(hash sdk.AccAddress) (bool, error) {
+func (mc *ModuleClient) ExistService(hash address.ServAddress) (bool, error) {
 	var out bool
 	route := sroutef("%s/%s/%s", service.QuerierRoute, service.QueryExistService, hash)
 	return out, mc.QueryJSON(route, nil, &out)
 }
 
 // HashService returns the calculate hash of a service.
-func (mc *ModuleClient) HashService(req *api.CreateServiceRequest) (sdk.AccAddress, error) {
-	var out sdk.AccAddress
+func (mc *ModuleClient) HashService(req *api.CreateServiceRequest) (address.ServAddress, error) {
+	var out address.ServAddress
 	route := sroutef("%s/%s", service.QuerierRoute, service.QueryHashService)
 	return out, mc.QueryJSON(route, req, &out)
 }
@@ -94,7 +94,7 @@ func (mc *ModuleClient) CreateProcess(req *api.CreateProcessRequest) (*processpb
 }
 
 // GetInstance returns the instance that matches given hash.
-func (mc *ModuleClient) GetInstance(hash sdk.AccAddress) (*instancepb.Instance, error) {
+func (mc *ModuleClient) GetInstance(hash address.InstAddress) (*instancepb.Instance, error) {
 	var out *instancepb.Instance
 	route := sroutef("%s/%s/%s", instance.QuerierRoute, instance.QueryGetInstance, hash)
 	return out, mc.QueryJSON(route, nil, &out)
@@ -126,7 +126,7 @@ func (mc *ModuleClient) DeleteProcess(req *api.DeleteProcessRequest) error {
 }
 
 // GetProcess returns the process that matches given hash.
-func (mc *ModuleClient) GetProcess(hash sdk.AccAddress) (*processpb.Process, error) {
+func (mc *ModuleClient) GetProcess(hash address.ProcAddress) (*processpb.Process, error) {
 	var out *processpb.Process
 	route := sroutef("%s/%s/%s", process.QuerierRoute, process.QueryGetProcess, hash.String())
 	return out, mc.QueryJSON(route, nil, &out)
@@ -168,7 +168,7 @@ func (mc *ModuleClient) UpdateExecution(req *api.UpdateExecutionRequest) (*execu
 }
 
 // GetExecution returns the execution that matches given hash.
-func (mc *ModuleClient) GetExecution(hash sdk.AccAddress) (*executionpb.Execution, error) {
+func (mc *ModuleClient) GetExecution(hash address.ExecAddress) (*executionpb.Execution, error) {
 	var out *executionpb.Execution
 	route := sroutef("%s/%s/%s", execution.QuerierRoute, execution.QueryGetExecution, hash)
 	return out, mc.QueryJSON(route, nil, &out)
@@ -199,7 +199,12 @@ func (mc *ModuleClient) StreamExecution(ctx context.Context, req *api.StreamExec
 		for {
 			select {
 			case hash := <-stream:
-				exec, err := mc.GetExecution(hash)
+				execAddress, err := address.ExecAddressFromBech32(hash)
+				if err != nil {
+					errC <- err
+					break
+				}
+				exec, err := mc.GetExecution(execAddress)
 				if err != nil {
 					errC <- err
 					break
@@ -251,7 +256,7 @@ func (mc *ModuleClient) DeleteRunner(req *api.DeleteRunnerRequest) error {
 }
 
 // GetRunner returns the runner that matches given hash.
-func (mc *ModuleClient) GetRunner(hash sdk.AccAddress) (*runnerpb.Runner, error) {
+func (mc *ModuleClient) GetRunner(hash address.RunAddress) (*runnerpb.Runner, error) {
 	var out *runnerpb.Runner
 	route := sroutef("%s/%s/%s", runner.QuerierRoute, runner.QueryGetRunner, hash)
 	return out, mc.QueryJSON(route, nil, &out)
@@ -260,7 +265,7 @@ func (mc *ModuleClient) GetRunner(hash sdk.AccAddress) (*runnerpb.Runner, error)
 // FilterRunner to apply while listing runners.
 type FilterRunner struct {
 	Address      string
-	InstanceHash sdk.AccAddress
+	InstanceHash address.InstAddress
 }
 
 // ListRunner returns all runners.

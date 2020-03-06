@@ -5,6 +5,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/mesg-foundation/engine/cosmos/address"
 	"github.com/mesg-foundation/engine/ownership"
 	"github.com/mesg-foundation/engine/x/ownership/internal/types"
 	"github.com/tendermint/tendermint/crypto"
@@ -51,7 +52,7 @@ func (k *Keeper) List(ctx sdk.Context) ([]*ownership.Ownership, error) {
 }
 
 // Set creates a new ownership.
-func (k Keeper) Set(ctx sdk.Context, owner sdk.AccAddress, resourceHash sdk.AccAddress, resource ownership.Ownership_Resource) (*ownership.Ownership, error) {
+func (k Keeper) Set(ctx sdk.Context, owner sdk.AccAddress, resourceHash sdk.Address, resource ownership.Ownership_Resource) (*ownership.Ownership, error) {
 	store := ctx.KVStore(k.storeKey)
 	hashes := k.findOwnerships(store, "", resourceHash)
 	if len(hashes) > 0 {
@@ -63,14 +64,14 @@ func (k Keeper) Set(ctx sdk.Context, owner sdk.AccAddress, resourceHash sdk.AccA
 		Resource:     resource,
 		ResourceHash: resourceHash,
 	}
-	ownership.Hash = sdk.AccAddress(crypto.AddressHash([]byte(ownership.HashSerialize())))
+	ownership.Hash = address.OwnAddress(crypto.AddressHash([]byte(ownership.HashSerialize())))
 
 	store.Set(ownership.Hash, k.cdc.MustMarshalBinaryLengthPrefixed(ownership))
 	return ownership, nil
 }
 
 // Delete deletes an ownership.
-func (k Keeper) Delete(ctx sdk.Context, owner sdk.AccAddress, resourceHash sdk.AccAddress) error {
+func (k Keeper) Delete(ctx sdk.Context, owner sdk.AccAddress, resourceHash sdk.Address) error {
 	store := ctx.KVStore(k.storeKey)
 	hashes := k.findOwnerships(store, owner.String(), resourceHash)
 	if len(hashes) == 0 {
@@ -78,15 +79,15 @@ func (k Keeper) Delete(ctx sdk.Context, owner sdk.AccAddress, resourceHash sdk.A
 	}
 
 	for _, hash := range hashes {
-		store.Delete(hash)
+		store.Delete(hash.Bytes())
 	}
 	return nil
 }
 
 // hasOwner checks if given resource has owner. Returns all ownership hash and true if has one
 // nil and false otherwise.
-func (k Keeper) findOwnerships(store sdk.KVStore, owner string, resourceHash sdk.AccAddress) []sdk.AccAddress {
-	var ownerships []sdk.AccAddress
+func (k Keeper) findOwnerships(store sdk.KVStore, owner string, resourceHash sdk.Address) []address.OwnAddress {
+	var ownerships []address.OwnAddress
 	iter := store.Iterator(nil, nil)
 
 	for iter.Valid() {

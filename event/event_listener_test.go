@@ -3,8 +3,8 @@ package event
 import (
 	"testing"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cskr/pubsub"
+	"github.com/mesg-foundation/engine/cosmos/address"
 	"github.com/stretchr/testify/assert"
 	"github.com/tendermint/tendermint/crypto"
 )
@@ -26,23 +26,23 @@ func TestFilter(t *testing.T) {
 			true,
 		},
 		{
-			&Filter{Hash: sdk.AccAddress(crypto.AddressHash([]byte("1")))},
-			&Event{Hash: sdk.AccAddress(crypto.AddressHash([]byte("1")))},
+			&Filter{Hash: address.EventAddress(crypto.AddressHash([]byte("1")))},
+			&Event{Hash: address.EventAddress(crypto.AddressHash([]byte("1")))},
 			true,
 		},
 		{
-			&Filter{Hash: sdk.AccAddress(crypto.AddressHash([]byte("1")))},
-			&Event{Hash: sdk.AccAddress(crypto.AddressHash([]byte("2")))},
+			&Filter{Hash: address.EventAddress(crypto.AddressHash([]byte("1")))},
+			&Event{Hash: address.EventAddress(crypto.AddressHash([]byte("2")))},
 			false,
 		},
 		{
-			&Filter{InstanceHash: sdk.AccAddress(crypto.AddressHash([]byte("1")))},
-			&Event{InstanceHash: sdk.AccAddress(crypto.AddressHash([]byte("1")))},
+			&Filter{InstanceHash: address.InstAddress(crypto.AddressHash([]byte("1")))},
+			&Event{InstanceHash: address.InstAddress(crypto.AddressHash([]byte("1")))},
 			true,
 		},
 		{
-			&Filter{InstanceHash: sdk.AccAddress(crypto.AddressHash([]byte("1")))},
-			&Event{InstanceHash: sdk.AccAddress(crypto.AddressHash([]byte("1")))},
+			&Filter{InstanceHash: address.InstAddress(crypto.AddressHash([]byte("1")))},
+			&Event{InstanceHash: address.InstAddress(crypto.AddressHash([]byte("1")))},
 			true,
 		},
 		{

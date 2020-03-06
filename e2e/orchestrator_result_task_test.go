@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/mesg-foundation/engine/cosmos/address"
 	"github.com/mesg-foundation/engine/execution"
 	"github.com/mesg-foundation/engine/process"
 	pb "github.com/mesg-foundation/engine/protobuf/api"
@@ -13,9 +13,9 @@ import (
 	"github.com/tendermint/tendermint/crypto"
 )
 
-func testOrchestratorResultTask(executionStream pb.Execution_StreamClient, runnerHash sdk.AccAddress, instanceHash sdk.AccAddress) func(t *testing.T) {
+func testOrchestratorResultTask(executionStream pb.Execution_StreamClient, runnerHash address.RunAddress, instanceHash address.InstAddress) func(t *testing.T) {
 	return func(t *testing.T) {
-		var processHash sdk.AccAddress
+		var processHash address.ProcAddress
 
 		t.Run("create process", func(t *testing.T) {
 			respProc, err := client.ProcessClient.Create(context.Background(), &pb.CreateProcessRequest{
@@ -50,7 +50,7 @@ func testOrchestratorResultTask(executionStream pb.Execution_StreamClient, runne
 		t.Run("trigger process", func(t *testing.T) {
 			_, err := client.ExecutionClient.Create(context.Background(), &pb.CreateExecutionRequest{
 				TaskKey:      "task1",
-				EventHash:    sdk.AccAddress(crypto.AddressHash([]byte("11010101011"))),
+				EventHash:    address.EventAddress(crypto.AddressHash([]byte("11010101011"))),
 				ExecutorHash: runnerHash,
 				Inputs: &types.Struct{
 					Fields: map[string]*types.Value{
@@ -70,7 +70,7 @@ func testOrchestratorResultTask(executionStream pb.Execution_StreamClient, runne
 				require.NoError(t, err)
 				require.Equal(t, "task1", exec.TaskKey)
 				require.Equal(t, "", exec.NodeKey)
-				require.True(t, sdk.AccAddress(crypto.AddressHash([]byte("11010101011"))).Equals(exec.EventHash))
+				require.True(t, address.EventAddress(crypto.AddressHash([]byte("11010101011"))).Equals(exec.EventHash))
 				require.Equal(t, execution.Status_InProgress, exec.Status)
 				require.True(t, exec.Inputs.Equal(&types.Struct{
 					Fields: map[string]*types.Value{
@@ -87,7 +87,7 @@ func testOrchestratorResultTask(executionStream pb.Execution_StreamClient, runne
 				require.NoError(t, err)
 				require.Equal(t, "task1", exec.TaskKey)
 				require.Equal(t, "", exec.NodeKey)
-				require.True(t, sdk.AccAddress(crypto.AddressHash([]byte("11010101011"))).Equals(exec.EventHash))
+				require.True(t, address.EventAddress(crypto.AddressHash([]byte("11010101011"))).Equals(exec.EventHash))
 				require.Equal(t, execution.Status_Completed, exec.Status)
 				require.Equal(t, "foo_2", exec.Outputs.Fields["msg"].GetStringValue())
 				require.NotEmpty(t, exec.Outputs.Fields["timestamp"].GetNumberValue())

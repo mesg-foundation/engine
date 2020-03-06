@@ -59,7 +59,7 @@ func handleMsgUpdateExecution(ctx sdk.Context, k Keeper, msg MsgUpdateExecution)
 			sdk.EventTypeMessage,
 			sdk.NewAttribute(sdk.AttributeKeyModule, types.AttributeValueCategory),
 			sdk.NewAttribute(sdk.AttributeKeyAction, types.EventTypeUpdateExecution),
-			sdk.NewAttribute(sdk.AttributeKeySender, msg.Executor.String()),
+			sdk.NewAttribute(sdk.AttributeKeySender, msg.Signer.String()),
 			sdk.NewAttribute(types.AttributeHash, s.Hash.String()),
 		),
 	)

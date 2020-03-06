@@ -16,5 +16,5 @@ type ParamSubspace interface {
 
 // OwnershipKeeper module interface.
 type OwnershipKeeper interface {
-	Set(ctx sdk.Context, owner sdk.AccAddress, resourceHash sdk.AccAddress, resource ownershippb.Ownership_Resource) (*ownershippb.Ownership, error)
+	Set(ctx sdk.Context, owner sdk.AccAddress, resourceHash sdk.Address, resource ownershippb.Ownership_Resource) (*ownershippb.Ownership, error)
 }

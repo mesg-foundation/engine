@@ -136,13 +136,13 @@ func (c *Client) BuildAndBroadcastMsg(msg sdk.Msg) (*abci.ResponseDeliverTx, err
 }
 
 // Stream subscribes to the provided query and returns the hash of the matching ressources.
-func (c *Client) Stream(ctx context.Context, query string) (chan sdk.AccAddress, chan error, error) {
+func (c *Client) Stream(ctx context.Context, query string) (chan string, chan error, error) {
 	subscriber := xstrings.RandASCIILetters(8)
 	eventStream, err := c.Subscribe(ctx, subscriber, query, 0)
 	if err != nil {
 		return nil, nil, err
 	}
-	hashC := make(chan sdk.AccAddress)
+	hashC := make(chan string)
 	errC := make(chan error)
 	go func() {
 	loop:
@@ -155,12 +155,7 @@ func (c *Client) Stream(ctx context.Context, query string) (chan sdk.AccAddress,
 					errC <- fmt.Errorf("event %s has %d tag(s), but only 1 is expected", EventHashType, len(attrs))
 				}
 				for _, attr := range attrs {
-					hash, err := sdk.AccAddressFromBech32(attr)
-					if err != nil {
-						errC <- err
-					} else {
-						hashC <- hash
-					}
+					hashC <- attr
 				}
 			case <-ctx.Done():
 				break loop
