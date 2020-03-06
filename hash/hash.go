@@ -8,51 +8,32 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"hash"
 
-	"github.com/mesg-foundation/engine/hash/structhash"
+	"github.com/mesg-foundation/engine/hash/hashserializer"
 	"github.com/mr-tron/base58"
 )
 
-// DefaultHash is a default hashing algorithm - "sha256".
-var DefaultHash = sha256.New
+// size is the default size for the hashing algorithm.
+const size = sha256.Size
 
-// size is a default size for hashing algorithm.
-var size = DefaultHash().Size()
+// sumFunc is the default function to hash.
+var sumFunc = sha256.Sum256
 
 var errInvalidLen = errors.New("hash: invalid length")
-
-// Digest represents the partial evaluation of a checksum.
-type Digest struct {
-	hash.Hash
-}
-
-// Sum appends the current checksum to b and returns the Hash.
-func (d *Digest) Sum(b []byte) Hash {
-	return Hash(d.Hash.Sum(b))
-}
-
-// WriteObject  adds an interface data to the running hash.
-// It never retruns an error.
-func (d *Digest) WriteObject(v interface{}) (int, error) {
-	return d.Write(structhash.Dump(v))
-}
 
 // A Hash is a type for representing common hash.
 type Hash []byte
 
-// New returns new hash from a given integer.
-func New() *Digest {
-	return &Digest{
-		Hash: DefaultHash(),
-	}
+// Dump takes a structure that implement HashSerializable and returns its hash.
+func Dump(v hashserializer.HashSerializable) Hash {
+	h := sumFunc([]byte(v.HashSerialize()))
+	return Hash(h[:])
 }
 
-// Dump takes an interface and returns its hash representation.
-func Dump(v interface{}) Hash {
-	d := New()
-	d.WriteObject(v)
-	return d.Sum(nil)
+// Sum takes a slice of byte and returns its hash.
+func Sum(v []byte) Hash {
+	h := sumFunc(v)
+	return Hash(h[:])
 }
 
 // Int returns a new hash from a given integer.
@@ -150,12 +131,12 @@ func (h Hash) Valid() bool {
 	return len(h) == 0 || len(h) == size
 }
 
-// MarshalJSON mashals hash into encoded json string.
+// MarshalJSON marshals hash into encoded json string.
 func (h Hash) MarshalJSON() ([]byte, error) {
 	return json.Marshal(base58.Encode(h))
 }
 
-// UnmarshalJSON unmashals hex encoded json string into hash.
+// UnmarshalJSON unmarshals hex encoded json string into hash.
 func (h *Hash) UnmarshalJSON(data []byte) error {
 	var str string
 	if err := json.Unmarshal(data, &str); err != nil {

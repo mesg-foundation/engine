@@ -10,19 +10,17 @@ import (
 
 func TestStructHash(t *testing.T) {
 	hashes := make(map[string]bool)
-	structs := []Struct{
-		{Fields: map[string]*Value{}},
-		{Fields: map[string]*Value{"v": {Kind: &Value_NullValue{}}}},
-		{Fields: map[string]*Value{"v": {Kind: &Value_NumberValue{}}}},
-		{Fields: map[string]*Value{"v": {Kind: &Value_StringValue{}}}},
-		{Fields: map[string]*Value{"v": {Kind: &Value_BoolValue{}}}},
-		{Fields: map[string]*Value{"v": {Kind: &Value_StructValue{}}}},
-		{Fields: map[string]*Value{"v": {Kind: &Value_ListValue{}}}},
+	structs := []*Struct{
+		{Fields: map[string]*Value{"v": {Kind: &Value_NumberValue{NumberValue: 1}}}},
+		{Fields: map[string]*Value{"v": {Kind: &Value_StringValue{StringValue: "1"}}}},
+		{Fields: map[string]*Value{"v": {Kind: &Value_BoolValue{BoolValue: true}}}},
+		{Fields: map[string]*Value{"v": {Kind: &Value_StructValue{StructValue: &Struct{Fields: map[string]*Value{"1": {}}}}}}},
+		{Fields: map[string]*Value{"v": {Kind: &Value_ListValue{ListValue: &ListValue{Values: []*Value{{Kind: &Value_NumberValue{NumberValue: 1}}}}}}}},
 	}
 	for _, s := range structs {
-		hashes[string(hash.Dump(s))] = true
+		hashes[hash.Dump(s).String()] = true
 	}
-	require.Equal(t, len(hashes), len(structs))
+	require.Equal(t, len(structs), len(hashes))
 }
 
 func TestStructMarshal(t *testing.T) {
@@ -93,7 +91,7 @@ func TestStructMarshal(t *testing.T) {
 			require.NoError(t, err)
 			structValueSort2, err = cdc.MarshalBinaryLengthPrefixed(structSort2)
 			require.NoError(t, err)
-			require.True(t, hash.Dump(structValueSort1).Equal(hash.Dump(structValueSort2)))
+			require.True(t, hash.Sum(structValueSort1).Equal(hash.Sum(structValueSort2)))
 		})
 		t.Run("Unmarshal", func(t *testing.T) {
 			require.NoError(t, cdc.UnmarshalBinaryLengthPrefixed(structValueSort1, &structUnm1))
@@ -116,7 +114,7 @@ func TestStructMarshal(t *testing.T) {
 			require.NoError(t, err)
 			structValueSort2, err = cdc.MarshalJSON(structSort2)
 			require.NoError(t, err)
-			require.True(t, hash.Dump(structValueSort1).Equal(hash.Dump(structValueSort2)))
+			require.True(t, hash.Sum(structValueSort1).Equal(hash.Sum(structValueSort2)))
 		})
 		t.Run("Unmarshal", func(t *testing.T) {
 			require.NoError(t, cdc.UnmarshalJSON(structValueSort1, &structUnm1))
