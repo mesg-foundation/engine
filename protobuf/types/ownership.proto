@@ -13,20 +13,22 @@ option (gogoproto.equal_all) = true;
 message Ownership {
 
   // Service's hash.
+  // @hash: false
   bytes hash = 1 [
-    (gogoproto.moretags) = 'hash:"-" validate:"required"',
+    (gogoproto.moretags) = 'validate:"required"',
     (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
     (gogoproto.nullable) = false
   ];
 
   // The owner of the resource.
+  // @hash: true
   string owner = 2 [
-    (gogoproto.moretags) = 'hash:"name:2" validate:"required"'
+    (gogoproto.moretags) = 'validate:"required"'
   ];
 
   // Resource's hash.
+  // @hash: true
   bytes resourceHash = 3 [
-    (gogoproto.moretags) = 'hash:"name:3"',
     (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
     (gogoproto.nullable) = false
   ];

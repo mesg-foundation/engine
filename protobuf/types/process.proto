@@ -14,43 +14,49 @@ message Process {
   message Node {
     message Result {
       // Hash of the instance that triggers the process.
+      // @hash: true
       bytes instanceHash = 2 [
-        (gogoproto.moretags) = 'hash:"name:2" validate:"required"',
+        (gogoproto.moretags) = 'validate:"required"',
         (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
         (gogoproto.nullable) = false
       ];
 
       // Key of the task that triggers the process.
+      // @hash: true
       string taskKey = 3 [
-        (gogoproto.moretags) = 'hash:"name:3" validate:"printascii,required"'
+        (gogoproto.moretags) = 'validate:"printascii,required"'
       ];
     }
 
     message Event {
       // Hash of the instance that triggers the process.
+      // @hash: true
       bytes instanceHash = 2 [
-        (gogoproto.moretags) = 'hash:"name:2" validate:"required"',
+        (gogoproto.moretags) = 'validate:"required"',
         (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
         (gogoproto.nullable) = false
       ];
 
       // Key of the event that triggers the process.
+      // @hash: true
       string eventKey = 3 [
-        (gogoproto.moretags) = 'hash:"name:3" validate:"printascii,required"'
+        (gogoproto.moretags) = 'validate:"printascii,required"'
       ];
     }
 
     message Task {
       // Hash of the instance to execute.
+      // @hash: true
       bytes instanceHash = 2 [
-        (gogoproto.moretags) = 'hash:"name:2" validate:"required"',
+        (gogoproto.moretags) = 'validate:"required"',
         (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
         (gogoproto.nullable) = false
       ];
 
       // Task of the instance to execute.
+      // @hash: true
       string taskKey = 3 [
-        (gogoproto.moretags) = 'hash:"name:3" validate:"printascii,required"'
+        (gogoproto.moretags) = 'validate:"printascii,required"'
       ];
     }
 
@@ -62,81 +68,78 @@ message Process {
 
         // List is a list of output as message, so it can be used in oneof.
         message List {
+          // @hash: true
           repeated Output outputs = 1 [
-            (gogoproto.moretags) = 'hash:"name:1" validate:"dive,required"'
+            (gogoproto.moretags) = 'validate:"dive,required"'
           ];
         }
 
         // Map is a map of output as message, so it can be used in oneof.
         message Map {
+          // @hash: true
           map<string, Output> outputs = 1 [
-            (gogoproto.moretags) = 'hash:"name:1" validate:"dive,required"'
+            (gogoproto.moretags) = 'validate:"dive,required"'
           ];
         }
 
         message Reference {
           message Path {
             oneof selector {
+              // @hash: true
               string key = 1 [
-                (gogoproto.moretags) = 'hash:"name:1" validate:"printascii"'
+                (gogoproto.moretags) = 'validate:"printascii"'
               ];
-              uint64 index = 2 [
-                (gogoproto.moretags) = 'hash:"name:2"'
-              ];
+              // @hash: true
+              uint64 index = 2;
             }
 
             // Path can be nil if on the leaf
-            Path path = 3 [
-              (gogoproto.moretags) = 'hash:"name:3"'
-            ];
+            // @hash: true
+            Path path = 3;
           }
 
+          // @hash: true
           string nodeKey = 1 [
-            (gogoproto.moretags) = 'hash:"name:1" validate:"required"'
+            (gogoproto.moretags) = 'validate:"required"'
           ];
 
-          Path path = 2 [
-            (gogoproto.moretags) = 'hash:"name:2"'
-          ];
+          // @hash: true
+          Path path = 2;
         }
 
         oneof value {
-          Null null = 1 [
-            (gogoproto.moretags) = 'hash:"name:1"'
-          ];
+          // @hash: true
+          Null null = 1;
 
-          string string_const = 2 [
-            (gogoproto.moretags) = 'hash:"name:2"'
-          ];
+          // @hash: true
+          string string_const = 2;
 
+          // @hash: true
           double double_const = 3 [
-            (gogoproto.moretags) = 'hash:"name:3" amino:"unsafe"'
+            (gogoproto.moretags) = 'amino:"unsafe"'
           ];
 
-          bool bool_const = 4 [
-            (gogoproto.moretags) = 'hash:"name:4"'
-          ];
+          // @hash: true
+          bool bool_const = 4;
 
           // Input defined as reference.
-          Reference ref = 5 [
-            (gogoproto.moretags) = 'hash:"name:5"'
-          ];
+          // @hash: true
+          Reference ref = 5;
 
           // Outputs represent array.
-          List list = 6 [
-            (gogoproto.moretags) = 'hash:"name:6"'
-          ];
+          // @hash: true
+          List list = 6;
 
           // Outputs represent a field.
-          Map map = 7 [
-            (gogoproto.moretags) = 'hash:"name:7"'
-          ];
+          // @hash: true
+          Map map = 7;
         }
       }
 
       // Outputs of the mapping.
+      // @hash: true
       map<string, Output> outputs = 1 [
-        (gogoproto.moretags) = 'hash:"name:1" validate:"dive,required"'
+        (gogoproto.moretags) = 'validate:"dive,required"'
       ];
     }
 
@@ -152,88 +155,91 @@ message Process {
         }
 
         // Key to check.
+        // @hash: true
         string key = 1 [
-          (gogoproto.moretags) = 'hash:"name:1" validate:"required,printascii"'
+          (gogoproto.moretags) = 'validate:"required,printascii"'
         ];
 
         // Type of condition to apply.
+        // @hash: true
         Predicate predicate = 2 [
-          (gogoproto.moretags) = 'hash:"name:2" validate:"required"'
+          (gogoproto.moretags) = 'validate:"required"'
         ];
 
         // Value of the filter.
-        string value = 3 [
-          (gogoproto.moretags) = 'hash:"name:3"'
-        ];
+        // @hash: true
+        string value = 3;
       }
 
       // List of condition to apply for this filter
+      // @hash: true
       repeated Condition conditions = 2 [
-        (gogoproto.moretags) = 'hash:"name:2"',
         (gogoproto.nullable) = false
       ];
     }
 
     // Key that identifies the node.
+    // @hash: true
     string key = 1 [
-      (gogoproto.moretags) = 'hash:"name:1" validate:"required"'
+      (gogoproto.moretags) = 'validate:"required"'
     ];
 
     oneof type {
       // Result is a trigger that listens for a specific result.
-      Result result = 2 [
-        (gogoproto.moretags) = 'hash:"name:2"'
-      ];
+      // @hash: true
+      Result result = 2;
       // Event is a trigger that listens for a specific event.
-      Event event = 3 [
-        (gogoproto.moretags) = 'hash:"name:3"'
-      ];
+      // @hash: true
+      Event event = 3;
       // Task is a command to execute a specific task.
-      Task task = 4 [
-        (gogoproto.moretags) = 'hash:"name:4"'
-      ];
+      // @hash: true
+      Task task = 4;
       // Map is a set of instructions to convert data.
-      Map map = 5 [
-        (gogoproto.moretags) = 'hash:"name:5"'
-      ];
+      // @hash: true
+      Map map = 5;
       // Filter is a list of condition to apply on data.
-      Filter filter = 6 [
-        (gogoproto.moretags) = 'hash:"name:6"'
-      ];
+      // @hash: true
+      Filter filter = 6;
     }
   }
 
   message Edge {
     // Source of the edge.
+    // @hash: true
     string src = 1 [
-      (gogoproto.moretags) = 'hash:"name:1" validate:"required"'
+      (gogoproto.moretags) = 'validate:"required"'
     ];
 
     // Destination of the edge.
+    // @hash: true
     string dst = 2 [
-      (gogoproto.moretags) = 'hash:"name:2" validate:"required"'
+      (gogoproto.moretags) = 'validate:"required"'
     ];
   }
 
   // Process's hash
+  // @hash: false
   bytes hash = 1 [
-    (gogoproto.moretags) = 'hash:"-" validate:"required"',
+    (gogoproto.moretags) = 'validate:"required"',
     (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
     (gogoproto.nullable) = false
   ];
 
   // Process's name
+  // @hash: true
   string name = 2 [
-    (gogoproto.moretags) = 'hash:"name:2" validate:"required"'
+    (gogoproto.moretags) = 'validate:"required"'
   ];
 
   // Nodes with information related to the execution to trigger.
+  // @hash: true
   repeated Node nodes = 4 [
-    (gogoproto.moretags) = 'hash:"name:4" validate:"dive,required"'
+    (gogoproto.moretags) = 'validate:"dive,required"'
   ];
 
   // Edges to create the link between the nodes.
+  // @hash: true
   repeated Edge edges = 5 [
-    (gogoproto.moretags) = 'hash:"name:5" validate:"dive,required"'
+    (gogoproto.moretags) = 'validate:"dive,required"'
   ];
 }

@@ -32,8 +32,8 @@ enum Status {
 // Execution represents a single execution run in engine.
 message Execution {
   // Hash is a unique hash to identify execution.
+  // @hash: false
   bytes hash = 1 [
-    (gogoproto.moretags) = 'hash:"-"',
     (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
     (gogoproto.nullable) = false
   ];
@@ -41,82 +41,77 @@ message Execution {
   // parentHash is the unique hash of parent execution.
   // if execution is triggered by another one,
   // dependency execution considered as the parent.
+  // @hash: true
   bytes parentHash = 2 [
-    (gogoproto.moretags) = 'hash:"name:2"',
     (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
     (gogoproto.nullable) = false
   ];
 
   // eventHash is unique event hash.
+  // @hash: true
   bytes eventHash = 3 [
-    (gogoproto.moretags) = 'hash:"name:3"',
     (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
     (gogoproto.nullable) = false
   ];
 
   // Status is the current status of execution.
-  Status status = 4 [
-    (gogoproto.moretags) = 'hash:"-"'
-  ];
+  // @hash: false
+  Status status = 4;
 
   // instanceHash is hash of the instance that can proceed an execution
+  // @hash: true
   bytes instanceHash = 5 [
-    (gogoproto.moretags) = 'hash:"name:5"',
     (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
     (gogoproto.nullable) = false
   ];
 
   // taskKey is the key of the task of this execution.
-  string taskKey = 6 [
-    (gogoproto.moretags) = 'hash:"name:6"'
-  ];
+  // @hash: true
+  string taskKey = 6;
 
   // inputs data of the execution.
-  mesg.protobuf.Struct inputs = 7 [
-    (gogoproto.moretags) = 'hash:"name:7"'
-  ];
+  // @hash: true
+  mesg.protobuf.Struct inputs = 7;
 
   // outputs are the returned data of successful execution.
-  mesg.protobuf.Struct outputs = 8 [
-    (gogoproto.moretags) = 'hash:"-"'
-  ];
+  // @hash: false
+  mesg.protobuf.Struct outputs = 8;
 
   // error message of a failed execution.
-  string error = 9 [
-    (gogoproto.moretags) = 'hash:"-"'
-  ];
+  // @hash: false
+  string error = 9;
 
   // tags are optionally associated with execution by the user.
+  // @hash: true
   repeated string tags = 10 [
-    (gogoproto.moretags) = 'hash:"name:10" validate:"dive,printascii"'
+    (gogoproto.moretags) = 'validate:"dive,printascii"'
   ];
 
   // processHash is the unique hash of the process associated to this execution.
+  // @hash: true
   bytes processHash = 11 [
-    (gogoproto.moretags) = 'hash:"name:11"',
     (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
     (gogoproto.nullable) = false
   ];
 
   // node key of the process.
-  string nodeKey = 12 [
-    (gogoproto.moretags) = 'hash:"name:12"'
-  ];
+  // @hash: true
+  string nodeKey = 12;
 
   // runner that should execute this execution.
+  // @hash: true
   bytes executorHash = 13 [
-    (gogoproto.moretags) = 'hash:"name:13"',
     (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
     (gogoproto.nullable) = false
   ];
 
   // price of running the exeuction.
+  // @hash: true
   string price = 14 [
-    (gogoproto.moretags) = 'hash:"name:14" validate:"coins"'
+    (gogoproto.moretags) = 'validate:"coins"'
   ];
 
   // blockHeight where the execution was included into blockchain.
-  int64 blockHeight = 15 [
-    (gogoproto.moretags) = 'hash:"-"'
-  ];
+  // @hash: false
+  int64 blockHeight = 15;
 }

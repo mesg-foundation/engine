@@ -15,14 +15,14 @@ message Instance {
     (gogoproto.nullable) = false
   ];
 
+  // @hash: true
   bytes serviceHash = 2 [
-    (gogoproto.moretags) = 'hash:"name:2"',
     (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
     (gogoproto.nullable) = false
   ];
 
+  // @hash: true
   bytes envHash = 3 [
-    (gogoproto.moretags) = 'hash:"name:3"',
     (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
     (gogoproto.nullable) = false
   ];
