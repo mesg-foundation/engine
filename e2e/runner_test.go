@@ -4,13 +4,14 @@ import (
 	"context"
 	"testing"
 
+	"github.com/mesg-foundation/engine/cosmos/address"
 	"github.com/mesg-foundation/engine/protobuf/acknowledgement"
 	pb "github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/mesg-foundation/engine/runner"
 	"github.com/stretchr/testify/require"
 )
 
-var testRunnerHash address.testRunnerAddress
+var testRunnerHash address.RunAddress
 
 func testRunner(t *testing.T) {
 	t.Run("create", func(t *testing.T) {

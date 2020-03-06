@@ -255,7 +255,7 @@ func testExecution(t *testing.T) {
 	t.Run("many executions in parallel", func(t *testing.T) {
 		var (
 			n          = 10
-			executions = make([]addres.ExecAddress, 0)
+			executions = make([]address.ExecAddress, 0)
 			taskKey    = "task1"
 			inputs     = &types.Struct{
 				Fields: map[string]*types.Value{

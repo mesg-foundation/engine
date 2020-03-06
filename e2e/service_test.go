@@ -12,7 +12,7 @@ import (
 	"github.com/tendermint/tendermint/crypto"
 )
 
-var testServiceHash address.testServiceAddress
+var testServiceHash address.ServAddress
 
 func testService(t *testing.T) {
 	req := newTestCreateServiceRequest()

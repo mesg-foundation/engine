@@ -9,6 +9,7 @@ import (
 
 	"github.com/mesg-foundation/engine/config"
 	"github.com/mesg-foundation/engine/cosmos"
+	"github.com/mesg-foundation/engine/cosmos/address"
 	"github.com/mesg-foundation/engine/execution"
 	pb "github.com/mesg-foundation/engine/protobuf/api"
 	types "github.com/mesg-foundation/engine/protobuf/types"

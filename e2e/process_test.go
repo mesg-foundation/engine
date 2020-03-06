@@ -12,7 +12,7 @@ import (
 	"github.com/tendermint/tendermint/crypto"
 )
 
-var testProcessHash address.testProcessAddress
+var testProcessHash address.ProcAddress
 
 func testProcess(t *testing.T) {
 	var (
@@ -60,7 +60,7 @@ func testProcess(t *testing.T) {
 			Nodes: req.Nodes,
 			Edges: req.Edges,
 		}
-		expectedHash := address.expectedAddress(crypto.AddressHash([]byte(processForHash.HashSerialize())))
+		expectedHash := address.ExecAddress(crypto.AddressHash([]byte(processForHash.HashSerialize())))
 		t.Run("grpc", func(t *testing.T) {
 			p, err := client.ProcessClient.Get(context.Background(), &pb.GetProcessRequest{Hash: testProcessHash})
 			require.NoError(t, err)

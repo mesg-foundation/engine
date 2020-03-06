@@ -12,7 +12,7 @@ import (
 	"github.com/tendermint/tendermint/crypto"
 )
 
-var testInstanceHash address.testInstanceAddress
+var testInstanceHash address.InstAddress
 
 func testInstance(t *testing.T) {
 	t.Run("get", func(t *testing.T) {

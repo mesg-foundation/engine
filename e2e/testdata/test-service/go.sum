@@ -293,8 +293,8 @@ github.com/mattn/go-isatty v0.0.12/go.mod h1:cbi8OIDigv2wuxKPP5vlRcQ1OAZbq2CE4Ky
 github.com/mattn/go-runewidth v0.0.2/go.mod h1:LwmH8dsx7+W8Uxz3IHJYH5QSwggIsqBzpuz5H//U1FU=
 github.com/matttproud/golang_protobuf_extensions v1.0.1 h1:4hp9jkHxhMHkqkrB3Ix0jegS5sx/RkqARlsWZ6pIwiU=
 github.com/matttproud/golang_protobuf_extensions v1.0.1/go.mod h1:D8He9yQNgCq6Z5Ld7szi9bcBfOoFv/3dc6xSMkL2PC0=
-github.com/mesg-foundation/engine v0.18.4-0.20200305092841-f2d9845a911c h1:sLo1/SkvK7ILqmfv16CCVgLGzR4UXF3V4uFUFWqX9gQ=
-github.com/mesg-foundation/engine v0.18.4-0.20200305092841-f2d9845a911c/go.mod h1:y1fdUeCcxuiIQVwkX1AQ/tDzFzaShHSYAMGWd6D1HBw=
+github.com/mesg-foundation/engine v0.18.4-0.20200306102528-95740171910e h1:sbhX4ZEPWeovDzjMqOHL0Uf00C5f6DXuly/VnGIweBc=
+github.com/mesg-foundation/engine v0.18.4-0.20200306102528-95740171910e/go.mod h1:y1fdUeCcxuiIQVwkX1AQ/tDzFzaShHSYAMGWd6D1HBw=
 github.com/miekg/dns v1.0.14/go.mod h1:W1PPwlIAgtquWBMBEV9nkV9Cazfe8ScdGz/Lj7v3Nrg=
 github.com/mimoo/StrobeGo v0.0.0-20181016162300-f8f6d4d2b643 h1:hLDRPB66XQT/8+wG9WsDpiCvZf1yKO7sz7scAjSlBa0=
 github.com/mimoo/StrobeGo v0.0.0-20181016162300-f8f6d4d2b643/go.mod h1:43+3pMjjKimDBf5Kr4ZFNGbLql1zKkbImw+fZbw3geM=
