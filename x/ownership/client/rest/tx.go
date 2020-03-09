@@ -16,7 +16,6 @@ type withdrawCoinsReq struct {
 	BaseReq rest.BaseReq `json:"base_req"`
 	Amount  string       `json:"amount"`
 	Hash    hash.Hash    `json:"hash"`
-	Owner   string       `json:"owner"`
 }
 
 func registerTxRoutes(cliCtx context.CLIContext, r *mux.Router) {
@@ -40,7 +39,7 @@ func txWithdrawCoinsHandlerFn(cliCtx context.CLIContext) http.HandlerFunc {
 			return
 		}
 
-		owner, err := sdk.AccAddressFromBech32(req.Owner)
+		owner, err := sdk.AccAddressFromBech32(baseReq.From)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
