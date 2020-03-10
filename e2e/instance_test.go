@@ -5,7 +5,6 @@ import (
 	"testing"
 
 	"github.com/mesg-foundation/engine/hash"
-	"github.com/mesg-foundation/engine/hash/hashserializer"
 	"github.com/mesg-foundation/engine/instance"
 	pb "github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/stretchr/testify/require"
@@ -20,14 +19,14 @@ func testInstance(t *testing.T) {
 			require.NoError(t, err)
 			require.Equal(t, testInstanceHash, resp.Hash)
 			require.Equal(t, testServiceHash, resp.ServiceHash)
-			require.Equal(t, hash.Dump(hashserializer.StringSlice([]string{"BAR=3", "FOO=1", "REQUIRED=4"})), resp.EnvHash)
+			require.Equal(t, hash.Dump([]string{"BAR=3", "FOO=1", "REQUIRED=4"}), resp.EnvHash)
 		})
 		t.Run("lcd", func(t *testing.T) {
 			var inst *instance.Instance
 			lcdGet(t, "instance/get/"+testInstanceHash.String(), &inst)
 			require.Equal(t, testInstanceHash, inst.Hash)
 			require.Equal(t, testServiceHash, inst.ServiceHash)
-			require.Equal(t, hash.Dump(hashserializer.StringSlice([]string{"BAR=3", "FOO=1", "REQUIRED=4"})), inst.EnvHash)
+			require.Equal(t, hash.Dump([]string{"BAR=3", "FOO=1", "REQUIRED=4"}), inst.EnvHash)
 		})
 	})
 

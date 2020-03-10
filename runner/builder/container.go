@@ -16,7 +16,6 @@ import (
 	"github.com/mesg-foundation/engine/ext/xerrors"
 	"github.com/mesg-foundation/engine/ext/xos"
 	"github.com/mesg-foundation/engine/hash"
-	"github.com/mesg-foundation/engine/hash/hashserializer"
 	"github.com/mesg-foundation/engine/service"
 )
 
@@ -210,7 +209,7 @@ func namespace(hash hash.Hash) string {
 
 // dependencyNamespace builds the namespace of a dependency.
 func dependencyNamespace(namespace string, dependencyKey string) string {
-	return hash.Sum([]byte(namespace + dependencyKey)).String()
+	return hash.Dump(namespace + dependencyKey).String()
 }
 
 func convertPorts(dPorts []string) []container.Port {
@@ -268,9 +267,9 @@ func convertVolumesFrom(s *service.Service, dVolumesFrom []string) ([]container.
 // volumeKey creates a key for service's volume based on the sid to make sure that the volume
 // will stay the same for different versions of the service.
 func volumeKey(s *service.Service, dependency, volume string) string {
-	return hash.Dump(hashserializer.StringSlice([]string{
+	return hash.Dump([]string{
 		s.Sid,
 		dependency,
 		volume,
-	})).String()
+	}).String()
 }

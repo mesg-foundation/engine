@@ -120,12 +120,12 @@ message Service {
 
     // Args to pass to the container.
     repeated string args = 4 [
-      (gogoproto.moretags) = 'hash:"name:4" validate:"dive,printascii"'
+      (gogoproto.moretags) = 'hash:"name:5" validate:"dive,printascii"'
     ];
 
     // Command to run the container.
     string command = 5 [
-      (gogoproto.moretags) = 'hash:"name:5" validate:"printascii"'
+      (gogoproto.moretags) = 'hash:"name:4" validate:"printascii"'
     ];
 
     // Default env vars to apply to service's instance on runtime.
