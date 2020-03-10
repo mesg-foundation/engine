@@ -37,7 +37,7 @@ func getRunner(ctx sdk.Context, path []string, k Keeper) ([]byte, error) {
 		return nil, err
 	}
 
-	res, err := types.ModuleCdc.MarshalJSON(instance)
+	res, err := k.cdc.MarshalJSON(instance)
 	if err != nil {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONMarshal, err.Error())
 	}
@@ -50,7 +50,7 @@ func listRunner(ctx sdk.Context, k Keeper) ([]byte, error) {
 		return nil, err
 	}
 
-	res, err := types.ModuleCdc.MarshalJSON(instances)
+	res, err := k.cdc.MarshalJSON(instances)
 	if err != nil {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONMarshal, err.Error())
 	}

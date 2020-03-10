@@ -37,7 +37,7 @@ func getExecution(ctx sdk.Context, k Keeper, path []string) ([]byte, error) {
 		return nil, err
 	}
 
-	res, err := types.ModuleCdc.MarshalJSON(e)
+	res, err := k.cdc.MarshalJSON(e)
 	if err != nil {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONMarshal, err.Error())
 	}
@@ -50,7 +50,7 @@ func listExecution(ctx sdk.Context, k Keeper) ([]byte, error) {
 		return nil, err
 	}
 
-	res, err := types.ModuleCdc.MarshalJSON(es)
+	res, err := k.cdc.MarshalJSON(es)
 	if err != nil {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONMarshal, err.Error())
 	}

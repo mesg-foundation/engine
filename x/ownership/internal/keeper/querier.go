@@ -25,7 +25,7 @@ func listOwnerships(ctx sdk.Context, k Keeper) ([]byte, error) {
 		return nil, err
 	}
 
-	res, err := types.ModuleCdc.MarshalJSON(ownerships)
+	res, err := k.cdc.MarshalJSON(ownerships)
 	if err != nil {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONMarshal, err.Error())
 	}

@@ -42,7 +42,7 @@ func getService(ctx sdk.Context, k Keeper, path []string) ([]byte, error) {
 		return nil, err
 	}
 
-	res, err := types.ModuleCdc.MarshalJSON(servcie)
+	res, err := k.cdc.MarshalJSON(servcie)
 	if err != nil {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONMarshal, err.Error())
 	}
@@ -57,7 +57,7 @@ func hashService(ctx sdk.Context, k Keeper, req abci.RequestQuery) ([]byte, erro
 
 	hash := k.Hash(ctx, &createServiceRequest)
 
-	res, err := types.ModuleCdc.MarshalJSON(hash)
+	res, err := k.cdc.MarshalJSON(hash)
 	if err != nil {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONMarshal, err.Error())
 	}
@@ -70,7 +70,7 @@ func listService(ctx sdk.Context, k Keeper) ([]byte, error) {
 		return nil, err
 	}
 
-	res, err := types.ModuleCdc.MarshalJSON(servcies)
+	res, err := k.cdc.MarshalJSON(servcies)
 	if err != nil {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONMarshal, err.Error())
 	}
@@ -91,7 +91,7 @@ func existService(ctx sdk.Context, k Keeper, path []string) ([]byte, error) {
 		return nil, err
 	}
 
-	res, err := types.ModuleCdc.MarshalJSON(servcie)
+	res, err := k.cdc.MarshalJSON(servcie)
 	if err != nil {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONMarshal, err.Error())
 	}

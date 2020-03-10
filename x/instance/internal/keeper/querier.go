@@ -38,7 +38,7 @@ func getInstance(ctx sdk.Context, path []string, k Keeper) ([]byte, error) {
 		return nil, err
 	}
 
-	res, err := types.ModuleCdc.MarshalJSON(instance)
+	res, err := k.cdc.MarshalJSON(instance)
 	if err != nil {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONMarshal, err.Error())
 	}
@@ -49,7 +49,7 @@ func listInstance(ctx sdk.Context, req abci.RequestQuery, k Keeper) ([]byte, err
 	var f *api.ListInstanceRequest_Filter
 	if len(req.Data) > 0 {
 		var r *api.ListInstanceRequest
-		if err := types.ModuleCdc.UnmarshalJSON(req.Data, &r); err != nil {
+		if err := k.cdc.UnmarshalJSON(req.Data, &r); err != nil {
 			return nil, sdkerrors.Wrap(sdkerrors.ErrJSONUnmarshal, err.Error())
 		}
 		f = r.Filter
@@ -60,7 +60,7 @@ func listInstance(ctx sdk.Context, req abci.RequestQuery, k Keeper) ([]byte, err
 		return nil, err
 	}
 
-	res, err := types.ModuleCdc.MarshalJSON(instances)
+	res, err := k.cdc.MarshalJSON(instances)
 	if err != nil {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONMarshal, err.Error())
 	}
