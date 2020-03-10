@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/mesg-foundation/engine/ext/xerrors"
+	"github.com/mesg-foundation/engine/ext/xvalidator"
 	"github.com/mesg-foundation/engine/service"
-	"github.com/mesg-foundation/engine/x/xerrors"
-	"github.com/mesg-foundation/engine/x/xvalidator"
 	validator "gopkg.in/go-playground/validator.v9"
 )
 

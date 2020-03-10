@@ -70,6 +70,11 @@ message CreateExecutionRequest {
     (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
     (gogoproto.nullable) = false
   ];
+
+  // price of running the execution.
+  string price = 10 [
+    (gogoproto.moretags) = 'validate:"coins"'
+  ];
 }
 
 // CreateExecutionResponse defines response for execution creation.

@@ -1,5 +1,130 @@
 # Changelog
 
+## [v0.19.0](https://github.com/mesg-foundation/engine/releases/tag/v0.19.0)
+
+#### Added
+
+- ([#1654](https://github.com/mesg-foundation/engine/pull/1654)) Add e2e lcd tests for ownerships.
+- ([#1663](https://github.com/mesg-foundation/engine/pull/1663)) Add e2e tests using the light client daemon of Cosmos.
+- ([#1670](https://github.com/mesg-foundation/engine/pull/1670)) Introduce execution payment.
+- ([#1680](https://github.com/mesg-foundation/engine/pull/1680)) Add block height to execution data.
+- ([#1689](https://github.com/mesg-foundation/engine/pull/1689)) Add pagination system to http endpoint executions/list.
+- ([#1691](https://github.com/mesg-foundation/engine/pull/1691)) Add min price for execution.
+
+#### Changed
+
+- ([#1640](https://github.com/mesg-foundation/engine/pull/1640)) Update to cosmos v0.38 and tendermint v0.33.
+- ([#1645](https://github.com/mesg-foundation/engine/pull/1645)) Add trusted config to LCD server and index all events.
+- ([#1650](https://github.com/mesg-foundation/engine/pull/1650)) Refactor cosmos modules.
+- ([#1651](https://github.com/mesg-foundation/engine/pull/1651)) Refactor ownership module to cosmos style.
+- ([#1653](https://github.com/mesg-foundation/engine/pull/1653)) Refactor instance module to cosmos style.
+- ([#1657](https://github.com/mesg-foundation/engine/pull/1657)) Refactor runner module to cosmos style.
+- ([#1658](https://github.com/mesg-foundation/engine/pull/1658)) Refactor process module to cosmos style.
+- ([#1661](https://github.com/mesg-foundation/engine/pull/1661)) Refactor service module to cosmos style.
+- ([#1662](https://github.com/mesg-foundation/engine/pull/1662)) Refactor execution module to cosmos style.
+- ([#1669](https://github.com/mesg-foundation/engine/pull/1669)) Use disable-all instead of enable-all in golangci config.
+
+#### Fixed
+
+- ([#1682](https://github.com/mesg-foundation/engine/pull/1682)) Fix Tendermint graceful stop.
+- ([#1683](https://github.com/mesg-foundation/engine/pull/1683)) Call end block function in each cosmos modules.
+
+#### Dependencies
+
+- ([#1646](https://github.com/mesg-foundation/engine/pull/1646)) Bump google.golang.org/grpc from 1.27.0 to 1.27.1.
+- ([#1648](https://github.com/mesg-foundation/engine/pull/1648)) Bump github.com/prometheus/client_golang from 1.4.0 to 1.4.1.
+- ([#1656](https://github.com/mesg-foundation/engine/pull/1656)) Bump github.com/cosmos/cosmos-sdk from 0.38.0 to 0.38.1.
+
+## [v0.18.3](https://github.com/mesg-foundation/engine/releases/tag/v0.18.3)
+
+#### Added
+
+- ([#1630](https://github.com/mesg-foundation/engine/pull/1630)) Start cosmos lcd server with the engine.
+- ([#1632](https://github.com/mesg-foundation/engine/pull/1632)) Add monitoring to dev engine.
+
+#### Changed
+
+- ([#1554](https://github.com/mesg-foundation/engine/pull/1554)) Cosmos implementation simplification.
+- ([#1617](https://github.com/mesg-foundation/engine/pull/1617)) Use cosmos event manager like standard cosmos modules are doing.
+- ([#1636](https://github.com/mesg-foundation/engine/pull/1636)) Reorganise monitoring configs and add default dashboards.
+- ([#1641](https://github.com/mesg-foundation/engine/pull/1641)) Update metrics.
+
+#### Fixed
+
+- ([#1599](https://github.com/mesg-foundation/engine/pull/1599)) Move AccNumber and AccIndex to the config.
+- ([#1625](https://github.com/mesg-foundation/engine/pull/1625)) Remove useless volume definition in the tool dockerfile.
+- ([#1626](https://github.com/mesg-foundation/engine/pull/1626)) Emit only one event with multiple attributes in cosmos module handler.
+- ([#1627](https://github.com/mesg-foundation/engine/pull/1627)) Simplify txbuilder and improve keybase signing.
+
+#### Dependencies
+
+- ([#1576](https://github.com/mesg-foundation/engine/pull/1576)) Bump gopkg.in/go-playground/validator.v9 from 9.30.2 to 9.31.0.
+- ([#1610](https://github.com/mesg-foundation/engine/pull/1610)) Bump github.com/spf13/viper from 1.6.1 to 1.6.2.
+- ([#1614](https://github.com/mesg-foundation/engine/pull/1614)) Bump gopkg.in/yaml.v2 from 2.2.7 to 2.2.8.
+- ([#1616](https://github.com/mesg-foundation/engine/pull/1616)) Bump github.com/prometheus/client_golang from 1.1.0 to 1.4.0.
+- ([#1618](https://github.com/mesg-foundation/engine/pull/1618)) Update to cosmos v0.37.6 and tendermint v0.32.9.
+- ([#1619](https://github.com/mesg-foundation/engine/pull/1619)) Bump google.golang.org/grpc from 1.25.1 to 1.27.0.
+- ([#1623](https://github.com/mesg-foundation/engine/pull/1623)) Bump github.com/golang/protobuf from 1.3.2 to 1.3.3.
+- ([#1628](https://github.com/mesg-foundation/engine/pull/1628)) Bump github.com/grpc-ecosystem/go-grpc-middleware from 1.1.0 to 1.2.0.
+
+## [v0.18.2](https://github.com/mesg-foundation/engine/releases/tag/v0.18.2)
+
+#### Fixed
+
+- ([#1605](https://github.com/mesg-foundation/engine/pull/1605)) Override default staking module config.
+
+## [v0.18.1](https://github.com/mesg-foundation/engine/releases/tag/v0.18.1)
+
+#### Added
+
+- ([#1580](https://github.com/mesg-foundation/engine/pull/1580)) Add execution metrics.
+- ([#1595](https://github.com/mesg-foundation/engine/pull/1595)) Add cosmos cli for low-level utility functionality.
+
+#### Changed
+
+- ([#1572](https://github.com/mesg-foundation/engine/pull/1572)) Customize cosmos address prefix.
+- ([#1601](https://github.com/mesg-foundation/engine/pull/1601)) Change default block time to 5sec and some token config.
+- ([#1602](https://github.com/mesg-foundation/engine/pull/1602)) Change the mesg coin type to the registered one (470).
+
+#### Fixed
+
+- ([#1588](https://github.com/mesg-foundation/engine/pull/1588)) Fix supply module init.
+- ([#1598](https://github.com/mesg-foundation/engine/pull/1598)) Fix account number used for signing tx.
+- ([#1553](https://github.com/mesg-foundation/engine/pull/1553)) Add fees and estimation of tx's gas.
+
+#### Removed
+
+- ([#1579](https://github.com/mesg-foundation/engine/pull/1579)) Remove useless database config.
+
+## [v0.18.0](https://github.com/mesg-foundation/engine/releases/tag/v0.18.0)
+
+#### Breaking Changes
+
+- ([#1536](https://github.com/mesg-foundation/engine/pull/1536)) Update process structure: rename process's key to name and move node.*.key into node.
+- ([#1540](https://github.com/mesg-foundation/engine/pull/1540)) Implement nested data map in process and change process map structure.
+- ([#1545](https://github.com/mesg-foundation/engine/pull/1545)) Add path system to reference nested data in process.
+
+#### Added
+
+- ([#1527](https://github.com/mesg-foundation/engine/pull/1527)) Decentralization of the processes.
+- ([#1519](https://github.com/mesg-foundation/engine/pull/1519)) Add data validation to all resources.
+- ([#1567](https://github.com/mesg-foundation/engine/pull/1567)) Add validation on process node to check reference to non-task node.
+- ([#1501](https://github.com/mesg-foundation/engine/pull/1501)) Add e2e tests on process and orchestrator. ([#1544](https://github.com/mesg-foundation/engine/pull/1544)). ([#1546](https://github.com/mesg-foundation/engine/pull/1546)). ([#1547](https://github.com/mesg-foundation/engine/pull/1547)). ([#1575](https://github.com/mesg-foundation/engine/pull/1575)).
+
+#### Changed
+
+- ([#1490](https://github.com/mesg-foundation/engine/pull/1490)) More verbose error in service backend.
+
+#### Fixed
+
+- ([#1532](https://github.com/mesg-foundation/engine/pull/1532)) Fix blocked logs by forcing to a maximum 10,000 lines in dev script.
+- ([#1543](https://github.com/mesg-foundation/engine/pull/1543)) Fix concurrent transaction signing by adding a mutex to the keybase.
+- ([#1556](https://github.com/mesg-foundation/engine/pull/1556)) Fix account sequence when signing multiple transactions.
+
+#### Removed
+
+- ([#1555](https://github.com/mesg-foundation/engine/pull/1555)) Remove account sdk and credential system.
+
 ## [v0.17.0](https://github.com/mesg-foundation/engine/releases/tag/v0.17.0)
 
 #### Breaking Changes

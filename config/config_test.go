@@ -26,10 +26,11 @@ func TestDefaultConfig(t *testing.T) {
 	require.Equal(t, "info", c.Log.Level)
 	require.Equal(t, false, c.Log.ForceColors)
 	require.Equal(t, filepath.Join(home, ".mesg"), c.Path)
-	require.Equal(t, filepath.Join("database", "executions", executionDBVersion), c.Database.ExecutionRelativePath)
 	require.Equal(t, "engine", c.Name)
 	require.Equal(t, "engine", c.Account.Name)
 	require.Equal(t, "pass", c.Account.Password)
+	require.Equal(t, uint32(0), c.Account.Number)
+	require.Equal(t, uint32(0), c.Account.Index)
 }
 
 func TestEnv(t *testing.T) {
@@ -61,6 +62,8 @@ log:
   forcecolors: true
 account:
   mnemonic: glimpse upon body vast economy give taxi yellow rabbit come click ranch chronic hammer sport near rotate charge lumber chicken cloud base thing forum
+cosmos:
+  mingasprices: 2.0019294mesg
 tendermint:
   config:
     consensus:
@@ -75,5 +78,6 @@ tendermint:
 		require.Equal(t, "tcp://0.0.0.0:26657", c.Tendermint.Config.RPC.ListenAddress)
 		require.Equal(t, tempPath, c.Path)
 		require.Equal(t, "engine", c.Name)
+		require.Equal(t, "2.0019294mesg", c.Cosmos.MinGasPrices)
 	})
 }

@@ -1,4 +1,4 @@
-.PHONY: all e2e check-version docker-publish docker-publish-dev docker-tools dev dev-stop dev-start lint dep build test mock protobuf changelog clean genesis clean-build clean-docker
+.PHONY: all build build-cmd-cosmos changelog check-version clean clean-build clean-docker dep dev dev-mon dev-start dev-stop docker-build docker-build-dev docker-publish docker-publish-dev docker-tools genesis lint protobuf test
 
 MAJOR_VERSION := $(shell echo $(version) | cut -d . -f 1)	
 MINOR_VERSION := $(shell echo $(version) | cut -d . -f 1-2)
@@ -39,17 +39,24 @@ docker-tools:
 dev: docker-build-dev
 	- ./scripts/dev.sh
 
-dev-start: docker-dev
+dev-mon: docker-build-dev
+	- ./scripts/dev.sh -m
+
+dev-start: docker-build-dev
 	./scripts/dev.sh -q
 
-dev-stop: docker-dev
-	./scripts/dev.sh stop
+dev-stop: docker-build-dev
+	./scripts/dev.sh -m stop
 
 dep:
 	go mod download
 
 build: check-version dep
 	go build -mod=readonly -o ./bin/engine -ldflags="-s -w -X 'github.com/mesg-foundation/engine/version.Version=$(version)'" core/main.go
+
+build-cmd: dep
+	go build -mod=readonly -o ./bin/mesg-cli ./cmd/mesg-cli/
+	go build -mod=readonly -o ./bin/mesg-daemon ./cmd/mesg-daemon/
 
 e2e: docker-build-dev
 	./scripts/run-e2e.sh
@@ -59,9 +66,6 @@ test: dep
 
 lint:
 	golangci-lint run
-
-mock: docker-tools
-	docker run --rm -v $(PWD):/project mesg/tools:local	./scripts/build-mocks.sh
 
 protobuf: docker-tools
 	docker run --rm -v $(PWD):/project mesg/tools:local	./scripts/build-proto.sh

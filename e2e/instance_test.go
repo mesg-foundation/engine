@@ -5,6 +5,8 @@ import (
 	"testing"
 
 	"github.com/mesg-foundation/engine/hash"
+	"github.com/mesg-foundation/engine/hash/hashserializer"
+	"github.com/mesg-foundation/engine/instance"
 	pb "github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/stretchr/testify/require"
 )
@@ -13,18 +15,34 @@ var testInstanceHash hash.Hash
 
 func testInstance(t *testing.T) {
 	t.Run("get", func(t *testing.T) {
-		resp, err := client.InstanceClient.Get(context.Background(), &pb.GetInstanceRequest{Hash: testInstanceHash})
-		require.NoError(t, err)
-		require.Equal(t, testInstanceHash, resp.Hash)
-		require.Equal(t, testServiceHash, resp.ServiceHash)
-		require.Equal(t, hash.Dump([]string{"BAR=3", "FOO=1", "REQUIRED=4"}), resp.EnvHash)
+		t.Run("grpc", func(t *testing.T) {
+			resp, err := client.InstanceClient.Get(context.Background(), &pb.GetInstanceRequest{Hash: testInstanceHash})
+			require.NoError(t, err)
+			require.Equal(t, testInstanceHash, resp.Hash)
+			require.Equal(t, testServiceHash, resp.ServiceHash)
+			require.Equal(t, hash.Dump(hashserializer.StringSlice([]string{"BAR=3", "FOO=1", "REQUIRED=4"})), resp.EnvHash)
+		})
+		t.Run("lcd", func(t *testing.T) {
+			var inst *instance.Instance
+			lcdGet(t, "instance/get/"+testInstanceHash.String(), &inst)
+			require.Equal(t, testInstanceHash, inst.Hash)
+			require.Equal(t, testServiceHash, inst.ServiceHash)
+			require.Equal(t, hash.Dump(hashserializer.StringSlice([]string{"BAR=3", "FOO=1", "REQUIRED=4"})), inst.EnvHash)
+		})
 	})
 
 	t.Run("list", func(t *testing.T) {
 		t.Run("with nil filter", func(t *testing.T) {
-			resp, err := client.InstanceClient.List(context.Background(), &pb.ListInstanceRequest{})
-			require.NoError(t, err)
-			require.Len(t, resp.Instances, 1)
+			t.Run("grpc", func(t *testing.T) {
+				resp, err := client.InstanceClient.List(context.Background(), &pb.ListInstanceRequest{})
+				require.NoError(t, err)
+				require.Len(t, resp.Instances, 1)
+			})
+			t.Run("lcd", func(t *testing.T) {
+				insts := make([]*instance.Instance, 0)
+				lcdGet(t, "instance/list", &insts)
+				require.Len(t, insts, 1)
+			})
 		})
 		t.Run("do not match service", func(t *testing.T) {
 			resp, err := client.InstanceClient.List(context.Background(), &pb.ListInstanceRequest{

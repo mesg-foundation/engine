@@ -35,6 +35,7 @@ message Ownership {
     None = 0;
     Service = 1;
     Process = 2;
+    Runner = 3;
   }
 
   // Resource's type.

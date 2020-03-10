@@ -2,21 +2,27 @@ package main
 
 import (
 	"context"
+	"sync"
 	"testing"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/x/bank"
 	"github.com/mesg-foundation/engine/execution"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/protobuf/acknowledgement"
 	pb "github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/mesg-foundation/engine/protobuf/types"
+	"github.com/mesg-foundation/engine/x/ownership"
 	"github.com/stretchr/testify/require"
+	"github.com/tendermint/tendermint/crypto"
 )
 
 func testExecution(t *testing.T) {
 	var (
-		stream       pb.Execution_StreamClient
-		err          error
-		executorHash = testRunnerHash
+		streamInProgress pb.Execution_StreamClient
+		streamCompleted  pb.Execution_StreamClient
+		err              error
+		executorHash     = testRunnerHash
 	)
 
 	t.Run("create stream nil filter", func(t *testing.T) {
@@ -25,13 +31,22 @@ func testExecution(t *testing.T) {
 	})
 
 	t.Run("create stream", func(t *testing.T) {
-		stream, err = client.ExecutionClient.Stream(context.Background(), &pb.StreamExecutionRequest{
+		streamInProgress, err = client.ExecutionClient.Stream(context.Background(), &pb.StreamExecutionRequest{
 			Filter: &pb.StreamExecutionRequest_Filter{
 				ExecutorHash: executorHash,
+				Statuses:     []execution.Status{execution.Status_InProgress},
 			},
 		})
 		require.NoError(t, err)
-		acknowledgement.WaitForStreamToBeReady(stream)
+		streamCompleted, err = client.ExecutionClient.Stream(context.Background(), &pb.StreamExecutionRequest{
+			Filter: &pb.StreamExecutionRequest_Filter{
+				ExecutorHash: executorHash,
+				Statuses:     []execution.Status{execution.Status_Completed},
+			},
+		})
+		require.NoError(t, err)
+		acknowledgement.WaitForStreamToBeReady(streamInProgress)
+		acknowledgement.WaitForStreamToBeReady(streamCompleted)
 	})
 
 	t.Run("simple execution", func(t *testing.T) {
@@ -61,7 +76,7 @@ func testExecution(t *testing.T) {
 			executionHash = resp.Hash
 		})
 		t.Run("in progress", func(t *testing.T) {
-			execInProgress, err := stream.Recv()
+			execInProgress, err := streamInProgress.Recv()
 			require.NoError(t, err)
 			require.Equal(t, executionHash, execInProgress.Hash)
 			require.Equal(t, taskKey, execInProgress.TaskKey)
@@ -71,7 +86,7 @@ func testExecution(t *testing.T) {
 			require.True(t, inputs.Equal(execInProgress.Inputs))
 		})
 		t.Run("completed", func(t *testing.T) {
-			exec, err = stream.Recv()
+			exec, err = streamCompleted.Recv()
 			require.NoError(t, err)
 			require.Equal(t, executionHash, exec.Hash)
 			require.Equal(t, taskKey, exec.TaskKey)
@@ -133,7 +148,7 @@ func testExecution(t *testing.T) {
 			executionHash = resp.Hash
 		})
 		t.Run("in progress", func(t *testing.T) {
-			execInProgress, err := stream.Recv()
+			execInProgress, err := streamInProgress.Recv()
 			require.NoError(t, err)
 			require.Equal(t, executionHash, execInProgress.Hash)
 			require.Equal(t, taskKey, execInProgress.TaskKey)
@@ -143,7 +158,7 @@ func testExecution(t *testing.T) {
 			require.True(t, inputs.Equal(execInProgress.Inputs))
 		})
 		t.Run("completed", func(t *testing.T) {
-			exec, err = stream.Recv()
+			exec, err = streamCompleted.Recv()
 			require.NoError(t, err)
 			require.Equal(t, executionHash, exec.Hash)
 			require.Equal(t, taskKey, exec.TaskKey)
@@ -166,8 +181,170 @@ func testExecution(t *testing.T) {
 	})
 
 	t.Run("list", func(t *testing.T) {
-		resp, err := client.ExecutionClient.List(context.Background(), &pb.ListExecutionRequest{})
+		t.Run("grpc", func(t *testing.T) {
+			resp, err := client.ExecutionClient.List(context.Background(), &pb.ListExecutionRequest{})
+			require.NoError(t, err)
+			require.Len(t, resp.Executions, 2)
+		})
+		t.Run("lcd", func(t *testing.T) {
+			execs := make([]*execution.Execution, 0)
+			lcdGet(t, "execution/list", &execs)
+			require.Len(t, execs, 2)
+		})
+	})
+
+	t.Run("execution with price", func(t *testing.T) {
+		var (
+			inputs = &types.Struct{
+				Fields: map[string]*types.Value{
+					"msg": {
+						Kind: &types.Value_StringValue{
+							StringValue: "test",
+						},
+					},
+				},
+			}
+		)
+		resp, err := client.ExecutionClient.Create(context.Background(), &pb.CreateExecutionRequest{
+			TaskKey:      "task1",
+			EventHash:    hash.Int(1),
+			ExecutorHash: executorHash,
+			Price:        "50000atto",
+			Inputs:       inputs,
+		})
 		require.NoError(t, err)
-		require.Len(t, resp.Executions, 2)
+
+		execAddress := sdk.AccAddress(crypto.AddressHash(resp.Hash))
+		executorAddress := sdk.AccAddress(crypto.AddressHash(executorHash))
+		serviceAddress := sdk.AccAddress(crypto.AddressHash(testServiceHash))
+
+		// check balance of execution before completed
+		t.Run("execution balance before completed", func(t *testing.T) {
+			coins := sdk.Coins{}
+			lcdGet(t, "bank/balances/"+execAddress.String(), &coins)
+			require.True(t, coins.AmountOf("atto").Equal(sdk.NewInt(50000)))
+		})
+
+		var executorBalance sdk.Coins
+		var serviceBalance sdk.Coins
+		lcdGet(t, "bank/balances/"+executorAddress.String(), &executorBalance)
+		lcdGet(t, "bank/balances/"+serviceAddress.String(), &serviceBalance)
+
+		_, err = streamInProgress.Recv()
+		require.NoError(t, err)
+
+		exec, err := streamCompleted.Recv()
+		require.NoError(t, err)
+		require.Equal(t, resp.Hash, exec.Hash)
+
+		// check balance of executor
+		t.Run("executor balance", func(t *testing.T) {
+			coins := sdk.Coins{}
+			lcdGet(t, "bank/balances/"+executorAddress.String(), &coins)
+			require.True(t, coins.AmountOf("atto").Equal(sdk.NewInt(45000).Add(executorBalance.AmountOf("atto"))))
+		})
+		// check balance of service
+		t.Run("service balance", func(t *testing.T) {
+			coins := sdk.Coins{}
+			lcdGet(t, "bank/balances/"+serviceAddress.String(), &coins)
+			require.True(t, coins.AmountOf("atto").Equal(sdk.NewInt(5000).Add(serviceBalance.AmountOf("atto"))))
+		})
+		// check balance of execution
+		t.Run("execution balance", func(t *testing.T) {
+			coins := sdk.Coins{}
+			execAddress := sdk.AccAddress(crypto.AddressHash(resp.Hash))
+			lcdGet(t, "bank/balances/"+execAddress.String(), &coins)
+			require.True(t, coins.AmountOf("atto").Equal(sdk.NewInt(0)))
+		})
+
+		t.Run("withdraw from service", func(t *testing.T) {
+			acc, err := cclient.GetAccount()
+			require.NoError(t, err)
+			coins := sdk.NewCoins(sdk.NewCoin("atto", sdk.NewInt(7000)))
+			msg := ownership.NewMsgWithdrawCoins(testServiceHash, coins, acc.GetAddress())
+			_, err = cclient.BuildAndBroadcastMsg(msg)
+			require.NoError(t, err)
+
+			param := bank.NewQueryBalanceParams(sdk.AccAddress(crypto.AddressHash(testServiceHash)))
+			require.NoError(t, cclient.QueryJSON("custom/bank/balances", param, &coins))
+			require.True(t, coins.IsZero(), coins)
+		})
+
+		t.Run("withdraw from runner", func(t *testing.T) {
+			acc, err := cclient.GetAccount()
+			require.NoError(t, err)
+			coins := sdk.NewCoins(sdk.NewCoin("atto", sdk.NewInt(63000)))
+			msg := ownership.NewMsgWithdrawCoins(testRunnerHash, coins, acc.GetAddress())
+			_, err = cclient.BuildAndBroadcastMsg(msg)
+			require.NoError(t, err)
+
+			param := bank.NewQueryBalanceParams(sdk.AccAddress(crypto.AddressHash(testRunnerHash)))
+			require.NoError(t, cclient.QueryJSON("custom/bank/balances", param, &coins))
+			require.True(t, coins.IsZero(), coins)
+		})
+	})
+
+	t.Run("many executions in parallel", func(t *testing.T) {
+		var (
+			n          = 10
+			executions = make([]hash.Hash, 0)
+			taskKey    = "task1"
+			inputs     = &types.Struct{
+				Fields: map[string]*types.Value{
+					"msg": {
+						Kind: &types.Value_StringValue{
+							StringValue: "test",
+						},
+					},
+				},
+			}
+		)
+		t.Run("create executions", func(t *testing.T) {
+			wg := sync.WaitGroup{}
+			var mutex sync.Mutex
+			wg.Add(n)
+			for i := 1; i <= n; i++ {
+				go func() {
+					defer wg.Done()
+					hash, err := hash.Random()
+					require.Nil(t, err)
+					resp, err := client.ExecutionClient.Create(context.Background(), &pb.CreateExecutionRequest{
+						TaskKey:      taskKey,
+						EventHash:    hash,
+						ExecutorHash: executorHash,
+						Inputs:       inputs,
+					})
+					require.NoError(t, err)
+					mutex.Lock()
+					defer mutex.Unlock()
+					require.NotContains(t, executions, resp.Hash)
+					executions = append(executions, resp.Hash)
+				}()
+			}
+			wg.Wait()
+			require.Len(t, executions, n)
+		})
+		t.Run("check in progress", func(t *testing.T) {
+			execs := make([]hash.Hash, 0)
+			for i := 1; i <= n; i++ {
+				exec, err := streamInProgress.Recv()
+				require.NoError(t, err)
+				require.Contains(t, executions, exec.Hash)
+				require.NotContains(t, execs, exec.Hash)
+				execs = append(execs, exec.Hash)
+			}
+			require.Len(t, execs, n)
+		})
+		t.Run("check completed", func(t *testing.T) {
+			execs := make([]hash.Hash, 0)
+			for i := 1; i <= n; i++ {
+				exec, err := streamCompleted.Recv()
+				require.NoError(t, err)
+				require.Contains(t, executions, exec.Hash)
+				require.NotContains(t, execs, exec.Hash)
+				execs = append(execs, exec.Hash)
+			}
+			require.Len(t, execs, n)
+		})
 	})
 }

@@ -6,24 +6,25 @@ import (
 	"fmt"
 	"math/rand"
 
+	"github.com/mesg-foundation/engine/cosmos"
 	"github.com/mesg-foundation/engine/event"
+	"github.com/mesg-foundation/engine/event/publisher"
 	"github.com/mesg-foundation/engine/execution"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/process"
 	"github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/mesg-foundation/engine/protobuf/types"
-	runnersdk "github.com/mesg-foundation/engine/sdk/runner"
 	"github.com/sirupsen/logrus"
 )
 
 // New creates a new Process instance
-func New(event EventSDK, execution ExecutionSDK, process ProcessSDK, runner RunnerSDK) *Orchestrator {
+func New(mc *cosmos.ModuleClient, ep *publisher.EventPublisher, execPrice string) *Orchestrator {
 	return &Orchestrator{
-		event:     event,
-		execution: execution,
-		process:   process,
-		runner:    runner,
+		mc:        mc,
+		ep:        ep,
 		ErrC:      make(chan error),
+		stopC:     make(chan bool),
+		execPrice: execPrice,
 	}
 }
 
@@ -33,12 +34,12 @@ func (s *Orchestrator) Start() error {
 		return fmt.Errorf("process orchestrator already running")
 	}
 
-	s.eventStream = s.event.GetStream(nil)
+	s.eventStream = s.ep.GetStream(nil)
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	executionStream, errC, err := s.execution.Stream(ctx, &api.StreamExecutionRequest{
+	executionStream, errC, err := s.mc.StreamExecution(ctx, &api.StreamExecutionRequest{
 		Filter: &api.StreamExecutionRequest_Filter{
 			Statuses: []execution.Status{execution.Status_Completed},
 		},
@@ -56,8 +57,15 @@ func (s *Orchestrator) Start() error {
 			go s.execute(s.dependencyFilter(execution), execution, nil, execution.Outputs)
 		case err := <-errC:
 			s.ErrC <- err
+		case <-s.stopC:
+			return nil
 		}
 	}
+}
+
+// Stop stops the orchestrator engine
+func (s *Orchestrator) Stop() {
+	s.stopC <- true
 }
 
 func (s *Orchestrator) eventFilter(event *event.Event) func(wf *process.Process, node *process.Process_Node) (bool, error) {
@@ -105,7 +113,7 @@ func (s *Orchestrator) findNodes(wf *process.Process, filter func(wf *process.Pr
 }
 
 func (s *Orchestrator) execute(filter func(wf *process.Process, node *process.Process_Node) (bool, error), exec *execution.Execution, event *event.Event, data *types.Struct) {
-	processes, err := s.process.List()
+	processes, err := s.mc.ListProcess()
 	if err != nil {
 		s.ErrC <- err
 		return
@@ -129,7 +137,7 @@ func (s *Orchestrator) executeNode(wf *process.Process, n *process.Process_Node,
 		return s.processTask(n.Key, task, wf, exec, event, data)
 	} else if m := n.GetMap(); m != nil {
 		var err error
-		data, err = s.processMap(m.Outputs, wf, exec, data)
+		data, err = s.processMap(n.Key, m.Outputs, wf, exec, data)
 		if err != nil {
 			return err
 		}
@@ -153,12 +161,12 @@ func (s *Orchestrator) executeNode(wf *process.Process, n *process.Process_Node,
 	return nil
 }
 
-func (s *Orchestrator) processMap(outputs map[string]*process.Process_Node_Map_Output, wf *process.Process, exec *execution.Execution, data *types.Struct) (*types.Struct, error) {
+func (s *Orchestrator) processMap(nodeKey string, outputs map[string]*process.Process_Node_Map_Output, wf *process.Process, exec *execution.Execution, data *types.Struct) (*types.Struct, error) {
 	result := &types.Struct{
 		Fields: make(map[string]*types.Value),
 	}
 	for key, output := range outputs {
-		value, err := s.outputToValue(output, wf, exec, data)
+		value, err := s.outputToValue(nodeKey, output, wf, exec, data)
 		if err != nil {
 			return nil, err
 		}
@@ -167,7 +175,7 @@ func (s *Orchestrator) processMap(outputs map[string]*process.Process_Node_Map_O
 	return result, nil
 }
 
-func (s *Orchestrator) outputToValue(output *process.Process_Node_Map_Output, wf *process.Process, exec *execution.Execution, data *types.Struct) (*types.Value, error) {
+func (s *Orchestrator) outputToValue(nodeKey string, output *process.Process_Node_Map_Output, wf *process.Process, exec *execution.Execution, data *types.Struct) (*types.Value, error) {
 	switch v := output.GetValue().(type) {
 	case *process.Process_Node_Map_Output_Null_:
 		return &types.Value{Kind: &types.Value_NullValue{NullValue: types.NullValue_NULL_VALUE}}, nil
@@ -178,7 +186,7 @@ func (s *Orchestrator) outputToValue(output *process.Process_Node_Map_Output, wf
 	case *process.Process_Node_Map_Output_BoolConst:
 		return &types.Value{Kind: &types.Value_BoolValue{BoolValue: v.BoolConst}}, nil
 	case *process.Process_Node_Map_Output_Map_:
-		out, err := s.processMap(v.Map.Outputs, wf, exec, data)
+		out, err := s.processMap(nodeKey, v.Map.Outputs, wf, exec, data)
 		if err != nil {
 			return nil, err
 		}
@@ -186,7 +194,7 @@ func (s *Orchestrator) outputToValue(output *process.Process_Node_Map_Output, wf
 	case *process.Process_Node_Map_Output_List_:
 		var values []*types.Value
 		for i := range v.List.Outputs {
-			value, err := s.outputToValue(v.List.Outputs[i], wf, exec, data)
+			value, err := s.outputToValue(nodeKey, v.List.Outputs[i], wf, exec, data)
 			if err != nil {
 				return nil, err
 			}
@@ -208,6 +216,18 @@ func (s *Orchestrator) outputToValue(output *process.Process_Node_Map_Output, wf
 		if node.GetTask() != nil {
 			return s.resolveInput(wf.Hash, exec, v.Ref.NodeKey, v.Ref.Path)
 		}
+		// check that the parent nodeKey == ref.NodeKey
+		// this ensures that we can use directly the data of the previous node
+		refToParent := false
+		for _, parent := range wf.ParentKeys(nodeKey) {
+			if parent == v.Ref.NodeKey {
+				refToParent = true
+				break
+			}
+		}
+		if !refToParent {
+			return nil, fmt.Errorf("ref can only reference a parent node for non task nodes")
+		}
 		return resolveRef(data, v.Ref.Path)
 	default:
 		return nil, errors.New("unknown output")
@@ -219,7 +239,7 @@ func (s *Orchestrator) resolveInput(wfHash hash.Hash, exec *execution.Execution,
 		return nil, fmt.Errorf("reference's nodeKey not found")
 	}
 	if exec.NodeKey != nodeKey {
-		parent, err := s.execution.Get(exec.ParentHash)
+		parent, err := s.mc.GetExecution(exec.ParentHash)
 		if err != nil {
 			return nil, err
 		}
@@ -236,7 +256,7 @@ func (s *Orchestrator) processTask(nodeKey string, task *process.Process_Node_Ta
 	if exec != nil {
 		execHash = exec.Hash
 	}
-	executors, err := s.runner.List(&runnersdk.Filter{
+	executors, err := s.mc.ListRunner(&cosmos.FilterRunner{
 		InstanceHash: task.InstanceHash,
 	})
 	if err != nil {
@@ -246,7 +266,7 @@ func (s *Orchestrator) processTask(nodeKey string, task *process.Process_Node_Ta
 		return fmt.Errorf("no runner is running instance %q", task.InstanceHash)
 	}
 	executor := executors[rand.Intn(len(executors))]
-	_, err = s.execution.Create(&api.CreateExecutionRequest{
+	_, err = s.mc.CreateExecution(&api.CreateExecutionRequest{
 		ProcessHash:  wf.Hash,
 		EventHash:    eventHash,
 		ParentHash:   execHash,
@@ -254,6 +274,7 @@ func (s *Orchestrator) processTask(nodeKey string, task *process.Process_Node_Ta
 		TaskKey:      task.TaskKey,
 		Inputs:       data,
 		ExecutorHash: executor.Hash,
+		Price:        s.execPrice,
 		Tags:         nil,
 	})
 	return err

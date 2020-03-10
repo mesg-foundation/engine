@@ -3,8 +3,8 @@ package service
 import (
 	"fmt"
 
+	"github.com/mesg-foundation/engine/ext/xerrors"
 	"github.com/mesg-foundation/engine/protobuf/types"
-	"github.com/mesg-foundation/engine/x/xerrors"
 )
 
 // validateServiceParameters validates data to see if it matches with parameters schema.

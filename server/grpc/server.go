@@ -7,11 +7,13 @@ import (
 
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_logrus "github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus"
-	"github.com/mesg-foundation/engine/config"
+	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
+	"github.com/mesg-foundation/engine/cosmos"
+	"github.com/mesg-foundation/engine/event/publisher"
+	"github.com/mesg-foundation/engine/ext/xvalidator"
 	protobuf_api "github.com/mesg-foundation/engine/protobuf/api"
-	"github.com/mesg-foundation/engine/sdk"
+	"github.com/mesg-foundation/engine/runner/builder"
 	"github.com/mesg-foundation/engine/server/grpc/api"
-	"github.com/mesg-foundation/engine/x/xvalidator"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/keepalive"
@@ -20,14 +22,21 @@ import (
 
 // Server contains the server config.
 type Server struct {
-	instance *grpc.Server
-	sdk      *sdk.SDK
-	cfg      *config.Config
+	instance  *grpc.Server
+	mc        *cosmos.ModuleClient
+	ep        *publisher.EventPublisher
+	b         *builder.Builder
+	execPrice string
 }
 
 // New returns a new gRPC server.
-func New(sdk *sdk.SDK, cfg *config.Config) *Server {
-	return &Server{sdk: sdk, cfg: cfg}
+func New(mc *cosmos.ModuleClient, ep *publisher.EventPublisher, b *builder.Builder, execPrice string) *Server {
+	return &Server{
+		mc:        mc,
+		ep:        ep,
+		b:         b,
+		execPrice: execPrice,
+	}
 }
 
 // Serve listens for connections.
@@ -46,13 +55,16 @@ func (s *Server) Serve(address string) error {
 		keepaliveOpt,
 		grpc.StreamInterceptor(grpc_middleware.ChainStreamServer(
 			grpc_logrus.StreamServerInterceptor(logrus.StandardLogger().WithField("module", "grpc")),
+			grpc_prometheus.StreamServerInterceptor,
 		)),
 		grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
 			grpc_logrus.UnaryServerInterceptor(logrus.StandardLogger().WithField("module", "grpc")),
+			grpc_prometheus.UnaryServerInterceptor,
 			validateInterceptor,
 		)),
 	)
 	s.register()
+	grpc_prometheus.Register(s.instance)
 	logrus.WithField("module", "grpc").Info("server listens on ", ln.Addr())
 	return s.instance.Serve(ln)
 }
@@ -71,13 +83,13 @@ func validateInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryS
 
 // register all server
 func (s *Server) register() {
-	protobuf_api.RegisterEventServer(s.instance, api.NewEventServer(s.sdk))
-	protobuf_api.RegisterExecutionServer(s.instance, api.NewExecutionServer(s.sdk))
-	protobuf_api.RegisterInstanceServer(s.instance, api.NewInstanceServer(s.sdk))
-	protobuf_api.RegisterServiceServer(s.instance, api.NewServiceServer(s.sdk))
-	protobuf_api.RegisterProcessServer(s.instance, api.NewProcessServer(s.sdk))
-	protobuf_api.RegisterOwnershipServer(s.instance, api.NewOwnershipServer(s.sdk))
-	protobuf_api.RegisterRunnerServer(s.instance, api.NewRunnerServer(s.sdk))
+	protobuf_api.RegisterEventServer(s.instance, api.NewEventServer(s.ep))
+	protobuf_api.RegisterExecutionServer(s.instance, api.NewExecutionServer(s.mc, s.execPrice))
+	protobuf_api.RegisterInstanceServer(s.instance, api.NewInstanceServer(s.mc))
+	protobuf_api.RegisterServiceServer(s.instance, api.NewServiceServer(s.mc))
+	protobuf_api.RegisterProcessServer(s.instance, api.NewProcessServer(s.mc))
+	protobuf_api.RegisterOwnershipServer(s.instance, api.NewOwnershipServer(s.mc))
+	protobuf_api.RegisterRunnerServer(s.instance, api.NewRunnerServer(s.mc, s.b))
 
 	reflection.Register(s.instance)
 }

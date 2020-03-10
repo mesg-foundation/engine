@@ -8,5 +8,4 @@ import (
 	_ "github.com/go-bindata/go-bindata/go-bindata"
 	_ "github.com/golang/protobuf/protoc-gen-go"
 	_ "github.com/pseudomuto/protoc-gen-doc/cmd/protoc-gen-doc"
-	_ "github.com/vektra/mockery/cmd/mockery"
 )

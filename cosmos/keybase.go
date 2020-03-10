@@ -1,11 +1,11 @@
 package cosmos
 
 import (
+	"crypto/sha256"
 	"sync"
 
 	clientkey "github.com/cosmos/cosmos-sdk/client/keys"
 	"github.com/cosmos/cosmos-sdk/crypto/keys"
-	"github.com/cosmos/cosmos-sdk/crypto/keys/hd"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/keyerror"
 	"github.com/cosmos/cosmos-sdk/types"
 	bip39 "github.com/cosmos/go-bip39"
@@ -13,19 +13,17 @@ import (
 )
 
 const (
-	// AccNumber is the account number of the account in keybase.
-	AccNumber = 0
-	// AccIndex is the account index of the account in keybase.
-	AccIndex = 0
+	// DefaultAlgo for create account.
+	DefaultAlgo = keys.Secp256k1
 
 	mnemonicEntropySize = 256
 )
 
 // Keybase is a standard cosmos keybase.
 type Keybase struct {
-	kb keys.Keybase
-
-	mx sync.Mutex
+	kb            keys.Keybase
+	mx            sync.Mutex
+	privKeysCache map[[sha256.Size]byte]crypto.PrivKey
 }
 
 // NewKeybase initializes a filesystem keybase at a particular dir.
@@ -34,7 +32,10 @@ func NewKeybase(dir string) (*Keybase, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &Keybase{kb: kb}, nil
+	return &Keybase{
+		kb:            kb,
+		privKeysCache: make(map[[sha256.Size]byte]crypto.PrivKey),
+	}, nil
 }
 
 // NewMnemonic returns a new mnemonic phrase.
@@ -88,10 +89,22 @@ func (kb *Keybase) Delete(name, passphrase string, skipPass bool) error {
 }
 
 // Sign is a lock protected version of keys.Sign
+// it also keeps the last private key used in memory for the time set in `keepPrivTime` for performance improvement.
 func (kb *Keybase) Sign(name, passphrase string, msg []byte) ([]byte, crypto.PubKey, error) {
+	hash := sha256.Sum256([]byte(name + ":" + passphrase))
 	kb.mx.Lock()
-	defer kb.mx.Unlock()
-	return kb.kb.Sign(name, passphrase, msg)
+	priv, ok := kb.privKeysCache[hash]
+	if !ok {
+		var err error
+		if priv, err = kb.kb.ExportPrivateKeyObject(name, passphrase); err != nil {
+			kb.mx.Unlock()
+			return nil, nil, err
+		}
+		kb.privKeysCache[hash] = priv
+	}
+	kb.mx.Unlock()
+	sig, err := priv.Sign(msg)
+	return sig, priv.PubKey(), err
 }
 
 // CreateMnemonic is a lock protected version of keys.CreateMnemonic
@@ -102,17 +115,10 @@ func (kb *Keybase) CreateMnemonic(name string, language keys.Language, passwd st
 }
 
 // CreateAccount is a lock protected version of keys.CreateAccount
-func (kb *Keybase) CreateAccount(name, mnemonic, bip39Passwd, encryptPasswd string, account, index uint32) (keys.Info, error) {
+func (kb *Keybase) CreateAccount(name, mnemonic, bip39Passwd, encryptPasswd, hdPath string, algo keys.SigningAlgo) (keys.Info, error) {
 	kb.mx.Lock()
 	defer kb.mx.Unlock()
-	return kb.kb.CreateAccount(name, mnemonic, bip39Passwd, encryptPasswd, account, index)
-}
-
-// Derive is a lock protected version of keys.Derive
-func (kb *Keybase) Derive(name, mnemonic, bip39Passwd, encryptPasswd string, params hd.BIP44Params) (keys.Info, error) {
-	kb.mx.Lock()
-	defer kb.mx.Unlock()
-	return kb.kb.Derive(name, mnemonic, bip39Passwd, encryptPasswd, params)
+	return kb.kb.CreateAccount(name, mnemonic, bip39Passwd, encryptPasswd, hdPath, algo)
 }
 
 // CreateLedger is a lock protected version of keys.CreateLedger
@@ -123,10 +129,10 @@ func (kb *Keybase) CreateLedger(name string, algo keys.SigningAlgo, hrp string, 
 }
 
 // CreateOffline is a lock protected version of keys.CreateOffline
-func (kb *Keybase) CreateOffline(name string, pubkey crypto.PubKey) (keys.Info, error) {
+func (kb *Keybase) CreateOffline(name string, pubkey crypto.PubKey, algo keys.SigningAlgo) (keys.Info, error) {
 	kb.mx.Lock()
 	defer kb.mx.Unlock()
-	return kb.kb.CreateOffline(name, pubkey)
+	return kb.kb.CreateOffline(name, pubkey, algo)
 }
 
 // CreateMulti is a lock protected version of keys.CreateMulti
@@ -190,6 +196,20 @@ func (kb *Keybase) ExportPrivateKeyObject(name string, passphrase string) (crypt
 	kb.mx.Lock()
 	defer kb.mx.Unlock()
 	return kb.kb.ExportPrivateKeyObject(name, passphrase)
+}
+
+// SupportedAlgos returns a list of signing algorithms supported by the keybase
+func (kb *Keybase) SupportedAlgos() []keys.SigningAlgo {
+	kb.mx.Lock()
+	defer kb.mx.Unlock()
+	return kb.kb.SupportedAlgos()
+}
+
+// SupportedAlgosLedger returns a list of signing algorithms supported by the keybase's ledger integration
+func (kb *Keybase) SupportedAlgosLedger() []keys.SigningAlgo {
+	kb.mx.Lock()
+	defer kb.mx.Unlock()
+	return kb.kb.SupportedAlgosLedger()
 }
 
 // CloseDB is a lock protected version of keys.CloseDB
