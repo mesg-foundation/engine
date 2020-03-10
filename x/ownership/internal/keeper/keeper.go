@@ -52,7 +52,7 @@ func (k *Keeper) List(ctx sdk.Context) ([]*ownership.Ownership, error) {
 }
 
 // Set creates a new ownership.
-func (k Keeper) Set(ctx sdk.Context, owner sdk.AccAddress, resourceHash sdk.Address, resource ownership.Ownership_Resource) (*ownership.Ownership, error) {
+func (k Keeper) Set(ctx sdk.Context, owner sdk.AccAddress, resourceHash address.Address, resource ownership.Ownership_Resource) (*ownership.Ownership, error) {
 	store := ctx.KVStore(k.storeKey)
 	hashes := k.findOwnerships(store, "", resourceHash)
 	if len(hashes) > 0 {
@@ -75,7 +75,7 @@ func (k Keeper) Set(ctx sdk.Context, owner sdk.AccAddress, resourceHash sdk.Addr
 }
 
 // Delete deletes an ownership.
-func (k Keeper) Delete(ctx sdk.Context, owner sdk.AccAddress, resourceHash sdk.Address) error {
+func (k Keeper) Delete(ctx sdk.Context, owner sdk.AccAddress, resourceHash address.Address) error {
 	store := ctx.KVStore(k.storeKey)
 	hashes := k.findOwnerships(store, owner.String(), resourceHash)
 	if len(hashes) == 0 {
@@ -90,7 +90,7 @@ func (k Keeper) Delete(ctx sdk.Context, owner sdk.AccAddress, resourceHash sdk.A
 
 // hasOwner checks if given resource has owner. Returns all ownership hash and true if has one
 // nil and false otherwise.
-func (k Keeper) findOwnerships(store sdk.KVStore, owner string, resourceHash sdk.Address) []address.OwnAddress {
+func (k Keeper) findOwnerships(store sdk.KVStore, owner string, resourceHash address.Address) []address.OwnAddress {
 	var ownerships []address.OwnAddress
 	iter := store.Iterator(nil, nil)
 

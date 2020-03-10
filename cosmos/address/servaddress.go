@@ -17,6 +17,7 @@ const bech32PrefixServAddr = "mesgserv"
 
 // Ensure that different address types implement the interface
 var _ sdk.Address = ServAddress{}
+var _ Address = ServAddress{}
 
 // ServAddress a wrapper around bytes meant to represent an account address.
 // When marshaled to a string or JSON, it uses Bech32.
@@ -161,4 +162,18 @@ func (aa ServAddress) Format(s fmt.State, verb rune) {
 	default:
 		s.Write([]byte(fmt.Sprintf("%X", []byte(aa))))
 	}
+}
+
+// MarshalTo marshal the address in data
+func (aa *ServAddress) MarshalTo(data []byte) (int, error) {
+	b, err := aa.Marshal()
+	if err != nil {
+		return 0, err
+	}
+	return copy(data, b), nil
+}
+
+// Size returns the marshaled size
+func (aa *ServAddress) Size() int {
+	return len(aa.Bytes())
 }

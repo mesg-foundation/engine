@@ -23,6 +23,6 @@ type InstanceKeeper interface {
 
 // OwnershipKeeper module interface.
 type OwnershipKeeper interface {
-	Delete(ctx sdk.Context, owner sdk.AccAddress, resourceHash sdk.Address) error
-	Set(ctx sdk.Context, owner sdk.AccAddress, resourceHash sdk.Address, resource ownershippb.Ownership_Resource) (*ownershippb.Ownership, error)
+	Delete(ctx sdk.Context, owner sdk.AccAddress, resourceHash address.Address) error
+	Set(ctx sdk.Context, owner sdk.AccAddress, resourceHash address.Address, resource ownershippb.Ownership_Resource) (*ownershippb.Ownership, error)
 }

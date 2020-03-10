@@ -26,7 +26,8 @@ message Ownership {
   // Resource's hash.
   bytes resourceHash = 3 [
     (gogoproto.moretags) = 'hash:"name:3"',
-    (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.Address"
+    (gogoproto.customtype) = "github.com/mesg-foundation/engine/cosmos/address.Address",
+    (gogoproto.nullable) = false
   ];
 
   enum Resource {

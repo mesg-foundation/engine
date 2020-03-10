@@ -3,6 +3,7 @@ package types
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/params"
+	"github.com/mesg-foundation/engine/cosmos/address"
 	ownershippb "github.com/mesg-foundation/engine/ownership"
 )
 
@@ -16,5 +17,5 @@ type ParamSubspace interface {
 
 // OwnershipKeeper module interface.
 type OwnershipKeeper interface {
-	Set(ctx sdk.Context, owner sdk.AccAddress, resourceHash sdk.Address, resource ownershippb.Ownership_Resource) (*ownershippb.Ownership, error)
+	Set(ctx sdk.Context, owner sdk.AccAddress, resourceHash address.Address, resource ownershippb.Ownership_Resource) (*ownershippb.Ownership, error)
 }
