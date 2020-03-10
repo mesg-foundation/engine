@@ -2,7 +2,7 @@ Dockerfile
 
 # build
 /bin
-!/bin/engine
+!/bin/engine-linux-amd64
 
 # repo files
 README.md

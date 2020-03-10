@@ -52,7 +52,7 @@ dep:
 	go mod download
 
 build: check-version dep
-	go build -mod=readonly -o ./bin/engine -ldflags="-X 'github.com/mesg-foundation/engine/version.Version=$(version)'" core/main.go
+	go build -mod=readonly -o ./bin/engine -ldflags="-s -w -X 'github.com/mesg-foundation/engine/version.Version=$(version)'" core/main.go
 
 build-cmd: dep
 	go build -mod=readonly -o ./bin/mesg-cli ./cmd/mesg-cli/
@@ -80,6 +80,7 @@ clean-docker:
 	- docker image rm \
 			mesg/engine:$(version) \
 			mesg/engine:latest \
+			mesg/engine:local \
 			mesg/engine:dev 2>/dev/null
 
 clean: clean-build clean-docker
