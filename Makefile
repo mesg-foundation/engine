@@ -1,6 +1,6 @@
 .PHONY: all build build-cmd-cosmos changelog check-version clean clean-build clean-docker dep dev dev-mon dev-start dev-stop docker-build docker-dev docker-publish docker-publish-dev docker-tools genesis lint protobuf test build-cmd-all
 
-MAJOR_VERSION := $(shell echo $(version) | cut -d . -f 1)	
+MAJOR_VERSION := $(shell echo $(version) | cut -d . -f 1)
 MINOR_VERSION := $(shell echo $(version) | cut -d . -f 1-2)
 PATCH_VERSION := $(version)
 
