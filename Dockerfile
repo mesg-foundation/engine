@@ -1,5 +1,5 @@
 # base Go image version.
-FROM golang:1.13.5-alpine3.10 AS build
+FROM golang:1.14.0-alpine3.11 AS build
 WORKDIR /app
 
 RUN apk add build-base gcc abuild binutils binutils-doc gcc-doc
@@ -13,7 +13,7 @@ ARG version
 
 RUN go build -mod=readonly -o ./bin/engine -ldflags="-s -w -X 'github.com/mesg-foundation/engine/version.Version=$version'" core/main.go
 
-FROM alpine:3.10.3
+FROM alpine:3.11.3
 WORKDIR /app
 
 RUN apk add --no-cache ca-certificates apache2-utils

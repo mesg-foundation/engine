@@ -1,5 +1,5 @@
 # base Go image version.
-FROM golang:1.13.5-stretch
+FROM golang:1.14.0-stretch
 
 WORKDIR /project
 
