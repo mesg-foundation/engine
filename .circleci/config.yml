@@ -99,17 +99,13 @@ jobs:
     <<: *run_on_docker
     steps:
       - checkout
-      - run: make build-cmd-all version="dev build `echo $CIRCLE_SHA1 | cut -c1-7`"
-      - run: go get -u github.com/tcnksm/ghr
-      - run: ghr -u mesg-foundation -r engine -delete -prerelease -n "Developer Release" -b "Warning - this is a developer release, use it only if you know what are doing. Make sure to pull the latest \`mesg/engine:dev\` image." release-dev ./bin
+      - run: make publish-cmds version="dev build `echo $CIRCLE_SHA1 | cut -c1-7`" release-type=dev
 
   "release_cli_prod":
     <<: *run_on_docker
     steps:
       - checkout
-      - run: make build-cmd-all version=$CIRCLE_TAG
-      - run: go get -u github.com/tcnksm/ghr
-      - run: ghr -u mesg-foundation -r engine -replace $CIRCLE_TAG ./bin
+      - run: make publish-cmds version=$CIRCLE_TAG release-type=prod
 
 workflows:
   version: 2
