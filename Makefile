@@ -52,11 +52,11 @@ dep:
 	go mod download
 
 build: check-version dep
-	go build -mod=readonly -o ./bin/engine -ldflags="-X 'github.com/mesg-foundation/engine/version.Version=$(version)'" core/main.go
+	go build -mod=readonly -o ./bin/engine -ldflags="-s -w -X 'github.com/mesg-foundation/engine/version.Version=$(version)'" core/main.go
 
 build-cmd: dep
-	go build -mod=readonly -o ./bin/mesg-cli ./cmd/mesg-cli/
-	go build -mod=readonly -o ./bin/mesg-daemon ./cmd/mesg-daemon/
+	go build -mod=readonly -o ./bin/mesg-cli -ldflags="-s -w" ./cmd/mesg-cli/
+	go build -mod=readonly -o ./bin/mesg-daemon -ldflags="-s -w" ./cmd/mesg-daemon/
 
 e2e: docker-dev
 	./scripts/run-e2e.sh

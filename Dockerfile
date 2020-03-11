@@ -1,7 +1,8 @@
 # base Go image version.
-FROM golang:1.13.0-stretch AS build
+FROM golang:1.13.8-alpine3.11 AS build
+WORKDIR /app
 
-WORKDIR /project
+RUN apk add build-base gcc abuild binutils binutils-doc gcc-doc
 
 # install dependencies
 COPY go.mod go.sum ./
@@ -9,13 +10,13 @@ RUN go mod download
 
 COPY . .
 ARG version
-RUN go build -mod=readonly -o ./bin/engine -ldflags="-X 'github.com/mesg-foundation/engine/version.Version=$version'" core/main.go
 
-FROM ubuntu:18.04
-RUN apt-get update && \
-      apt-get install -y --no-install-recommends ca-certificates=20180409 && \
-      apt-get clean && \
-      rm -rf /var/lib/apt/lists/*
+RUN go build -mod=readonly -o ./bin/engine -ldflags="-s -w -X 'github.com/mesg-foundation/engine/version.Version=$version'" core/main.go
+
+FROM alpine:3.11.3
 WORKDIR /app
-COPY --from=build /project/bin/engine .
+
+RUN apk add --no-cache ca-certificates
+
+COPY --from=build /app/bin/engine .
 CMD ["./engine"]
