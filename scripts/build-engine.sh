@@ -10,8 +10,8 @@ set -e
 ENGINE_SUM_PATH="./bin/.engine.sum"
 DOCKER_SUM_PATH="./bin/.Dockerfile.dev.sum"
 
-echo "compile engine for linux amd64"
-GOOS=linux GOARCH=amd64 go build -o ./bin/engine-linux-amd64 -ldflags="-s -w -X 'github.com/mesg-foundation/engine/version.Version=local'" core/main.go
+echo "compile engine for linux amd64 with CGO disabled"
+CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o ./bin/engine-linux-amd64 -ldflags="-s -w -X 'github.com/mesg-foundation/engine/version.Version=local'" core/main.go
 
 touch "$ENGINE_SUM_PATH" "$DOCKER_SUM_PATH"
 
