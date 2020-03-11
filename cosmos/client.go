@@ -105,7 +105,7 @@ func (c *Client) BuildAndBroadcastMsg(msg sdktypes.Msg) (*abci.ResponseDeliverTx
 	}
 
 	if txres.Code != abci.CodeTypeOK {
-		return nil, fmt.Errorf("transaction returned with invalid code %d", txres.Code)
+		return nil, fmt.Errorf("transaction returned with invalid code %d: %s", txres.Code, txres.Log)
 	}
 
 	// TODO: 20*time.Second should not be hardcoded here
@@ -131,7 +131,7 @@ func (c *Client) BuildAndBroadcastMsg(msg sdktypes.Msg) (*abci.ResponseDeliverTx
 		}
 		return &data.TxResult.Result, nil
 	case <-ctx.Done():
-		return nil, errors.New("i/o timeout")
+		return nil, errors.New("reach timeout for listening for transaction result")
 	}
 }
 
