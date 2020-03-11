@@ -80,6 +80,7 @@ clean-docker:
 	- docker image rm \
 			mesg/engine:$(version) \
 			mesg/engine:latest \
+			mesg/engine:local \
 			mesg/engine:dev 2>/dev/null
 
 clean: clean-build clean-docker
