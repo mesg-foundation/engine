@@ -21,8 +21,8 @@ done
 go install github.com/tcnksm/ghr
 
 if [[ "$2" == "dev" ]]; then
-  ghr -u mesg-foundation -r engine -delete -prerelease -n "Developer Release" -b "Warning - this is a developer release, use it only if you know what are doing. Make sure to pull the latest \`mesg/engine:dev\` image." release-dev ./bin
+  ghr -u mesg-foundation -r engine -p 1 -delete -prerelease -n "Developer Release" -b "Warning - this is a developer release, use it only if you know what are doing. Make sure to pull the latest \`mesg/engine:dev\` image." release-dev ./bin
 fi
 if [[ "$2" == "prod" ]]; then
-  ghr -u mesg-foundation -r engine -replace $1 ./bin
+  ghr -u mesg-foundation -r engine -p 1 -replace "$1" ./bin
 fi
