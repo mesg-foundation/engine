@@ -1,17 +1,10 @@
 #!/bin/bash -e
 
-if [[ -z "$1" ]]; then
-  echo -e "version is not set, run:\n"
-  echo "$0 [version] [prod|dev]"
+if [[ -z "$1" || -z "$2" ]]; then
+  echo -e "version and release type are not set, run:\n"
+  echo "$0 vX.X.X prod|dev"
   exit 1
 fi
-
-if [[ -z "$2" ]]; then
-  echo -e "release type is not set, can be either prod or dev, run:\n"
-  echo "$0 [version] [prod|dev]"
-  exit 1
-fi
-
 
 LDFLAGS="-s -w -X 'github.com/mesg-foundation/engine/version.Version=$1'"
 archs=(amd64 386)
