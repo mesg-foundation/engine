@@ -1,7 +1,7 @@
 #!/bin/bash -e
 
-if [[ -z "$1" || -z "$2" ]]; then
-  echo -e "version and release type are not set, run:\n"
+if [[ -z "$1" || -z "$2" || ( "$2" != "dev" && "$2" != "prod" ) ]]; then
+  echo -e "version and release type are not set or not correct, run:\n"
   echo "$0 vX.X.X prod|dev"
   exit 1
 fi

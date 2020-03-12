@@ -55,7 +55,7 @@ build: check-version dep
 	go build -mod=readonly -o ./bin/engine -ldflags="-X 'github.com/mesg-foundation/engine/version.Version=$(version)'" core/main.go
 
 publish-cmds: check-version dep
-	./scripts/publish-cmds.sh $(version) $(release-type)
+	./scripts/publish-cmds.sh "$(version)" "$(release-type)"
 
 build-cmd: dep
 	go build -mod=readonly -o ./bin/mesg-cli ./cmd/mesg-cli/
