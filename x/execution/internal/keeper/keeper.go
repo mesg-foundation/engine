@@ -62,7 +62,7 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 }
 
 // Create creates a new execution with proposed status.
-// The execution reaches consensus only when even emitter proposed the same execution.
+// The execution reaches consensus only when more than 2/3 of emitters proposed the same execution.
 // TODO: we should split the message and keeper function of execution create from user and for process.
 //nolint:gocyclo
 func (k *Keeper) Create(ctx sdk.Context, msg types.MsgCreateExecution) (*executionpb.Execution, error) {
@@ -344,7 +344,7 @@ func (k *Keeper) distributePriceShares(ctx sdk.Context, execHash hash.Hash, emit
 		emitterCoins, _ := sdk.NewDecCoinsFromCoins(emittersCoins...).MulDecTruncate(emitterShare).TruncateDecimal()
 		distributedEmittersCoins = distributedEmittersCoins.Add(emitterCoins...)
 
-		// give the remaining emitter to the last emitter
+		// give the remaining coins to the last emitter
 		if i == len(emitters)-1 {
 			emitterCoins = emitterCoins.Add(emittersCoins.Sub(distributedEmittersCoins)...)
 		}
