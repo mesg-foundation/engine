@@ -2,8 +2,9 @@ package types
 
 // execution module event types
 const (
-	EventTypeCreateExecution = "CreateExecution"
-	EventTypeUpdateExecution = "UpdateExecution"
+	EventTypeExecutionProposed   = "ExecutionProposed"
+	EventTypeExecutionInProgress = "ExecutionInProgress"
+	EventTypeUpdateExecution     = "UpdateExecution"
 
 	AttributeHash = "hash"
 

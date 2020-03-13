@@ -22,6 +22,26 @@ func (g Process) ParentKeys(nodeKey string) []string {
 	return nodeIDs
 }
 
+// FindParentWithType returns the first parent matching the type.
+// Only works on mono-parental graph.
+// TODO: make it works on multi-parents
+// TODO: find a better way than having to pass this match function
+func (g Process) FindParentWithType(nodeKey string, match func(*Process_Node) bool) (*Process_Node, error) {
+	// get parent node's instance hash
+	parents := g.ParentKeys(nodeKey)
+	if len(parents) != 1 {
+		return nil, fmt.Errorf("the node must have exactly 1 parent")
+	}
+	parentNode, err := g.FindNode(parents[0])
+	if err != nil {
+		return nil, err
+	}
+	if match(parentNode) {
+		return parentNode, nil
+	}
+	return g.FindParentWithType(parentNode.Key, match)
+}
+
 // FindNodes returns a list of nodes matching a specific filter
 func (g Process) FindNodes(filter func(n *Process_Node) bool) []*Process_Node {
 	nodes := make([]*Process_Node, 0)

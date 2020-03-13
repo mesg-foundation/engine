@@ -17,19 +17,19 @@ func New(processHash, instanceHash, parentHash, eventHash hash.Hash, nodeKey, ta
 		NodeKey:      nodeKey,
 		Tags:         tags,
 		Price:        price,
-		Status:       Status_Created,
+		Status:       Status_Proposed,
 		ExecutorHash: executorHash,
 	}
 	exec.Hash = hash.Dump(exec)
 	return exec
 }
 
-// Execute changes executions status to in progres and update its execute time.
-// It returns an error if the status is different then Created.
+// Execute changes executions status to in progres.
+// It returns an error if the status is different than Proposed.
 func (execution *Execution) Execute() error {
-	if execution.Status != Status_Created {
+	if execution.Status != Status_Proposed {
 		return StatusError{
-			ExpectedStatus: Status_Created,
+			ExpectedStatus: Status_Proposed,
 			ActualStatus:   execution.Status,
 		}
 	}
@@ -38,7 +38,7 @@ func (execution *Execution) Execute() error {
 }
 
 // Complete changes execution status to completed. It verifies the output.
-// It returns an error if the status is different then InProgress or verification fails.
+// It returns an error if the status is different than InProgress or verification fails.
 func (execution *Execution) Complete(outputs *types.Struct) error {
 	if execution.Status != Status_InProgress {
 		return StatusError{
@@ -52,9 +52,9 @@ func (execution *Execution) Complete(outputs *types.Struct) error {
 	return nil
 }
 
-// Failed changes execution status to failed and puts error information to execution.
-// It returns an error if the status is different then InProgress.
-func (execution *Execution) Failed(err error) error {
+// Fail changes execution status to failed and puts error information to execution.
+// It returns an error if the status is different than InProgress.
+func (execution *Execution) Fail(err error) error {
 	if execution.Status != Status_InProgress {
 		return StatusError{
 			ExpectedStatus: Status_InProgress,
