@@ -97,7 +97,7 @@ func defaultConfig() (*Config, error) {
 
 	c.IpfsEndpoint = "http://ipfs.app.mesg.com:8080/ipfs/"
 
-	c.DefaultExecutionPrice = "10000atto" // /x/execution/internal/type/params.go#DefaultMinPrice
+	c.DefaultExecutionPrice = "10000atto" // /x/execution/internal/types/params.go#DefaultMinPrice
 
 	c.Server.Address = ":50052"
 	c.Log.Format = "text"
