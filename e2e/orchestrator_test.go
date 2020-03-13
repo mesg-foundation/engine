@@ -15,7 +15,7 @@ func testOrchestrator(t *testing.T) {
 	acknowledgement.WaitForStreamToBeReady(executionStream)
 
 	// running orchestrator tests
-	t.Run("withdraw from process", testOrchestratorProcessWithdraw(executionStream, testInstanceHash))
+	t.Run("process balance and withdraw", testOrchestratorProcessBalanceWithdraw(executionStream, testInstanceHash))
 	t.Run("event task", testOrchestratorEventTask(executionStream, testInstanceHash))
 	t.Run("result task", testOrchestratorResultTask(executionStream, testRunnerHash, testInstanceHash))
 	t.Run("map const", testOrchestratorMapConst(executionStream, testInstanceHash))

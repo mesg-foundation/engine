@@ -6,15 +6,12 @@ import (
 	"testing"
 	"time"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/x/bank"
 	"github.com/mesg-foundation/engine/execution"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/process"
 	pb "github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/mesg-foundation/engine/protobuf/types"
 	"github.com/stretchr/testify/require"
-	"github.com/tendermint/tendermint/crypto"
 )
 
 func testOrchestratorFilter(executionStream pb.Execution_StreamClient, instanceHash hash.Hash) func(t *testing.T) {
@@ -66,16 +63,6 @@ func testOrchestratorFilter(executionStream pb.Execution_StreamClient, instanceH
 			require.NoError(t, err)
 			processHash = respProc.Hash
 		})
-		t.Run("send coins to process", func(t *testing.T) {
-			acc, err := cclient.GetAccount()
-			require.NoError(t, err)
-
-			to := sdk.AccAddress(crypto.AddressHash(processHash))
-			msg := bank.NewMsgSend(acc.GetAddress(), to, minExecutionPrice)
-			_, err = cclient.BuildAndBroadcastMsg(msg)
-			require.NoError(t, err)
-		})
-
 		t.Run("pass filter", func(t *testing.T) {
 			t.Run("trigger process", func(t *testing.T) {
 				_, err := client.EventClient.Create(context.Background(), &pb.CreateEventRequest{

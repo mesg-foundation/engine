@@ -32,10 +32,11 @@ type apiclient struct {
 }
 
 var (
-	minExecutionPrice sdk.Coins
-	client            apiclient
-	cclient           *cosmos.Client
-	cdc               = app.MakeCodec()
+	minExecutionPrice     sdk.Coins
+	client                apiclient
+	cclient               *cosmos.Client
+	cdc                   = app.MakeCodec()
+	processInitialBalance = sdk.NewCoins(sdk.NewInt64Coin("atto", 10000000))
 )
 
 const (

@@ -16,7 +16,7 @@ import (
 	"github.com/tendermint/tendermint/crypto"
 )
 
-func testOrchestratorProcessWithdraw(executionStream pb.Execution_StreamClient, instanceHash hash.Hash) func(t *testing.T) {
+func testOrchestratorProcessBalanceWithdraw(executionStream pb.Execution_StreamClient, instanceHash hash.Hash) func(t *testing.T) {
 	return func(t *testing.T) {
 		var processHash hash.Hash
 
@@ -50,16 +50,12 @@ func testOrchestratorProcessWithdraw(executionStream pb.Execution_StreamClient, 
 			require.NoError(t, err)
 			processHash = respProc.Hash
 		})
-		t.Run("send coins to process", func(t *testing.T) {
-			acc, err := cclient.GetAccount()
-			require.NoError(t, err)
-
-			to := sdk.AccAddress(crypto.AddressHash(processHash))
-			msg := bank.NewMsgSend(acc.GetAddress(), to, minExecutionPrice)
-			_, err = cclient.BuildAndBroadcastMsg(msg)
-			require.NoError(t, err)
+		t.Run("check coins on process", func(t *testing.T) {
+			var coins sdk.Coins
+			param := bank.NewQueryBalanceParams(sdk.AccAddress(crypto.AddressHash(processHash)))
+			require.NoError(t, cclient.QueryJSON("custom/bank/balances", param, &coins))
+			require.True(t, coins.IsEqual(processInitialBalance), coins)
 		})
-
 		t.Run("trigger process", func(t *testing.T) {
 			_, err := client.EventClient.Create(context.Background(), &pb.CreateEventRequest{
 				InstanceHash: instanceHash,
@@ -97,7 +93,7 @@ func testOrchestratorProcessWithdraw(executionStream pb.Execution_StreamClient, 
 			var coins sdk.Coins
 			param := bank.NewQueryBalanceParams(sdk.AccAddress(crypto.AddressHash(processHash)))
 			require.NoError(t, cclient.QueryJSON("custom/bank/balances", param, &coins))
-			require.True(t, coins.IsZero())
+			require.True(t, coins.IsEqual(processInitialBalance.Sub(minExecutionPrice)), coins)
 		})
 		t.Run("delete process", func(t *testing.T) {
 			_, err := client.ProcessClient.Delete(context.Background(), &pb.DeleteProcessRequest{Hash: processHash})
