@@ -51,6 +51,7 @@ func (k Keeper) Create(ctx sdk.Context, msg *types.MsgCreateProcess) (*processpb
 		Edges: msg.Request.Edges,
 	}
 	p.Hash = hash.Dump(p)
+	p.Address = sdk.AccAddress(crypto.AddressHash(p.Hash)).String()
 	if store.Has(p.Hash) {
 		return nil, fmt.Errorf("process %q already exists", p.Hash)
 	}

@@ -236,4 +236,8 @@ message Process {
   repeated Edge edges = 5 [
     (gogoproto.moretags) = 'hash:"name:5" validate:"dive,required"'
   ];
+    
+  string address = 6 [
+    (gogoproto.moretags) = 'hash:"-"'
+  ];
 }
