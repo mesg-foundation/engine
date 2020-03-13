@@ -13,6 +13,7 @@ const (
 const (
 	CodeValidation uint32 = 2000
 	MissingHash    uint32 = 2001
+	Unknown        uint32 = 3000
 )
 
 // mesg errors
@@ -20,6 +21,8 @@ var (
 	ErrMissingHash = sdkerrors.Register(CodespaceMesg, MissingHash, "bad request: missing hash")
 
 	ErrValidation = sdkerrors.Register(CodespaceMesg, CodeValidation, "validation failed")
+
+	ErrUnknown = sdkerrors.Register(CodespaceMesg, Unknown, "unknown error")
 )
 
 // NewMesgWrapError creates error with given code type and mesg codespace.
