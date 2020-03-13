@@ -61,10 +61,11 @@ func testProcess(t *testing.T) {
 			p, err := client.ProcessClient.Get(context.Background(), &pb.GetProcessRequest{Hash: testProcessHash})
 			require.NoError(t, err)
 			require.True(t, p.Equal(&process.Process{
-				Hash:  p.Hash,
-				Name:  req.Name,
-				Nodes: req.Nodes,
-				Edges: req.Edges,
+				Hash:    p.Hash,
+				Address: sdk.AccAddress(crypto.AddressHash(p.Hash)).String(),
+				Name:    req.Name,
+				Nodes:   req.Nodes,
+				Edges:   req.Edges,
 			}))
 			processHash = p.Hash
 		})
@@ -72,10 +73,11 @@ func testProcess(t *testing.T) {
 			var p *process.Process
 			lcdGet(t, "process/get/"+testProcessHash.String(), &p)
 			require.True(t, p.Equal(&process.Process{
-				Hash:  p.Hash,
-				Name:  req.Name,
-				Nodes: req.Nodes,
-				Edges: req.Edges,
+				Hash:    p.Hash,
+				Address: sdk.AccAddress(crypto.AddressHash(p.Hash)).String(),
+				Name:    req.Name,
+				Nodes:   req.Nodes,
+				Edges:   req.Edges,
 			}))
 		})
 	})
