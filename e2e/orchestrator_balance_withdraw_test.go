@@ -89,7 +89,7 @@ func testOrchestratorProcessBalanceWithdraw(executionStream pb.Execution_StreamC
 			require.True(t, processHash.Equal(exec.ProcessHash))
 			require.Equal(t, execution.Status_Completed, exec.Status)
 		})
-		t.Run("check coins on process", func(t *testing.T) {
+		t.Run("check coins on process after 1 execution", func(t *testing.T) {
 			var coins sdk.Coins
 			param := bank.NewQueryBalanceParams(sdk.AccAddress(crypto.AddressHash(processHash)))
 			require.NoError(t, cclient.QueryJSON("custom/bank/balances", param, &coins))
@@ -98,6 +98,12 @@ func testOrchestratorProcessBalanceWithdraw(executionStream pb.Execution_StreamC
 		t.Run("delete process", func(t *testing.T) {
 			_, err := client.ProcessClient.Delete(context.Background(), &pb.DeleteProcessRequest{Hash: processHash})
 			require.NoError(t, err)
+		})
+		t.Run("check coins on process after deletion", func(t *testing.T) {
+			var coins sdk.Coins
+			param := bank.NewQueryBalanceParams(sdk.AccAddress(crypto.AddressHash(processHash)))
+			require.NoError(t, cclient.QueryJSON("custom/bank/balances", param, &coins))
+			require.True(t, coins.IsZero(), coins)
 		})
 	}
 }
