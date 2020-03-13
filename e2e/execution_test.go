@@ -222,7 +222,7 @@ func testExecution(t *testing.T) {
 		t.Run("execution balance before completed", func(t *testing.T) {
 			coins := sdk.Coins{}
 			lcdGet(t, "bank/balances/"+execAddress.String(), &coins)
-			require.True(t, coins.AmountOf("atto").Equal(sdk.NewInt(50000)))
+			require.True(t, coins.AmountOf("atto").Equal(sdk.NewInt(50000)), coins)
 		})
 
 		var executorBalance sdk.Coins
@@ -241,20 +241,20 @@ func testExecution(t *testing.T) {
 		t.Run("executor balance", func(t *testing.T) {
 			coins := sdk.Coins{}
 			lcdGet(t, "bank/balances/"+executorAddress.String(), &coins)
-			require.True(t, coins.AmountOf("atto").Equal(sdk.NewInt(45000).Add(executorBalance.AmountOf("atto"))))
+			require.True(t, coins.AmountOf("atto").Equal(sdk.NewInt(45000).Add(executorBalance.AmountOf("atto"))), coins)
 		})
 		// check balance of service
 		t.Run("service balance", func(t *testing.T) {
 			coins := sdk.Coins{}
 			lcdGet(t, "bank/balances/"+serviceAddress.String(), &coins)
-			require.True(t, coins.AmountOf("atto").Equal(sdk.NewInt(5000).Add(serviceBalance.AmountOf("atto"))))
+			require.True(t, coins.AmountOf("atto").Equal(sdk.NewInt(5000).Add(serviceBalance.AmountOf("atto"))), coins)
 		})
 		// check balance of execution
 		t.Run("execution balance", func(t *testing.T) {
 			coins := sdk.Coins{}
 			execAddress := sdk.AccAddress(crypto.AddressHash(resp.Hash))
 			lcdGet(t, "bank/balances/"+execAddress.String(), &coins)
-			require.True(t, coins.AmountOf("atto").Equal(sdk.NewInt(0)))
+			require.True(t, coins.AmountOf("atto").Equal(sdk.NewInt(0)), coins)
 		})
 
 		t.Run("withdraw from service", func(t *testing.T) {

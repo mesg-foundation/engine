@@ -10,6 +10,7 @@ import (
 	"testing"
 
 	"github.com/cosmos/cosmos-sdk/crypto/keys"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/rest"
 	"github.com/mesg-foundation/engine/app"
 	"github.com/mesg-foundation/engine/config"
@@ -31,9 +32,11 @@ type apiclient struct {
 }
 
 var (
-	client  apiclient
-	cclient *cosmos.Client
-	cdc     = app.MakeCodec()
+	minExecutionPrice     sdk.Coins
+	client                apiclient
+	cclient               *cosmos.Client
+	cdc                   = app.MakeCodec()
+	processInitialBalance = sdk.NewCoins(sdk.NewInt64Coin("atto", 10000000))
 )
 
 const (
@@ -75,6 +78,9 @@ func TestAPI(t *testing.T) {
 	}
 
 	cfg, err := config.New()
+	require.NoError(t, err)
+
+	minExecutionPrice, err = sdk.ParseCoins(cfg.DefaultExecutionPrice)
 	require.NoError(t, err)
 
 	cosmos.CustomizeConfig(cfg)

@@ -37,7 +37,6 @@ require (
 	github.com/mr-tron/base58 v1.1.3
 	github.com/mwitkow/go-proto-validators v0.0.0-20190212092829-1f388280e944 // indirect
 	github.com/onsi/ginkgo v1.8.0 // indirect
-	github.com/onsi/gomega v1.5.0 // indirect
 	github.com/opencontainers/go-digest v1.0.0-rc1 // indirect
 	github.com/opencontainers/image-spec v1.0.1 // indirect
 	github.com/opencontainers/runc v0.1.1 // indirect
@@ -49,10 +48,13 @@ require (
 	github.com/spf13/cobra v0.0.6
 	github.com/spf13/viper v1.6.2
 	github.com/stretchr/testify v1.5.1
+	github.com/tcnksm/ghr v0.13.0
 	github.com/tendermint/go-amino v0.15.1
 	github.com/tendermint/tendermint v0.33.0
 	github.com/tendermint/tm-db v0.4.0
 	golang.org/x/crypto v0.0.0-20191206172530-e9b2fee46413
+	golang.org/x/net v0.0.0-20200301022130-244492dfa37a // indirect
+	golang.org/x/sys v0.0.0-20200302150141-5c8b2ff67527 // indirect
 	google.golang.org/grpc v1.27.1
 	gopkg.in/go-playground/assert.v1 v1.2.1 // indirect
 	gopkg.in/go-playground/validator.v9 v9.31.0
