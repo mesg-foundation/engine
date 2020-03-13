@@ -10,8 +10,11 @@ import (
 	"github.com/mesg-foundation/engine/process"
 	processpb "github.com/mesg-foundation/engine/process"
 	"github.com/mesg-foundation/engine/x/process/internal/types"
+	"github.com/tendermint/tendermint/crypto"
 	"github.com/tendermint/tendermint/libs/log"
 )
+
+var processCreateInitialBalance = "10000000atto"
 
 // Keeper of the process store
 type Keeper struct {
@@ -19,15 +22,17 @@ type Keeper struct {
 	cdc             *codec.Codec
 	ownershipKeeper types.OwnershipKeeper
 	instanceKeeper  types.InstanceKeeper
+	bankKeeper      types.BankKeeper
 }
 
 // NewKeeper creates a process keeper
-func NewKeeper(cdc *codec.Codec, key sdk.StoreKey, instanceKeeper types.InstanceKeeper, ownershipKeeper types.OwnershipKeeper) Keeper {
+func NewKeeper(cdc *codec.Codec, key sdk.StoreKey, instanceKeeper types.InstanceKeeper, ownershipKeeper types.OwnershipKeeper, bankKeeper types.BankKeeper) Keeper {
 	keeper := Keeper{
 		storeKey:        key,
 		cdc:             cdc,
 		instanceKeeper:  instanceKeeper,
 		ownershipKeeper: ownershipKeeper,
+		bankKeeper:      bankKeeper,
 	}
 	return keeper
 }
@@ -65,6 +70,15 @@ func (k Keeper) Create(ctx sdk.Context, msg *types.MsgCreateProcess) (*processpb
 				return nil, err
 			}
 		}
+	}
+
+	procAddress := sdk.AccAddress(crypto.AddressHash(p.Hash))
+	procInitBal, err := sdk.ParseCoins(processCreateInitialBalance)
+	if err != nil {
+		return nil, err
+	}
+	if err := k.bankKeeper.SendCoins(ctx, msg.Owner, procAddress, procInitBal); err != nil {
+		return nil, err
 	}
 
 	value, err := k.cdc.MarshalBinaryLengthPrefixed(p)
