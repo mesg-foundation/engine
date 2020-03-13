@@ -118,8 +118,12 @@ func (k *Keeper) Create(ctx sdk.Context, msg types.MsgCreateExecution) (*executi
 		M.InProgress.Add(1)
 	}
 
+	from := msg.Signer
+	if !msg.Request.ProcessHash.IsZero() {
+		from = sdk.AccAddress(crypto.AddressHash(msg.Request.ProcessHash))
+	}
 	execAddress := sdk.AccAddress(crypto.AddressHash(exec.Hash))
-	if err := k.bankKeeper.SendCoins(ctx, msg.Signer, execAddress, price); err != nil {
+	if err := k.bankKeeper.SendCoins(ctx, from, execAddress, price); err != nil {
 		return nil, err
 	}
 
