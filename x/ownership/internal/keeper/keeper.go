@@ -5,11 +5,9 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/ownership"
 	"github.com/mesg-foundation/engine/x/ownership/internal/types"
-	"github.com/tendermint/tendermint/crypto"
 	"github.com/tendermint/tendermint/libs/log"
 )
 
@@ -56,73 +54,76 @@ func (k *Keeper) List(ctx sdk.Context) ([]*ownership.Ownership, error) {
 }
 
 // Set creates a new ownership.
-func (k Keeper) Set(ctx sdk.Context, owner sdk.AccAddress, resourceHash hash.Hash, resource ownership.Ownership_Resource) (*ownership.Ownership, error) {
+func (k Keeper) Set(ctx sdk.Context, owner sdk.AccAddress, resourceHash hash.Hash, resource ownership.Ownership_Resource, resourceAddress sdk.AccAddress) (*ownership.Ownership, error) {
 	store := ctx.KVStore(k.storeKey)
-	hashes := k.findOwnerships(store, "", resourceHash)
-	if len(hashes) > 0 {
+	own := k.getOwnership(store, resourceHash)
+	if own != nil {
 		return nil, fmt.Errorf("resource %s:%q already has an owner", resource, resourceHash)
 	}
 
-	ownership := &ownership.Ownership{
-		Owner:        owner.String(),
-		Resource:     resource,
-		ResourceHash: resourceHash,
+	// TODO: should be moved to a new function
+	own = &ownership.Ownership{
+		Owner:           owner.String(),
+		Resource:        resource,
+		ResourceHash:    resourceHash,
+		ResourceAddress: resourceAddress,
 	}
-	ownership.Hash = hash.Dump(ownership)
+	own.Hash = hash.Dump(own)
 
-	store.Set(ownership.Hash, k.cdc.MustMarshalBinaryLengthPrefixed(ownership))
-	return ownership, nil
+	store.Set(own.Hash, k.cdc.MustMarshalBinaryLengthPrefixed(own))
+	return own, nil
 }
 
 // Delete deletes an ownership.
 func (k Keeper) Delete(ctx sdk.Context, owner sdk.AccAddress, resourceHash hash.Hash) error {
 	store := ctx.KVStore(k.storeKey)
-	hashes := k.findOwnerships(store, owner.String(), resourceHash)
-	if len(hashes) == 0 {
-		return fmt.Errorf("resource %q do not have any ownership", resourceHash)
+	own := k.getOwnership(store, resourceHash)
+	if own == nil {
+		return fmt.Errorf("resource %q does not have any ownership", resourceHash)
+	}
+	if own.Owner != owner.String() {
+		return fmt.Errorf("resource %q is not owned by you", resourceHash)
 	}
 
 	// transfer all spendable coins from resource address to owner
-	addr := sdk.AccAddress(crypto.AddressHash(resourceHash))
-	coins := k.bankKeeper.GetCoins(ctx, addr)
+	coins := k.bankKeeper.GetCoins(ctx, own.ResourceAddress)
 	if !coins.IsZero() {
-		if err := k.bankKeeper.SendCoins(ctx, addr, owner, coins); err != nil {
+		if err := k.bankKeeper.SendCoins(ctx, own.ResourceAddress, owner, coins); err != nil {
 			return err
 		}
 	}
 
-	// remove all ownerships
-	for _, hash := range hashes {
-		store.Delete(hash)
-	}
+	// remove ownership
+	store.Delete(own.Hash)
 	return nil
 }
 
 // WithdrawCoins try to withdraw coins to owner rom specific resource.
 func (k Keeper) WithdrawCoins(ctx sdk.Context, msg types.MsgWithdrawCoins) error {
-	if len(k.findOwnerships(ctx.KVStore(k.storeKey), msg.Owner.String(), msg.Hash)) == 0 {
-		return sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, "address %s is not owner of resource %s", msg.Owner, msg.Hash)
+	store := ctx.KVStore(k.storeKey)
+	own := k.getOwnership(store, msg.Hash)
+	if own == nil {
+		return fmt.Errorf("resource %q does not have any ownership", msg.Hash)
 	}
-	addr := sdk.AccAddress(crypto.AddressHash(msg.Hash))
-	return k.bankKeeper.SendCoins(ctx, addr, msg.Owner, msg.Amount)
+	if own.Owner != msg.Owner.String() {
+		return fmt.Errorf("resource %q is not owned by you", msg.Hash)
+	}
+	return k.bankKeeper.SendCoins(ctx, own.ResourceAddress, msg.Owner, msg.Amount)
 }
 
-// hasOwner checks if given resource has owner. Returns all ownership hash and true if has one
-// nil and false otherwise.
-func (k Keeper) findOwnerships(store sdk.KVStore, owner string, resourceHash hash.Hash) []hash.Hash {
-	var ownerships []hash.Hash
+// getOwnership returns the ownership of a given resource.
+func (k Keeper) getOwnership(store sdk.KVStore, resourceHash hash.Hash) *ownership.Ownership {
 	iter := store.Iterator(nil, nil)
-
+	var own *ownership.Ownership
 	for iter.Valid() {
-		var o *ownership.Ownership
-		if err := k.cdc.UnmarshalBinaryLengthPrefixed(iter.Value(), &o); err == nil {
-			if (owner == "" || o.Owner == owner) && o.ResourceHash.Equal(resourceHash) {
-				ownerships = append(ownerships, o.Hash)
+		if err := k.cdc.UnmarshalBinaryLengthPrefixed(iter.Value(), &own); err == nil {
+			if own.ResourceHash.Equal(resourceHash) {
+				iter.Close()
+				return own
 			}
 		}
 		iter.Next()
 	}
-
 	iter.Close()
-	return ownerships
+	return nil
 }

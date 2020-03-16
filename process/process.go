@@ -3,8 +3,23 @@ package process
 import (
 	"fmt"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/mesg-foundation/engine/hash"
+	"github.com/tendermint/tendermint/crypto"
 	validator "gopkg.in/go-playground/validator.v9"
 )
+
+// New returns a new process and validate it.
+func New(name string, nodes []*Process_Node, edges []*Process_Edge) *Process {
+	p := &Process{
+		Name:  name,
+		Nodes: nodes,
+		Edges: edges,
+	}
+	p.Hash = hash.Dump(p)
+	p.Address = sdk.AccAddress(crypto.AddressHash(p.Hash))
+	return p
+}
 
 // Validate returns an error if the process is invalid for whatever reason
 func (w *Process) Validate() error {

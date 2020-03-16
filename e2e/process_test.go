@@ -11,15 +11,13 @@ import (
 	"github.com/mesg-foundation/engine/process"
 	pb "github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/stretchr/testify/require"
-	"github.com/tendermint/tendermint/crypto"
 )
-
-var testProcessHash hash.Hash
 
 func testProcess(t *testing.T) {
 	var (
-		processHash hash.Hash
-		req         = &pb.CreateProcessRequest{
+		processHash    hash.Hash
+		processAddress sdk.AccAddress
+		req            = &pb.CreateProcessRequest{
 			Name: "test-process",
 			Nodes: []*process.Process_Node{
 				{
@@ -53,32 +51,32 @@ func testProcess(t *testing.T) {
 	t.Run("create", func(t *testing.T) {
 		resp, err := client.ProcessClient.Create(context.Background(), req)
 		require.NoError(t, err)
-		testProcessHash = resp.Hash
+		processHash = resp.Hash
 	})
 
 	t.Run("get", func(t *testing.T) {
 		t.Run("grpc", func(t *testing.T) {
-			p, err := client.ProcessClient.Get(context.Background(), &pb.GetProcessRequest{Hash: testProcessHash})
+			p, err := client.ProcessClient.Get(context.Background(), &pb.GetProcessRequest{Hash: processHash})
 			require.NoError(t, err)
 			require.True(t, p.Equal(&process.Process{
 				Hash:    p.Hash,
-				Address: sdk.AccAddress(crypto.AddressHash(p.Hash)).String(),
+				Address: p.Address,
 				Name:    req.Name,
 				Nodes:   req.Nodes,
 				Edges:   req.Edges,
 			}))
-			processHash = p.Hash
 		})
 		t.Run("lcd", func(t *testing.T) {
 			var p *process.Process
-			lcdGet(t, "process/get/"+testProcessHash.String(), &p)
+			lcdGet(t, "process/get/"+processHash.String(), &p)
 			require.True(t, p.Equal(&process.Process{
 				Hash:    p.Hash,
-				Address: sdk.AccAddress(crypto.AddressHash(p.Hash)).String(),
+				Address: p.Address,
 				Name:    req.Name,
 				Nodes:   req.Nodes,
 				Edges:   req.Edges,
 			}))
+			processAddress = p.Address
 		})
 	})
 
@@ -109,7 +107,7 @@ func testProcess(t *testing.T) {
 
 	t.Run("check coins on process", func(t *testing.T) {
 		var coins sdk.Coins
-		param := bank.NewQueryBalanceParams(sdk.AccAddress(crypto.AddressHash(processHash)))
+		param := bank.NewQueryBalanceParams(processAddress)
 		require.NoError(t, cclient.QueryJSON("custom/bank/balances", param, &coins))
 		require.True(t, coins.IsEqual(processInitialBalance), coins)
 	})
@@ -128,7 +126,7 @@ func testProcess(t *testing.T) {
 	})
 
 	t.Run("delete", func(t *testing.T) {
-		_, err := client.ProcessClient.Delete(context.Background(), &pb.DeleteProcessRequest{Hash: testProcessHash})
+		_, err := client.ProcessClient.Delete(context.Background(), &pb.DeleteProcessRequest{Hash: processHash})
 		require.NoError(t, err)
 	})
 
@@ -147,7 +145,7 @@ func testProcess(t *testing.T) {
 
 	t.Run("check coins on process", func(t *testing.T) {
 		var coins sdk.Coins
-		param := bank.NewQueryBalanceParams(sdk.AccAddress(crypto.AddressHash(processHash)))
+		param := bank.NewQueryBalanceParams(processAddress)
 		require.NoError(t, cclient.QueryJSON("custom/bank/balances", param, &coins))
 		require.True(t, coins.IsZero(), coins)
 	})
