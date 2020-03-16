@@ -11,6 +11,7 @@ import (
 	servicepb "github.com/mesg-foundation/engine/service"
 	"github.com/mesg-foundation/engine/service/validator"
 	"github.com/mesg-foundation/engine/x/service/internal/types"
+	"github.com/tendermint/tendermint/crypto"
 	"github.com/tendermint/tendermint/libs/log"
 )
 
@@ -57,7 +58,7 @@ func (k Keeper) Create(ctx sdk.Context, msg *types.MsgCreateService) (*servicepb
 		return nil, err
 	}
 
-	if _, err := k.ownershipKeeper.Set(ctx, msg.Owner, srv.Hash, ownershippb.Ownership_Service); err != nil {
+	if _, err := k.ownershipKeeper.Set(ctx, msg.Owner, srv.Hash, ownershippb.Ownership_Service, srv.Address); err != nil {
 		return nil, err
 	}
 
@@ -123,5 +124,6 @@ func initializeService(req *api.CreateServiceRequest) *servicepb.Service {
 
 	// calculate and apply hash to service.
 	srv.Hash = hash.Dump(srv)
+	srv.Address = sdk.AccAddress(crypto.AddressHash(srv.Hash))
 	return srv
 }

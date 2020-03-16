@@ -18,7 +18,6 @@ import (
 	typespb "github.com/mesg-foundation/engine/protobuf/types"
 	"github.com/mesg-foundation/engine/runner"
 	"github.com/mesg-foundation/engine/x/execution/internal/types"
-	"github.com/tendermint/tendermint/crypto"
 	"github.com/tendermint/tendermint/libs/log"
 )
 
@@ -66,6 +65,8 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 // TODO: we should split the message and keeper function of execution create from user and for process.
 //nolint:gocyclo
 func (k *Keeper) Create(ctx sdk.Context, msg types.MsgCreateExecution) (*executionpb.Execution, error) {
+
+	// TODO: all the following verification should be moved to a runner.Validate function
 	price, err := sdk.ParseCoins(msg.Request.Price)
 	if err != nil {
 		return nil, err
@@ -198,11 +199,10 @@ func (k *Keeper) Create(ctx sdk.Context, msg types.MsgCreateExecution) (*executi
 
 		// transfer the coin either from the process or from the signer
 		from := msg.Signer
-		if !msg.Request.ProcessHash.IsZero() {
-			from = sdk.AccAddress(crypto.AddressHash(msg.Request.ProcessHash))
+		if proc != nil {
+			from = proc.Address
 		}
-		execAddress := sdk.AccAddress(crypto.AddressHash(exec.Hash))
-		if err := k.bankKeeper.SendCoins(ctx, from, execAddress, price); err != nil {
+		if err := k.bankKeeper.SendCoins(ctx, from, exec.Address, price); err != nil {
 			return nil, err
 		}
 	}
@@ -266,8 +266,12 @@ func (k *Keeper) Update(ctx sdk.Context, msg types.MsgUpdateExecution) (*executi
 	if err != nil {
 		return nil, err
 	}
+	srv, err := k.serviceKeeper.Get(ctx, inst.ServiceHash)
+	if err != nil {
+		return nil, err
+	}
 
-	if err := k.distributePriceShares(ctx, exec.Hash, exec.Emitters, exec.ExecutorHash, inst.ServiceHash, exec.Price); err != nil {
+	if err := k.distributePriceShares(ctx, exec.Address, runExecutor.Address, srv.Address, exec.Emitters, exec.Price); err != nil {
 		return nil, err
 	}
 
@@ -304,7 +308,7 @@ func (k *Keeper) List(ctx sdk.Context) ([]*executionpb.Execution, error) {
 	return execs, nil
 }
 
-func (k *Keeper) distributePriceShares(ctx sdk.Context, execHash hash.Hash, emitters []*executionpb.Execution_Emitter, runnerHash, serviceHash hash.Hash, price string) error {
+func (k *Keeper) distributePriceShares(ctx sdk.Context, execAddress, runnerAddress, serviceAddress sdk.AccAddress, emitters []*executionpb.Execution_Emitter, price string) error {
 	coins, err := sdk.ParseCoins(price)
 	if err != nil {
 		return fmt.Errorf("cannot parse coins: %w", err)
@@ -312,11 +316,6 @@ func (k *Keeper) distributePriceShares(ctx sdk.Context, execHash hash.Hash, emit
 	if coins.Empty() {
 		return nil
 	}
-
-	// addresses
-	execAddress := sdk.AccAddress(crypto.AddressHash(execHash))
-	runnerAddress := sdk.AccAddress(crypto.AddressHash(runnerHash))
-	serviceAddress := sdk.AccAddress(crypto.AddressHash(serviceHash))
 
 	// inputs
 	inputs := []bank.Input{bank.NewInput(execAddress, coins)}
@@ -335,7 +334,10 @@ func (k *Keeper) distributePriceShares(ctx sdk.Context, execHash hash.Hash, emit
 	distributedEmittersCoins := sdk.NewCoins()
 
 	for i, emitter := range emitters {
-		emitterAddress := sdk.AccAddress(crypto.AddressHash(emitter.RunnerHash))
+		runEmitter, err := k.runnerKeeper.Get(ctx, emitter.RunnerHash)
+		if err != nil {
+			return err
+		}
 		if err != nil {
 			return err
 		}
@@ -349,7 +351,7 @@ func (k *Keeper) distributePriceShares(ctx sdk.Context, execHash hash.Hash, emit
 			emitterCoins = emitterCoins.Add(emittersCoins.Sub(distributedEmittersCoins)...)
 		}
 
-		outputs = append(outputs, bank.NewOutput(emitterAddress, emitterCoins))
+		outputs = append(outputs, bank.NewOutput(runEmitter.Address, emitterCoins))
 	}
 
 	if err := k.bankKeeper.InputOutputCoins(ctx, inputs, outputs); err != nil {

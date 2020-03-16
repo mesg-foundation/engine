@@ -28,4 +28,10 @@ message Runner {
     (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
     (gogoproto.nullable) = false
   ];
+
+  // The address of the runner.
+  bytes address = 4 [
+    (gogoproto.moretags) = 'hash:"-" validate:"accaddress"',
+    (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"
+  ];
 }

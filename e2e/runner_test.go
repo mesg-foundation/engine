@@ -11,10 +11,10 @@ import (
 	pb "github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/mesg-foundation/engine/runner"
 	"github.com/stretchr/testify/require"
-	"github.com/tendermint/tendermint/crypto"
 )
 
 var testRunnerHash hash.Hash
+var testRunnerAddress sdk.AccAddress
 
 func testRunner(t *testing.T) {
 	t.Run("create", func(t *testing.T) {
@@ -60,6 +60,7 @@ func testRunner(t *testing.T) {
 			var r *runner.Runner
 			lcdGet(t, "runner/get/"+testRunnerHash.String(), &r)
 			require.Equal(t, testRunnerHash, r.Hash)
+			testRunnerAddress = r.Address
 		})
 	})
 
@@ -98,7 +99,7 @@ func testDeleteRunner(t *testing.T) {
 	})
 	t.Run("check coins on runner", func(t *testing.T) {
 		var coins sdk.Coins
-		param := bank.NewQueryBalanceParams(sdk.AccAddress(crypto.AddressHash(testRunnerHash)))
+		param := bank.NewQueryBalanceParams(testRunnerAddress)
 		require.NoError(t, cclient.QueryJSON("custom/bank/balances", param, &coins))
 		require.True(t, coins.IsZero(), coins)
 	})

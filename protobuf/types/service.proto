@@ -229,4 +229,10 @@ message Service {
   string source = 13 [
     (gogoproto.moretags) = 'hash:"name:13" validate:"required,printascii"'
   ];
+
+  // The address of the service.
+  bytes address = 14 [
+    (gogoproto.moretags) = 'hash:"-" validate:"accaddress"',
+    (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"
+  ];
 }

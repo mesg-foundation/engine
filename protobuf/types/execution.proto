@@ -140,4 +140,10 @@ message Execution {
   repeated Emitter emitters = 16 [
     (gogoproto.moretags) = 'hash:"-"'
   ];
+
+  // The address of the execution.
+  bytes address = 17 [
+    (gogoproto.moretags) = 'hash:"-" validate:"accaddress"',
+    (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"
+  ];
 }
