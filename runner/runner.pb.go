@@ -27,8 +27,8 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 type Runner struct {
 	// Runner's hash
 	Hash github_com_mesg_foundation_engine_hash.Hash `protobuf:"bytes,1,opt,name=hash,proto3,customtype=github.com/mesg-foundation/engine/hash.Hash" json:"hash" hash:"-"`
-	// address of the engine of this runner
-	Address string `protobuf:"bytes,2,opt,name=address,proto3" json:"address,omitempty" hash:"name:2"`
+	// owner of the engine of this runner
+	Owner string `protobuf:"bytes,2,opt,name=owner,proto3" json:"owner,omitempty" hash:"name:2"`
 	// instanceHash is hash of the instance that runner will handle
 	InstanceHash         github_com_mesg_foundation_engine_hash.Hash `protobuf:"bytes,3,opt,name=instanceHash,proto3,customtype=github.com/mesg-foundation/engine/hash.Hash" json:"instanceHash" hash:"name:3"`
 	XXX_NoUnkeyedLiteral struct{}                                    `json:"-"`
@@ -108,7 +108,7 @@ func (this *Runner) Equal(that interface{}) bool {
 	if !this.Hash.Equal(that1.Hash) {
 		return false
 	}
-	if this.Address != that1.Address {
+	if this.Owner != that1.Owner {
 		return false
 	}
 	if !this.InstanceHash.Equal(that1.InstanceHash) {

@@ -102,7 +102,7 @@ func (k *Keeper) Create(ctx sdk.Context, msg types.MsgCreateExecution) (*executi
 		}
 	}
 
-	if proc == nil && run.Address != msg.Signer.String() {
+	if proc == nil && run.Owner != msg.Signer.String() {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "signer is not the execution's executor")
 	}
 
@@ -162,7 +162,7 @@ func (k *Keeper) Create(ctx sdk.Context, msg types.MsgCreateExecution) (*executi
 		if err != nil {
 			return nil, err
 		}
-		if runEmitter.Address == msg.Signer.String() {
+		if runEmitter.Owner == msg.Signer.String() {
 			emitterIsPresent = true
 			emitter.BlockHeight = ctx.BlockHeight()
 			break
@@ -232,7 +232,7 @@ func (k *Keeper) Update(ctx sdk.Context, msg types.MsgUpdateExecution) (*executi
 	if err != nil {
 		return nil, err
 	}
-	if runExecutor.Address != msg.Executor.String() {
+	if runExecutor.Owner != msg.Executor.String() {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "signer is not the execution's executor")
 	}
 

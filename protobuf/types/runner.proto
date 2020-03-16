@@ -17,8 +17,8 @@ message Runner {
     (gogoproto.nullable) = false
   ];
 
-  // address of the engine of this runner
-  string address = 2 [
+  // owner of the engine of this runner
+  string owner = 2 [
     (gogoproto.moretags) = 'hash:"name:2"'
   ];
 
