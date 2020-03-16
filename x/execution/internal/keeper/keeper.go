@@ -310,7 +310,7 @@ func (k *Keeper) List(ctx sdk.Context) ([]*executionpb.Execution, error) {
 func (k *Keeper) distributePriceShares(ctx sdk.Context, execHash hash.Hash, emitters []*executionpb.Execution_Emitter, runnerHash, serviceHash hash.Hash, price string) error {
 	coins, err := sdk.ParseCoins(price)
 	if err != nil {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "cannot parse coins: %w", err)
+		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, err.Error())
 	}
 	if coins.Empty() {
 		return nil
