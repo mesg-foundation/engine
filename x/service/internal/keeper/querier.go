@@ -1,9 +1,10 @@
 package keeper
 
 import (
+	"fmt"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/mesg-foundation/engine/cosmos/errors"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/mesg-foundation/engine/x/service/internal/types"
@@ -30,11 +31,11 @@ func NewQuerier(k Keeper) sdk.Querier {
 
 func getService(ctx sdk.Context, k Keeper, path []string) ([]byte, error) {
 	if len(path) == 0 {
-		return nil, errors.ErrMissingHash
+		return nil, fmt.Errorf("missing hash")
 	}
 	hash, err := hash.Decode(path[0])
 	if err != nil {
-		return nil, sdkerrors.Wrap(errors.ErrValidation, err.Error())
+		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, err.Error())
 	}
 
 	servcie, err := k.Get(ctx, hash)
@@ -79,7 +80,7 @@ func listService(ctx sdk.Context, k Keeper) ([]byte, error) {
 
 func existService(ctx sdk.Context, k Keeper, path []string) ([]byte, error) {
 	if len(path) == 0 {
-		return nil, errors.ErrMissingHash
+		return nil, fmt.Errorf("missing hash")
 	}
 	hash, err := hash.Decode(path[0])
 	if err != nil {

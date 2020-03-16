@@ -30,7 +30,7 @@ func NewHandler(k Keeper) sdk.Handler {
 func handleMsgCreateExecution(ctx sdk.Context, k Keeper, msg MsgCreateExecution) (*sdk.Result, error) {
 	exec, err := k.Create(ctx, msg)
 	if err != nil {
-		return nil, sdkerrors.Wrap(errors.ErrUnknown, err.Error())
+		return nil, err
 	}
 
 	// TODO: don't emit propsoed event to not break the stream listener in cosmos/client.go#152.
@@ -67,7 +67,7 @@ func handleMsgCreateExecution(ctx sdk.Context, k Keeper, msg MsgCreateExecution)
 func handleMsgUpdateExecution(ctx sdk.Context, k Keeper, msg MsgUpdateExecution) (*sdk.Result, error) {
 	s, err := k.Update(ctx, msg)
 	if err != nil {
-		return nil, sdkerrors.Wrap(errors.ErrUnknown, err.Error())
+		return nil, err
 	}
 
 	ctx.EventManager().EmitEvent(

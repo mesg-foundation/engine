@@ -3,7 +3,6 @@ package types
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/mesg-foundation/engine/cosmos/errors"
 	"github.com/mesg-foundation/engine/ext/xvalidator"
 	"github.com/mesg-foundation/engine/protobuf/api"
 )
@@ -36,22 +35,22 @@ func (msg MsgCreateExecution) Type() string {
 func (msg MsgCreateExecution) ValidateBasic() error {
 	price, err := sdk.ParseCoins(msg.Request.Price)
 	if err != nil {
-		return sdkerrors.Wrap(errors.ErrValidation, "cannot parse price")
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "cannot parse price")
 	}
 	if price.IsAnyNegative() {
 		return sdkerrors.Wrap(sdkerrors.ErrInsufficientFunds, "price must be positive")
 	}
 	if err := xvalidator.Validate.Struct(msg); err != nil {
-		return sdkerrors.Wrap(errors.ErrValidation, err.Error())
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, err.Error())
 	}
 	if !msg.Request.ParentHash.IsZero() && !msg.Request.EventHash.IsZero() {
-		return sdkerrors.Wrap(errors.ErrValidation, "cannot have both parent and event hash")
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "cannot have both parent and event hash")
 	}
 	if msg.Request.ParentHash.IsZero() && msg.Request.EventHash.IsZero() {
-		return sdkerrors.Wrap(errors.ErrValidation, "should have at least an event hash or parent hash")
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "should have at least an event hash or parent hash")
 	}
 	if msg.Request.ExecutorHash.IsZero() {
-		return sdkerrors.Wrap(errors.ErrValidation, "should have a executor hash")
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "should have a executor hash")
 	}
 	return nil
 }
