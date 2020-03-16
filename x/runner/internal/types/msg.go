@@ -36,7 +36,7 @@ func (msg MsgCreateRunner) Type() string {
 // ValidateBasic runs stateless checks on the message.
 func (msg MsgCreateRunner) ValidateBasic() error {
 	if err := xvalidator.Validate.Struct(msg); err != nil {
-		return err
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, err.Error())
 	}
 	if msg.ServiceHash.IsZero() {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "serviceHash is missing")
@@ -93,7 +93,7 @@ func (msg MsgDeleteRunner) ValidateBasic() error {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "runnerHash is missing")
 	}
 	if msg.Address.Empty() {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, "address is missing")
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "address is missing")
 	}
 	return nil
 }

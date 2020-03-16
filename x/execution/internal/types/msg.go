@@ -38,7 +38,7 @@ func (msg MsgCreateExecution) ValidateBasic() error {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "cannot parse price")
 	}
 	if price.IsAnyNegative() {
-		return sdkerrors.Wrap(sdkerrors.ErrInsufficientFunds, "price must be positive")
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "price must be positive")
 	}
 	if err := xvalidator.Validate.Struct(msg); err != nil {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, err.Error())
@@ -92,7 +92,7 @@ func (msg MsgUpdateExecution) Type() string {
 // ValidateBasic runs stateless checks on the message.
 func (msg MsgUpdateExecution) ValidateBasic() error {
 	if msg.Executor.Empty() {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, "executor is missing")
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "executor is missing")
 	}
 	return nil
 }

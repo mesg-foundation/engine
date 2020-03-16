@@ -5,6 +5,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/mesg-foundation/engine/hash"
 	ownershippb "github.com/mesg-foundation/engine/ownership"
 	"github.com/mesg-foundation/engine/protobuf/api"
@@ -44,7 +45,7 @@ func (k Keeper) Create(ctx sdk.Context, msg *types.MsgCreateService) (*servicepb
 
 	// check if service already exists.
 	if store.Has(srv.Hash) {
-		return nil, fmt.Errorf("service %q already exists", srv.Hash)
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "service %q already exists", srv.Hash)
 	}
 
 	// TODO: the following test should be moved in New function
@@ -54,7 +55,7 @@ func (k Keeper) Create(ctx sdk.Context, msg *types.MsgCreateService) (*servicepb
 	}
 
 	if err := validator.ValidateService(srv); err != nil {
-		return nil, err
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, err.Error())
 	}
 
 	if _, err := k.ownershipKeeper.Set(ctx, msg.Owner, srv.Hash, ownershippb.Ownership_Service); err != nil {
@@ -63,7 +64,7 @@ func (k Keeper) Create(ctx sdk.Context, msg *types.MsgCreateService) (*servicepb
 
 	value, err := k.cdc.MarshalBinaryLengthPrefixed(srv)
 	if err != nil {
-		return nil, err
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrJSONMarshal, err.Error())
 	}
 	store.Set(srv.Hash, value)
 	return srv, nil
@@ -73,10 +74,13 @@ func (k Keeper) Create(ctx sdk.Context, msg *types.MsgCreateService) (*servicepb
 func (k Keeper) Get(ctx sdk.Context, hash hash.Hash) (*servicepb.Service, error) {
 	store := ctx.KVStore(k.storeKey)
 	if !store.Has(hash) {
-		return nil, fmt.Errorf("service %q not found", hash)
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "service %q not found", hash)
 	}
 	var sv *servicepb.Service
-	return sv, k.cdc.UnmarshalBinaryLengthPrefixed(store.Get(hash), &sv)
+	if err := k.cdc.UnmarshalBinaryLengthPrefixed(store.Get(hash), &sv); err != nil {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONUnmarshal, err.Error())
+	}
+	return sv, nil
 }
 
 // Exists returns true if a specific set of data exists in the database, false otherwise
@@ -98,7 +102,7 @@ func (k Keeper) List(ctx sdk.Context) ([]*servicepb.Service, error) {
 	for iter.Valid() {
 		var sv *servicepb.Service
 		if err := k.cdc.UnmarshalBinaryLengthPrefixed(iter.Value(), &sv); err != nil {
-			return nil, err
+			return nil, sdkerrors.Wrapf(sdkerrors.ErrJSONUnmarshal, err.Error())
 		}
 		services = append(services, sv)
 		iter.Next()

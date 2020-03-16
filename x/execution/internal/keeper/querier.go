@@ -1,8 +1,6 @@
 package keeper
 
 import (
-	"fmt"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/mesg-foundation/engine/hash"
@@ -26,7 +24,7 @@ func NewQuerier(k Keeper) sdk.Querier {
 
 func getExecution(ctx sdk.Context, k Keeper, path []string) ([]byte, error) {
 	if len(path) == 0 {
-		return nil, fmt.Errorf("missing hash")
+		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "missing hash")
 	}
 	hash, err := hash.Decode(path[0])
 	if err != nil {
