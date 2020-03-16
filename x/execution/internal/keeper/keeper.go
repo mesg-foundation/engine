@@ -65,7 +65,6 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 // TODO: we should split the message and keeper function of execution create from user and for process.
 //nolint:gocyclo
 func (k *Keeper) Create(ctx sdk.Context, msg types.MsgCreateExecution) (*executionpb.Execution, error) {
-
 	// TODO: all the following verification should be moved to a runner.Validate function
 	price, err := sdk.ParseCoins(msg.Request.Price)
 	if err != nil {
