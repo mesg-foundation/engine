@@ -45,6 +45,15 @@ func testOrchestratorFilter(executionStream pb.Execution_StreamClient, instanceH
 											},
 										},
 									},
+									{
+										Key:       "timestamp",
+										Predicate: process.Process_Node_Filter_Condition_GT,
+										Value: &types.Value{
+											Kind: &types.Value_NumberValue{
+												NumberValue: 10,
+											},
+										},
+									},
 								},
 							},
 						},

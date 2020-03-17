@@ -150,6 +150,18 @@ message Process {
 
           // Equal
           EQ = 1;
+
+          // Greater than
+          GT = 2;
+
+          // Greater or equal than
+          GTE = 3;
+
+          // Lesser than
+          LT = 4;
+
+          // Lesser or equal than
+          LTE = 5;
         }
 
         // Key to check.

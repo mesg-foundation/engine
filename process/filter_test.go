@@ -130,6 +130,240 @@ func TestMatch(t *testing.T) {
 			},
 			match: false,
 		},
+		{
+			name: "matching GT",
+			filter: Process_Node_Filter{
+				Conditions: []Process_Node_Filter_Condition{
+					{
+						Key:       "foo",
+						Predicate: Process_Node_Filter_Condition_GT,
+						Value: &types.Value{
+							Kind: &types.Value_NumberValue{
+								NumberValue: 1,
+							},
+						},
+					},
+				},
+			},
+			data: &types.Struct{
+				Fields: map[string]*types.Value{
+					"foo": {
+						Kind: &types.Value_NumberValue{
+							NumberValue: 2,
+						},
+					},
+				},
+			},
+			match: true,
+		},
+		{
+			name: "non matching GT",
+			filter: Process_Node_Filter{
+				Conditions: []Process_Node_Filter_Condition{
+					{
+						Key:       "foo",
+						Predicate: Process_Node_Filter_Condition_GT,
+						Value: &types.Value{
+							Kind: &types.Value_NumberValue{
+								NumberValue: 2,
+							},
+						},
+					},
+				},
+			},
+			data: &types.Struct{
+				Fields: map[string]*types.Value{
+					"foo": {
+						Kind: &types.Value_NumberValue{
+							NumberValue: 1,
+						},
+					},
+				},
+			},
+			match: false,
+		},
+		{
+			name: "GT wrong type",
+			filter: Process_Node_Filter{
+				Conditions: []Process_Node_Filter_Condition{
+					{
+						Key:       "foo",
+						Predicate: Process_Node_Filter_Condition_LTE,
+						Value: &types.Value{
+							Kind: &types.Value_NumberValue{
+								NumberValue: 1,
+							},
+						},
+					},
+				},
+			},
+			data: &types.Struct{
+				Fields: map[string]*types.Value{
+					"foo": {
+						Kind: &types.Value_StringValue{
+							StringValue: "foo",
+						},
+					},
+				},
+			},
+			match: false,
+		},
+		{
+			name: "matching GTE",
+			filter: Process_Node_Filter{
+				Conditions: []Process_Node_Filter_Condition{
+					{
+						Key:       "foo",
+						Predicate: Process_Node_Filter_Condition_GTE,
+						Value: &types.Value{
+							Kind: &types.Value_NumberValue{
+								NumberValue: 1,
+							},
+						},
+					},
+				},
+			},
+			data: &types.Struct{
+				Fields: map[string]*types.Value{
+					"foo": {
+						Kind: &types.Value_NumberValue{
+							NumberValue: 1,
+						},
+					},
+				},
+			},
+			match: true,
+		},
+		{
+			name: "non matching GTE",
+			filter: Process_Node_Filter{
+				Conditions: []Process_Node_Filter_Condition{
+					{
+						Key:       "foo",
+						Predicate: Process_Node_Filter_Condition_GTE,
+						Value: &types.Value{
+							Kind: &types.Value_NumberValue{
+								NumberValue: 2,
+							},
+						},
+					},
+				},
+			},
+			data: &types.Struct{
+				Fields: map[string]*types.Value{
+					"foo": {
+						Kind: &types.Value_NumberValue{
+							NumberValue: 1,
+						},
+					},
+				},
+			},
+			match: false,
+		},
+		{
+			name: "matching LT",
+			filter: Process_Node_Filter{
+				Conditions: []Process_Node_Filter_Condition{
+					{
+						Key:       "foo",
+						Predicate: Process_Node_Filter_Condition_LT,
+						Value: &types.Value{
+							Kind: &types.Value_NumberValue{
+								NumberValue: 2,
+							},
+						},
+					},
+				},
+			},
+			data: &types.Struct{
+				Fields: map[string]*types.Value{
+					"foo": {
+						Kind: &types.Value_NumberValue{
+							NumberValue: 1,
+						},
+					},
+				},
+			},
+			match: true,
+		},
+		{
+			name: "non matching LT",
+			filter: Process_Node_Filter{
+				Conditions: []Process_Node_Filter_Condition{
+					{
+						Key:       "foo",
+						Predicate: Process_Node_Filter_Condition_LT,
+						Value: &types.Value{
+							Kind: &types.Value_NumberValue{
+								NumberValue: 1,
+							},
+						},
+					},
+				},
+			},
+			data: &types.Struct{
+				Fields: map[string]*types.Value{
+					"foo": {
+						Kind: &types.Value_NumberValue{
+							NumberValue: 2,
+						},
+					},
+				},
+			},
+			match: false,
+		},
+		{
+			name: "matching LTE",
+			filter: Process_Node_Filter{
+				Conditions: []Process_Node_Filter_Condition{
+					{
+						Key:       "foo",
+						Predicate: Process_Node_Filter_Condition_LTE,
+						Value: &types.Value{
+							Kind: &types.Value_NumberValue{
+								NumberValue: 1,
+							},
+						},
+					},
+				},
+			},
+			data: &types.Struct{
+				Fields: map[string]*types.Value{
+					"foo": {
+						Kind: &types.Value_NumberValue{
+							NumberValue: 1,
+						},
+					},
+				},
+			},
+			match: true,
+		},
+		{
+			name: "non matching LTE",
+			filter: Process_Node_Filter{
+				Conditions: []Process_Node_Filter_Condition{
+					{
+						Key:       "foo",
+						Predicate: Process_Node_Filter_Condition_LTE,
+						Value: &types.Value{
+							Kind: &types.Value_NumberValue{
+								NumberValue: 1,
+							},
+						},
+					},
+				},
+			},
+			data: &types.Struct{
+				Fields: map[string]*types.Value{
+					"foo": {
+						Kind: &types.Value_NumberValue{
+							NumberValue: 2,
+						},
+					},
+				},
+			},
+			match: false,
+		},
 	}
 
 	for _, tt := range tests {
