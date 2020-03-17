@@ -385,7 +385,7 @@ func TestMatch(t *testing.T) {
 						Kind: &types.Value_ListValue{
 							ListValue: &types.ListValue{
 								Values: []*types.Value{
-									&types.Value{
+									{
 										Kind: &types.Value_StringValue{
 											StringValue: "foo",
 										},
@@ -419,7 +419,7 @@ func TestMatch(t *testing.T) {
 						Kind: &types.Value_ListValue{
 							ListValue: &types.ListValue{
 								Values: []*types.Value{
-									&types.Value{
+									{
 										Kind: &types.Value_StringValue{
 											StringValue: "bar",
 										},
