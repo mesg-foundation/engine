@@ -21,7 +21,11 @@ func TestMatch(t *testing.T) {
 					{
 						Key:       "foo",
 						Predicate: Process_Node_Filter_Condition_EQ,
-						Value:     "xx",
+						Value: &types.Value{
+							Kind: &types.Value_StringValue{
+								StringValue: "xx",
+							},
+						},
 					},
 				},
 			},
@@ -43,12 +47,20 @@ func TestMatch(t *testing.T) {
 					{
 						Key:       "foo",
 						Predicate: Process_Node_Filter_Condition_EQ,
-						Value:     "bar",
+						Value: &types.Value{
+							Kind: &types.Value_StringValue{
+								StringValue: "bar",
+							},
+						},
 					},
 					{
 						Key:       "xxx",
 						Predicate: Process_Node_Filter_Condition_EQ,
-						Value:     "yyy",
+						Value: &types.Value{
+							Kind: &types.Value_StringValue{
+								StringValue: "yyy",
+							},
+						},
 					},
 				},
 			},
@@ -80,12 +92,20 @@ func TestMatch(t *testing.T) {
 					{
 						Key:       "foo",
 						Predicate: Process_Node_Filter_Condition_EQ,
-						Value:     "bar",
+						Value: &types.Value{
+							Kind: &types.Value_StringValue{
+								StringValue: "bar",
+							},
+						},
 					},
 					{
 						Key:       "xxx",
 						Predicate: Process_Node_Filter_Condition_EQ,
-						Value:     "aaa",
+						Value: &types.Value{
+							Kind: &types.Value_StringValue{
+								StringValue: "aaa",
+							},
+						},
 					},
 				},
 			},
