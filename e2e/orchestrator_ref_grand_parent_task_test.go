@@ -68,10 +68,10 @@ func testOrchestratorRefGrandParentTask(executionStream pb.Execution_StreamClien
 								Outputs: map[string]*process.Process_Node_Map_Output{
 									"msg": {
 										Value: &process.Process_Node_Map_Output_Ref{
-											Ref: &process.Process_Node_Map_Output_Reference{
+											Ref: &process.Process_Node_Reference{
 												NodeKey: "n1",
-												Path: &process.Process_Node_Map_Output_Reference_Path{
-													Selector: &process.Process_Node_Map_Output_Reference_Path_Key{
+												Path: &process.Process_Node_Reference_Path{
+													Selector: &process.Process_Node_Reference_Path_Key{
 														Key: "msg",
 													},
 												},

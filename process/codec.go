@@ -9,7 +9,7 @@ import (
 func RegisterCodec(cdc *codec.Codec) {
 	cdc.RegisterInterface((*isProcess_Node_Map_Output_Value)(nil), nil)
 	cdc.RegisterConcrete(&Process_Node_Map_Output_Ref{}, "mesg.types.Process_Node_Map_Output_Ref", nil)
-	cdc.RegisterConcrete(&Process_Node_Map_Output_Reference{}, "mesg.types.Process_Node_Map_Output_Reference", nil)
+	cdc.RegisterConcrete(&Process_Node_Reference{}, "mesg.types.Process_Node_Reference", nil)
 	cdc.RegisterConcrete(&Process_Node_Map_Output_Null_{}, "mesg.types.Process_Node_Map_Output_Null_", nil)
 	cdc.RegisterConcrete(&Process_Node_Map_Output_StringConst{}, "mesg.types.Process_Node_Map_Output_StringConst", nil)
 	cdc.RegisterConcrete(&Process_Node_Map_Output_DoubleConst{}, "mesg.types.Process_Node_Map_Output_DoubleConst", nil)
@@ -29,9 +29,9 @@ func RegisterCodec(cdc *codec.Codec) {
 	cdc.RegisterConcrete(&Process_Node_Map{}, "mesg.types.Process_Node_Map", nil)
 	cdc.RegisterConcrete(&Process_Node_Filter_{}, "mesg.types.Process_Node_Filter_", nil)
 	cdc.RegisterConcrete(&Process_Node_Filter{}, "mesg.types.Process_Node_Filter", nil)
-	cdc.RegisterInterface((*isProcess_Node_Map_Output_Reference_Path_Selector)(nil), nil)
-	cdc.RegisterConcrete(&Process_Node_Map_Output_Reference_Path_Key{}, "mesg.types.Process_Node_Map_Output_Reference_Path_Key", nil)
-	cdc.RegisterConcrete(&Process_Node_Map_Output_Reference_Path_Index{}, "mesg.types.Process_Node_Map_Output_Reference_Path_Index", nil)
+	cdc.RegisterInterface((*isProcess_Node_Reference_Path_Selector)(nil), nil)
+	cdc.RegisterConcrete(&Process_Node_Reference_Path_Key{}, "mesg.types.Process_Node_Reference_Path_Key", nil)
+	cdc.RegisterConcrete(&Process_Node_Reference_Path_Index{}, "mesg.types.Process_Node_Reference_Path_Index", nil)
 }
 
 // KeyOutput is a simple key/value representation of one output of a Process_Node_Map.
