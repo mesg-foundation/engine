@@ -13,12 +13,14 @@ import (
 	pb "github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/mesg-foundation/engine/protobuf/types"
 	"github.com/stretchr/testify/require"
-	"github.com/tendermint/tendermint/crypto"
 )
 
 func testOrchestratorProcessBalanceWithdraw(executionStream pb.Execution_StreamClient, instanceHash hash.Hash) func(t *testing.T) {
 	return func(t *testing.T) {
-		var processHash hash.Hash
+		var (
+			processHash hash.Hash
+			procAddress sdk.AccAddress
+		)
 
 		t.Run("create process", func(t *testing.T) {
 			respProc, err := client.ProcessClient.Create(context.Background(), &pb.CreateProcessRequest{
@@ -50,9 +52,15 @@ func testOrchestratorProcessBalanceWithdraw(executionStream pb.Execution_StreamC
 			require.NoError(t, err)
 			processHash = respProc.Hash
 		})
+		t.Run("get process address", func(t *testing.T) {
+			var proc *process.Process
+			lcdGet(t, "process/get/"+processHash.String(), &proc)
+			require.Equal(t, proc.Hash, processHash)
+			procAddress = proc.Address
+		})
 		t.Run("check coins on process", func(t *testing.T) {
 			var coins sdk.Coins
-			param := bank.NewQueryBalanceParams(sdk.AccAddress(crypto.AddressHash(processHash)))
+			param := bank.NewQueryBalanceParams(procAddress)
 			require.NoError(t, cclient.QueryJSON("custom/bank/balances", param, &coins))
 			require.True(t, coins.IsEqual(processInitialBalance), coins)
 		})
@@ -91,7 +99,7 @@ func testOrchestratorProcessBalanceWithdraw(executionStream pb.Execution_StreamC
 		})
 		t.Run("check coins on process after 1 execution", func(t *testing.T) {
 			var coins sdk.Coins
-			param := bank.NewQueryBalanceParams(sdk.AccAddress(crypto.AddressHash(processHash)))
+			param := bank.NewQueryBalanceParams(procAddress)
 			require.NoError(t, cclient.QueryJSON("custom/bank/balances", param, &coins))
 			require.True(t, coins.IsEqual(processInitialBalance.Sub(minExecutionPrice)), coins)
 		})
@@ -101,7 +109,7 @@ func testOrchestratorProcessBalanceWithdraw(executionStream pb.Execution_StreamC
 		})
 		t.Run("check coins on process after deletion", func(t *testing.T) {
 			var coins sdk.Coins
-			param := bank.NewQueryBalanceParams(sdk.AccAddress(crypto.AddressHash(processHash)))
+			param := bank.NewQueryBalanceParams(procAddress)
 			require.NoError(t, cclient.QueryJSON("custom/bank/balances", param, &coins))
 			require.True(t, coins.IsZero(), coins)
 		})

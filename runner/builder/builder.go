@@ -54,10 +54,8 @@ func (b *Builder) Create(req *api.CreateRunnerRequest) (*runnerpb.Runner, error)
 	if err != nil {
 		return nil, err
 	}
-	expRunnerHash := hash.Dump(&runnerpb.Runner{
-		Address:      acc.GetAddress().String(),
-		InstanceHash: instanceHash,
-	})
+	expRunner := runnerpb.New(acc.GetAddress().String(), instanceHash)
+	expRunnerHash := expRunner.Hash
 
 	if runExisting, _ := b.mc.GetRunner(expRunnerHash); runExisting != nil {
 		return nil, fmt.Errorf("runner %q already exists", runExisting.Hash)

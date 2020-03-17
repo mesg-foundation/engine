@@ -45,11 +45,7 @@ func (k Keeper) Create(ctx sdk.Context, msg *types.MsgCreateRunner) (*runner.Run
 		return nil, err
 	}
 
-	r := &runner.Runner{
-		Address:      msg.Address.String(),
-		InstanceHash: inst.Hash,
-	}
-	r.Hash = hash.Dump(r)
+	r := runner.New(msg.Address.String(), inst.Hash)
 	if store.Has(r.Hash) {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "runner %q already exists", r.Hash)
 	}
@@ -59,7 +55,7 @@ func (k Keeper) Create(ctx sdk.Context, msg *types.MsgCreateRunner) (*runner.Run
 		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONMarshal, err.Error())
 	}
 
-	if _, err := k.ownershipKeeper.Set(ctx, msg.Address, r.Hash, ownershippb.Ownership_Runner); err != nil {
+	if _, err := k.ownershipKeeper.Set(ctx, msg.Address, r.Hash, ownershippb.Ownership_Runner, r.Address); err != nil {
 		return nil, err
 	}
 
@@ -79,7 +75,7 @@ func (k Keeper) Delete(ctx sdk.Context, msg *types.MsgDeleteRunner) error {
 	if err := k.cdc.UnmarshalBinaryLengthPrefixed(value, &r); err != nil {
 		return sdkerrors.Wrap(sdkerrors.ErrJSONUnmarshal, err.Error())
 	}
-	if r.Address != msg.Address.String() {
+	if r.Owner != msg.Address.String() {
 		return sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "only the runner owner can remove itself")
 	}
 

@@ -9,6 +9,7 @@ import (
 
 // MsgCreateRunner defines a state transition to create a runner.
 type MsgCreateRunner struct {
+	// TODO: address should be renamed to owner
 	Address     sdk.AccAddress `json:"address" validate:"required,accaddress"`
 	ServiceHash hash.Hash      `json:"serviceHash" validate:"required,hash"`
 	EnvHash     hash.Hash      `json:"envHash" validate:"omitempty,hash"`

@@ -11,7 +11,6 @@ import (
 	"github.com/mesg-foundation/engine/process"
 	processpb "github.com/mesg-foundation/engine/process"
 	"github.com/mesg-foundation/engine/x/process/internal/types"
-	"github.com/tendermint/tendermint/crypto"
 	"github.com/tendermint/tendermint/libs/log"
 )
 
@@ -46,13 +45,7 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 // Create creates a new process.
 func (k Keeper) Create(ctx sdk.Context, msg *types.MsgCreateProcess) (*processpb.Process, error) {
 	store := ctx.KVStore(k.storeKey)
-	p := &process.Process{
-		Name:  msg.Request.Name,
-		Nodes: msg.Request.Nodes,
-		Edges: msg.Request.Edges,
-	}
-	p.Hash = hash.Dump(p)
-	p.Address = sdk.AccAddress(crypto.AddressHash(p.Hash)).String()
+	p := process.New(msg.Request.Name, msg.Request.Nodes, msg.Request.Edges)
 	if store.Has(p.Hash) {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "process %q already exists", p.Hash)
 	}
@@ -74,12 +67,11 @@ func (k Keeper) Create(ctx sdk.Context, msg *types.MsgCreateProcess) (*processpb
 		}
 	}
 
-	procAddress := sdk.AccAddress(crypto.AddressHash(p.Hash))
 	procInitBal, err := sdk.ParseCoins(processCreateInitialBalance)
 	if err != nil {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, err.Error())
 	}
-	if err := k.bankKeeper.SendCoins(ctx, msg.Owner, procAddress, procInitBal); err != nil {
+	if err := k.bankKeeper.SendCoins(ctx, msg.Owner, p.Address, procInitBal); err != nil {
 		return nil, err
 	}
 
@@ -88,7 +80,7 @@ func (k Keeper) Create(ctx sdk.Context, msg *types.MsgCreateProcess) (*processpb
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrJSONMarshal, err.Error())
 	}
 
-	if _, err := k.ownershipKeeper.Set(ctx, msg.Owner, p.Hash, ownershippb.Ownership_Process); err != nil {
+	if _, err := k.ownershipKeeper.Set(ctx, msg.Owner, p.Hash, ownershippb.Ownership_Process, p.Address); err != nil {
 		return nil, err
 	}
 

@@ -257,7 +257,7 @@ func (mc *ModuleClient) GetRunner(hash hash.Hash) (*runnerpb.Runner, error) {
 
 // FilterRunner to apply while listing runners.
 type FilterRunner struct {
-	Address      string
+	Owner        string
 	InstanceHash hash.Hash
 }
 
@@ -277,7 +277,7 @@ func (mc *ModuleClient) ListRunner(f *FilterRunner) ([]*runnerpb.Runner, error) 
 	// filter results
 	out := make([]*runnerpb.Runner, 0)
 	for _, r := range rs {
-		if (f.Address == "" || r.Address == f.Address) &&
+		if (f.Owner == "" || r.Owner == f.Owner) &&
 			(f.InstanceHash.IsZero() || r.InstanceHash.Equal(f.InstanceHash)) {
 			out = append(out, r)
 		}
