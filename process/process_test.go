@@ -210,7 +210,7 @@ func TestValidateProcess(t *testing.T) {
 				Key: "filter",
 				Type: &Process_Node_Filter_{&Process_Node_Filter{
 					Conditions: []Process_Node_Filter_Condition{
-						Process_Node_Filter_Condition{
+						{
 							Key:       "foo",
 							Predicate: Process_Node_Filter_Condition_GT,
 							Value: &types.Value{
@@ -220,7 +220,6 @@ func TestValidateProcess(t *testing.T) {
 					},
 				}},
 			}),
-			Edges: append(edges),
 		}, err: "filter with condition GT, GTE, LT or LTE only works with value of type Number"},
 	}
 	for _, test := range tests {
