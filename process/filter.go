@@ -36,6 +36,17 @@ func (f Process_Node_Filter_Condition) Match(data *types.Struct) bool {
 		case Process_Node_Filter_Condition_LTE:
 			return n1.NumberValue <= n2.NumberValue
 		}
+	case Process_Node_Filter_Condition_CONTAINS:
+		list, ok := data.Fields[f.Key].Kind.(*types.Value_ListValue)
+		if !ok {
+			return false
+		}
+		for _, value := range list.ListValue.Values {
+			if value.Equal(f.Value) {
+				return true
+			}
+		}
+		return false
 	}
 	return false
 }

@@ -162,6 +162,9 @@ message Process {
 
           // Lesser or equal than
           LTE = 5;
+
+          // CONTAINS
+          CONTAINS = 6;
         }
 
         // Key to check.

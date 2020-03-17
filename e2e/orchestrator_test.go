@@ -25,5 +25,5 @@ func testOrchestrator(t *testing.T) {
 	t.Run("ref path nested", testOrchestratorRefPathNested(executionStream, testInstanceHash))
 
 	// to execute last because of go routine leak. See fixme in following function
-	t.Run("filter", testOrchestratorFilter(executionStream, testInstanceHash))
+	t.Run("filter", testOrchestratorFilterSimple(executionStream, testInstanceHash))
 }

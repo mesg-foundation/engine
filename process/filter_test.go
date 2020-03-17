@@ -364,6 +364,100 @@ func TestMatch(t *testing.T) {
 			},
 			match: false,
 		},
+		{
+			name: "matching contains",
+			filter: Process_Node_Filter{
+				Conditions: []Process_Node_Filter_Condition{
+					{
+						Key:       "foo",
+						Predicate: Process_Node_Filter_Condition_CONTAINS,
+						Value: &types.Value{
+							Kind: &types.Value_StringValue{
+								StringValue: "foo",
+							},
+						},
+					},
+				},
+			},
+			data: &types.Struct{
+				Fields: map[string]*types.Value{
+					"foo": {
+						Kind: &types.Value_ListValue{
+							ListValue: &types.ListValue{
+								Values: []*types.Value{
+									&types.Value{
+										Kind: &types.Value_StringValue{
+											StringValue: "foo",
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			match: true,
+		},
+		{
+			name: "non matching contains",
+			filter: Process_Node_Filter{
+				Conditions: []Process_Node_Filter_Condition{
+					{
+						Key:       "foo",
+						Predicate: Process_Node_Filter_Condition_CONTAINS,
+						Value: &types.Value{
+							Kind: &types.Value_StringValue{
+								StringValue: "foo",
+							},
+						},
+					},
+				},
+			},
+			data: &types.Struct{
+				Fields: map[string]*types.Value{
+					"foo": {
+						Kind: &types.Value_ListValue{
+							ListValue: &types.ListValue{
+								Values: []*types.Value{
+									&types.Value{
+										Kind: &types.Value_StringValue{
+											StringValue: "bar",
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			match: false,
+		},
+		{
+			name: "wrong type contains",
+			filter: Process_Node_Filter{
+				Conditions: []Process_Node_Filter_Condition{
+					{
+						Key:       "foo",
+						Predicate: Process_Node_Filter_Condition_CONTAINS,
+						Value: &types.Value{
+							Kind: &types.Value_StringValue{
+								StringValue: "foo",
+							},
+						},
+					},
+				},
+			},
+			data: &types.Struct{
+				Fields: map[string]*types.Value{
+					"foo": {
+						Kind: &types.Value_StringValue{
+							StringValue: "foo",
+						},
+					},
+				},
+			},
+			match: false,
+		},
 	}
 
 	for _, tt := range tests {

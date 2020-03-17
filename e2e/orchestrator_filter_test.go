@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"testing"
 	"time"
 
@@ -14,7 +13,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func testOrchestratorFilter(executionStream pb.Execution_StreamClient, instanceHash hash.Hash) func(t *testing.T) {
+func testOrchestratorFilterSimple(executionStream pb.Execution_StreamClient, instanceHash hash.Hash) func(t *testing.T) {
 	return func(t *testing.T) {
 		var processHash hash.Hash
 
@@ -127,7 +126,7 @@ func testOrchestratorFilter(executionStream pb.Execution_StreamClient, instanceH
 						Fields: map[string]*types.Value{
 							"msg": {
 								Kind: &types.Value_StringValue{
-									StringValue: "shouldNOTMatch",
+									StringValue: "shouldNotMatch",
 								},
 							},
 							"timestamp": {
@@ -140,21 +139,13 @@ func testOrchestratorFilter(executionStream pb.Execution_StreamClient, instanceH
 				})
 				require.NoError(t, err)
 			})
-			t.Run("wait 2 sec to check execution is not created", func(t *testing.T) {
-				recvC := make(chan error)
-				go func() {
-					// FIXME: this go routine is never garbage and the Recv may cause side effect if the stream is use later
-					exec, err := executionStream.Recv()
-					fmt.Println("received execution but should not", exec)
-					recvC <- err
-				}()
-				select {
-				case <-time.After(2 * time.Second):
-					return
-				case err := <-recvC:
-					require.NoError(t, err)
-					t.Fatal("should not received any execution")
-				}
+			t.Run("wait 5 sec to check execution is not created", func(t *testing.T) {
+				ctx, cancel := context.WithDeadline(context.Background(), time.Now().Add(5*time.Second))
+				defer cancel()
+				executionStream, err := client.ExecutionClient.Stream(ctx, &pb.StreamExecutionRequest{})
+				require.NoError(t, err)
+				_, err = executionStream.Recv()
+				require.Contains(t, err.Error(), context.DeadlineExceeded.Error())
 			})
 		})
 		t.Run("delete process", func(t *testing.T) {
