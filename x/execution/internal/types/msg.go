@@ -35,10 +35,10 @@ func (msg MsgCreateExecution) Type() string {
 func (msg MsgCreateExecution) ValidateBasic() error {
 	price, err := sdk.ParseCoins(msg.Request.Price)
 	if err != nil {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "cannot parse price")
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, "cannot parse price")
 	}
 	if price.IsAnyNegative() {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "price must be positive")
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, "price must be positive")
 	}
 	if err := xvalidator.Validate.Struct(msg); err != nil {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, err.Error())

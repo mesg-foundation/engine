@@ -68,15 +68,15 @@ func (k *Keeper) Create(ctx sdk.Context, msg types.MsgCreateExecution) (*executi
 	// TODO: all the following verification should be moved to a runner.Validate function
 	price, err := sdk.ParseCoins(msg.Request.Price)
 	if err != nil {
-		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, err.Error())
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidCoins, err.Error())
 	}
 
 	minPriceCoin, err := sdk.ParseCoins(k.MinPrice(ctx))
 	if err != nil {
-		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, err.Error())
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidCoins, err.Error())
 	}
 	if !price.IsAllGTE(minPriceCoin) {
-		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "execution price too low. Min value: %q", minPriceCoin.String())
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidCoins, "execution price too low. Min value: %q", minPriceCoin.String())
 	}
 
 	run, err := k.runnerKeeper.Get(ctx, msg.Request.ExecutorHash)
@@ -169,7 +169,7 @@ func (k *Keeper) Create(ctx sdk.Context, msg types.MsgCreateExecution) (*executi
 		}
 	}
 	if !emitterIsPresent {
-		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "message's signer is not in the execution's emitters")
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, "message's signer is not in the execution's emitters")
 	}
 
 	// define consensus requirements
@@ -313,7 +313,7 @@ func (k *Keeper) List(ctx sdk.Context) ([]*executionpb.Execution, error) {
 func (k *Keeper) distributePriceShares(ctx sdk.Context, execAddress, runnerAddress, serviceAddress sdk.AccAddress, emitters []*executionpb.Execution_Emitter, price string) error {
 	coins, err := sdk.ParseCoins(price)
 	if err != nil {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, err.Error())
+		return sdkerrors.Wrapf(sdkerrors.ErrInvalidCoins, err.Error())
 	}
 	if coins.Empty() {
 		return nil

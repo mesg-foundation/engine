@@ -46,7 +46,7 @@ func (msg MsgCreateRunner) ValidateBasic() error {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "envHash is missing")
 	}
 	if msg.Address.Empty() {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, "address is missing")
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "address is missing")
 	}
 	return nil
 }

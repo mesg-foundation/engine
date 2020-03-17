@@ -69,7 +69,7 @@ func (k Keeper) Create(ctx sdk.Context, msg *types.MsgCreateProcess) (*processpb
 
 	procInitBal, err := sdk.ParseCoins(processCreateInitialBalance)
 	if err != nil {
-		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, err.Error())
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidCoins, err.Error())
 	}
 	if err := k.bankKeeper.SendCoins(ctx, msg.Owner, p.Address, procInitBal); err != nil {
 		return nil, err

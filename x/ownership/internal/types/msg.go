@@ -35,13 +35,13 @@ func (msg MsgWithdrawCoins) Type() string {
 // ValidateBasic runs stateless checks on the message.
 func (msg MsgWithdrawCoins) ValidateBasic() error {
 	if msg.Amount.IsAnyNegative() {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "price must be positive")
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, "price must be positive")
 	}
 	if msg.Owner.Empty() {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, msg.Owner.String())
 	}
 	if msg.Hash.IsZero() || !msg.Hash.Valid() {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid resource address: %s", msg.Owner.String())
+		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid hash")
 	}
 
 	return nil

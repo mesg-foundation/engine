@@ -62,7 +62,7 @@ func (k Keeper) Set(ctx sdk.Context, owner sdk.AccAddress, resourceHash hash.Has
 		return nil, err
 	}
 	if own != nil {
-		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "resource %s:%q already has an owner", resource, resourceHash)
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, "resource %s:%q already has an owner", resource, resourceHash)
 	}
 
 	// TODO: should be moved to a new function
