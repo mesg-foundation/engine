@@ -234,7 +234,7 @@ func (s *Orchestrator) outputToValue(nodeKey string, output *process.Process_Nod
 	}
 }
 
-func (s *Orchestrator) resolveInput(wfHash hash.Hash, exec *execution.Execution, nodeKey string, path *process.Process_Node_Map_Output_Reference_Path) (*types.Value, error) {
+func (s *Orchestrator) resolveInput(wfHash hash.Hash, exec *execution.Execution, nodeKey string, path *process.Process_Node_Reference_Path) (*types.Value, error) {
 	if !wfHash.Equal(exec.ProcessHash) {
 		return nil, fmt.Errorf("reference's nodeKey not found")
 	}
@@ -280,13 +280,13 @@ func (s *Orchestrator) processTask(nodeKey string, task *process.Process_Node_Ta
 	return err
 }
 
-func resolveRef(data *types.Struct, path *process.Process_Node_Map_Output_Reference_Path) (*types.Value, error) {
+func resolveRef(data *types.Struct, path *process.Process_Node_Reference_Path) (*types.Value, error) {
 	if path == nil {
 		return &types.Value{Kind: &types.Value_StructValue{StructValue: data}}, nil
 	}
 
 	var v *types.Value
-	key, ok := path.Selector.(*process.Process_Node_Map_Output_Reference_Path_Key)
+	key, ok := path.Selector.(*process.Process_Node_Reference_Path_Key)
 	if !ok {
 		return nil, fmt.Errorf("orchestrator: first selector in the path must be a key")
 	}
@@ -298,7 +298,7 @@ func resolveRef(data *types.Struct, path *process.Process_Node_Map_Output_Refere
 
 	for p := path.Path; p != nil; p = p.Path {
 		switch s := p.Selector.(type) {
-		case *process.Process_Node_Map_Output_Reference_Path_Key:
+		case *process.Process_Node_Reference_Path_Key:
 			str, ok := v.GetKind().(*types.Value_StructValue)
 			if !ok {
 				return nil, fmt.Errorf("orchestrator: can't get key from non-struct value")
@@ -310,7 +310,7 @@ func resolveRef(data *types.Struct, path *process.Process_Node_Map_Output_Refere
 			if !ok {
 				return nil, fmt.Errorf("orchestrator: key %s not found", s.Key)
 			}
-		case *process.Process_Node_Map_Output_Reference_Path_Index:
+		case *process.Process_Node_Reference_Path_Index:
 			list, ok := v.GetKind().(*types.Value_ListValue)
 			if !ok {
 				return nil, fmt.Errorf("orchestrator: can't get index from non-list value")

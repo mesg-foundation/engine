@@ -75,32 +75,6 @@ message Process {
           ];
         }
 
-        message Reference {
-          message Path {
-            oneof selector {
-              string key = 1 [
-                (gogoproto.moretags) = 'hash:"name:1" validate:"printascii"'
-              ];
-              uint64 index = 2 [
-                (gogoproto.moretags) = 'hash:"name:2"'
-              ];
-            }
-
-            // Path can be nil if on the leaf
-            Path path = 3 [
-              (gogoproto.moretags) = 'hash:"name:3"'
-            ];
-          }
-
-          string nodeKey = 1 [
-            (gogoproto.moretags) = 'hash:"name:1" validate:"required"'
-          ];
-
-          Path path = 2 [
-            (gogoproto.moretags) = 'hash:"name:2"'
-          ];
-        }
-
         oneof value {
           Null null = 1 [
             (gogoproto.moretags) = 'hash:"name:1"'
@@ -187,6 +161,33 @@ message Process {
       repeated Condition conditions = 2 [
         (gogoproto.moretags) = 'hash:"name:2" validate:"dive"',
         (gogoproto.nullable) = false
+      ];
+    }
+
+    message Reference {
+      message Path {
+        oneof selector {
+          string key = 1 [
+            (gogoproto.moretags) = 'hash:"name:1" validate:"printascii"'
+          ];
+          uint64 index = 2 [
+            (gogoproto.moretags) = 'hash:"name:2"'
+          ];
+        }
+
+        // Path can be nil if on the leaf
+        Path path = 3 [
+          (gogoproto.moretags) = 'hash:"name:3"'
+        ];
+      }
+
+      string nodeKey = 1 [
+        (gogoproto.moretags) = 'hash:"name:1" validate:"required"'
+      ];
+
+      // Path can be nil if referencing the whole node's output
+      Path path = 2 [
+        (gogoproto.moretags) = 'hash:"name:2"'
       ];
     }
 
