@@ -3,6 +3,8 @@ package keeper
 import (
 	"errors"
 	"fmt"
+	"math"
+	"math/big"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -11,15 +13,20 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/params"
 	executionpb "github.com/mesg-foundation/engine/execution"
 	"github.com/mesg-foundation/engine/hash"
+	"github.com/mesg-foundation/engine/process"
 	"github.com/mesg-foundation/engine/protobuf/api"
 	typespb "github.com/mesg-foundation/engine/protobuf/types"
+	"github.com/mesg-foundation/engine/runner"
 	"github.com/mesg-foundation/engine/x/execution/internal/types"
-	"github.com/tendermint/tendermint/crypto"
 	"github.com/tendermint/tendermint/libs/log"
 )
 
 // price share for the execution runner
-var runnerShare = sdk.NewDecWithPrec(9, 1)
+// TODO: this should be a param
+var (
+	runnerShare  = sdk.NewDecWithPrec(8, 1)
+	serviceShare = sdk.NewDecWithPrec(1, 1)
+)
 
 // Keeper of the execution store
 type Keeper struct {
@@ -53,19 +60,23 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", fmt.Sprintf("x/%s", types.ModuleName))
 }
 
-// Create creates a new execution from definition.
+// Create creates a new execution with proposed status.
+// The execution reaches consensus only when more than 2/3 of emitters proposed the same execution.
+// TODO: we should split the message and keeper function of execution create from user and for process.
+//nolint:gocyclo
 func (k *Keeper) Create(ctx sdk.Context, msg types.MsgCreateExecution) (*executionpb.Execution, error) {
+	// TODO: all the following verification should be moved to a runner.Validate function
 	price, err := sdk.ParseCoins(msg.Request.Price)
 	if err != nil {
-		return nil, err
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidCoins, err.Error())
 	}
 
 	minPriceCoin, err := sdk.ParseCoins(k.MinPrice(ctx))
 	if err != nil {
-		return nil, err
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidCoins, err.Error())
 	}
 	if !price.IsAllGTE(minPriceCoin) {
-		return nil, fmt.Errorf("execution price too low. Min value: %q", minPriceCoin.String())
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidCoins, "execution price too low. Min value: %q", minPriceCoin.String())
 	}
 
 	run, err := k.runnerKeeper.Get(ctx, msg.Request.ExecutorHash)
@@ -80,14 +91,21 @@ func (k *Keeper) Create(ctx sdk.Context, msg types.MsgCreateExecution) (*executi
 	if err != nil {
 		return nil, err
 	}
+	if err := srv.RequireTaskInputs(msg.Request.TaskKey, msg.Request.Inputs); err != nil {
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, err.Error())
+	}
+	var proc *process.Process
 	if !msg.Request.ProcessHash.IsZero() {
-		if _, err := k.processKeeper.Get(ctx, msg.Request.ProcessHash); err != nil {
+		proc, err = k.processKeeper.Get(ctx, msg.Request.ProcessHash)
+		if err != nil {
 			return nil, err
 		}
 	}
-	if err := srv.RequireTaskInputs(msg.Request.TaskKey, msg.Request.Inputs); err != nil {
-		return nil, err
+
+	if proc == nil && run.Owner != msg.Signer.String() {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "signer is not the execution's executor")
 	}
+
 	exec := executionpb.New(
 		msg.Request.ProcessHash,
 		run.InstanceHash,
@@ -100,29 +118,99 @@ func (k *Keeper) Create(ctx sdk.Context, msg types.MsgCreateExecution) (*executi
 		msg.Request.Tags,
 		msg.Request.ExecutorHash,
 	)
-	exec.BlockHeight = ctx.BlockHeight()
 
+	// check if exec already exists
 	store := ctx.KVStore(k.storeKey)
 	if store.Has(exec.Hash) {
-		return nil, fmt.Errorf("execution %q already exists", exec.Hash)
+		if exec, err = k.Get(ctx, exec.Hash); err != nil {
+			return nil, err
+		}
+		if exec.Status != executionpb.Status_Proposed {
+			return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "the execution's status %q should be proposed", exec.Status)
+		}
+	} else {
+		// set everything that should be put at the creation of the exec
+
+		// init execution's emitters
+		if proc == nil {
+			// no process, set the signer as only emitter
+			exec.Emitters = []*executionpb.Execution_Emitter{{
+				RunnerHash:  run.Hash,
+				BlockHeight: 0,
+			}}
+		} else {
+			matchedRuns, err := k.fetchEmitters(ctx, proc, exec.NodeKey)
+			if err != nil {
+				return nil, err
+			}
+			if len(matchedRuns) == 0 {
+				return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "no runner is running the instance that should have trigger this execution")
+			}
+			for _, matchedRun := range matchedRuns {
+				exec.Emitters = append(exec.Emitters, &executionpb.Execution_Emitter{
+					RunnerHash:  matchedRun.Hash,
+					BlockHeight: 0,
+				})
+			}
+		}
 	}
-	if err := exec.Execute(); err != nil {
-		return nil, err
+
+	// check if signer is in emitters, set emitter's block height, return error if not present.
+	emitterIsPresent := false
+	for _, emitter := range exec.Emitters {
+		runEmitter, err := k.runnerKeeper.Get(ctx, emitter.RunnerHash)
+		if err != nil {
+			return nil, err
+		}
+		if runEmitter.Owner == msg.Signer.String() {
+			emitterIsPresent = true
+			emitter.BlockHeight = ctx.BlockHeight()
+			break
+		}
 	}
+	if !emitterIsPresent {
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, "message's signer is not in the execution's emitters")
+	}
+
+	// define consensus requirements
+	nbrEmitterRequired := int(math.Ceil(float64(len(exec.Emitters)) * 2 / 3))
+
+	// calculate emitter already proposed
+	nbrProposedEmitters := 0
+	for _, emitter := range exec.Emitters {
+		if emitter.BlockHeight > 0 {
+			nbrProposedEmitters++
+		}
+	}
+
+	// check if emitter consensus is reached
+	if nbrProposedEmitters == nbrEmitterRequired {
+		// set block height when consensus is reached
+		exec.BlockHeight = ctx.BlockHeight()
+
+		// change the status of the exec
+		if err := exec.Execute(); err != nil {
+			return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, err.Error())
+		}
+		if !ctx.IsCheckTx() {
+			M.InProgress.Add(1)
+		}
+
+		// transfer the coin either from the process or from the signer
+		from := msg.Signer
+		if proc != nil {
+			from = proc.Address
+		}
+		if err := k.bankKeeper.SendCoins(ctx, from, exec.Address, price); err != nil {
+			return nil, err
+		}
+	}
+
+	// save the exec
 	value, err := k.cdc.MarshalBinaryLengthPrefixed(exec)
 	if err != nil {
-		return nil, err
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrJSONMarshal, err.Error())
 	}
-
-	if !ctx.IsCheckTx() {
-		M.InProgress.Add(1)
-	}
-
-	execAddress := sdk.AccAddress(crypto.AddressHash(exec.Hash))
-	if err := k.bankKeeper.SendCoins(ctx, msg.Signer, execAddress, price); err != nil {
-		return nil, err
-	}
-
 	store.Set(exec.Hash, value)
 	return exec, nil
 }
@@ -131,31 +219,42 @@ func (k *Keeper) Create(ctx sdk.Context, msg types.MsgCreateExecution) (*executi
 func (k *Keeper) Update(ctx sdk.Context, msg types.MsgUpdateExecution) (*executionpb.Execution, error) {
 	store := ctx.KVStore(k.storeKey)
 	if !store.Has(msg.Request.Hash) {
-		return nil, fmt.Errorf("execution %q doesn't exist", msg.Request.Hash)
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "execution %q doesn't exist", msg.Request.Hash)
 	}
 	var exec *executionpb.Execution
 	if err := k.cdc.UnmarshalBinaryLengthPrefixed(store.Get(msg.Request.Hash), &exec); err != nil {
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrJSONUnmarshal, err.Error())
+	}
+
+	// check if signer is the executor
+	runExecutor, err := k.runnerKeeper.Get(ctx, exec.ExecutorHash)
+	if err != nil {
 		return nil, err
 	}
+	if runExecutor.Owner != msg.Executor.String() {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "signer is not the execution's executor")
+	}
+
 	switch res := msg.Request.Result.(type) {
 	case *api.UpdateExecutionRequest_Outputs:
 		if err := k.validateExecutionOutput(ctx, exec.InstanceHash, exec.TaskKey, res.Outputs); err != nil {
-			if err1 := exec.Failed(err); err1 != nil {
-				return nil, err1
+			if err1 := exec.Fail(err); err1 != nil {
+				return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, err1.Error())
 			}
 		} else if err := exec.Complete(res.Outputs); err != nil {
-			return nil, err
+			return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, err.Error())
 		}
 	case *api.UpdateExecutionRequest_Error:
-		if err := exec.Failed(errors.New(res.Error)); err != nil {
-			return nil, err
+		if err := exec.Fail(errors.New(res.Error)); err != nil {
+			return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, err.Error())
 		}
 	default:
-		return nil, errors.New("no execution result supplied")
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "no execution result supplied")
 	}
+
 	value, err := k.cdc.MarshalBinaryLengthPrefixed(exec)
 	if err != nil {
-		return nil, err
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrJSONMarshal, err.Error())
 	}
 
 	if !ctx.IsCheckTx() {
@@ -170,15 +269,8 @@ func (k *Keeper) Update(ctx sdk.Context, msg types.MsgUpdateExecution) (*executi
 	if err != nil {
 		return nil, err
 	}
-	run, err := k.runnerKeeper.Get(ctx, exec.ExecutorHash)
-	if err != nil {
-		return nil, err
-	}
 
-	execAddress := sdk.AccAddress(crypto.AddressHash(exec.Hash))
-	runnerAddress := sdk.AccAddress(crypto.AddressHash(run.Hash))
-	serviceAddress := sdk.AccAddress(crypto.AddressHash(srv.Hash))
-	if err := k.distributePriceShares(ctx, execAddress, runnerAddress, serviceAddress, exec.Price); err != nil {
+	if err := k.distributePriceShares(ctx, exec.Address, runExecutor.Address, srv.Address, exec.Emitters, exec.Price); err != nil {
 		return nil, err
 	}
 
@@ -186,22 +278,79 @@ func (k *Keeper) Update(ctx sdk.Context, msg types.MsgUpdateExecution) (*executi
 	return exec, nil
 }
 
-func (k *Keeper) distributePriceShares(ctx sdk.Context, execAddress, runnerAddress, serviceAddress sdk.AccAddress, price string) error {
+// Get returns the execution that matches given hash.
+func (k *Keeper) Get(ctx sdk.Context, hash hash.Hash) (*executionpb.Execution, error) {
+	var exec *executionpb.Execution
+	store := ctx.KVStore(k.storeKey)
+	if !store.Has(hash) {
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "execution %q not found", hash)
+	}
+	if err := k.cdc.UnmarshalBinaryLengthPrefixed(store.Get(hash), &exec); err != nil {
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrJSONUnmarshal, err.Error())
+	}
+	return exec, nil
+}
+
+// List returns all executions.
+func (k *Keeper) List(ctx sdk.Context) ([]*executionpb.Execution, error) {
+	var (
+		execs []*executionpb.Execution
+		iter  = ctx.KVStore(k.storeKey).Iterator(nil, nil)
+	)
+	for iter.Valid() {
+		var exec *executionpb.Execution
+		value := iter.Value()
+		if err := k.cdc.UnmarshalBinaryLengthPrefixed(value, &exec); err != nil {
+			return nil, sdkerrors.Wrapf(sdkerrors.ErrJSONUnmarshal, err.Error())
+		}
+		execs = append(execs, exec)
+		iter.Next()
+	}
+	iter.Close()
+	return execs, nil
+}
+
+func (k *Keeper) distributePriceShares(ctx sdk.Context, execAddress, runnerAddress, serviceAddress sdk.AccAddress, emitters []*executionpb.Execution_Emitter, price string) error {
 	coins, err := sdk.ParseCoins(price)
 	if err != nil {
-		return fmt.Errorf("cannot parse coins: %w", err)
+		return sdkerrors.Wrapf(sdkerrors.ErrInvalidCoins, err.Error())
 	}
 	if coins.Empty() {
 		return nil
 	}
 
-	runnerCoins, _ := sdk.NewDecCoinsFromCoins(coins...).MulDecTruncate(runnerShare).TruncateDecimal()
-	serviceCoins := coins.Sub(runnerCoins)
-
+	// inputs
 	inputs := []bank.Input{bank.NewInput(execAddress, coins)}
+
+	// outputs
+	runnerCoins, _ := sdk.NewDecCoinsFromCoins(coins...).MulDecTruncate(runnerShare).TruncateDecimal()
+	serviceCoins, _ := sdk.NewDecCoinsFromCoins(coins...).MulDecTruncate(serviceShare).TruncateDecimal()
+
 	outputs := []bank.Output{
 		bank.NewOutput(runnerAddress, runnerCoins),
 		bank.NewOutput(serviceAddress, serviceCoins),
+	}
+
+	// emitters get all the remaining coins
+	emittersCoins := coins.Sub(runnerCoins).Sub(serviceCoins)
+	distributedEmittersCoins := sdk.NewCoins()
+
+	for i, emitter := range emitters {
+		runEmitter, err := k.runnerKeeper.Get(ctx, emitter.RunnerHash)
+		if err != nil {
+			return err
+		}
+		// 1 emitter share = 1 / len(emitters)
+		emitterShare := sdk.NewDecFromBigInt(big.NewInt(1).Div(big.NewInt(1), big.NewInt(int64(len(emitters)))))
+		emitterCoins, _ := sdk.NewDecCoinsFromCoins(emittersCoins...).MulDecTruncate(emitterShare).TruncateDecimal()
+		distributedEmittersCoins = distributedEmittersCoins.Add(emitterCoins...)
+
+		// give the remaining coins to the last emitter
+		if i == len(emitters)-1 {
+			emitterCoins = emitterCoins.Add(emittersCoins.Sub(distributedEmittersCoins)...)
+		}
+
+		outputs = append(outputs, bank.NewOutput(runEmitter.Address, emitterCoins))
 	}
 
 	if err := k.bankKeeper.InputOutputCoins(ctx, inputs, outputs); err != nil {
@@ -219,34 +368,46 @@ func (k *Keeper) validateExecutionOutput(ctx sdk.Context, instanceHash hash.Hash
 	if err != nil {
 		return err
 	}
-	return srv.RequireTaskOutputs(taskKey, outputs)
-}
-
-// Get returns the execution that matches given hash.
-func (k *Keeper) Get(ctx sdk.Context, hash hash.Hash) (*executionpb.Execution, error) {
-	var exec *executionpb.Execution
-	store := ctx.KVStore(k.storeKey)
-	if !store.Has(hash) {
-		return nil, fmt.Errorf("execution %q not found", hash)
+	if err := srv.RequireTaskOutputs(taskKey, outputs); err != nil {
+		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, err.Error())
 	}
-	return exec, k.cdc.UnmarshalBinaryLengthPrefixed(store.Get(hash), &exec)
+	return nil
 }
 
-// List returns all executions.
-func (k *Keeper) List(ctx sdk.Context) ([]*executionpb.Execution, error) {
-	var (
-		execs []*executionpb.Execution
-		iter  = ctx.KVStore(k.storeKey).Iterator(nil, nil)
-	)
-	for iter.Valid() {
-		var exec *executionpb.Execution
-		value := iter.Value()
-		if err := k.cdc.UnmarshalBinaryLengthPrefixed(value, &exec); err != nil {
-			return nil, err
+// fetchEmitters returns the runners running the instance that was responsible for creating this execution from the process.
+func (k *Keeper) fetchEmitters(ctx sdk.Context, proc *process.Process, nodeKey string) ([]*runner.Runner, error) {
+	// get parent node's instance hash
+	parentNode, err := proc.FindParentWithType(nodeKey, func(node *process.Process_Node) bool {
+		switch node.GetType().(type) {
+		case *process.Process_Node_Event_, *process.Process_Node_Result_:
+			return true
+		default:
+			return false
 		}
-		execs = append(execs, exec)
-		iter.Next()
+	})
+	if err != nil {
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, err.Error())
 	}
-	iter.Close()
-	return execs, nil
+	var instanceHash hash.Hash
+	switch n := parentNode.GetType().(type) {
+	case *process.Process_Node_Event_:
+		instanceHash = n.Event.InstanceHash
+	case *process.Process_Node_Result_:
+		instanceHash = n.Result.InstanceHash
+	default:
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "parent node type should be an event or a result")
+	}
+
+	// get runners of this instance
+	runs, err := k.runnerKeeper.List(ctx)
+	if err != nil {
+		return nil, err
+	}
+	matchedRuns := make([]*runner.Runner, 0)
+	for _, run := range runs {
+		if run.InstanceHash.Equal(instanceHash) {
+			matchedRuns = append(matchedRuns, run)
+		}
+	}
+	return matchedRuns, nil
 }

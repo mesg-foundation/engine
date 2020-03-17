@@ -30,13 +30,14 @@ import (
 	"github.com/mesg-foundation/engine/server/grpc"
 	"github.com/mesg-foundation/engine/version"
 	"github.com/sirupsen/logrus"
+	rpcclient "github.com/tendermint/tendermint/rpc/client"
 	rpcserver "github.com/tendermint/tendermint/rpc/lib/server"
 	tmtypes "github.com/tendermint/tendermint/types"
 	db "github.com/tendermint/tm-db"
 )
 
-func stopRunningServices(mc *cosmos.ModuleClient, b *builder.Builder, address string) error {
-	runners, err := mc.ListRunner(&cosmos.FilterRunner{Address: address})
+func stopRunningServices(mc *cosmos.ModuleClient, b *builder.Builder, owner string) error {
+	runners, err := mc.ListRunner(&cosmos.FilterRunner{Owner: owner})
 	if err != nil {
 		return err
 	}
@@ -186,7 +187,7 @@ func main() {
 	}()
 
 	// create cosmos client
-	client, err := cosmos.NewClient(node, cdc, kb, genesis.ChainID, cfg.Account.Name, cfg.Account.Password, cfg.Cosmos.MinGasPrices)
+	client, err := cosmos.NewClient(rpcclient.NewLocal(node), cdc, kb, genesis.ChainID, cfg.Account.Name, cfg.Account.Password, cfg.Cosmos.MinGasPrices)
 	if err != nil {
 		logrus.WithField("module", "main").Fatalln(err)
 	}

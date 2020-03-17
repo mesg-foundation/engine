@@ -35,8 +35,15 @@ message Ownership {
     None = 0;
     Service = 1;
     Process = 2;
+    Runner = 3;
   }
 
   // Resource's type.
   Resource resource = 4;
+
+  // The address of the resource.
+  bytes resourceAddress = 5 [
+    (gogoproto.moretags) = 'hash:"-" validate:"accaddress"',
+    (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"
+  ];
 }

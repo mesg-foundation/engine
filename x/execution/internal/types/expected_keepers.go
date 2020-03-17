@@ -38,6 +38,7 @@ type InstanceKeeper interface {
 // RunnerKeeper module interface.
 type RunnerKeeper interface {
 	Get(ctx sdk.Context, hash hash.Hash) (*runnerpb.Runner, error)
+	List(ctx sdk.Context) ([]*runnerpb.Runner, error)
 }
 
 // ProcessKeeper module interface.

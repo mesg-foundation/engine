@@ -4,6 +4,7 @@ import (
 	"context"
 	"testing"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/ownership"
 	pb "github.com/mesg-foundation/engine/protobuf/api"
@@ -11,7 +12,10 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-var testServiceHash hash.Hash
+var (
+	testServiceHash    hash.Hash
+	testServiceAddress sdk.AccAddress
+)
 
 func testService(t *testing.T) {
 	req := newTestCreateServiceRequest()
@@ -32,6 +36,7 @@ func testService(t *testing.T) {
 			var s *service.Service
 			lcdGet(t, "service/get/"+testServiceHash.String(), &s)
 			require.Equal(t, testServiceHash, s.Hash)
+			testServiceAddress = s.Address
 		})
 	})
 

@@ -1,8 +1,6 @@
 package process
 
 import (
-	"fmt"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/mesg-foundation/engine/x/process/internal/types"
@@ -18,8 +16,7 @@ func NewHandler(k Keeper) sdk.Handler {
 		case MsgDeleteProcess:
 			return handleMsgDeleteProcess(ctx, k, &msg)
 		default:
-			errMsg := fmt.Sprintf("unrecognized %s message type: %T", ModuleName, msg)
-			return nil, sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, errMsg)
+			return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "unrecognized %s message type: %T", types.ModuleName, msg)
 		}
 	}
 }

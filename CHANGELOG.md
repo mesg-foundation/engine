@@ -1,5 +1,27 @@
 # Changelog
 
+## [v0.20.0](https://github.com/mesg-foundation/engine/releases/tag/v0.20.0)
+
+#### Added
+
+- ([#1688](https://github.com/mesg-foundation/engine/pull/1688)) Handle withdraw from resources.
+- ([#1694](https://github.com/mesg-foundation/engine/pull/1694)) Add build multi-platform cmds script to CI.
+- ([#1699](https://github.com/mesg-foundation/engine/pull/1699)) Processes pay for executions.
+- ([#1705](https://github.com/mesg-foundation/engine/pull/1705)) Add emitters to execution with consensus system.
+- ([#1719](https://github.com/mesg-foundation/engine/pull/1719)) Add transaction's log to returned error.
+- ([#1723](https://github.com/mesg-foundation/engine/pull/1723)) Add address to process.
+- ([#1728](https://github.com/mesg-foundation/engine/pull/1728)) Add address to service, runner, execution, and execution.
+- ([#1729](https://github.com/mesg-foundation/engine/pull/1729)) Wrap errors of modules' keeper, querier and msg to sent them to clients.
+
+#### Dependencies
+
+- ([#1668](https://github.com/mesg-foundation/engine/pull/1668)) Bump github.com/go-kit/kit from 0.9.0 to 0.10.0.
+- ([#1674](https://github.com/mesg-foundation/engine/pull/1674)) Bump github.com/stretchr/testify from 1.4.0 to 1.5.1.
+- ([#1677](https://github.com/mesg-foundation/engine/pull/1677)) Bump github.com/spf13/cobra from 0.0.5 to 0.0.6.
+- ([#1686](https://github.com/mesg-foundation/engine/pull/1686)) Bump github.com/golang/protobuf from 1.3.3 to 1.3.4.
+- ([#1697](https://github.com/mesg-foundation/engine/pull/1697)) Bump github.com/pseudomuto/protoc-gen-doc from 1.3.0 to 1.3.1.
+- ([#1702](https://github.com/mesg-foundation/engine/pull/1702)) Bump github.com/prometheus/client_golang from 1.4.1 to 1.5.0.
+
 ## [v0.19.0](https://github.com/mesg-foundation/engine/releases/tag/v0.19.0)
 
 #### Added

@@ -3,7 +3,6 @@ package keeper
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/mesg-foundation/engine/cosmos/errors"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/mesg-foundation/engine/x/service/internal/types"
@@ -30,19 +29,19 @@ func NewQuerier(k Keeper) sdk.Querier {
 
 func getService(ctx sdk.Context, k Keeper, path []string) ([]byte, error) {
 	if len(path) == 0 {
-		return nil, errors.ErrMissingHash
+		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "missing hash")
 	}
 	hash, err := hash.Decode(path[0])
 	if err != nil {
-		return nil, sdkerrors.Wrap(errors.ErrValidation, err.Error())
+		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, err.Error())
 	}
 
-	servcie, err := k.Get(ctx, hash)
+	srv, err := k.Get(ctx, hash)
 	if err != nil {
 		return nil, err
 	}
 
-	res, err := types.ModuleCdc.MarshalJSON(servcie)
+	res, err := types.ModuleCdc.MarshalJSON(srv)
 	if err != nil {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONMarshal, err.Error())
 	}
@@ -65,12 +64,12 @@ func hashService(ctx sdk.Context, k Keeper, req abci.RequestQuery) ([]byte, erro
 }
 
 func listService(ctx sdk.Context, k Keeper) ([]byte, error) {
-	servcies, err := k.List(ctx)
+	srvs, err := k.List(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	res, err := types.ModuleCdc.MarshalJSON(servcies)
+	res, err := types.ModuleCdc.MarshalJSON(srvs)
 	if err != nil {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONMarshal, err.Error())
 	}
@@ -79,19 +78,19 @@ func listService(ctx sdk.Context, k Keeper) ([]byte, error) {
 
 func existService(ctx sdk.Context, k Keeper, path []string) ([]byte, error) {
 	if len(path) == 0 {
-		return nil, errors.ErrMissingHash
+		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "missing hash")
 	}
 	hash, err := hash.Decode(path[0])
 	if err != nil {
-		return nil, err
+		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, err.Error())
 	}
 
-	servcie, err := k.Exists(ctx, hash)
+	srv, err := k.Exists(ctx, hash)
 	if err != nil {
 		return nil, err
 	}
 
-	res, err := types.ModuleCdc.MarshalJSON(servcie)
+	res, err := types.ModuleCdc.MarshalJSON(srv)
 	if err != nil {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONMarshal, err.Error())
 	}

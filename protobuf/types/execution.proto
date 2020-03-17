@@ -16,16 +16,17 @@ enum Status {
   // Unknown status represents any status unknown to execution.
   Unknown = 0;
 
-  // Created is an initial status after execution creation.
-  Created = 1;
+  // Proposed is the initial status of an execution.
+  // More emitters must submit the same execution to reach consensus.
+  Proposed = 1;
 
-  // InProgress informs that processing of execution has been started.
+  // InProgress informs that the execution reach consensus and the processing of execution must start.
   InProgress = 2;
 
-  // Completed is a success status after execution was processed.
+  // Completed is a success status after execution was processed and result submitted.
   Completed = 3;
 
-  // Failed is an error status after execution was processed.
+  // Failed is an error status after execution was processed but an error occured.
   Failed = 4;
 }
 
@@ -118,5 +119,31 @@ message Execution {
   // blockHeight where the execution was included into blockchain.
   int64 blockHeight = 15 [
     (gogoproto.moretags) = 'hash:"-"'
+  ];
+
+  // Emitter is a runner that proposed an execution.
+  message Emitter {
+    // Emitter's hash.
+    bytes runnerHash = 1 [
+      (gogoproto.moretags) = 'hash:"-" validate:"hash"',
+      (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
+      (gogoproto.nullable) = false
+    ];
+
+    // Block height when this emitter proposed the execution.
+    int64 blockHeight = 2 [
+      (gogoproto.moretags) = 'hash:"-"'
+    ];
+  }
+    
+  // list of emitters of this execution.
+  repeated Emitter emitters = 16 [
+    (gogoproto.moretags) = 'hash:"-"'
+  ];
+
+  // The address of the execution.
+  bytes address = 17 [
+    (gogoproto.moretags) = 'hash:"-" validate:"accaddress"',
+    (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"
   ];
 }
