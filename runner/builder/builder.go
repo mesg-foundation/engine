@@ -8,7 +8,6 @@ import (
 	"github.com/mesg-foundation/engine/cosmos"
 	"github.com/mesg-foundation/engine/ext/xos"
 	"github.com/mesg-foundation/engine/hash"
-	"github.com/mesg-foundation/engine/hash/hashserializer"
 	instancepb "github.com/mesg-foundation/engine/instance"
 	"github.com/mesg-foundation/engine/protobuf/api"
 	runnerpb "github.com/mesg-foundation/engine/runner"
@@ -45,7 +44,7 @@ func (b *Builder) Create(req *api.CreateRunnerRequest) (*runnerpb.Runner, error)
 	}
 
 	instanceEnv := xos.EnvMergeSlices(srv.Configuration.Env, req.Env)
-	envHash := hash.Dump(hashserializer.StringSlice(instanceEnv))
+	envHash := hash.Dump(instanceEnv)
 	// TODO: should be done by instance or runner
 	instanceHash := hash.Dump(&instancepb.Instance{
 		ServiceHash: srv.Hash,
@@ -55,10 +54,8 @@ func (b *Builder) Create(req *api.CreateRunnerRequest) (*runnerpb.Runner, error)
 	if err != nil {
 		return nil, err
 	}
-	expRunnerHash := hash.Dump(&runnerpb.Runner{
-		Address:      acc.GetAddress().String(),
-		InstanceHash: instanceHash,
-	})
+	expRunner := runnerpb.New(acc.GetAddress().String(), instanceHash)
+	expRunnerHash := expRunner.Hash
 
 	if runExisting, _ := b.mc.GetRunner(expRunnerHash); runExisting != nil {
 		return nil, fmt.Errorf("runner %q already exists", runExisting.Hash)

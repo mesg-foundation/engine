@@ -34,10 +34,10 @@ func (msg MsgCreateService) Type() string {
 // ValidateBasic runs stateless checks on the message.
 func (msg MsgCreateService) ValidateBasic() error {
 	if msg.Owner.Empty() {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, "owner is missing")
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "owner is missing")
 	}
 	if err := xvalidator.Validate.Struct(msg); err != nil {
-		return err
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, err.Error())
 	}
 	return nil
 }

@@ -14,7 +14,6 @@ import (
 	"github.com/mesg-foundation/engine/protobuf/types"
 	"github.com/mesg-foundation/engine/x/ownership"
 	"github.com/stretchr/testify/require"
-	"github.com/tendermint/tendermint/crypto"
 )
 
 func testExecution(t *testing.T) {
@@ -23,6 +22,7 @@ func testExecution(t *testing.T) {
 		streamCompleted  pb.Execution_StreamClient
 		err              error
 		executorHash     = testRunnerHash
+		executorAddress  = testRunnerAddress
 	)
 
 	t.Run("create stream nil filter", func(t *testing.T) {
@@ -214,21 +214,29 @@ func testExecution(t *testing.T) {
 		})
 		require.NoError(t, err)
 
-		execAddress := sdk.AccAddress(crypto.AddressHash(resp.Hash))
-		executorAddress := sdk.AccAddress(crypto.AddressHash(executorHash))
-		serviceAddress := sdk.AccAddress(crypto.AddressHash(testServiceHash))
+		var execAddress sdk.AccAddress
+		t.Run("get execution address", func(t *testing.T) {
+			var exec *execution.Execution
+			lcdGet(t, "execution/get/"+resp.Hash.String(), &exec)
+			require.Equal(t, exec.Hash, resp.Hash)
+			execAddress = exec.Address
+		})
 
 		// check balance of execution before completed
 		t.Run("execution balance before completed", func(t *testing.T) {
 			coins := sdk.Coins{}
 			lcdGet(t, "bank/balances/"+execAddress.String(), &coins)
-			require.True(t, coins.AmountOf("atto").Equal(sdk.NewInt(50000)))
+			require.True(t, coins.AmountOf("atto").Equal(sdk.NewInt(50000)), coins)
 		})
+
+		expectedCoinsForExecutor := sdk.NewInt(40000)
+		expectedCoinsForService := sdk.NewInt(5000)
+		expectedCoinsForEmitter := sdk.NewInt(5000)
 
 		var executorBalance sdk.Coins
 		var serviceBalance sdk.Coins
 		lcdGet(t, "bank/balances/"+executorAddress.String(), &executorBalance)
-		lcdGet(t, "bank/balances/"+serviceAddress.String(), &serviceBalance)
+		lcdGet(t, "bank/balances/"+testServiceAddress.String(), &serviceBalance)
 
 		_, err = streamInProgress.Recv()
 		require.NoError(t, err)
@@ -238,49 +246,48 @@ func testExecution(t *testing.T) {
 		require.Equal(t, resp.Hash, exec.Hash)
 
 		// check balance of executor
-		t.Run("executor balance", func(t *testing.T) {
+		t.Run("executor + emitter balance", func(t *testing.T) {
 			coins := sdk.Coins{}
 			lcdGet(t, "bank/balances/"+executorAddress.String(), &coins)
-			require.True(t, coins.AmountOf("atto").Equal(sdk.NewInt(45000).Add(executorBalance.AmountOf("atto"))))
+			require.True(t, coins.AmountOf("atto").Equal(expectedCoinsForExecutor.Add(expectedCoinsForEmitter).Add(executorBalance.AmountOf("atto"))), coins)
 		})
 		// check balance of service
 		t.Run("service balance", func(t *testing.T) {
 			coins := sdk.Coins{}
-			lcdGet(t, "bank/balances/"+serviceAddress.String(), &coins)
-			require.True(t, coins.AmountOf("atto").Equal(sdk.NewInt(5000).Add(serviceBalance.AmountOf("atto"))))
+			lcdGet(t, "bank/balances/"+testServiceAddress.String(), &coins)
+			require.True(t, coins.AmountOf("atto").Equal(expectedCoinsForService.Add(serviceBalance.AmountOf("atto"))), coins)
 		})
 		// check balance of execution
 		t.Run("execution balance", func(t *testing.T) {
 			coins := sdk.Coins{}
-			execAddress := sdk.AccAddress(crypto.AddressHash(resp.Hash))
 			lcdGet(t, "bank/balances/"+execAddress.String(), &coins)
-			require.True(t, coins.AmountOf("atto").Equal(sdk.NewInt(0)))
+			require.True(t, coins.AmountOf("atto").Equal(sdk.NewInt(0)), coins)
 		})
 
 		t.Run("withdraw from service", func(t *testing.T) {
 			acc, err := cclient.GetAccount()
 			require.NoError(t, err)
-			coins := sdk.NewCoins(sdk.NewCoin("atto", sdk.NewInt(7000)))
+			coins := sdk.NewCoins(sdk.NewCoin("atto", expectedCoinsForService))
 			msg := ownership.NewMsgWithdrawCoins(testServiceHash, coins, acc.GetAddress())
 			_, err = cclient.BuildAndBroadcastMsg(msg)
 			require.NoError(t, err)
 
-			param := bank.NewQueryBalanceParams(sdk.AccAddress(crypto.AddressHash(testServiceHash)))
+			param := bank.NewQueryBalanceParams(testServiceAddress)
 			require.NoError(t, cclient.QueryJSON("custom/bank/balances", param, &coins))
-			require.True(t, coins.IsZero(), coins)
+			require.True(t, coins.AmountOf("atto").Equal(serviceBalance.AmountOf("atto")), coins)
 		})
 
 		t.Run("withdraw from runner", func(t *testing.T) {
 			acc, err := cclient.GetAccount()
 			require.NoError(t, err)
-			coins := sdk.NewCoins(sdk.NewCoin("atto", sdk.NewInt(63000)))
+			coins := sdk.NewCoins(sdk.NewCoin("atto", expectedCoinsForExecutor.Add(expectedCoinsForEmitter)))
 			msg := ownership.NewMsgWithdrawCoins(testRunnerHash, coins, acc.GetAddress())
 			_, err = cclient.BuildAndBroadcastMsg(msg)
 			require.NoError(t, err)
 
-			param := bank.NewQueryBalanceParams(sdk.AccAddress(crypto.AddressHash(testRunnerHash)))
+			param := bank.NewQueryBalanceParams(testRunnerAddress)
 			require.NoError(t, cclient.QueryJSON("custom/bank/balances", param, &coins))
-			require.True(t, coins.IsZero(), coins)
+			require.True(t, coins.AmountOf("atto").Equal(executorBalance.AmountOf("atto")), coins)
 		})
 	})
 

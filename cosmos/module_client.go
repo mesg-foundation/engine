@@ -7,7 +7,6 @@ import (
 	executionpb "github.com/mesg-foundation/engine/execution"
 	"github.com/mesg-foundation/engine/ext/xos"
 	"github.com/mesg-foundation/engine/hash"
-	"github.com/mesg-foundation/engine/hash/hashserializer"
 	instancepb "github.com/mesg-foundation/engine/instance"
 	ownershippb "github.com/mesg-foundation/engine/ownership"
 	processpb "github.com/mesg-foundation/engine/process"
@@ -224,7 +223,7 @@ func (mc *ModuleClient) CreateRunner(req *api.CreateRunnerRequest) (*runnerpb.Ru
 	if err != nil {
 		return nil, err
 	}
-	envHash := hash.Dump(hashserializer.StringSlice(xos.EnvMergeSlices(s.Configuration.Env, req.Env)))
+	envHash := hash.Dump(xos.EnvMergeSlices(s.Configuration.Env, req.Env))
 	acc, err := mc.GetAccount()
 	if err != nil {
 		return nil, err
@@ -258,7 +257,7 @@ func (mc *ModuleClient) GetRunner(hash hash.Hash) (*runnerpb.Runner, error) {
 
 // FilterRunner to apply while listing runners.
 type FilterRunner struct {
-	Address      string
+	Owner        string
 	InstanceHash hash.Hash
 }
 
@@ -278,7 +277,7 @@ func (mc *ModuleClient) ListRunner(f *FilterRunner) ([]*runnerpb.Runner, error) 
 	// filter results
 	out := make([]*runnerpb.Runner, 0)
 	for _, r := range rs {
-		if (f.Address == "" || r.Address == f.Address) &&
+		if (f.Owner == "" || r.Owner == f.Owner) &&
 			(f.InstanceHash.IsZero() || r.InstanceHash.Equal(f.InstanceHash)) {
 			out = append(out, r)
 		}

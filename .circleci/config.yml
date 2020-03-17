@@ -95,6 +95,18 @@ jobs:
       - run: docker login -u $DOCKER_USER -p $DOCKER_PASS
       - run: make docker-publish version=$CIRCLE_TAG
 
+  "release_cli_dev":
+    <<: *run_on_docker
+    steps:
+      - checkout
+      - run: make publish-cmds version="dev build `echo $CIRCLE_SHA1 | cut -c1-7`" release-type=dev
+
+  "release_cli_prod":
+    <<: *run_on_docker
+    steps:
+      - checkout
+      - run: make publish-cmds version=$CIRCLE_TAG release-type=prod
+
 workflows:
   version: 2
 
@@ -142,6 +154,9 @@ workflows:
       - "publish_docker_dev":
           requires:
             - "test_e2e"
+      - "release_cli_dev":
+          requires:
+            - "test_e2e"
 
   test_prod:
     jobs:
@@ -186,6 +201,14 @@ workflows:
             - "test"
             - "lint"
       - "publish_docker_prod":
+          filters:
+            tags:
+              only: /^v.*/
+            branches:
+              ignore: /.*/
+          requires:
+            - "test_e2e"
+      - "release_cli_prod":
           filters:
             tags:
               only: /^v.*/

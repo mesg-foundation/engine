@@ -4,6 +4,8 @@ import (
 	"context"
 	"testing"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/x/bank"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/ownership"
 	"github.com/mesg-foundation/engine/process"
@@ -11,12 +13,11 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-var testProcessHash hash.Hash
-
 func testProcess(t *testing.T) {
 	var (
-		processHash hash.Hash
-		req         = &pb.CreateProcessRequest{
+		processHash    hash.Hash
+		processAddress sdk.AccAddress
+		req            = &pb.CreateProcessRequest{
 			Name: "test-process",
 			Nodes: []*process.Process_Node{
 				{
@@ -50,30 +51,32 @@ func testProcess(t *testing.T) {
 	t.Run("create", func(t *testing.T) {
 		resp, err := client.ProcessClient.Create(context.Background(), req)
 		require.NoError(t, err)
-		testProcessHash = resp.Hash
+		processHash = resp.Hash
 	})
 
 	t.Run("get", func(t *testing.T) {
 		t.Run("grpc", func(t *testing.T) {
-			p, err := client.ProcessClient.Get(context.Background(), &pb.GetProcessRequest{Hash: testProcessHash})
+			p, err := client.ProcessClient.Get(context.Background(), &pb.GetProcessRequest{Hash: processHash})
 			require.NoError(t, err)
 			require.True(t, p.Equal(&process.Process{
-				Hash:  p.Hash,
-				Name:  req.Name,
-				Nodes: req.Nodes,
-				Edges: req.Edges,
+				Hash:    p.Hash,
+				Address: p.Address,
+				Name:    req.Name,
+				Nodes:   req.Nodes,
+				Edges:   req.Edges,
 			}))
-			processHash = p.Hash
 		})
 		t.Run("lcd", func(t *testing.T) {
 			var p *process.Process
-			lcdGet(t, "process/get/"+testProcessHash.String(), &p)
+			lcdGet(t, "process/get/"+processHash.String(), &p)
 			require.True(t, p.Equal(&process.Process{
-				Hash:  p.Hash,
-				Name:  req.Name,
-				Nodes: req.Nodes,
-				Edges: req.Edges,
+				Hash:    p.Hash,
+				Address: p.Address,
+				Name:    req.Name,
+				Nodes:   req.Nodes,
+				Edges:   req.Edges,
 			}))
+			processAddress = p.Address
 		})
 	})
 
@@ -102,6 +105,13 @@ func testProcess(t *testing.T) {
 		})
 	})
 
+	t.Run("check coins on process", func(t *testing.T) {
+		var coins sdk.Coins
+		param := bank.NewQueryBalanceParams(processAddress)
+		require.NoError(t, cclient.QueryJSON("custom/bank/balances", param, &coins))
+		require.True(t, coins.IsEqual(processInitialBalance), coins)
+	})
+
 	t.Run("list", func(t *testing.T) {
 		t.Run("grpc", func(t *testing.T) {
 			ps, err := client.ProcessClient.List(context.Background(), &pb.ListProcessRequest{})
@@ -116,7 +126,7 @@ func testProcess(t *testing.T) {
 	})
 
 	t.Run("delete", func(t *testing.T) {
-		_, err := client.ProcessClient.Delete(context.Background(), &pb.DeleteProcessRequest{Hash: testProcessHash})
+		_, err := client.ProcessClient.Delete(context.Background(), &pb.DeleteProcessRequest{Hash: processHash})
 		require.NoError(t, err)
 	})
 
@@ -131,5 +141,12 @@ func testProcess(t *testing.T) {
 			require.NoError(t, err)
 			require.Len(t, ownerships.Ownerships, 2)
 		})
+	})
+
+	t.Run("check coins on process", func(t *testing.T) {
+		var coins sdk.Coins
+		param := bank.NewQueryBalanceParams(processAddress)
+		require.NoError(t, cclient.QueryJSON("custom/bank/balances", param, &coins))
+		require.True(t, coins.IsZero(), coins)
 	})
 }

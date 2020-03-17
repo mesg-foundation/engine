@@ -47,8 +47,8 @@ message ListRunnerRequest {
       (gogoproto.nullable) = false
     ];
 
-    // Filter by address
-    string address = 2 [
+    // Filter by owner
+    string owner = 2 [
       (gogoproto.moretags) = 'validate:"accaddress"'
     ];
   }

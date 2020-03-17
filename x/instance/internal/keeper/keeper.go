@@ -5,6 +5,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/instance"
 	"github.com/mesg-foundation/engine/protobuf/api"
@@ -45,7 +46,7 @@ func (k Keeper) FetchOrCreate(ctx sdk.Context, serviceHash hash.Hash, envHash ha
 	if !store.Has(inst.Hash) {
 		value, err := k.cdc.MarshalBinaryLengthPrefixed(inst)
 		if err != nil {
-			return nil, err
+			return nil, sdkerrors.Wrapf(sdkerrors.ErrJSONMarshal, err.Error())
 		}
 		store.Set(inst.Hash, value)
 	}
@@ -57,12 +58,12 @@ func (k Keeper) FetchOrCreate(ctx sdk.Context, serviceHash hash.Hash, envHash ha
 func (k Keeper) Get(ctx sdk.Context, instanceHash hash.Hash) (*instance.Instance, error) {
 	store := ctx.KVStore(k.storeKey)
 	if !store.Has(instanceHash) {
-		return nil, fmt.Errorf("instance %q not found", instanceHash)
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "instance %q not found", instanceHash)
 	}
 
 	var item *instance.Instance
 	if err := k.cdc.UnmarshalBinaryLengthPrefixed(store.Get(instanceHash), &item); err != nil {
-		return nil, err
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrJSONUnmarshal, err.Error())
 	}
 	return item, nil
 }
@@ -76,7 +77,7 @@ func (k Keeper) List(ctx sdk.Context, f *api.ListInstanceRequest_Filter) ([]*ins
 	for iter.Valid() {
 		var item *instance.Instance
 		if err := k.cdc.UnmarshalBinaryLengthPrefixed(iter.Value(), &item); err != nil {
-			return nil, err
+			return nil, sdkerrors.Wrapf(sdkerrors.ErrJSONUnmarshal, err.Error())
 		}
 		if f == nil || f.ServiceHash.IsZero() || item.ServiceHash.Equal(f.ServiceHash) {
 			items = append(items, item)

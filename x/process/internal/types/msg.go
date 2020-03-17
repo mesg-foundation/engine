@@ -4,7 +4,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/mesg-foundation/engine/ext/xvalidator"
-	"github.com/mesg-foundation/engine/hash"
 	processpb "github.com/mesg-foundation/engine/process"
 	"github.com/mesg-foundation/engine/protobuf/api"
 )
@@ -36,19 +35,14 @@ func (msg MsgCreateProcess) Type() string {
 // ValidateBasic runs stateless checks on the message.
 func (msg MsgCreateProcess) ValidateBasic() error {
 	if msg.Owner.Empty() {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, "owner is missing")
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "owner is missing")
 	}
 	if err := xvalidator.Validate.Struct(msg); err != nil {
-		return err
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, err.Error())
 	}
-	p := &processpb.Process{
-		Name:  msg.Request.Name,
-		Nodes: msg.Request.Nodes,
-		Edges: msg.Request.Edges,
-	}
-	p.Hash = hash.Dump(p)
+	p := processpb.New(msg.Request.Name, msg.Request.Nodes, msg.Request.Edges)
 	if err := p.Validate(); err != nil {
-		return err
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, err.Error())
 	}
 
 	return nil
@@ -91,10 +85,10 @@ func (msg MsgDeleteProcess) Type() string {
 // ValidateBasic runs stateless checks on the message.
 func (msg MsgDeleteProcess) ValidateBasic() error {
 	if msg.Owner.Empty() {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, "owner is missing")
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "owner is missing")
 	}
 	if err := xvalidator.Validate.Struct(msg); err != nil {
-		return err
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, err.Error())
 	}
 	return nil
 }

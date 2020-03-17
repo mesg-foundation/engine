@@ -36,8 +36,8 @@ import (
 	db "github.com/tendermint/tm-db"
 )
 
-func stopRunningServices(mc *cosmos.ModuleClient, b *builder.Builder, address string) error {
-	runners, err := mc.ListRunner(&cosmos.FilterRunner{Address: address})
+func stopRunningServices(mc *cosmos.ModuleClient, b *builder.Builder, owner string) error {
+	runners, err := mc.ListRunner(&cosmos.FilterRunner{Owner: owner})
 	if err != nil {
 		return err
 	}

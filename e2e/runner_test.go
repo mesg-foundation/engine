@@ -4,6 +4,8 @@ import (
 	"context"
 	"testing"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/x/bank"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/protobuf/acknowledgement"
 	pb "github.com/mesg-foundation/engine/protobuf/api"
@@ -12,6 +14,7 @@ import (
 )
 
 var testRunnerHash hash.Hash
+var testRunnerAddress sdk.AccAddress
 
 func testRunner(t *testing.T) {
 	t.Run("create", func(t *testing.T) {
@@ -57,6 +60,7 @@ func testRunner(t *testing.T) {
 			var r *runner.Runner
 			lcdGet(t, "runner/get/"+testRunnerHash.String(), &r)
 			require.Equal(t, testRunnerHash, r.Hash)
+			testRunnerAddress = r.Address
 		})
 	})
 
@@ -92,5 +96,11 @@ func testDeleteRunner(t *testing.T) {
 		rs := make([]*runner.Runner, 0)
 		lcdGet(t, "runner/list", &rs)
 		require.Len(t, rs, 0)
+	})
+	t.Run("check coins on runner", func(t *testing.T) {
+		var coins sdk.Coins
+		param := bank.NewQueryBalanceParams(testRunnerAddress)
+		require.NoError(t, cclient.QueryJSON("custom/bank/balances", param, &coins))
+		require.True(t, coins.IsZero(), coins)
 	})
 }

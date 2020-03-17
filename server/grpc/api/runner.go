@@ -50,7 +50,7 @@ func (s *RunnerServer) List(ctx context.Context, req *api.ListRunnerRequest) (*a
 	var f *cosmos.FilterRunner
 	if req.Filter != nil {
 		f = &cosmos.FilterRunner{
-			Address:      req.Filter.Address,
+			Owner:        req.Filter.Owner,
 			InstanceHash: req.Filter.InstanceHash,
 		}
 	}

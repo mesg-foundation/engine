@@ -1,6 +1,6 @@
-.PHONY: all build build-cmd-cosmos changelog check-version clean clean-build clean-docker dep dev dev-mon dev-start dev-stop docker-build docker-dev docker-publish docker-publish-dev docker-tools genesis lint protobuf test
+.PHONY: all build build-cmd-cosmos changelog check-version clean clean-build clean-docker dep dev dev-mon dev-start dev-stop docker-build docker-dev docker-publish docker-publish-dev docker-tools genesis lint protobuf test publish-cmds
 
-MAJOR_VERSION := $(shell echo $(version) | cut -d . -f 1)	
+MAJOR_VERSION := $(shell echo $(version) | cut -d . -f 1)
 MINOR_VERSION := $(shell echo $(version) | cut -d . -f 1-2)
 PATCH_VERSION := $(version)
 
@@ -53,6 +53,9 @@ dep:
 
 build: check-version dep
 	go build -mod=readonly -o ./bin/engine -ldflags="-s -w -X 'github.com/mesg-foundation/engine/version.Version=$(version)'" core/main.go
+
+publish-cmds: check-version dep
+	./scripts/publish-cmds.sh "$(version)" "$(release-type)"
 
 build-cmd: dep
 	go build -mod=readonly -o ./bin/mesg-cli -ldflags="-s -w" ./cmd/mesg-cli/
