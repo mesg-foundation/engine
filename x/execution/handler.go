@@ -1,11 +1,8 @@
 package execution
 
 import (
-	"fmt"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/mesg-foundation/engine/cosmos/errors"
 	"github.com/mesg-foundation/engine/execution"
 	"github.com/mesg-foundation/engine/x/execution/internal/types"
 )
@@ -20,8 +17,7 @@ func NewHandler(k Keeper) sdk.Handler {
 		case MsgUpdateExecution:
 			return handleMsgUpdateExecution(ctx, k, msg)
 		default:
-			errMsg := fmt.Sprintf("unrecognized %s message type: %T", ModuleName, msg)
-			return nil, sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, errMsg)
+			return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "unrecognized %s message type: %T", types.ModuleName, msg)
 		}
 	}
 }
@@ -30,7 +26,7 @@ func NewHandler(k Keeper) sdk.Handler {
 func handleMsgCreateExecution(ctx sdk.Context, k Keeper, msg MsgCreateExecution) (*sdk.Result, error) {
 	exec, err := k.Create(ctx, msg)
 	if err != nil {
-		return nil, sdkerrors.Wrap(errors.ErrUnknown, err.Error())
+		return nil, err
 	}
 
 	// TODO: don't emit propsoed event to not break the stream listener in cosmos/client.go#152.
@@ -67,7 +63,7 @@ func handleMsgCreateExecution(ctx sdk.Context, k Keeper, msg MsgCreateExecution)
 func handleMsgUpdateExecution(ctx sdk.Context, k Keeper, msg MsgUpdateExecution) (*sdk.Result, error) {
 	s, err := k.Update(ctx, msg)
 	if err != nil {
-		return nil, sdkerrors.Wrap(errors.ErrUnknown, err.Error())
+		return nil, err
 	}
 
 	ctx.EventManager().EmitEvent(

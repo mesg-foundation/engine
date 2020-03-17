@@ -38,7 +38,7 @@ func queryGetHandlerFn(cliCtx context.CLIContext) http.HandlerFunc {
 
 		res, height, err := cliCtx.QueryWithData(route, nil)
 		if err != nil {
-			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
+			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
 
@@ -58,7 +58,7 @@ func queryListHandlerFn(cliCtx context.CLIContext) http.HandlerFunc {
 
 		res, height, err := cliCtx.QueryWithData(route, nil)
 		if err != nil {
-			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
+			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
 
@@ -78,7 +78,7 @@ func queryParametersHandlerFn(cliCtx context.CLIContext) http.HandlerFunc {
 
 		res, height, err := cliCtx.QueryWithData(route, nil)
 		if err != nil {
-			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
+			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
 

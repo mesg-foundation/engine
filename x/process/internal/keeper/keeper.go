@@ -5,6 +5,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/mesg-foundation/engine/hash"
 	ownershippb "github.com/mesg-foundation/engine/ownership"
 	"github.com/mesg-foundation/engine/process"
@@ -46,7 +47,7 @@ func (k Keeper) Create(ctx sdk.Context, msg *types.MsgCreateProcess) (*processpb
 	store := ctx.KVStore(k.storeKey)
 	p := process.New(msg.Request.Name, msg.Request.Nodes, msg.Request.Edges)
 	if store.Has(p.Hash) {
-		return nil, fmt.Errorf("process %q already exists", p.Hash)
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "process %q already exists", p.Hash)
 	}
 
 	for _, node := range p.Nodes {
@@ -68,7 +69,7 @@ func (k Keeper) Create(ctx sdk.Context, msg *types.MsgCreateProcess) (*processpb
 
 	procInitBal, err := sdk.ParseCoins(processCreateInitialBalance)
 	if err != nil {
-		return nil, err
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidCoins, err.Error())
 	}
 	if err := k.bankKeeper.SendCoins(ctx, msg.Owner, p.Address, procInitBal); err != nil {
 		return nil, err
@@ -76,7 +77,7 @@ func (k Keeper) Create(ctx sdk.Context, msg *types.MsgCreateProcess) (*processpb
 
 	value, err := k.cdc.MarshalBinaryLengthPrefixed(p)
 	if err != nil {
-		return nil, err
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrJSONMarshal, err.Error())
 	}
 
 	if _, err := k.ownershipKeeper.Set(ctx, msg.Owner, p.Hash, ownershippb.Ownership_Process, p.Address); err != nil {
@@ -100,11 +101,14 @@ func (k Keeper) Delete(ctx sdk.Context, msg *types.MsgDeleteProcess) error {
 func (k Keeper) Get(ctx sdk.Context, hash hash.Hash) (*processpb.Process, error) {
 	store := ctx.KVStore(k.storeKey)
 	if !store.Has(hash) {
-		return nil, fmt.Errorf("process %q not found", hash)
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "process %q not found", hash)
 	}
 	value := store.Get(hash)
 	var p *processpb.Process
-	return p, k.cdc.UnmarshalBinaryLengthPrefixed(value, &p)
+	if err := k.cdc.UnmarshalBinaryLengthPrefixed(value, &p); err != nil {
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrJSONUnmarshal, err.Error())
+	}
+	return p, nil
 }
 
 // List returns all processes.
@@ -116,7 +120,7 @@ func (k Keeper) List(ctx sdk.Context) ([]*processpb.Process, error) {
 	for iter.Valid() {
 		var p *processpb.Process
 		if err := k.cdc.UnmarshalBinaryLengthPrefixed(iter.Value(), &p); err != nil {
-			return nil, err
+			return nil, sdkerrors.Wrapf(sdkerrors.ErrJSONUnmarshal, err.Error())
 		}
 		processes = append(processes, p)
 		iter.Next()

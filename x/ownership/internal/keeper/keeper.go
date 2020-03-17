@@ -5,6 +5,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/ownership"
 	"github.com/mesg-foundation/engine/x/ownership/internal/types"
@@ -45,7 +46,7 @@ func (k *Keeper) List(ctx sdk.Context) ([]*ownership.Ownership, error) {
 	for iter.Valid() {
 		var o *ownership.Ownership
 		if err := k.cdc.UnmarshalBinaryLengthPrefixed(iter.Value(), &o); err != nil {
-			return nil, err
+			return nil, sdkerrors.Wrapf(sdkerrors.ErrJSONUnmarshal, err.Error())
 		}
 		ownerships = append(ownerships, o)
 		iter.Next()
@@ -56,9 +57,12 @@ func (k *Keeper) List(ctx sdk.Context) ([]*ownership.Ownership, error) {
 // Set creates a new ownership.
 func (k Keeper) Set(ctx sdk.Context, owner sdk.AccAddress, resourceHash hash.Hash, resource ownership.Ownership_Resource, resourceAddress sdk.AccAddress) (*ownership.Ownership, error) {
 	store := ctx.KVStore(k.storeKey)
-	own := k.getOwnership(store, resourceHash)
+	own, err := k.getOwnership(store, resourceHash)
+	if err != nil {
+		return nil, err
+	}
 	if own != nil {
-		return nil, fmt.Errorf("resource %s:%q already has an owner", resource, resourceHash)
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, "resource %s:%q already has an owner", resource, resourceHash)
 	}
 
 	// TODO: should be moved to a new function
@@ -70,19 +74,26 @@ func (k Keeper) Set(ctx sdk.Context, owner sdk.AccAddress, resourceHash hash.Has
 	}
 	own.Hash = hash.Dump(own)
 
-	store.Set(own.Hash, k.cdc.MustMarshalBinaryLengthPrefixed(own))
+	data, err := k.cdc.MarshalBinaryLengthPrefixed(own)
+	if err != nil {
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrJSONMarshal, err.Error())
+	}
+	store.Set(own.Hash, data)
 	return own, nil
 }
 
 // Delete deletes an ownership.
 func (k Keeper) Delete(ctx sdk.Context, owner sdk.AccAddress, resourceHash hash.Hash) error {
 	store := ctx.KVStore(k.storeKey)
-	own := k.getOwnership(store, resourceHash)
+	own, err := k.getOwnership(store, resourceHash)
+	if err != nil {
+		return err
+	}
 	if own == nil {
-		return fmt.Errorf("resource %q does not have any ownership", resourceHash)
+		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "resource %q do not have any ownership", resourceHash)
 	}
 	if own.Owner != owner.String() {
-		return fmt.Errorf("resource %q is not owned by you", resourceHash)
+		return sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, "resource %q is not owned by you", resourceHash)
 	}
 
 	// transfer all spendable coins from resource address to owner
@@ -101,29 +112,33 @@ func (k Keeper) Delete(ctx sdk.Context, owner sdk.AccAddress, resourceHash hash.
 // WithdrawCoins try to withdraw coins to owner rom specific resource.
 func (k Keeper) WithdrawCoins(ctx sdk.Context, msg types.MsgWithdrawCoins) error {
 	store := ctx.KVStore(k.storeKey)
-	own := k.getOwnership(store, msg.Hash)
+	own, err := k.getOwnership(store, msg.Hash)
+	if err != nil {
+		return err
+	}
 	if own == nil {
-		return fmt.Errorf("resource %q does not have any ownership", msg.Hash)
+		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "resource %q does not have any ownership", msg.Hash)
 	}
 	if own.Owner != msg.Owner.String() {
-		return fmt.Errorf("resource %q is not owned by you", msg.Hash)
+		return sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, "resource %q is not owned by you", msg.Hash)
 	}
 	return k.bankKeeper.SendCoins(ctx, own.ResourceAddress, msg.Owner, msg.Amount)
 }
 
 // getOwnership returns the ownership of a given resource.
-func (k Keeper) getOwnership(store sdk.KVStore, resourceHash hash.Hash) *ownership.Ownership {
+func (k Keeper) getOwnership(store sdk.KVStore, resourceHash hash.Hash) (*ownership.Ownership, error) {
 	iter := store.Iterator(nil, nil)
 	var own *ownership.Ownership
 	for iter.Valid() {
-		if err := k.cdc.UnmarshalBinaryLengthPrefixed(iter.Value(), &own); err == nil {
-			if own.ResourceHash.Equal(resourceHash) {
-				iter.Close()
-				return own
-			}
+		if err := k.cdc.UnmarshalBinaryLengthPrefixed(iter.Value(), &own); err != nil {
+			return nil, sdkerrors.Wrapf(sdkerrors.ErrJSONUnmarshal, err.Error())
+		}
+		if own.ResourceHash.Equal(resourceHash) {
+			iter.Close()
+			return own, nil
 		}
 		iter.Next()
 	}
 	iter.Close()
-	return nil
+	return nil, nil
 }

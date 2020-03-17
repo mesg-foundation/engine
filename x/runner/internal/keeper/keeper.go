@@ -1,7 +1,6 @@
 package keeper
 
 import (
-	"errors"
 	"fmt"
 
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -43,7 +42,7 @@ func (k Keeper) Create(ctx sdk.Context, msg *types.MsgCreateRunner) (*runner.Run
 	store := ctx.KVStore(k.storeKey)
 	inst, err := k.instanceKeeper.FetchOrCreate(ctx, msg.ServiceHash, msg.EnvHash)
 	if err != nil {
-		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, err.Error())
+		return nil, err
 	}
 
 	r := runner.New(msg.Address.String(), inst.Hash)
@@ -53,11 +52,11 @@ func (k Keeper) Create(ctx sdk.Context, msg *types.MsgCreateRunner) (*runner.Run
 
 	value, err := k.cdc.MarshalBinaryLengthPrefixed(r)
 	if err != nil {
-		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, err.Error())
+		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONMarshal, err.Error())
 	}
 
 	if _, err := k.ownershipKeeper.Set(ctx, msg.Address, r.Hash, ownershippb.Ownership_Runner, r.Address); err != nil {
-		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, err.Error())
+		return nil, err
 	}
 
 	store.Set(r.Hash, value)
@@ -68,19 +67,20 @@ func (k Keeper) Create(ctx sdk.Context, msg *types.MsgCreateRunner) (*runner.Run
 func (k Keeper) Delete(ctx sdk.Context, msg *types.MsgDeleteRunner) error {
 	store := ctx.KVStore(k.storeKey)
 	if !store.Has(msg.RunnerHash) {
-		return fmt.Errorf("runner %q not found", msg.RunnerHash)
+		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "runner %q not found", msg.RunnerHash)
 	}
 
 	value := store.Get(msg.RunnerHash)
 	var r *runner.Runner
 	if err := k.cdc.UnmarshalBinaryLengthPrefixed(value, &r); err != nil {
-		return fmt.Errorf("unmarshal error: %w", err)
+		return sdkerrors.Wrap(sdkerrors.ErrJSONUnmarshal, err.Error())
 	}
 	if r.Owner != msg.Address.String() {
-		return errors.New("only the runner owner can remove itself")
+		return sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "only the runner owner can remove itself")
 	}
+
 	if err := k.ownershipKeeper.Delete(ctx, msg.Address, r.Hash); err != nil {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, err.Error())
+		return err
 	}
 	store.Delete(msg.RunnerHash)
 	return nil
@@ -90,11 +90,14 @@ func (k Keeper) Delete(ctx sdk.Context, msg *types.MsgDeleteRunner) error {
 func (k Keeper) Get(ctx sdk.Context, hash hash.Hash) (*runner.Runner, error) {
 	store := ctx.KVStore(k.storeKey)
 	if !store.Has(hash) {
-		return nil, fmt.Errorf("runner %q not found", hash)
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "runner %q not found", hash)
 	}
 	value := store.Get(hash)
 	var r *runner.Runner
-	return r, k.cdc.UnmarshalBinaryLengthPrefixed(value, &r)
+	if err := k.cdc.UnmarshalBinaryLengthPrefixed(value, &r); err != nil {
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrJSONUnmarshal, err.Error())
+	}
+	return r, nil
 }
 
 // List returns all runners.
@@ -106,7 +109,7 @@ func (k Keeper) List(ctx sdk.Context) ([]*runner.Runner, error) {
 	for iter.Valid() {
 		var r *runner.Runner
 		if err := k.cdc.UnmarshalBinaryLengthPrefixed(iter.Value(), &r); err != nil {
-			return nil, err
+			return nil, sdkerrors.Wrapf(sdkerrors.ErrJSONUnmarshal, err.Error())
 		}
 		runners = append(runners, r)
 		iter.Next()

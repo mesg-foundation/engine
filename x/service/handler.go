@@ -1,8 +1,6 @@
 package service
 
 import (
-	"fmt"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/mesg-foundation/engine/x/service/internal/types"
@@ -16,8 +14,7 @@ func NewHandler(k Keeper) sdk.Handler {
 		case MsgCreateService:
 			return handleMsgCreateService(ctx, k, &msg)
 		default:
-			errMsg := fmt.Sprintf("unrecognized %s message type: %T", types.ModuleName, msg)
-			return nil, sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, errMsg)
+			return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "unrecognized %s message type: %T", types.ModuleName, msg)
 		}
 	}
 }
