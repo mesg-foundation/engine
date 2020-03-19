@@ -39,7 +39,11 @@ func testOrchestratorFilter(executionStream pb.Execution_StreamClient, instanceH
 									{
 										Key:       "msg",
 										Predicate: process.Process_Node_Filter_Condition_EQ,
-										Value:     "shouldMatch",
+										Value: &types.Value{
+											Kind: &types.Value_StringValue{
+												StringValue: "shouldMatch",
+											},
+										},
 									},
 								},
 							},
