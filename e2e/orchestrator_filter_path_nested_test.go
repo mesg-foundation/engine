@@ -96,12 +96,12 @@ func testOrchestratorFilterPathNested(executionStream pb.Execution_StreamClient,
 											Kind: &types.Value_ListValue{
 												ListValue: &types.ListValue{
 													Values: []*types.Value{
-														&types.Value{
+														{
 															Kind: &types.Value_StringValue{
 																StringValue: "one",
 															},
 														},
-														&types.Value{
+														{
 															Kind: &types.Value_StringValue{
 																StringValue: "two",
 															},
@@ -158,12 +158,12 @@ func testOrchestratorFilterPathNested(executionStream pb.Execution_StreamClient,
 												Kind: &types.Value_ListValue{
 													ListValue: &types.ListValue{
 														Values: []*types.Value{
-															&types.Value{
+															{
 																Kind: &types.Value_StringValue{
 																	StringValue: "one",
 																},
 															},
-															&types.Value{
+															{
 																Kind: &types.Value_StringValue{
 																	StringValue: "two",
 																},
@@ -226,12 +226,12 @@ func testOrchestratorFilterPathNested(executionStream pb.Execution_StreamClient,
 												Kind: &types.Value_ListValue{
 													ListValue: &types.ListValue{
 														Values: []*types.Value{
-															&types.Value{
+															{
 																Kind: &types.Value_StringValue{
 																	StringValue: "one",
 																},
 															},
-															&types.Value{
+															{
 																Kind: &types.Value_StringValue{
 																	StringValue: "two",
 																},
