@@ -142,7 +142,7 @@ func (s *Orchestrator) executeNode(wf *process.Process, n *process.Process_Node,
 			return err
 		}
 	} else if filter := n.GetFilter(); filter != nil {
-		if !s.Match(filter, wf, n.Key, exec, data) {
+		if !s.filterMatch(filter, wf, n.Key, exec, data) {
 			return nil
 		}
 	}
@@ -161,8 +161,8 @@ func (s *Orchestrator) executeNode(wf *process.Process, n *process.Process_Node,
 	return nil
 }
 
-// Match returns true if the data match the current list of filters
-func (s *Orchestrator) Match(f *process.Process_Node_Filter, wf *process.Process, nodeKey string, exec *execution.Execution, data *types.Struct) bool {
+// filterMatch returns true if the data match the current list of filters.
+func (s *Orchestrator) filterMatch(f *process.Process_Node_Filter, wf *process.Process, nodeKey string, exec *execution.Execution, data *types.Struct) bool {
 	for _, condition := range f.Conditions {
 		resolvedData, err := s.resolveRef(wf, exec, nodeKey, data, condition.Ref)
 		if err != nil {
@@ -175,6 +175,7 @@ func (s *Orchestrator) Match(f *process.Process_Node_Filter, wf *process.Process
 	return true
 }
 
+// processMap constructs the Struct that the map indicates how to construct.
 func (s *Orchestrator) processMap(nodeKey string, outputs map[string]*process.Process_Node_Map_Output, wf *process.Process, exec *execution.Execution, data *types.Struct) (*types.Struct, error) {
 	result := &types.Struct{
 		Fields: make(map[string]*types.Value),
@@ -189,6 +190,7 @@ func (s *Orchestrator) processMap(nodeKey string, outputs map[string]*process.Pr
 	return result, nil
 }
 
+// outputToValue returns a specific value from an output.
 func (s *Orchestrator) outputToValue(nodeKey string, output *process.Process_Node_Map_Output, wf *process.Process, exec *execution.Execution, data *types.Struct) (*types.Value, error) {
 	switch v := output.GetValue().(type) {
 	case *process.Process_Node_Map_Output_Null_:
@@ -229,11 +231,13 @@ func (s *Orchestrator) outputToValue(nodeKey string, output *process.Process_Nod
 	}
 }
 
+// resolveRef returns a specific value from a reference.
 func (s *Orchestrator) resolveRef(wf *process.Process, exec *execution.Execution, nodeKey string, data *types.Struct, ref *process.Process_Node_Reference) (*types.Value, error) {
 	refNode, err := wf.FindNode(ref.NodeKey)
 	if err != nil {
 		return nil, err
 	}
+	// if referenced node is a task, get its output
 	if refNode.GetTask() != nil {
 		return s.resolveInput(wf.Hash, exec, ref.NodeKey, ref.Path)
 	}
@@ -252,20 +256,26 @@ func (s *Orchestrator) resolveRef(wf *process.Process, exec *execution.Execution
 	return ref.Path.Resolve(data)
 }
 
-func (s *Orchestrator) resolveInput(wfHash hash.Hash, exec *execution.Execution, nodeKey string, path *process.Process_Node_Reference_Path) (*types.Value, error) {
+// resolveInput returns a specific value from a reference path.
+func (s *Orchestrator) resolveInput(wfHash hash.Hash, exec *execution.Execution, refNodeKey string, path *process.Process_Node_Reference_Path) (*types.Value, error) {
+	// the wfHash condition only works for Task node, not for Result
 	if !wfHash.Equal(exec.ProcessHash) {
 		return nil, fmt.Errorf("reference's nodeKey not found")
 	}
-	if exec.NodeKey != nodeKey {
-		parent, err := s.mc.GetExecution(exec.ParentHash)
-		if err != nil {
-			return nil, err
-		}
-		return s.resolveInput(wfHash, parent, nodeKey, path)
+	// we reach the right execution, return it
+	// but only works for Task as the execution related to the Result is not created by this process
+	if exec.NodeKey == refNodeKey {
+		return path.Resolve(exec.Outputs)
 	}
-	return path.Resolve(exec.Outputs)
+	// get parentExec and do a recursive call
+	parentExec, err := s.mc.GetExecution(exec.ParentHash)
+	if err != nil {
+		return nil, err
+	}
+	return s.resolveInput(wfHash, parentExec, refNodeKey, path)
 }
 
+// processTask create the request to execute the task.
 func (s *Orchestrator) processTask(nodeKey string, task *process.Process_Node_Task, wf *process.Process, exec *execution.Execution, event *event.Event, data *types.Struct) error {
 	var eventHash, execHash hash.Hash
 	if event != nil {
