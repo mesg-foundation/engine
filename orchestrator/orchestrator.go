@@ -142,7 +142,7 @@ func (s *Orchestrator) executeNode(wf *process.Process, n *process.Process_Node,
 			return err
 		}
 	} else if filter := n.GetFilter(); filter != nil {
-		if !filter.Match(data) {
+		if !s.Match(filter, wf, n.Key, exec, data) {
 			return nil
 		}
 	}
@@ -159,6 +159,20 @@ func (s *Orchestrator) executeNode(wf *process.Process, n *process.Process_Node,
 		}
 	}
 	return nil
+}
+
+// Match returns true if the data match the current list of filters
+func (s *Orchestrator) Match(f *process.Process_Node_Filter, wf *process.Process, nodeKey string, exec *execution.Execution, data *types.Struct) bool {
+	for _, condition := range f.Conditions {
+		resolvedData, err := s.resolveRef(wf, exec, nodeKey, data, condition.Ref)
+		if err != nil {
+			return false
+		}
+		if !condition.Match(resolvedData) {
+			return false
+		}
+	}
+	return true
 }
 
 func (s *Orchestrator) processMap(nodeKey string, outputs map[string]*process.Process_Node_Map_Output, wf *process.Process, exec *execution.Execution, data *types.Struct) (*types.Struct, error) {
@@ -209,29 +223,33 @@ func (s *Orchestrator) outputToValue(nodeKey string, output *process.Process_Nod
 			},
 		}, nil
 	case *process.Process_Node_Map_Output_Ref:
-		node, err := wf.FindNode(v.Ref.NodeKey)
-		if err != nil {
-			return nil, err
-		}
-		if node.GetTask() != nil {
-			return s.resolveInput(wf.Hash, exec, v.Ref.NodeKey, v.Ref.Path)
-		}
-		// check that the parent nodeKey == ref.NodeKey
-		// this ensures that we can use directly the data of the previous node
-		refToParent := false
-		for _, parent := range wf.ParentKeys(nodeKey) {
-			if parent == v.Ref.NodeKey {
-				refToParent = true
-				break
-			}
-		}
-		if !refToParent {
-			return nil, fmt.Errorf("ref can only reference a parent node for non task nodes")
-		}
-		return resolveRef(data, v.Ref.Path)
+		return s.resolveRef(wf, exec, nodeKey, data, v.Ref)
 	default:
 		return nil, errors.New("unknown output")
 	}
+}
+
+func (s *Orchestrator) resolveRef(wf *process.Process, exec *execution.Execution, nodeKey string, data *types.Struct, ref *process.Process_Node_Reference) (*types.Value, error) {
+	refNode, err := wf.FindNode(ref.NodeKey)
+	if err != nil {
+		return nil, err
+	}
+	if refNode.GetTask() != nil {
+		return s.resolveInput(wf.Hash, exec, ref.NodeKey, ref.Path)
+	}
+	// check that the parent nodeKey == ref.NodeKey
+	// this ensures that we can use directly the data of the previous node
+	refToParent := false
+	for _, parent := range wf.ParentKeys(nodeKey) {
+		if parent == ref.NodeKey {
+			refToParent = true
+			break
+		}
+	}
+	if !refToParent {
+		return nil, fmt.Errorf("ref can only reference a parent node for non task nodes")
+	}
+	return ref.Path.Resolve(data)
 }
 
 func (s *Orchestrator) resolveInput(wfHash hash.Hash, exec *execution.Execution, nodeKey string, path *process.Process_Node_Reference_Path) (*types.Value, error) {
@@ -245,7 +263,7 @@ func (s *Orchestrator) resolveInput(wfHash hash.Hash, exec *execution.Execution,
 		}
 		return s.resolveInput(wfHash, parent, nodeKey, path)
 	}
-	return resolveRef(exec.Outputs, path)
+	return path.Resolve(exec.Outputs)
 }
 
 func (s *Orchestrator) processTask(nodeKey string, task *process.Process_Node_Task, wf *process.Process, exec *execution.Execution, event *event.Event, data *types.Struct) error {
@@ -278,52 +296,4 @@ func (s *Orchestrator) processTask(nodeKey string, task *process.Process_Node_Ta
 		Tags:         nil,
 	})
 	return err
-}
-
-func resolveRef(data *types.Struct, path *process.Process_Node_Reference_Path) (*types.Value, error) {
-	if path == nil {
-		return &types.Value{Kind: &types.Value_StructValue{StructValue: data}}, nil
-	}
-
-	var v *types.Value
-	key, ok := path.Selector.(*process.Process_Node_Reference_Path_Key)
-	if !ok {
-		return nil, fmt.Errorf("orchestrator: first selector in the path must be a key")
-	}
-
-	v, ok = data.Fields[key.Key]
-	if !ok {
-		return nil, fmt.Errorf("orchestrator: key %s not found", key.Key)
-	}
-
-	for p := path.Path; p != nil; p = p.Path {
-		switch s := p.Selector.(type) {
-		case *process.Process_Node_Reference_Path_Key:
-			str, ok := v.GetKind().(*types.Value_StructValue)
-			if !ok {
-				return nil, fmt.Errorf("orchestrator: can't get key from non-struct value")
-			}
-			if str.StructValue.GetFields() == nil {
-				return nil, fmt.Errorf("orchestrator: can't get key from nil-struct")
-			}
-			v, ok = str.StructValue.Fields[s.Key]
-			if !ok {
-				return nil, fmt.Errorf("orchestrator: key %s not found", s.Key)
-			}
-		case *process.Process_Node_Reference_Path_Index:
-			list, ok := v.GetKind().(*types.Value_ListValue)
-			if !ok {
-				return nil, fmt.Errorf("orchestrator: can't get index from non-list value")
-			}
-
-			if len(list.ListValue.GetValues()) <= int(s.Index) {
-				return nil, fmt.Errorf("orchestrator: index %d out of range", s.Index)
-			}
-			v = list.ListValue.Values[s.Index]
-		default:
-			return nil, fmt.Errorf("orchestrator: unknown selector type %T", v)
-		}
-	}
-
-	return v, nil
 }
