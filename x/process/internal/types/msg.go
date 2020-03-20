@@ -44,7 +44,6 @@ func (msg MsgCreateProcess) ValidateBasic() error {
 	if err := p.Validate(); err != nil {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, err.Error())
 	}
-
 	return nil
 }
 
