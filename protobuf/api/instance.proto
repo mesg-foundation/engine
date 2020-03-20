@@ -48,5 +48,7 @@ message ListInstanceRequest {
 // The response's data for the `List` API.
 message ListInstanceResponse {
   // List of instances that match the request's filters.
-  repeated types.Instance instances = 1;
+  repeated types.Instance instances = 1 [
+    (gogoproto.moretags) = 'validate:"dive"'
+  ];
 }

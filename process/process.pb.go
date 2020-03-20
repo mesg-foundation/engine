@@ -599,7 +599,7 @@ var xxx_messageInfo_Process_Node_Map_Output_Map proto.InternalMessageInfo
 
 type Process_Node_Filter struct {
 	// List of condition to apply for this filter
-	Conditions           []Process_Node_Filter_Condition `protobuf:"bytes,2,rep,name=conditions,proto3" json:"conditions" hash:"name:2"`
+	Conditions           []Process_Node_Filter_Condition `protobuf:"bytes,2,rep,name=conditions,proto3" json:"conditions" hash:"name:2" validate:"dive"`
 	XXX_NoUnkeyedLiteral struct{}                        `json:"-"`
 	XXX_unrecognized     []byte                          `json:"-"`
 	XXX_sizecache        int32                           `json:"-"`
@@ -666,7 +666,8 @@ func (m *Process_Node_Filter_Condition) XXX_DiscardUnknown() {
 var xxx_messageInfo_Process_Node_Filter_Condition proto.InternalMessageInfo
 
 type Process_Node_Reference struct {
-	NodeKey              string                       `protobuf:"bytes,1,opt,name=nodeKey,proto3" json:"nodeKey,omitempty" hash:"name:1" validate:"required"`
+	NodeKey string `protobuf:"bytes,1,opt,name=nodeKey,proto3" json:"nodeKey,omitempty" hash:"name:1" validate:"required"`
+	// Path can be nil if referencing the whole node's output
 	Path                 *Process_Node_Reference_Path `protobuf:"bytes,2,opt,name=path,proto3" json:"path,omitempty" hash:"name:2"`
 	XXX_NoUnkeyedLiteral struct{}                     `json:"-"`
 	XXX_unrecognized     []byte                       `json:"-"`

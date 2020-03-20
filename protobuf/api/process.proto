@@ -36,10 +36,14 @@ message CreateProcessRequest {
   ];
 
   // List of nodes of the process.
-  repeated types.Process.Node nodes = 4;
+  repeated types.Process.Node nodes = 4 [
+    (gogoproto.moretags) = 'validate:"dive"'
+  ];
 
   // List of edges of the process.
-  repeated types.Process.Edge edges = 5;
+  repeated types.Process.Edge edges = 5 [
+    (gogoproto.moretags) = 'validate:"dive"'
+  ];
 }
 
 // The response's data for the `Create` API.
@@ -80,5 +84,7 @@ message ListProcessRequest {}
 // The response's data for the `List` API.
 message ListProcessResponse {
   // List of processes that match the request's filters.
-  repeated types.Process processes = 1;
+  repeated types.Process processes = 1 [
+    (gogoproto.moretags) = 'validate:"dive"'
+  ];
 }

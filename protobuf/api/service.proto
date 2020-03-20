@@ -104,7 +104,9 @@ message ListServiceRequest {}
 // The response's data for the `List` API.
 message ListServiceResponse {
   // List of services that match the request's filters.
-  repeated types.Service services = 1;
+  repeated types.Service services = 1 [
+    (gogoproto.moretags) = 'validate:"dive"'
+  ];
 }
 
 // The request's data for the `List` API.

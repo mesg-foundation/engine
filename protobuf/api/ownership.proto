@@ -23,5 +23,7 @@ message ListOwnershipRequest {}
 // The response's data for the `List` API.
 message ListOwnershipResponse {
   // List of ownerships that match the request's filters.
-  repeated types.Ownership ownerships = 1;
+  repeated types.Ownership ownerships = 1 [
+    (gogoproto.moretags) = 'validate:"dive"'
+  ];
 }
