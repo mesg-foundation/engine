@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/mesg-foundation/engine/hash"
+	"github.com/mesg-foundation/engine/protobuf/types"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -202,6 +203,24 @@ func TestValidateProcess(t *testing.T) {
 				&Process_Edge{Src: "mapping", Dst: "nodeKey2"},
 			),
 		}, valid: true},
+		{w: &Process{
+			Hash: hash.Int(1),
+			Name: "filter-gte-invalid-value-type",
+			Nodes: append(nodes, &Process_Node{
+				Key: "filter",
+				Type: &Process_Node_Filter_{&Process_Node_Filter{
+					Conditions: []Process_Node_Filter_Condition{
+						{
+							Key:       "foo",
+							Predicate: Process_Node_Filter_Condition_GT,
+							Value: &types.Value{
+								Kind: &types.Value_StringValue{StringValue: "bar"},
+							},
+						},
+					},
+				}},
+			}),
+		}, err: "filter with condition GT, GTE, LT or LTE only works with value of type Number"},
 	}
 	for _, test := range tests {
 		err := test.w.Validate()
