@@ -450,13 +450,39 @@ func TestMatch(t *testing.T) {
 			data: &types.Struct{
 				Fields: map[string]*types.Value{
 					"foo": {
-						Kind: &types.Value_StringValue{
-							StringValue: "foo",
+						Kind: &types.Value_NumberValue{
+							NumberValue: 10,
 						},
 					},
 				},
 			},
 			match: false,
+		},
+		{
+			name: "string contain",
+			filter: Process_Node_Filter{
+				Conditions: []Process_Node_Filter_Condition{
+					{
+						Key:       "foo",
+						Predicate: Process_Node_Filter_Condition_CONTAINS,
+						Value: &types.Value{
+							Kind: &types.Value_StringValue{
+								StringValue: "world",
+							},
+						},
+					},
+				},
+			},
+			data: &types.Struct{
+				Fields: map[string]*types.Value{
+					"foo": {
+						Kind: &types.Value_StringValue{
+							StringValue: "hello world",
+						},
+					},
+				},
+			},
+			match: true,
 		},
 	}
 

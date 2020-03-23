@@ -1,6 +1,10 @@
 package process
 
-import "github.com/mesg-foundation/engine/protobuf/types"
+import (
+	"strings"
+
+	"github.com/mesg-foundation/engine/protobuf/types"
+)
 
 // Match returns true if the data match the current list of filters
 func (f Process_Node_Filter) Match(data *types.Struct) bool {
@@ -37,16 +41,23 @@ func (f Process_Node_Filter_Condition) Match(data *types.Struct) bool {
 			return n1.NumberValue <= n2.NumberValue
 		}
 	case Process_Node_Filter_Condition_CONTAINS:
-		list, ok := data.Fields[f.Key].Kind.(*types.Value_ListValue)
-		if !ok {
+		switch dataTyped := data.Fields[f.Key].Kind.(type) {
+		case *types.Value_ListValue:
+			for _, value := range dataTyped.ListValue.Values {
+				if value.Equal(f.Value) {
+					return true
+				}
+			}
+			return false
+		case *types.Value_StringValue:
+			filter, ok := f.Value.Kind.(*types.Value_StringValue)
+			if !ok {
+				return false
+			}
+			return strings.Contains(dataTyped.StringValue, filter.StringValue)
+		default:
 			return false
 		}
-		for _, value := range list.ListValue.Values {
-			if value.Equal(f.Value) {
-				return true
-			}
-		}
-		return false
 	}
 	return false
 }
