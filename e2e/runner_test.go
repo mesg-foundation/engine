@@ -10,6 +10,7 @@ import (
 	"github.com/mesg-foundation/engine/protobuf/acknowledgement"
 	pb "github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/mesg-foundation/engine/runner"
+	runnerrest "github.com/mesg-foundation/engine/x/runner/client/rest"
 	"github.com/stretchr/testify/require"
 )
 
@@ -80,6 +81,17 @@ func testRunner(t *testing.T) {
 			require.Equal(t, testInstanceHash, rs[0].InstanceHash)
 			require.Equal(t, testRunnerHash, rs[0].Hash)
 		})
+	})
+
+	t.Run("hash", func(t *testing.T) {
+		var res runnerrest.HashResponse
+		lcdPost(t, "runner/hash", &runnerrest.HashRequest{
+			ServiceHash: testServiceHash,
+			Address:     engineAddress.String(),
+			Env:         []string{"BAR=3", "REQUIRED=4"},
+		}, &res)
+		require.Equal(t, testRunnerHash, res.RunnerHash)
+		require.Equal(t, testInstanceHash, res.InstanceHash)
 	})
 }
 

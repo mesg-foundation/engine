@@ -37,6 +37,7 @@ var (
 	cclient               *cosmos.Client
 	cdc                   = app.MakeCodec()
 	processInitialBalance = sdk.NewCoins(sdk.NewInt64Coin("atto", 10000000))
+	engineAddress         sdk.AccAddress
 )
 
 const (
@@ -96,8 +97,9 @@ func TestAPI(t *testing.T) {
 	kb, err := cosmos.NewKeybase(filepath.Join(cfg.Path, cfg.Cosmos.RelativePath))
 	require.NoError(t, err)
 	if cfg.Account.Mnemonic != "" {
-		_, err = kb.CreateAccount(cfg.Account.Name, cfg.Account.Mnemonic, "", cfg.Account.Password, keys.CreateHDPath(cfg.Account.Number, cfg.Account.Index).String(), cosmos.DefaultAlgo)
+		acc, err := kb.CreateAccount(cfg.Account.Name, cfg.Account.Mnemonic, "", cfg.Account.Password, keys.CreateHDPath(cfg.Account.Number, cfg.Account.Index).String(), cosmos.DefaultAlgo)
 		require.NoError(t, err)
+		engineAddress = acc.GetAddress()
 	}
 
 	httpclient, err := rpcclient.NewHTTP("http://localhost:26657", "/websocket")
