@@ -73,16 +73,9 @@ func testService(t *testing.T) {
 	})
 
 	t.Run("hash", func(t *testing.T) {
-		t.Run("grpc", func(t *testing.T) {
-			resp, err := client.ServiceClient.Hash(context.Background(), req)
-			require.NoError(t, err)
-			require.Equal(t, testServiceHash, resp.Hash)
-		})
-		t.Run("lcd", func(t *testing.T) {
-			var hash hash.Hash
-			lcdPost(t, "service/hash", req, &hash)
-			require.Equal(t, testServiceHash, hash)
-		})
+		var hash hash.Hash
+		lcdPost(t, "service/hash", req, &hash)
+		require.Equal(t, testServiceHash, hash)
 	})
 
 	t.Run("check ownership creation", func(t *testing.T) {

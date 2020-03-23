@@ -7,7 +7,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/codec"
-	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/service"
 	"github.com/mesg-foundation/engine/x/service/internal/types"
 	"github.com/spf13/cobra"
@@ -28,7 +27,6 @@ func GetQueryCmd(queryRoute string, cdc *codec.Codec) *cobra.Command {
 		flags.GetCommands(
 			GetCmdGetService(queryRoute, cdc),
 			GetCmdListService(queryRoute, cdc),
-			GetCmdHashService(queryRoute, cdc),
 			GetCmdExistService(queryRoute, cdc),
 		)...,
 	)
@@ -69,26 +67,6 @@ func GetCmdListService(queryRoute string, cdc *codec.Codec) *cobra.Command {
 			}
 
 			var out []*service.Service
-			cdc.MustUnmarshalJSON(res, &out)
-			return cliCtx.PrintOutput(out)
-		},
-	}
-}
-
-func GetCmdHashService(queryRoute string, cdc *codec.Codec) *cobra.Command {
-	return &cobra.Command{
-		Use:   "hash [definition]",
-		Short: "hash",
-		Args:  cobra.ExactArgs(1),
-		RunE: func(cmd *cobra.Command, args []string) error {
-			cliCtx := context.NewCLIContext().WithCodec(cdc)
-			res, _, err := cliCtx.QueryWithData(fmt.Sprintf("custom/%s/%s", queryRoute, types.QueryHashService), []byte(args[0]))
-			if err != nil {
-				fmt.Printf("could not check service\n%s\n", err.Error())
-				return nil
-			}
-
-			var out hash.Hash
 			cdc.MustUnmarshalJSON(res, &out)
 			return cliCtx.PrintOutput(out)
 		},

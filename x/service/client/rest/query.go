@@ -9,6 +9,8 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/types/rest"
+	"github.com/mesg-foundation/engine/protobuf/api"
+	"github.com/mesg-foundation/engine/service"
 	"github.com/mesg-foundation/engine/x/service/internal/types"
 )
 
@@ -17,14 +19,17 @@ func registerQueryRoutes(cliCtx context.CLIContext, r *mux.Router) {
 		"/service/get/{hash}",
 		queryGetHandlerFn(cliCtx),
 	).Methods(http.MethodGet)
+
 	r.HandleFunc(
 		"/service/list",
 		queryListHandlerFn(cliCtx),
 	).Methods(http.MethodGet)
+
 	r.HandleFunc(
 		"/service/hash",
 		queryHashHandlerFn(cliCtx),
 	).Methods(http.MethodPost)
+
 	r.HandleFunc(
 		"/service/exist/{hash}",
 		queryExistHandlerFn(cliCtx),
@@ -86,16 +91,25 @@ func queryHashHandlerFn(cliCtx context.CLIContext) http.HandlerFunc {
 			return
 		}
 
-		route := fmt.Sprintf("custom/%s/%s", types.QuerierRoute, types.QueryHashService)
-
-		res, height, err := cliCtx.QueryWithData(route, data)
-		if err != nil {
-			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
+		var req api.CreateServiceRequest
+		if err := cliCtx.Codec.UnmarshalJSON(data, &req); err != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
 
-		cliCtx = cliCtx.WithHeight(height)
-		rest.PostProcessResponse(w, cliCtx, res)
+		srv := service.New(
+			req.Sid,
+			req.Name,
+			req.Description,
+			req.Configuration,
+			req.Tasks,
+			req.Events,
+			req.Dependencies,
+			req.Repository,
+			req.Source,
+		)
+
+		rest.PostProcessResponse(w, cliCtx, srv.Hash.String())
 	}
 }
 
