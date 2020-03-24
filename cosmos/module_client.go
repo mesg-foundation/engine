@@ -240,8 +240,11 @@ func (mc *ModuleClient) CreateRunner(req *api.CreateRunnerRequest) (*runnerpb.Ru
 	if err != nil {
 		return nil, err
 	}
-
-	msg := runner.NewMsgCreateRunner(acc.GetAddress(), req.ServiceHash, envHash)
+	msg := runner.MsgCreate{
+		Owner:       acc.GetAddress(),
+		ServiceHash: req.ServiceHash,
+		EnvHash:     envHash,
+	}
 	tx, err := mc.BuildAndBroadcastMsg(msg)
 	if err != nil {
 		return nil, err
@@ -255,7 +258,10 @@ func (mc *ModuleClient) DeleteRunner(req *api.DeleteRunnerRequest) error {
 	if err != nil {
 		return err
 	}
-	msg := runner.NewMsgDeleteRunner(acc.GetAddress(), req.Hash)
+	msg := runner.MsgDelete{
+		Owner: acc.GetAddress(),
+		Hash:  req.Hash,
+	}
 	_, err = mc.BuildAndBroadcastMsg(msg)
 	return err
 }

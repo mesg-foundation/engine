@@ -27,9 +27,6 @@ var (
 
 	QueryGetRunner   = types.QueryGetRunner
 	QueryListRunners = types.QueryListRunners
-
-	NewMsgCreateRunner = types.NewMsgCreateRunner
-	NewMsgDeleteRunner = types.NewMsgDeleteRunner
 )
 
 // module types
@@ -38,6 +35,6 @@ type (
 	GenesisState = types.GenesisState
 	Params       = types.Params
 
-	MsgCreateRunner = types.MsgCreateRunner
-	MsgDeleteRunner = types.MsgDeleteRunner
+	MsgCreate = types.MsgCreate
+	MsgDelete = types.MsgDelete
 )
