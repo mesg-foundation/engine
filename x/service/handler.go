@@ -30,7 +30,7 @@ func handleMsgCreate(ctx sdk.Context, k Keeper, msg *MsgCreate) (*sdk.Result, er
 		sdk.NewEvent(
 			sdk.EventTypeMessage,
 			sdk.NewAttribute(sdk.AttributeKeyModule, types.AttributeValueCategory),
-			sdk.NewAttribute(sdk.AttributeKeyAction, types.EventTypeCreated),
+			sdk.NewAttribute(sdk.AttributeKeyAction, types.EventTypeCreateService),
 			sdk.NewAttribute(sdk.AttributeKeySender, msg.Owner.String()),
 			sdk.NewAttribute(types.AttributeHash, s.Hash.String()),
 		),
