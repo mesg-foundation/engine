@@ -125,6 +125,12 @@ func testProcess(t *testing.T) {
 		})
 	})
 
+	t.Run("hash", func(t *testing.T) {
+		var hash hash.Hash
+		lcdPost(t, "process/hash", req, &hash)
+		require.Equal(t, processHash, hash)
+	})
+
 	t.Run("delete", func(t *testing.T) {
 		_, err := client.ProcessClient.Delete(context.Background(), &pb.DeleteProcessRequest{Hash: processHash})
 		require.NoError(t, err)

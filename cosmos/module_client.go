@@ -70,13 +70,6 @@ func (mc *ModuleClient) ExistService(hash hash.Hash) (bool, error) {
 	return out, mc.QueryJSON(route, nil, &out)
 }
 
-// HashService returns the calculate hash of a service.
-func (mc *ModuleClient) HashService(req *api.CreateServiceRequest) (hash.Hash, error) {
-	var out hash.Hash
-	route := sroutef("%s/%s", service.QuerierRoute, service.QueryHashService)
-	return out, mc.QueryJSON(route, req, &out)
-}
-
 // CreateProcess creates a new process.
 func (mc *ModuleClient) CreateProcess(req *api.CreateProcessRequest) (*processpb.Process, error) {
 	acc, err := mc.GetAccount()

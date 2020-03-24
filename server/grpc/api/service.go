@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/mesg-foundation/engine/cosmos"
 	protobuf_api "github.com/mesg-foundation/engine/protobuf/api"
@@ -53,9 +54,5 @@ func (s *ServiceServer) Exists(ctx context.Context, req *protobuf_api.ExistsServ
 
 // Hash returns the calculated hash of a service request.
 func (s *ServiceServer) Hash(ctx context.Context, req *protobuf_api.CreateServiceRequest) (*protobuf_api.HashServiceResponse, error) {
-	h, err := s.mc.HashService(req)
-	if err != nil {
-		return nil, err
-	}
-	return &protobuf_api.HashServiceResponse{Hash: h}, nil
+	return nil, fmt.Errorf("not implemented anymore, use LCD")
 }

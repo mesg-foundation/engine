@@ -8,11 +8,9 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/mesg-foundation/engine/hash"
 	ownershippb "github.com/mesg-foundation/engine/ownership"
-	"github.com/mesg-foundation/engine/protobuf/api"
 	servicepb "github.com/mesg-foundation/engine/service"
 	"github.com/mesg-foundation/engine/service/validator"
 	"github.com/mesg-foundation/engine/x/service/internal/types"
-	"github.com/tendermint/tendermint/crypto"
 	"github.com/tendermint/tendermint/libs/log"
 )
 
@@ -42,7 +40,17 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 func (k Keeper) Create(ctx sdk.Context, msg *types.MsgCreateService) (*servicepb.Service, error) {
 	store := ctx.KVStore(k.storeKey)
 	// create service
-	srv := initializeService(msg.Request)
+	srv := servicepb.New(
+		msg.Request.Sid,
+		msg.Request.Name,
+		msg.Request.Description,
+		msg.Request.Configuration,
+		msg.Request.Tasks,
+		msg.Request.Events,
+		msg.Request.Dependencies,
+		msg.Request.Repository,
+		msg.Request.Source,
+	)
 
 	// check if service already exists.
 	if store.Has(srv.Hash) {
@@ -89,11 +97,6 @@ func (k Keeper) Exists(ctx sdk.Context, hash hash.Hash) (bool, error) {
 	return ctx.KVStore(k.storeKey).Has(hash), nil
 }
 
-// Hash returns the hash of a service request.
-func (k Keeper) Hash(_ sdk.Context, serviceRequest *api.CreateServiceRequest) hash.Hash {
-	return initializeService(serviceRequest).Hash
-}
-
 // List returns all services.
 func (k Keeper) List(ctx sdk.Context) ([]*servicepb.Service, error) {
 	var (
@@ -110,24 +113,4 @@ func (k Keeper) List(ctx sdk.Context) ([]*servicepb.Service, error) {
 	}
 	iter.Close()
 	return services, nil
-}
-
-func initializeService(req *api.CreateServiceRequest) *servicepb.Service {
-	// create service
-	srv := &servicepb.Service{
-		Sid:           req.Sid,
-		Name:          req.Name,
-		Description:   req.Description,
-		Configuration: req.Configuration,
-		Tasks:         req.Tasks,
-		Events:        req.Events,
-		Dependencies:  req.Dependencies,
-		Repository:    req.Repository,
-		Source:        req.Source,
-	}
-
-	// calculate and apply hash to service.
-	srv.Hash = hash.Dump(srv)
-	srv.Address = sdk.AccAddress(crypto.AddressHash(srv.Hash))
-	return srv
 }

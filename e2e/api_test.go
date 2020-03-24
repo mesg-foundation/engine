@@ -37,6 +37,7 @@ var (
 	cclient               *cosmos.Client
 	cdc                   = app.MakeCodec()
 	processInitialBalance = sdk.NewCoins(sdk.NewInt64Coin("atto", 10000000))
+	engineAddress         sdk.AccAddress
 )
 
 const (
@@ -48,6 +49,7 @@ func lcdGet(t *testing.T, path string, ptr interface{}) {
 	resp, err := http.Get(lcdEndpoint + path)
 	require.NoError(t, err)
 	defer resp.Body.Close()
+	require.True(t, resp.StatusCode >= 200 && resp.StatusCode < 300, "request status code is not 2XX")
 	body, err := ioutil.ReadAll(resp.Body)
 	require.NoError(t, err)
 	cosResp := rest.ResponseWithHeight{}
@@ -63,6 +65,7 @@ func lcdPost(t *testing.T, path string, req interface{}, ptr interface{}) {
 	resp, err := http.Post(lcdEndpoint+path, lcdPostContentType, bytes.NewReader(reqBody))
 	require.NoError(t, err)
 	defer resp.Body.Close()
+	require.True(t, resp.StatusCode >= 200 && resp.StatusCode < 300, "request status code is not 2XX")
 	body, err := ioutil.ReadAll(resp.Body)
 	require.NoError(t, err)
 	cosResp := rest.ResponseWithHeight{}
@@ -96,8 +99,9 @@ func TestAPI(t *testing.T) {
 	kb, err := cosmos.NewKeybase(filepath.Join(cfg.Path, cfg.Cosmos.RelativePath))
 	require.NoError(t, err)
 	if cfg.Account.Mnemonic != "" {
-		_, err = kb.CreateAccount(cfg.Account.Name, cfg.Account.Mnemonic, "", cfg.Account.Password, keys.CreateHDPath(cfg.Account.Number, cfg.Account.Index).String(), cosmos.DefaultAlgo)
+		acc, err := kb.CreateAccount(cfg.Account.Name, cfg.Account.Mnemonic, "", cfg.Account.Password, keys.CreateHDPath(cfg.Account.Number, cfg.Account.Index).String(), cosmos.DefaultAlgo)
 		require.NoError(t, err)
+		engineAddress = acc.GetAddress()
 	}
 
 	httpclient, err := rpcclient.NewHTTP("http://localhost:26657", "/websocket")

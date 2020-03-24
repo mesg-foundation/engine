@@ -27,7 +27,6 @@ var (
 
 	QueryGetService   = types.QueryGetService
 	QueryListService  = types.QueryListService
-	QueryHashService  = types.QueryHashService
 	QueryExistService = types.QueryExistService
 
 	NewMsgCreateService = types.NewMsgCreateService

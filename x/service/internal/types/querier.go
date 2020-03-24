@@ -4,6 +4,5 @@ package types
 const (
 	QueryGetService   = "get"
 	QueryListService  = "list"
-	QueryHashService  = "hash"
 	QueryExistService = "exist"
 )

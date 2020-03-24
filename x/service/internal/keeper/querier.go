@@ -4,7 +4,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/mesg-foundation/engine/hash"
-	"github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/mesg-foundation/engine/x/service/internal/types"
 	abci "github.com/tendermint/tendermint/abci/types"
 )
@@ -17,8 +16,6 @@ func NewQuerier(k Keeper) sdk.Querier {
 			return getService(ctx, k, path[1:])
 		case types.QueryListService:
 			return listService(ctx, k)
-		case types.QueryHashService:
-			return hashService(ctx, k, req)
 		case types.QueryExistService:
 			return existService(ctx, k, path[1:])
 		default:
@@ -42,21 +39,6 @@ func getService(ctx sdk.Context, k Keeper, path []string) ([]byte, error) {
 	}
 
 	res, err := types.ModuleCdc.MarshalJSON(srv)
-	if err != nil {
-		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONMarshal, err.Error())
-	}
-	return res, nil
-}
-
-func hashService(ctx sdk.Context, k Keeper, req abci.RequestQuery) ([]byte, error) {
-	var createServiceRequest api.CreateServiceRequest
-	if err := k.cdc.UnmarshalJSON(req.Data, &createServiceRequest); err != nil {
-		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONUnmarshal, err.Error())
-	}
-
-	hash := k.Hash(ctx, &createServiceRequest)
-
-	res, err := types.ModuleCdc.MarshalJSON(hash)
 	if err != nil {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONMarshal, err.Error())
 	}
