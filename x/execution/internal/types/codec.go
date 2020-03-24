@@ -10,6 +10,9 @@ import (
 func RegisterCodec(cdc *codec.Codec) {
 	cdc.RegisterConcrete(MsgCreate{}, "execution/create", nil)
 	cdc.RegisterConcrete(MsgUpdate{}, "execution/update", nil)
+	cdc.RegisterInterface((*isMsgUpdate_Result)(nil), nil)
+	cdc.RegisterConcrete(&MsgUpdate_Outputs{}, "mesg.execution.types.MsgUpdate_Outputs", nil)
+	cdc.RegisterConcrete(&MsgUpdate_Error{}, "mesg.execution.types.MsgUpdate_Error", nil)
 }
 
 // ModuleCdc defines the module codec
