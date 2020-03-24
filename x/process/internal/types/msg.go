@@ -37,7 +37,7 @@ func (msg MsgCreateProcess) ValidateBasic() error {
 	if msg.Owner.Empty() {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "owner is missing")
 	}
-	if err := xvalidator.Validate.Struct(msg); err != nil {
+	if err := xvalidator.Struct(msg); err != nil {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, err.Error())
 	}
 	p := processpb.New(msg.Request.Name, msg.Request.Nodes, msg.Request.Edges)
@@ -86,7 +86,7 @@ func (msg MsgDeleteProcess) ValidateBasic() error {
 	if msg.Owner.Empty() {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "owner is missing")
 	}
-	if err := xvalidator.Validate.Struct(msg); err != nil {
+	if err := xvalidator.Struct(msg); err != nil {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, err.Error())
 	}
 	return nil

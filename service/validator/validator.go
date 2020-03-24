@@ -12,7 +12,7 @@ import (
 
 const namespacePrefix = "service."
 
-var validate, translator = xvalidator.NewWithPrefix(namespacePrefix)
+var validate, translator = xvalidator.New(namespacePrefix)
 
 // ValidateService validates if service contains proper data.
 func ValidateService(s *service.Service) error {

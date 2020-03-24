@@ -40,7 +40,7 @@ func (msg MsgCreateExecution) ValidateBasic() error {
 	if price.IsAnyNegative() {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, "price must be positive")
 	}
-	if err := xvalidator.Validate.Struct(msg); err != nil {
+	if err := xvalidator.Struct(msg); err != nil {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, err.Error())
 	}
 	if !msg.Request.ParentHash.IsZero() && !msg.Request.EventHash.IsZero() {

@@ -36,7 +36,7 @@ func (msg MsgCreateRunner) Type() string {
 
 // ValidateBasic runs stateless checks on the message.
 func (msg MsgCreateRunner) ValidateBasic() error {
-	if err := xvalidator.Validate.Struct(msg); err != nil {
+	if err := xvalidator.Struct(msg); err != nil {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, err.Error())
 	}
 	if msg.ServiceHash.IsZero() {
@@ -87,7 +87,7 @@ func (msg MsgDeleteRunner) Type() string {
 
 // ValidateBasic runs stateless checks on the message.
 func (msg MsgDeleteRunner) ValidateBasic() error {
-	if err := xvalidator.Validate.Struct(msg); err != nil {
+	if err := xvalidator.Struct(msg); err != nil {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, err.Error())
 	}
 	if msg.RunnerHash.IsZero() {

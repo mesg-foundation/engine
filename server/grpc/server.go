@@ -75,7 +75,7 @@ func (s *Server) Close() {
 }
 
 func validateInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
-	if err := xvalidator.Validate.Struct(req); err != nil {
+	if err := xvalidator.Struct(req); err != nil {
 		return nil, err
 	}
 	return handler(ctx, req)
