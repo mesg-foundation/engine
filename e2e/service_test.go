@@ -19,6 +19,7 @@ var (
 
 func testService(t *testing.T) {
 	req := newTestCreateServiceRequest()
+	msg := newTestCreateServiceMsg()
 
 	t.Run("create", func(t *testing.T) {
 		resp, err := client.ServiceClient.Create(context.Background(), req)

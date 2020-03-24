@@ -37,7 +37,7 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 }
 
 // Create creates a new service.
-func (k Keeper) Create(ctx sdk.Context, msg *types.MsgCreateService) (*servicepb.Service, error) {
+func (k Keeper) Create(ctx sdk.Context, msg *types.MsgCreate) (*servicepb.Service, error) {
 	store := ctx.KVStore(k.storeKey)
 	// create service
 	srv := servicepb.New(

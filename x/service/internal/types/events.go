@@ -2,7 +2,7 @@ package types
 
 // service module event types
 const (
-	EventTypeCreateService = "CreateService"
+	EventTypeCreated = "created"
 
 	AttributeHash = "hash"
 

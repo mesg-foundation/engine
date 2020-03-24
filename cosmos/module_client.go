@@ -41,7 +41,18 @@ func (mc *ModuleClient) CreateService(req *api.CreateServiceRequest) (*servicepb
 	if err != nil {
 		return nil, err
 	}
-	msg := service.NewMsgCreateService(acc.GetAddress(), req)
+	msg := service.MsgCreate{
+		Owner:         acc.GetAddress(),
+		Sid:           req.Sid,
+		Name:          req.Name,
+		Description:   req.Description,
+		Configuration: req.Configuration,
+		Tasks:         req.Tasks,
+		Events:        req.Events,
+		Dependencies:  req.Dependencies,
+		Repository:    req.Repository,
+		Source:        req.Source,
+	}
 	tx, err := mc.BuildAndBroadcastMsg(msg)
 	if err != nil {
 		return nil, err
