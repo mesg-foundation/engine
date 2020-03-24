@@ -49,6 +49,7 @@ func lcdGet(t *testing.T, path string, ptr interface{}) {
 	resp, err := http.Get(lcdEndpoint + path)
 	require.NoError(t, err)
 	defer resp.Body.Close()
+	require.True(t, resp.StatusCode >= 200 && resp.StatusCode < 300, "request status code is not 2XX")
 	body, err := ioutil.ReadAll(resp.Body)
 	require.NoError(t, err)
 	cosResp := rest.ResponseWithHeight{}
@@ -64,6 +65,7 @@ func lcdPost(t *testing.T, path string, req interface{}, ptr interface{}) {
 	resp, err := http.Post(lcdEndpoint+path, lcdPostContentType, bytes.NewReader(reqBody))
 	require.NoError(t, err)
 	defer resp.Body.Close()
+	require.True(t, resp.StatusCode >= 200 && resp.StatusCode < 300, "request status code is not 2XX")
 	body, err := ioutil.ReadAll(resp.Body)
 	require.NoError(t, err)
 	cosResp := rest.ResponseWithHeight{}

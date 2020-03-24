@@ -18,6 +18,7 @@ func registerQueryRoutes(cliCtx context.CLIContext, r *mux.Router) {
 		"/execution/get/{hash}",
 		queryGetHandlerFn(cliCtx),
 	).Methods(http.MethodGet)
+
 	r.HandleFunc(
 		"/execution/list",
 		queryListHandlerFn(cliCtx),

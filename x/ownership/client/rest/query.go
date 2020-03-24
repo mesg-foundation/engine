@@ -15,6 +15,7 @@ func registerQueryRoutes(cliCtx context.CLIContext, r *mux.Router) {
 		"/ownership/list",
 		queryListHandlerFn(cliCtx),
 	).Methods(http.MethodGet)
+
 	r.HandleFunc(
 		"/ownership/parameters",
 		queryParamsHandlerFn(cliCtx),
