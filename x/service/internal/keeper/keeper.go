@@ -9,7 +9,6 @@ import (
 	"github.com/mesg-foundation/engine/hash"
 	ownershippb "github.com/mesg-foundation/engine/ownership"
 	servicepb "github.com/mesg-foundation/engine/service"
-	"github.com/mesg-foundation/engine/service/validator"
 	"github.com/mesg-foundation/engine/x/service/internal/types"
 	"github.com/tendermint/tendermint/libs/log"
 )
@@ -63,7 +62,7 @@ func (k Keeper) Create(ctx sdk.Context, msg *types.MsgCreate) (*servicepb.Servic
 		srv.Sid = "_" + srv.Hash.String()
 	}
 
-	if err := validator.ValidateService(srv); err != nil {
+	if err := srv.Validate(); err != nil {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, err.Error())
 	}
 
