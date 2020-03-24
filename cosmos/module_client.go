@@ -155,7 +155,18 @@ func (mc *ModuleClient) CreateExecution(req *api.CreateExecutionRequest) (*execu
 	if err != nil {
 		return nil, err
 	}
-	msg := execution.NewMsgCreateExecution(req, acc.GetAddress())
+	msg := execution.MsgCreate{
+		Signer:       acc.GetAddress(),
+		EventHash:    req.EventHash,
+		ExecutorHash: req.ExecutorHash,
+		Inputs:       req.Inputs,
+		NodeKey:      req.NodeKey,
+		ParentHash:   req.ParentHash,
+		Price:        req.Price,
+		ProcessHash:  req.ProcessHash,
+		Tags:         req.Tags,
+		TaskKey:      req.TaskKey,
+	}
 	tx, err := mc.BuildAndBroadcastMsg(msg)
 	if err != nil {
 		return nil, err
@@ -169,7 +180,20 @@ func (mc *ModuleClient) UpdateExecution(req *api.UpdateExecutionRequest) (*execu
 	if err != nil {
 		return nil, err
 	}
-	msg := execution.NewMsgUpdateExecution(req, acc.GetAddress())
+	msg := execution.MsgUpdate{
+		Executor: acc.GetAddress(),
+		Hash:     req.Hash,
+	}
+	switch result := req.Result.(type) {
+	case *api.UpdateExecutionRequest_Outputs:
+		msg.Result = &execution.MsgUpdateOutputs{
+			Outputs: result.Outputs,
+		}
+	case *api.UpdateExecutionRequest_Error:
+		msg.Result = &execution.MsgUpdateError{
+			Error: result.Error,
+		}
+	}
 	tx, err := mc.BuildAndBroadcastMsg(msg)
 	if err != nil {
 		return nil, err

@@ -14,7 +14,6 @@ import (
 	executionpb "github.com/mesg-foundation/engine/execution"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/process"
-	"github.com/mesg-foundation/engine/protobuf/api"
 	typespb "github.com/mesg-foundation/engine/protobuf/types"
 	"github.com/mesg-foundation/engine/runner"
 	"github.com/mesg-foundation/engine/x/execution/internal/types"
@@ -64,9 +63,9 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 // The execution reaches consensus only when more than 2/3 of emitters proposed the same execution.
 // TODO: we should split the message and keeper function of execution create from user and for process.
 //nolint:gocyclo
-func (k *Keeper) Create(ctx sdk.Context, msg types.MsgCreateExecution) (*executionpb.Execution, error) {
+func (k *Keeper) Create(ctx sdk.Context, msg types.MsgCreate) (*executionpb.Execution, error) {
 	// TODO: all the following verification should be moved to a runner.Validate function
-	price, err := sdk.ParseCoins(msg.Request.Price)
+	price, err := sdk.ParseCoins(msg.Price)
 	if err != nil {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidCoins, err.Error())
 	}
@@ -79,7 +78,7 @@ func (k *Keeper) Create(ctx sdk.Context, msg types.MsgCreateExecution) (*executi
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidCoins, "execution price too low. Min value: %q", minPriceCoin.String())
 	}
 
-	run, err := k.runnerKeeper.Get(ctx, msg.Request.ExecutorHash)
+	run, err := k.runnerKeeper.Get(ctx, msg.ExecutorHash)
 	if err != nil {
 		return nil, err
 	}
@@ -91,12 +90,12 @@ func (k *Keeper) Create(ctx sdk.Context, msg types.MsgCreateExecution) (*executi
 	if err != nil {
 		return nil, err
 	}
-	if err := srv.RequireTaskInputs(msg.Request.TaskKey, msg.Request.Inputs); err != nil {
+	if err := srv.RequireTaskInputs(msg.TaskKey, msg.Inputs); err != nil {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, err.Error())
 	}
 	var proc *process.Process
-	if !msg.Request.ProcessHash.IsZero() {
-		proc, err = k.processKeeper.Get(ctx, msg.Request.ProcessHash)
+	if !msg.ProcessHash.IsZero() {
+		proc, err = k.processKeeper.Get(ctx, msg.ProcessHash)
 		if err != nil {
 			return nil, err
 		}
@@ -107,16 +106,16 @@ func (k *Keeper) Create(ctx sdk.Context, msg types.MsgCreateExecution) (*executi
 	}
 
 	exec := executionpb.New(
-		msg.Request.ProcessHash,
+		msg.ProcessHash,
 		run.InstanceHash,
-		msg.Request.ParentHash,
-		msg.Request.EventHash,
-		msg.Request.NodeKey,
-		msg.Request.TaskKey,
-		msg.Request.Price,
-		msg.Request.Inputs,
-		msg.Request.Tags,
-		msg.Request.ExecutorHash,
+		msg.ParentHash,
+		msg.EventHash,
+		msg.NodeKey,
+		msg.TaskKey,
+		msg.Price,
+		msg.Inputs,
+		msg.Tags,
+		msg.ExecutorHash,
 	)
 
 	// check if exec already exists
@@ -216,13 +215,13 @@ func (k *Keeper) Create(ctx sdk.Context, msg types.MsgCreateExecution) (*executi
 }
 
 // Update updates a new execution from definition.
-func (k *Keeper) Update(ctx sdk.Context, msg types.MsgUpdateExecution) (*executionpb.Execution, error) {
+func (k *Keeper) Update(ctx sdk.Context, msg types.MsgUpdate) (*executionpb.Execution, error) {
 	store := ctx.KVStore(k.storeKey)
-	if !store.Has(msg.Request.Hash) {
-		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "execution %q doesn't exist", msg.Request.Hash)
+	if !store.Has(msg.Hash) {
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "execution %q doesn't exist", msg.Hash)
 	}
 	var exec *executionpb.Execution
-	if err := k.cdc.UnmarshalBinaryLengthPrefixed(store.Get(msg.Request.Hash), &exec); err != nil {
+	if err := k.cdc.UnmarshalBinaryLengthPrefixed(store.Get(msg.Hash), &exec); err != nil {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrJSONUnmarshal, err.Error())
 	}
 
@@ -235,8 +234,8 @@ func (k *Keeper) Update(ctx sdk.Context, msg types.MsgUpdateExecution) (*executi
 		return nil, sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "signer is not the execution's executor")
 	}
 
-	switch res := msg.Request.Result.(type) {
-	case *api.UpdateExecutionRequest_Outputs:
+	switch res := msg.Result.(type) {
+	case *types.MsgUpdate_Outputs:
 		if err := k.validateExecutionOutput(ctx, exec.InstanceHash, exec.TaskKey, res.Outputs); err != nil {
 			if err1 := exec.Fail(err); err1 != nil {
 				return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, err1.Error())
@@ -244,7 +243,7 @@ func (k *Keeper) Update(ctx sdk.Context, msg types.MsgUpdateExecution) (*executi
 		} else if err := exec.Complete(res.Outputs); err != nil {
 			return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, err.Error())
 		}
-	case *api.UpdateExecutionRequest_Error:
+	case *types.MsgUpdate_Error:
 		if err := exec.Fail(errors.New(res.Error)); err != nil {
 			return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, err.Error())
 		}

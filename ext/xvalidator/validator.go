@@ -70,7 +70,7 @@ func New(prefix string) (*validator.Validate, ut.Translator) {
 
 	validate.RegisterValidation("hash", IsHash)
 	validate.RegisterTranslation("hash", trans, func(ut ut.Translator) error {
-		return ut.Add("hash", "{0} must be a valid hash in hex format", false)
+		return ut.Add("hash", "{0} must be a valid hash", false)
 	}, func(ut ut.Translator, fe validator.FieldError) string {
 		t, _ := ut.T(fe.Tag(), fe.Field(), prefix)
 		return t
@@ -87,6 +87,14 @@ func New(prefix string) (*validator.Validate, ut.Translator) {
 	validate.RegisterValidation("coins", IsCoins)
 	validate.RegisterTranslation("coins", trans, func(ut ut.Translator) error {
 		return ut.Add("coins", "{0} must be a valid coins", false)
+	}, func(ut ut.Translator, fe validator.FieldError) string {
+		t, _ := ut.T(fe.Tag(), fe.Field(), prefix)
+		return t
+	})
+
+	validate.RegisterValidation("coinsPositiveZero", IsCoinsPositiveOrZero)
+	validate.RegisterTranslation("coinsPositiveZero", trans, func(ut ut.Translator) error {
+		return ut.Add("coinsPositiveZero", "{0} must be positive or zero coins", false)
 	}, func(ut ut.Translator, fe validator.FieldError) string {
 		t, _ := ut.T(fe.Tag(), fe.Field(), prefix)
 		return t
@@ -134,6 +142,15 @@ func IsAccAddress(fl validator.FieldLevel) bool {
 func IsCoins(fl validator.FieldLevel) bool {
 	_, err := sdk.ParseCoins(fl.Field().String())
 	return err == nil
+}
+
+// IsCoinsPositiveOrZero validates if given field is valid cosmos positive or zero coins.
+func IsCoinsPositiveOrZero(fl validator.FieldLevel) bool {
+	coins, err := sdk.ParseCoins(fl.Field().String())
+	if err != nil {
+		return false
+	}
+	return coins.IsAllPositive() || coins.IsZero()
 }
 
 // IsDomainName validates if given field is valid domain name.
