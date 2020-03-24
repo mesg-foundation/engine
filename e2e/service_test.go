@@ -75,7 +75,7 @@ func testService(t *testing.T) {
 
 	t.Run("hash", func(t *testing.T) {
 		var hash hash.Hash
-		lcdPost(t, "service/hash", req, &hash)
+		lcdPost(t, "service/hash", msg, &hash)
 		require.Equal(t, testServiceHash, hash)
 	})
 

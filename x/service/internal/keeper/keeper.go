@@ -40,15 +40,15 @@ func (k Keeper) Create(ctx sdk.Context, msg *types.MsgCreate) (*servicepb.Servic
 	store := ctx.KVStore(k.storeKey)
 	// create service
 	srv := servicepb.New(
-		msg.Request.Sid,
-		msg.Request.Name,
-		msg.Request.Description,
-		msg.Request.Configuration,
-		msg.Request.Tasks,
-		msg.Request.Events,
-		msg.Request.Dependencies,
-		msg.Request.Repository,
-		msg.Request.Source,
+		msg.Sid,
+		msg.Name,
+		msg.Description,
+		msg.Configuration,
+		msg.Tasks,
+		msg.Events,
+		msg.Dependencies,
+		msg.Repository,
+		msg.Source,
 	)
 
 	// check if service already exists.
