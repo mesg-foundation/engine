@@ -160,5 +160,7 @@ message ListExecutionRequest {}
 // The response's data for the `List` API.
 message ListExecutionResponse {
   // List of executions that match the request's filters.
-  repeated types.Execution executions = 1;
+  repeated types.Execution executions = 1 [
+    (gogoproto.moretags) = 'validate:"dive"'
+  ];
 }

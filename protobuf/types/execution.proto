@@ -138,7 +138,7 @@ message Execution {
     
   // list of emitters of this execution.
   repeated Emitter emitters = 16 [
-    (gogoproto.moretags) = 'hash:"-"'
+    (gogoproto.moretags) = 'hash:"-" validate:"dive"'
   ];
 
   // The address of the execution.
