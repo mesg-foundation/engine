@@ -49,12 +49,11 @@ func GetCmdWithdrawCoins(cdc *codec.Codec) *cobra.Command {
 				return err
 			}
 
-			coins, err := sdk.ParseCoins(args[1])
-			if err != nil {
-				return err
+			msg := types.MsgWithdrawCoins{
+				Owner:        cliCtx.GetFromAddress(),
+				ResourceHash: h,
+				Amount:       args[1],
 			}
-
-			msg := types.NewMsgWithdrawCoins(h, coins, cliCtx.GetFromAddress())
 			if err = msg.ValidateBasic(); err != nil {
 				return err
 			}

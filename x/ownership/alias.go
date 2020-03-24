@@ -25,8 +25,6 @@ var (
 
 	ModuleCdc           = types.ModuleCdc
 	QueryListOwnerships = types.QueryListOwnerships
-
-	NewMsgWithdrawCoins = types.NewMsgWithdrawCoins
 )
 
 // module types

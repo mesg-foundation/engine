@@ -33,7 +33,7 @@ func handleMsgWithdrawCoins(ctx sdk.Context, k Keeper, msg MsgWithdrawCoins) (*s
 			sdk.EventTypeMessage,
 			sdk.NewAttribute(sdk.AttributeKeyModule, types.AttributeValueCategory),
 			sdk.NewAttribute(sdk.AttributeKeyAction, types.EventTypeWithdrawCoins),
-			sdk.NewAttribute(sdk.AttributeKeySender, msg.Hash.String()),
+			sdk.NewAttribute(sdk.AttributeKeySender, msg.ResourceHash.String()),
 		),
 	)
 

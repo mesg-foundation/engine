@@ -45,13 +45,11 @@ func txWithdrawCoinsHandlerFn(cliCtx context.CLIContext) http.HandlerFunc {
 			return
 		}
 
-		amt, err := sdk.ParseCoins(req.Amount)
-		if err != nil {
-			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
-			return
+		msg := types.MsgWithdrawCoins{
+			Owner:        owner,
+			ResourceHash: req.Hash,
+			Amount:       req.Amount,
 		}
-
-		msg := types.NewMsgWithdrawCoins(req.Hash, amt, owner)
 		if err := msg.ValidateBasic(); err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
