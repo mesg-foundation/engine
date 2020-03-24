@@ -87,7 +87,12 @@ func (mc *ModuleClient) CreateProcess(req *api.CreateProcessRequest) (*processpb
 	if err != nil {
 		return nil, err
 	}
-	msg := process.NewMsgCreateProcess(acc.GetAddress(), req)
+	msg := process.MsgCreate{
+		Name:  req.Name,
+		Edges: req.Edges,
+		Nodes: req.Nodes,
+		Owner: acc.GetAddress(),
+	}
 	tx, err := mc.BuildAndBroadcastMsg(msg)
 	if err != nil {
 		return nil, err
@@ -122,7 +127,10 @@ func (mc *ModuleClient) DeleteProcess(req *api.DeleteProcessRequest) error {
 	if err != nil {
 		return err
 	}
-	msg := process.NewMsgDeleteProcess(acc.GetAddress(), req)
+	msg := process.MsgDelete{
+		Hash:  req.Hash,
+		Owner: acc.GetAddress(),
+	}
 	_, err = mc.BuildAndBroadcastMsg(msg)
 	return err
 }

@@ -9,8 +9,8 @@ import (
 // RegisterCodec registers concrete types on codec
 func RegisterCodec(cdc *codec.Codec) {
 	processpb.RegisterCodec(cdc)
-	cdc.RegisterConcrete(MsgCreateProcess{}, "process/CreateProcess", nil)
-	cdc.RegisterConcrete(MsgDeleteProcess{}, "process/DeleteProcess", nil)
+	cdc.RegisterConcrete(MsgCreate{}, "process/CreateProcess", nil)
+	cdc.RegisterConcrete(MsgDelete{}, "process/DeleteProcess", nil)
 }
 
 // ModuleCdc defines the module codec
