@@ -75,32 +75,6 @@ message Process {
           ];
         }
 
-        message Reference {
-          message Path {
-            oneof selector {
-              string key = 1 [
-                (gogoproto.moretags) = 'hash:"name:1" validate:"printascii"'
-              ];
-              uint64 index = 2 [
-                (gogoproto.moretags) = 'hash:"name:2"'
-              ];
-            }
-
-            // Path can be nil if on the leaf
-            Path path = 3 [
-              (gogoproto.moretags) = 'hash:"name:3"'
-            ];
-          }
-
-          string nodeKey = 1 [
-            (gogoproto.moretags) = 'hash:"name:1" validate:"required"'
-          ];
-
-          Path path = 2 [
-            (gogoproto.moretags) = 'hash:"name:2"'
-          ];
-        }
-
         oneof value {
           Null null = 1 [
             (gogoproto.moretags) = 'hash:"name:1"'
@@ -167,11 +141,6 @@ message Process {
           CONTAINS = 6;
         }
 
-        // Key to check.
-        string key = 1 [
-          (gogoproto.moretags) = 'hash:"name:1" validate:"required,printascii"'
-        ];
-
         // Type of condition to apply.
         Predicate predicate = 2 [
           (gogoproto.moretags) = 'hash:"name:2" validate:"required"'
@@ -181,12 +150,44 @@ message Process {
         mesg.protobuf.Value value = 4 [
           (gogoproto.moretags) = 'hash:"name:4" validate:"required"'
         ];
+
+        // Input defined as reference.
+        Reference ref = 5 [
+          (gogoproto.moretags) = 'hash:"name:5" validate:"required"'
+        ];
       }
 
       // List of condition to apply for this filter
       repeated Condition conditions = 2 [
         (gogoproto.moretags) = 'hash:"name:2" validate:"dive"',
         (gogoproto.nullable) = false
+      ];
+    }
+
+    message Reference {
+      message Path {
+        oneof selector {
+          string key = 1 [
+            (gogoproto.moretags) = 'hash:"name:1" validate:"printascii"'
+          ];
+          uint64 index = 2 [
+            (gogoproto.moretags) = 'hash:"name:2"'
+          ];
+        }
+
+        // Path can be nil if on the leaf
+        Path path = 3 [
+          (gogoproto.moretags) = 'hash:"name:3"'
+        ];
+      }
+
+      string nodeKey = 1 [
+        (gogoproto.moretags) = 'hash:"name:1" validate:"required"'
+      ];
+
+      // Path can be nil if referencing the whole node's output
+      Path path = 2 [
+        (gogoproto.moretags) = 'hash:"name:2"'
       ];
     }
 

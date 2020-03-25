@@ -199,15 +199,15 @@ package orchestrator
 // 		},
 // 	}
 // 	// Different processes
-// 	_, err := o.resolveInput(hash.Int(1), exec, "2", &process.Process_Node_Map_Output_Reference_Path{Selector: &process.Process_Node_Map_Output_Reference_Path_Key{Key: "xxx"}})
+// 	_, err := o.resolveInput(hash.Int(1), exec, "2", &process.Process_Node_Reference_Path{Selector: &process.Process_Node_Reference_Path_Key{Key: "xxx"}})
 // 	require.Error(t, err)
 // 	// Different steps, should return the value of the data
-// 	val, err := o.resolveInput(hash.Int(2), exec, "2", &process.Process_Node_Map_Output_Reference_Path{Selector: &process.Process_Node_Map_Output_Reference_Path_Key{Key: "xxx"}})
+// 	val, err := o.resolveInput(hash.Int(2), exec, "2", &process.Process_Node_Reference_Path{Selector: &process.Process_Node_Reference_Path_Key{Key: "xxx"}})
 // 	require.NoError(t, err)
 // 	require.Equal(t, val, exec.Outputs.Fields["xxx"])
 // 	// Invalid execution parent hash
 // 	e.On("Get", mock.Anything).Once().Return(nil, fmt.Errorf("err"))
-// 	_, err = o.resolveInput(hash.Int(2), exec, "-", &process.Process_Node_Map_Output_Reference_Path{Selector: &process.Process_Node_Map_Output_Reference_Path_Key{Key: "xxx"}})
+// 	_, err = o.resolveInput(hash.Int(2), exec, "-", &process.Process_Node_Reference_Path{Selector: &process.Process_Node_Reference_Path_Key{Key: "xxx"}})
 // 	require.Error(t, err)
 // 	// Output from a previous exec
 // 	execMock := &execution.Execution{
@@ -222,7 +222,7 @@ package orchestrator
 // 		},
 // 	}
 // 	e.On("Get", mock.Anything).Once().Return(execMock, nil)
-// 	val, err = o.resolveInput(hash.Int(2), exec, "3", &process.Process_Node_Map_Output_Reference_Path{Selector: &process.Process_Node_Map_Output_Reference_Path_Key{Key: "yyy"}})
+// 	val, err = o.resolveInput(hash.Int(2), exec, "3", &process.Process_Node_Reference_Path{Selector: &process.Process_Node_Reference_Path_Key{Key: "yyy"}})
 // 	require.NoError(t, err)
 // 	require.Equal(t, val, execMock.Outputs.Fields["yyy"])
 // }

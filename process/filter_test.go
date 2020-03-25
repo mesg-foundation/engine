@@ -9,387 +9,200 @@ import (
 
 func TestMatch(t *testing.T) {
 	var tests = []struct {
-		name   string
-		filter Process_Node_Filter
-		data   *types.Struct
-		match  bool
+		name      string
+		condition *Process_Node_Filter_Condition
+		data      *types.Value
+		match     bool
+		err       string
 	}{
 		{
 			name: "not matching filter",
-			filter: Process_Node_Filter{
-				Conditions: []Process_Node_Filter_Condition{
-					{
-						Key:       "foo",
-						Predicate: Process_Node_Filter_Condition_EQ,
-						Value: &types.Value{
-							Kind: &types.Value_StringValue{
-								StringValue: "xx",
-							},
-						},
+			condition: &Process_Node_Filter_Condition{
+				Predicate: Process_Node_Filter_Condition_EQ,
+				Value: &types.Value{
+					Kind: &types.Value_StringValue{
+						StringValue: "xx",
 					},
 				},
 			},
-			data: &types.Struct{
-				Fields: map[string]*types.Value{
-					"foo": {
-						Kind: &types.Value_StringValue{
-							StringValue: "bar",
-						},
-					},
-				},
-			},
-			match: false,
-		},
-		{
-			name: "matching multiple conditions",
-			filter: Process_Node_Filter{
-				Conditions: []Process_Node_Filter_Condition{
-					{
-						Key:       "foo",
-						Predicate: Process_Node_Filter_Condition_EQ,
-						Value: &types.Value{
-							Kind: &types.Value_StringValue{
-								StringValue: "bar",
-							},
-						},
-					},
-					{
-						Key:       "xxx",
-						Predicate: Process_Node_Filter_Condition_EQ,
-						Value: &types.Value{
-							Kind: &types.Value_StringValue{
-								StringValue: "yyy",
-							},
-						},
-					},
-				},
-			},
-			data: &types.Struct{
-				Fields: map[string]*types.Value{
-					"foo": {
-						Kind: &types.Value_StringValue{
-							StringValue: "bar",
-						},
-					},
-					"xxx": {
-						Kind: &types.Value_StringValue{
-							StringValue: "yyy",
-						},
-					},
-					"aaa": {
-						Kind: &types.Value_StringValue{
-							StringValue: "bbb",
-						},
-					},
-				},
-			},
-			match: true,
-		},
-		{
-			name: "non matching multiple conditions",
-			filter: Process_Node_Filter{
-				Conditions: []Process_Node_Filter_Condition{
-					{
-						Key:       "foo",
-						Predicate: Process_Node_Filter_Condition_EQ,
-						Value: &types.Value{
-							Kind: &types.Value_StringValue{
-								StringValue: "bar",
-							},
-						},
-					},
-					{
-						Key:       "xxx",
-						Predicate: Process_Node_Filter_Condition_EQ,
-						Value: &types.Value{
-							Kind: &types.Value_StringValue{
-								StringValue: "aaa",
-							},
-						},
-					},
-				},
-			},
-			data: &types.Struct{
-				Fields: map[string]*types.Value{
-					"foo": {
-						Kind: &types.Value_StringValue{
-							StringValue: "bar",
-						},
-					},
-					"xxx": {
-						Kind: &types.Value_StringValue{
-							StringValue: "yyy",
-						},
-					},
-					"aaa": {
-						Kind: &types.Value_StringValue{
-							StringValue: "bbb",
-						},
-					},
+			data: &types.Value{
+				Kind: &types.Value_StringValue{
+					StringValue: "bar",
 				},
 			},
 			match: false,
 		},
 		{
 			name: "matching GT",
-			filter: Process_Node_Filter{
-				Conditions: []Process_Node_Filter_Condition{
-					{
-						Key:       "foo",
-						Predicate: Process_Node_Filter_Condition_GT,
-						Value: &types.Value{
-							Kind: &types.Value_NumberValue{
-								NumberValue: 1,
-							},
-						},
+			condition: &Process_Node_Filter_Condition{
+				Predicate: Process_Node_Filter_Condition_GT,
+				Value: &types.Value{
+					Kind: &types.Value_NumberValue{
+						NumberValue: 1,
 					},
 				},
 			},
-			data: &types.Struct{
-				Fields: map[string]*types.Value{
-					"foo": {
-						Kind: &types.Value_NumberValue{
-							NumberValue: 2,
-						},
-					},
+			data: &types.Value{
+				Kind: &types.Value_NumberValue{
+					NumberValue: 2,
 				},
 			},
 			match: true,
 		},
 		{
 			name: "non matching GT",
-			filter: Process_Node_Filter{
-				Conditions: []Process_Node_Filter_Condition{
-					{
-						Key:       "foo",
-						Predicate: Process_Node_Filter_Condition_GT,
-						Value: &types.Value{
-							Kind: &types.Value_NumberValue{
-								NumberValue: 2,
-							},
-						},
+			condition: &Process_Node_Filter_Condition{
+				Predicate: Process_Node_Filter_Condition_GT,
+				Value: &types.Value{
+					Kind: &types.Value_NumberValue{
+						NumberValue: 2,
 					},
 				},
 			},
-			data: &types.Struct{
-				Fields: map[string]*types.Value{
-					"foo": {
-						Kind: &types.Value_NumberValue{
-							NumberValue: 1,
-						},
-					},
+			data: &types.Value{
+				Kind: &types.Value_NumberValue{
+					NumberValue: 1,
 				},
 			},
 			match: false,
 		},
 		{
 			name: "GT wrong type",
-			filter: Process_Node_Filter{
-				Conditions: []Process_Node_Filter_Condition{
-					{
-						Key:       "foo",
-						Predicate: Process_Node_Filter_Condition_LTE,
-						Value: &types.Value{
-							Kind: &types.Value_NumberValue{
-								NumberValue: 1,
-							},
-						},
+			condition: &Process_Node_Filter_Condition{
+				Predicate: Process_Node_Filter_Condition_LTE,
+				Value: &types.Value{
+					Kind: &types.Value_NumberValue{
+						NumberValue: 1,
 					},
 				},
 			},
-			data: &types.Struct{
-				Fields: map[string]*types.Value{
-					"foo": {
-						Kind: &types.Value_StringValue{
-							StringValue: "foo",
-						},
-					},
+			data: &types.Value{
+				Kind: &types.Value_StringValue{
+					StringValue: "foo",
 				},
 			},
 			match: false,
+			err:   "predicates GT, GTE, LT, and LTE are only compatible with type Number",
 		},
 		{
 			name: "matching GTE",
-			filter: Process_Node_Filter{
-				Conditions: []Process_Node_Filter_Condition{
-					{
-						Key:       "foo",
-						Predicate: Process_Node_Filter_Condition_GTE,
-						Value: &types.Value{
-							Kind: &types.Value_NumberValue{
-								NumberValue: 1,
-							},
-						},
+			condition: &Process_Node_Filter_Condition{
+				Predicate: Process_Node_Filter_Condition_GTE,
+				Value: &types.Value{
+					Kind: &types.Value_NumberValue{
+						NumberValue: 1,
 					},
 				},
 			},
-			data: &types.Struct{
-				Fields: map[string]*types.Value{
-					"foo": {
-						Kind: &types.Value_NumberValue{
-							NumberValue: 1,
-						},
-					},
+			data: &types.Value{
+				Kind: &types.Value_NumberValue{
+					NumberValue: 1,
 				},
 			},
 			match: true,
 		},
 		{
 			name: "non matching GTE",
-			filter: Process_Node_Filter{
-				Conditions: []Process_Node_Filter_Condition{
-					{
-						Key:       "foo",
-						Predicate: Process_Node_Filter_Condition_GTE,
-						Value: &types.Value{
-							Kind: &types.Value_NumberValue{
-								NumberValue: 2,
-							},
-						},
+			condition: &Process_Node_Filter_Condition{
+				Predicate: Process_Node_Filter_Condition_GTE,
+				Value: &types.Value{
+					Kind: &types.Value_NumberValue{
+						NumberValue: 2,
 					},
 				},
 			},
-			data: &types.Struct{
-				Fields: map[string]*types.Value{
-					"foo": {
-						Kind: &types.Value_NumberValue{
-							NumberValue: 1,
-						},
-					},
+			data: &types.Value{
+				Kind: &types.Value_NumberValue{
+					NumberValue: 1,
 				},
 			},
 			match: false,
 		},
 		{
 			name: "matching LT",
-			filter: Process_Node_Filter{
-				Conditions: []Process_Node_Filter_Condition{
-					{
-						Key:       "foo",
-						Predicate: Process_Node_Filter_Condition_LT,
-						Value: &types.Value{
-							Kind: &types.Value_NumberValue{
-								NumberValue: 2,
-							},
-						},
+			condition: &Process_Node_Filter_Condition{
+				Predicate: Process_Node_Filter_Condition_LT,
+				Value: &types.Value{
+					Kind: &types.Value_NumberValue{
+						NumberValue: 2,
 					},
 				},
 			},
-			data: &types.Struct{
-				Fields: map[string]*types.Value{
-					"foo": {
-						Kind: &types.Value_NumberValue{
-							NumberValue: 1,
-						},
-					},
+			data: &types.Value{
+				Kind: &types.Value_NumberValue{
+					NumberValue: 1,
 				},
 			},
 			match: true,
 		},
 		{
 			name: "non matching LT",
-			filter: Process_Node_Filter{
-				Conditions: []Process_Node_Filter_Condition{
-					{
-						Key:       "foo",
-						Predicate: Process_Node_Filter_Condition_LT,
-						Value: &types.Value{
-							Kind: &types.Value_NumberValue{
-								NumberValue: 1,
-							},
-						},
+			condition: &Process_Node_Filter_Condition{
+				Predicate: Process_Node_Filter_Condition_LT,
+				Value: &types.Value{
+					Kind: &types.Value_NumberValue{
+						NumberValue: 1,
 					},
 				},
 			},
-			data: &types.Struct{
-				Fields: map[string]*types.Value{
-					"foo": {
-						Kind: &types.Value_NumberValue{
-							NumberValue: 2,
-						},
-					},
+			data: &types.Value{
+				Kind: &types.Value_NumberValue{
+					NumberValue: 2,
 				},
 			},
 			match: false,
 		},
 		{
 			name: "matching LTE",
-			filter: Process_Node_Filter{
-				Conditions: []Process_Node_Filter_Condition{
-					{
-						Key:       "foo",
-						Predicate: Process_Node_Filter_Condition_LTE,
-						Value: &types.Value{
-							Kind: &types.Value_NumberValue{
-								NumberValue: 1,
-							},
-						},
+			condition: &Process_Node_Filter_Condition{
+				Predicate: Process_Node_Filter_Condition_LTE,
+				Value: &types.Value{
+					Kind: &types.Value_NumberValue{
+						NumberValue: 1,
 					},
 				},
 			},
-			data: &types.Struct{
-				Fields: map[string]*types.Value{
-					"foo": {
-						Kind: &types.Value_NumberValue{
-							NumberValue: 1,
-						},
-					},
+			data: &types.Value{
+				Kind: &types.Value_NumberValue{
+					NumberValue: 1,
 				},
 			},
 			match: true,
 		},
 		{
 			name: "non matching LTE",
-			filter: Process_Node_Filter{
-				Conditions: []Process_Node_Filter_Condition{
-					{
-						Key:       "foo",
-						Predicate: Process_Node_Filter_Condition_LTE,
-						Value: &types.Value{
-							Kind: &types.Value_NumberValue{
-								NumberValue: 1,
-							},
-						},
+			condition: &Process_Node_Filter_Condition{
+				Predicate: Process_Node_Filter_Condition_LTE,
+				Value: &types.Value{
+					Kind: &types.Value_NumberValue{
+						NumberValue: 1,
 					},
 				},
 			},
-			data: &types.Struct{
-				Fields: map[string]*types.Value{
-					"foo": {
-						Kind: &types.Value_NumberValue{
-							NumberValue: 2,
-						},
-					},
+			data: &types.Value{
+				Kind: &types.Value_NumberValue{
+					NumberValue: 2,
 				},
 			},
 			match: false,
 		},
 		{
 			name: "matching contains",
-			filter: Process_Node_Filter{
-				Conditions: []Process_Node_Filter_Condition{
-					{
-						Key:       "foo",
-						Predicate: Process_Node_Filter_Condition_CONTAINS,
-						Value: &types.Value{
-							Kind: &types.Value_StringValue{
-								StringValue: "foo",
-							},
-						},
+			condition: &Process_Node_Filter_Condition{
+				Predicate: Process_Node_Filter_Condition_CONTAINS,
+				Value: &types.Value{
+					Kind: &types.Value_StringValue{
+						StringValue: "foo",
 					},
 				},
 			},
-			data: &types.Struct{
-				Fields: map[string]*types.Value{
-					"foo": {
-						Kind: &types.Value_ListValue{
-							ListValue: &types.ListValue{
-								Values: []*types.Value{
-									{
-										Kind: &types.Value_StringValue{
-											StringValue: "foo",
-										},
-									},
+			data: &types.Value{
+				Kind: &types.Value_ListValue{
+					ListValue: &types.ListValue{
+						Values: []*types.Value{
+							{
+								Kind: &types.Value_StringValue{
+									StringValue: "foo",
 								},
 							},
 						},
@@ -400,30 +213,21 @@ func TestMatch(t *testing.T) {
 		},
 		{
 			name: "non matching contains",
-			filter: Process_Node_Filter{
-				Conditions: []Process_Node_Filter_Condition{
-					{
-						Key:       "foo",
-						Predicate: Process_Node_Filter_Condition_CONTAINS,
-						Value: &types.Value{
-							Kind: &types.Value_StringValue{
-								StringValue: "foo",
-							},
-						},
+			condition: &Process_Node_Filter_Condition{
+				Predicate: Process_Node_Filter_Condition_CONTAINS,
+				Value: &types.Value{
+					Kind: &types.Value_StringValue{
+						StringValue: "foo",
 					},
 				},
 			},
-			data: &types.Struct{
-				Fields: map[string]*types.Value{
-					"foo": {
-						Kind: &types.Value_ListValue{
-							ListValue: &types.ListValue{
-								Values: []*types.Value{
-									{
-										Kind: &types.Value_StringValue{
-											StringValue: "bar",
-										},
-									},
+			data: &types.Value{
+				Kind: &types.Value_ListValue{
+					ListValue: &types.ListValue{
+						Values: []*types.Value{
+							{
+								Kind: &types.Value_StringValue{
+									StringValue: "bar",
 								},
 							},
 						},
@@ -434,62 +238,75 @@ func TestMatch(t *testing.T) {
 		},
 		{
 			name: "wrong type contains",
-			filter: Process_Node_Filter{
-				Conditions: []Process_Node_Filter_Condition{
-					{
-						Key:       "foo",
-						Predicate: Process_Node_Filter_Condition_CONTAINS,
-						Value: &types.Value{
-							Kind: &types.Value_StringValue{
-								StringValue: "foo",
-							},
-						},
+			condition: &Process_Node_Filter_Condition{
+				Predicate: Process_Node_Filter_Condition_CONTAINS,
+				Value: &types.Value{
+					Kind: &types.Value_StringValue{
+						StringValue: "foo",
 					},
 				},
 			},
-			data: &types.Struct{
-				Fields: map[string]*types.Value{
-					"foo": {
-						Kind: &types.Value_NumberValue{
-							NumberValue: 10,
-						},
-					},
+			data: &types.Value{
+				Kind: &types.Value_NumberValue{
+					NumberValue: 10,
 				},
 			},
 			match: false,
+			err:   "predicate CONTAINS is only compatible on data of type List or String",
+		},
+		{
+			name: "wrong type contains string",
+			condition: &Process_Node_Filter_Condition{
+				Predicate: Process_Node_Filter_Condition_CONTAINS,
+				Value: &types.Value{
+					Kind: &types.Value_NumberValue{
+						NumberValue: 10,
+					},
+				},
+			},
+			data: &types.Value{
+				Kind: &types.Value_StringValue{
+					StringValue: "foo",
+				},
+			},
+			match: false,
+			err:   "predicates CONTAINS on data of type String is only compatible with value of type String",
 		},
 		{
 			name: "string contain",
-			filter: Process_Node_Filter{
-				Conditions: []Process_Node_Filter_Condition{
-					{
-						Key:       "foo",
-						Predicate: Process_Node_Filter_Condition_CONTAINS,
-						Value: &types.Value{
-							Kind: &types.Value_StringValue{
-								StringValue: "world",
-							},
-						},
+			condition: &Process_Node_Filter_Condition{
+				Predicate: Process_Node_Filter_Condition_CONTAINS,
+				Value: &types.Value{
+					Kind: &types.Value_StringValue{
+						StringValue: "world",
 					},
 				},
 			},
-			data: &types.Struct{
-				Fields: map[string]*types.Value{
-					"foo": {
-						Kind: &types.Value_StringValue{
-							StringValue: "hello world",
-						},
-					},
+			data: &types.Value{
+				Kind: &types.Value_StringValue{
+					StringValue: "hello world",
 				},
 			},
 			match: true,
+		},
+		{
+			name: "unknown predicate",
+			condition: &Process_Node_Filter_Condition{
+				Predicate: Process_Node_Filter_Condition_Unknown,
+			},
+			match: false,
+			err:   "predicates type is unknown",
 		},
 	}
 
 	for _, tt := range tests {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			require.Equal(t, tt.match, tt.filter.Match(tt.data))
+			match, err := tt.condition.Match(tt.data)
+			require.Equal(t, tt.match, match)
+			if len(tt.err) > 0 || err != nil {
+				require.EqualError(t, err, tt.err)
+			}
 		})
 	}
 }

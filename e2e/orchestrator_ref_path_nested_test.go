@@ -41,14 +41,14 @@ func testOrchestratorRefPathNested(executionStream pb.Execution_StreamClient, in
 												Outputs: map[string]*process.Process_Node_Map_Output{
 													"msg": {
 														Value: &process.Process_Node_Map_Output_Ref{
-															Ref: &process.Process_Node_Map_Output_Reference{
+															Ref: &process.Process_Node_Reference{
 																NodeKey: "n0",
-																Path: &process.Process_Node_Map_Output_Reference_Path{
-																	Selector: &process.Process_Node_Map_Output_Reference_Path_Key{
+																Path: &process.Process_Node_Reference_Path{
+																	Selector: &process.Process_Node_Reference_Path_Key{
 																		Key: "msg",
 																	},
-																	Path: &process.Process_Node_Map_Output_Reference_Path{
-																		Selector: &process.Process_Node_Map_Output_Reference_Path_Key{
+																	Path: &process.Process_Node_Reference_Path{
+																		Selector: &process.Process_Node_Reference_Path_Key{
 																			Key: "msg",
 																		},
 																	},
@@ -62,18 +62,18 @@ func testOrchestratorRefPathNested(executionStream pb.Execution_StreamClient, in
 																Outputs: []*process.Process_Node_Map_Output{
 																	{
 																		Value: &process.Process_Node_Map_Output_Ref{
-																			Ref: &process.Process_Node_Map_Output_Reference{
+																			Ref: &process.Process_Node_Reference{
 																				NodeKey: "n0",
-																				Path: &process.Process_Node_Map_Output_Reference_Path{
-																					Selector: &process.Process_Node_Map_Output_Reference_Path_Key{
+																				Path: &process.Process_Node_Reference_Path{
+																					Selector: &process.Process_Node_Reference_Path_Key{
 																						Key: "msg",
 																					},
-																					Path: &process.Process_Node_Map_Output_Reference_Path{
-																						Selector: &process.Process_Node_Map_Output_Reference_Path_Key{
+																					Path: &process.Process_Node_Reference_Path{
+																						Selector: &process.Process_Node_Reference_Path_Key{
 																							Key: "array",
 																						},
-																						Path: &process.Process_Node_Map_Output_Reference_Path{
-																							Selector: &process.Process_Node_Map_Output_Reference_Path_Index{
+																						Path: &process.Process_Node_Reference_Path{
+																							Selector: &process.Process_Node_Reference_Path_Index{
 																								Index: 2,
 																							},
 																						},
@@ -84,18 +84,18 @@ func testOrchestratorRefPathNested(executionStream pb.Execution_StreamClient, in
 																	},
 																	{
 																		Value: &process.Process_Node_Map_Output_Ref{
-																			Ref: &process.Process_Node_Map_Output_Reference{
+																			Ref: &process.Process_Node_Reference{
 																				NodeKey: "n0",
-																				Path: &process.Process_Node_Map_Output_Reference_Path{
-																					Selector: &process.Process_Node_Map_Output_Reference_Path_Key{
+																				Path: &process.Process_Node_Reference_Path{
+																					Selector: &process.Process_Node_Reference_Path_Key{
 																						Key: "msg",
 																					},
-																					Path: &process.Process_Node_Map_Output_Reference_Path{
-																						Selector: &process.Process_Node_Map_Output_Reference_Path_Key{
+																					Path: &process.Process_Node_Reference_Path{
+																						Selector: &process.Process_Node_Reference_Path_Key{
 																							Key: "array",
 																						},
-																						Path: &process.Process_Node_Map_Output_Reference_Path{
-																							Selector: &process.Process_Node_Map_Output_Reference_Path_Index{
+																						Path: &process.Process_Node_Reference_Path{
+																							Selector: &process.Process_Node_Reference_Path_Index{
 																								Index: 1,
 																							},
 																						},
@@ -106,18 +106,18 @@ func testOrchestratorRefPathNested(executionStream pb.Execution_StreamClient, in
 																	},
 																	{
 																		Value: &process.Process_Node_Map_Output_Ref{
-																			Ref: &process.Process_Node_Map_Output_Reference{
+																			Ref: &process.Process_Node_Reference{
 																				NodeKey: "n0",
-																				Path: &process.Process_Node_Map_Output_Reference_Path{
-																					Selector: &process.Process_Node_Map_Output_Reference_Path_Key{
+																				Path: &process.Process_Node_Reference_Path{
+																					Selector: &process.Process_Node_Reference_Path_Key{
 																						Key: "msg",
 																					},
-																					Path: &process.Process_Node_Map_Output_Reference_Path{
-																						Selector: &process.Process_Node_Map_Output_Reference_Path_Key{
+																					Path: &process.Process_Node_Reference_Path{
+																						Selector: &process.Process_Node_Reference_Path_Key{
 																							Key: "array",
 																						},
-																						Path: &process.Process_Node_Map_Output_Reference_Path{
-																							Selector: &process.Process_Node_Map_Output_Reference_Path_Index{
+																						Path: &process.Process_Node_Reference_Path{
+																							Selector: &process.Process_Node_Reference_Path_Index{
 																								Index: 0,
 																							},
 																						},
@@ -154,14 +154,14 @@ func testOrchestratorRefPathNested(executionStream pb.Execution_StreamClient, in
 								Outputs: map[string]*process.Process_Node_Map_Output{
 									"msg": {
 										Value: &process.Process_Node_Map_Output_Ref{
-											Ref: &process.Process_Node_Map_Output_Reference{
+											Ref: &process.Process_Node_Reference{
 												NodeKey: "n2",
-												Path: &process.Process_Node_Map_Output_Reference_Path{
-													Selector: &process.Process_Node_Map_Output_Reference_Path_Key{
+												Path: &process.Process_Node_Reference_Path{
+													Selector: &process.Process_Node_Reference_Path_Key{
 														Key: "msg",
 													},
-													Path: &process.Process_Node_Map_Output_Reference_Path{
-														Selector: &process.Process_Node_Map_Output_Reference_Path_Key{
+													Path: &process.Process_Node_Reference_Path{
+														Selector: &process.Process_Node_Reference_Path_Key{
 															Key: "msg",
 														},
 													},
