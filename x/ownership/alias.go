@@ -33,5 +33,5 @@ type (
 	GenesisState = types.GenesisState
 	Params       = types.Params
 
-	MsgWithdrawCoins = types.MsgWithdrawCoins
+	MsgWithdraw = types.MsgWithdraw
 )

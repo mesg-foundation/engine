@@ -6,7 +6,7 @@ package mesg.ownership.types;
 option go_package = "github.com/mesg-foundation/engine/x/ownership/internal/types";
 
 // The message to withdraw coins from an ownership.
-message MsgWithdrawCoins {
+message MsgWithdraw {
   // The ownership's owner.
   bytes owner = 1 [
     (gogoproto.moretags) = 'validate:"required,accaddress"',

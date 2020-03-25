@@ -109,8 +109,8 @@ func (k Keeper) Delete(ctx sdk.Context, owner sdk.AccAddress, resourceHash hash.
 	return nil
 }
 
-// WithdrawCoins try to withdraw coins to owner rom specific resource.
-func (k Keeper) WithdrawCoins(ctx sdk.Context, msg types.MsgWithdrawCoins) error {
+// Withdraw try to withdraw coins to owner rom specific resource.
+func (k Keeper) Withdraw(ctx sdk.Context, msg types.MsgWithdraw) error {
 	store := ctx.KVStore(k.storeKey)
 	amount, err := sdk.ParseCoins(msg.Amount)
 	if err != nil {

@@ -7,17 +7,17 @@ import (
 )
 
 // Route should return the name of the module.
-func (msg MsgWithdrawCoins) Route() string {
+func (msg MsgWithdraw) Route() string {
 	return ModuleName
 }
 
 // Type returns the action.
-func (msg MsgWithdrawCoins) Type() string {
-	return "withdrawcoins"
+func (msg MsgWithdraw) Type() string {
+	return "withdraw"
 }
 
 // ValidateBasic runs stateless checks on the message.
-func (msg MsgWithdrawCoins) ValidateBasic() error {
+func (msg MsgWithdraw) ValidateBasic() error {
 	if err := xvalidator.Struct(msg); err != nil {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, err.Error())
 	}
@@ -25,11 +25,11 @@ func (msg MsgWithdrawCoins) ValidateBasic() error {
 }
 
 // GetSignBytes encodes the message for signing.
-func (msg MsgWithdrawCoins) GetSignBytes() []byte {
+func (msg MsgWithdraw) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
 }
 
 // GetSigners defines whose signature is required.
-func (msg MsgWithdrawCoins) GetSigners() []sdk.AccAddress {
+func (msg MsgWithdraw) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{msg.Owner}
 }

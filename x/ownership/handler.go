@@ -13,8 +13,8 @@ func NewHandler(k Keeper) sdk.Handler {
 	return func(ctx sdk.Context, msg sdk.Msg) (*sdk.Result, error) {
 		ctx = ctx.WithEventManager(sdk.NewEventManager())
 		switch msg := msg.(type) {
-		case MsgWithdrawCoins:
-			return handleMsgWithdrawCoins(ctx, k, msg)
+		case MsgWithdraw:
+			return handleMsgWithdraw(ctx, k, msg)
 		default:
 			errMsg := fmt.Sprintf("unrecognized %s message type: %T", types.ModuleName, msg)
 			return nil, sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, errMsg)
@@ -22,9 +22,9 @@ func NewHandler(k Keeper) sdk.Handler {
 	}
 }
 
-// handleMsgWithdrawCoins withdraws coins from resource to the owner.
-func handleMsgWithdrawCoins(ctx sdk.Context, k Keeper, msg MsgWithdrawCoins) (*sdk.Result, error) {
-	if err := k.WithdrawCoins(ctx, msg); err != nil {
+// handleMsgWithdraw withdraws coins from resource to the owner.
+func handleMsgWithdraw(ctx sdk.Context, k Keeper, msg MsgWithdraw) (*sdk.Result, error) {
+	if err := k.Withdraw(ctx, msg); err != nil {
 		return nil, err
 	}
 
@@ -32,7 +32,7 @@ func handleMsgWithdrawCoins(ctx sdk.Context, k Keeper, msg MsgWithdrawCoins) (*s
 		sdk.NewEvent(
 			sdk.EventTypeMessage,
 			sdk.NewAttribute(sdk.AttributeKeyModule, types.AttributeValueCategory),
-			sdk.NewAttribute(sdk.AttributeKeyAction, types.EventTypeWithdrawCoins),
+			sdk.NewAttribute(sdk.AttributeKeyAction, types.EventTypeWithdraw),
 			sdk.NewAttribute(sdk.AttributeKeySender, msg.ResourceHash.String()),
 		),
 	)

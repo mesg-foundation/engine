@@ -2,7 +2,7 @@ package types
 
 // ownership module event types
 const (
-	EventTypeWithdrawCoins = "WithdrawCoins"
+	EventTypeWithdraw = "Withdraw"
 
 	AttributeValueCategory = ModuleName
 )
