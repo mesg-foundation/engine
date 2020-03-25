@@ -12,6 +12,7 @@ import (
 	"github.com/mesg-foundation/engine/process"
 	pb "github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/mesg-foundation/engine/protobuf/types"
+	"github.com/mesg-foundation/engine/x/ownership"
 	"github.com/stretchr/testify/require"
 )
 
@@ -102,6 +103,22 @@ func testOrchestratorProcessBalanceWithdraw(executionStream pb.Execution_StreamC
 			param := bank.NewQueryBalanceParams(procAddress)
 			require.NoError(t, cclient.QueryJSON("custom/bank/balances", param, &coins))
 			require.True(t, coins.IsEqual(processInitialBalance.Sub(minExecutionPrice)), coins)
+		})
+		t.Run("withdraw from process", func(t *testing.T) {
+			acc, err := cclient.GetAccount()
+			require.NoError(t, err)
+			coins := minExecutionPrice
+			msg := ownership.MsgWithdrawCoins{
+				Owner:        acc.GetAddress(),
+				Amount:       coins.String(),
+				ResourceHash: processHash,
+			}
+			_, err = cclient.BuildAndBroadcastMsg(msg)
+			require.NoError(t, err)
+
+			param := bank.NewQueryBalanceParams(procAddress)
+			require.NoError(t, cclient.QueryJSON("custom/bank/balances", param, &coins))
+			require.True(t, coins.IsEqual(processInitialBalance.Sub(minExecutionPrice).Sub(minExecutionPrice)), coins)
 		})
 		t.Run("delete process", func(t *testing.T) {
 			_, err := client.ProcessClient.Delete(context.Background(), &pb.DeleteProcessRequest{Hash: processHash})
