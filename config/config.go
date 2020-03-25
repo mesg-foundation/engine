@@ -107,6 +107,7 @@ func defaultConfig() (*Config, error) {
 	c.Tendermint.RelativePath = "tendermint"
 	c.Tendermint.Config = tmconfig.DefaultConfig()
 	c.Tendermint.Config.RPC.ListenAddress = "tcp://0.0.0.0:26657"
+	c.Tendermint.Config.RPC.MaxSubscriptionsPerClient = 100
 	c.Tendermint.Config.P2P.AddrBookStrict = false
 	c.Tendermint.Config.P2P.AllowDuplicateIP = true
 	c.Tendermint.Config.Consensus.TimeoutCommit = 5 * time.Second

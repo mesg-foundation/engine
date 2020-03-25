@@ -105,15 +105,13 @@ func testOrchestratorProcessBalanceWithdraw(executionStream pb.Execution_StreamC
 			require.True(t, coins.IsEqual(processInitialBalance.Sub(minExecutionPrice)), coins)
 		})
 		t.Run("withdraw from process", func(t *testing.T) {
-			acc, err := cclient.GetAccount()
-			require.NoError(t, err)
 			coins := minExecutionPrice
-			msg := ownership.MsgWithdrawCoins{
-				Owner:        acc.GetAddress(),
+			msg := ownership.MsgWithdraw{
+				Owner:        engineAddress,
 				Amount:       coins.String(),
 				ResourceHash: processHash,
 			}
-			_, err = cclient.BuildAndBroadcastMsg(msg)
+			_, err := cclient.BuildAndBroadcastMsg(msg)
 			require.NoError(t, err)
 
 			param := bank.NewQueryBalanceParams(procAddress)

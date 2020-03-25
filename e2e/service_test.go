@@ -19,9 +19,7 @@ func testService(t *testing.T) {
 	msg := newTestCreateServiceMsg()
 
 	t.Run("create", func(t *testing.T) {
-		acc, err := cclient.GetAccount()
-		require.NoError(t, err)
-		msg.Owner = acc.GetAddress()
+		msg.Owner = engineAddress
 		res, err := cclient.BuildAndBroadcastMsg(msg)
 		require.NoError(t, err)
 		testServiceHash = res.Data

@@ -131,7 +131,7 @@ func (c *Client) BuildAndBroadcastMsg(msg sdktypes.Msg) (*abci.ResponseDeliverTx
 		}
 		return &data.TxResult.Result, nil
 	case <-ctx.Done():
-		return nil, errors.New("reach timeout for listening for transaction result")
+		return nil, fmt.Errorf("reach timeout for listening for transaction result: %w", ctx.Err())
 	}
 }
 
