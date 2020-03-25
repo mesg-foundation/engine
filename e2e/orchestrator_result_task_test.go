@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"testing"
 
 	"github.com/mesg-foundation/engine/execution"
@@ -9,6 +8,8 @@ import (
 	"github.com/mesg-foundation/engine/process"
 	pb "github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/mesg-foundation/engine/protobuf/types"
+	executionmodule "github.com/mesg-foundation/engine/x/execution"
+	processmodule "github.com/mesg-foundation/engine/x/process"
 	"github.com/stretchr/testify/require"
 )
 
@@ -17,8 +18,9 @@ func testOrchestratorResultTask(executionStream pb.Execution_StreamClient, runne
 		var processHash hash.Hash
 
 		t.Run("create process", func(t *testing.T) {
-			respProc, err := client.ProcessClient.Create(context.Background(), &pb.CreateProcessRequest{
-				Name: "result-task-process",
+			res, err := cclient.BuildAndBroadcastMsg(processmodule.MsgCreate{
+				Owner: engineAddress,
+				Name:  "result-task-process",
 				Nodes: []*process.Process_Node{
 					{
 						Key: "n0",
@@ -44,10 +46,11 @@ func testOrchestratorResultTask(executionStream pb.Execution_StreamClient, runne
 				},
 			})
 			require.NoError(t, err)
-			processHash = respProc.Hash
+			processHash = res.Data
 		})
 		t.Run("trigger process", func(t *testing.T) {
-			_, err := client.ExecutionClient.Create(context.Background(), &pb.CreateExecutionRequest{
+			_, err := cclient.BuildAndBroadcastMsg(executionmodule.MsgCreate{
+				Signer:       engineAddress,
 				TaskKey:      "task1",
 				EventHash:    hash.Int(11010101011),
 				ExecutorHash: runnerHash,
@@ -112,7 +115,10 @@ func testOrchestratorResultTask(executionStream pb.Execution_StreamClient, runne
 			require.NotEmpty(t, exec.Outputs.Fields["timestamp"].GetNumberValue())
 		})
 		t.Run("delete process", func(t *testing.T) {
-			_, err := client.ProcessClient.Delete(context.Background(), &pb.DeleteProcessRequest{Hash: processHash})
+			_, err := cclient.BuildAndBroadcastMsg(processmodule.MsgDelete{
+				Owner: engineAddress,
+				Hash:  processHash,
+			})
 			require.NoError(t, err)
 		})
 	}

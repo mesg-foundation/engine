@@ -9,6 +9,7 @@ import (
 	"github.com/mesg-foundation/engine/process"
 	pb "github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/mesg-foundation/engine/protobuf/types"
+	processmodule "github.com/mesg-foundation/engine/x/process"
 	"github.com/stretchr/testify/require"
 )
 
@@ -49,8 +50,9 @@ func testOrchestratorNestedMap(executionStream pb.Execution_StreamClient, instan
 			}
 		)
 		t.Run("create process", func(t *testing.T) {
-			respProc, err := client.ProcessClient.Create(context.Background(), &pb.CreateProcessRequest{
-				Name: "nested-map",
+			res, err := cclient.BuildAndBroadcastMsg(processmodule.MsgCreate{
+				Owner: engineAddress,
+				Name:  "nested-map",
 				Nodes: []*process.Process_Node{
 					{
 						Key: "n0",
@@ -103,7 +105,7 @@ func testOrchestratorNestedMap(executionStream pb.Execution_StreamClient, instan
 				},
 			})
 			require.NoError(t, err)
-			processHash = respProc.Hash
+			processHash = res.Data
 		})
 		t.Run("trigger process", func(t *testing.T) {
 			_, err := client.EventClient.Create(context.Background(), &pb.CreateEventRequest{
@@ -145,7 +147,10 @@ func testOrchestratorNestedMap(executionStream pb.Execution_StreamClient, instan
 			})
 		})
 		t.Run("delete process", func(t *testing.T) {
-			_, err := client.ProcessClient.Delete(context.Background(), &pb.DeleteProcessRequest{Hash: processHash})
+			_, err := cclient.BuildAndBroadcastMsg(processmodule.MsgDelete{
+				Owner: engineAddress,
+				Hash:  processHash,
+			})
 			require.NoError(t, err)
 		})
 	}

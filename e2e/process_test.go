@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -9,7 +8,6 @@ import (
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/ownership"
 	"github.com/mesg-foundation/engine/process"
-	pb "github.com/mesg-foundation/engine/protobuf/api"
 	processmodule "github.com/mesg-foundation/engine/x/process"
 	"github.com/stretchr/testify/require"
 )
@@ -101,7 +99,10 @@ func testProcess(t *testing.T) {
 	})
 
 	t.Run("delete", func(t *testing.T) {
-		_, err := client.ProcessClient.Delete(context.Background(), &pb.DeleteProcessRequest{Hash: processHash})
+		_, err := cclient.BuildAndBroadcastMsg(processmodule.MsgDelete{
+			Owner: engineAddress,
+			Hash:  processHash,
+		})
 		require.NoError(t, err)
 	})
 

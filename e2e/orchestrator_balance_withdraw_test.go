@@ -13,6 +13,7 @@ import (
 	pb "github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/mesg-foundation/engine/protobuf/types"
 	"github.com/mesg-foundation/engine/x/ownership"
+	processmodule "github.com/mesg-foundation/engine/x/process"
 	"github.com/stretchr/testify/require"
 )
 
@@ -24,8 +25,9 @@ func testOrchestratorProcessBalanceWithdraw(executionStream pb.Execution_StreamC
 		)
 
 		t.Run("create process", func(t *testing.T) {
-			respProc, err := client.ProcessClient.Create(context.Background(), &pb.CreateProcessRequest{
-				Name: "event-task-process",
+			res, err := cclient.BuildAndBroadcastMsg(processmodule.MsgCreate{
+				Owner: engineAddress,
+				Name:  "event-task-process",
 				Nodes: []*process.Process_Node{
 					{
 						Key: "n0",
@@ -51,7 +53,7 @@ func testOrchestratorProcessBalanceWithdraw(executionStream pb.Execution_StreamC
 				},
 			})
 			require.NoError(t, err)
-			processHash = respProc.Hash
+			processHash = res.Data
 		})
 		t.Run("get process address", func(t *testing.T) {
 			var proc *process.Process
@@ -119,7 +121,10 @@ func testOrchestratorProcessBalanceWithdraw(executionStream pb.Execution_StreamC
 			require.True(t, coins.IsEqual(processInitialBalance.Sub(minExecutionPrice).Sub(minExecutionPrice)), coins)
 		})
 		t.Run("delete process", func(t *testing.T) {
-			_, err := client.ProcessClient.Delete(context.Background(), &pb.DeleteProcessRequest{Hash: processHash})
+			_, err := cclient.BuildAndBroadcastMsg(processmodule.MsgDelete{
+				Owner: engineAddress,
+				Hash:  processHash,
+			})
 			require.NoError(t, err)
 		})
 		t.Run("check coins on process after deletion", func(t *testing.T) {

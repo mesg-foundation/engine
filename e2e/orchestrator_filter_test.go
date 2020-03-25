@@ -10,6 +10,7 @@ import (
 	"github.com/mesg-foundation/engine/process"
 	pb "github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/mesg-foundation/engine/protobuf/types"
+	processmodule "github.com/mesg-foundation/engine/x/process"
 	"github.com/stretchr/testify/require"
 )
 
@@ -18,8 +19,9 @@ func testOrchestratorFilter(executionStream pb.Execution_StreamClient, instanceH
 		var processHash hash.Hash
 
 		t.Run("create process", func(t *testing.T) {
-			respProc, err := client.ProcessClient.Create(context.Background(), &pb.CreateProcessRequest{
-				Name: "filter",
+			res, err := cclient.BuildAndBroadcastMsg(processmodule.MsgCreate{
+				Owner: engineAddress,
+				Name:  "filter",
 				Nodes: []*process.Process_Node{
 					{
 						Key: "n0",
@@ -87,7 +89,7 @@ func testOrchestratorFilter(executionStream pb.Execution_StreamClient, instanceH
 				},
 			})
 			require.NoError(t, err)
-			processHash = respProc.Hash
+			processHash = res.Data
 		})
 		t.Run("pass filter", func(t *testing.T) {
 			t.Run("trigger process", func(t *testing.T) {
@@ -163,7 +165,10 @@ func testOrchestratorFilter(executionStream pb.Execution_StreamClient, instanceH
 			})
 		})
 		t.Run("delete process", func(t *testing.T) {
-			_, err := client.ProcessClient.Delete(context.Background(), &pb.DeleteProcessRequest{Hash: processHash})
+			_, err := cclient.BuildAndBroadcastMsg(processmodule.MsgDelete{
+				Owner: engineAddress,
+				Hash:  processHash,
+			})
 			require.NoError(t, err)
 		})
 	}
