@@ -19,6 +19,7 @@ var (
 
 func testService(t *testing.T) {
 	req := newTestCreateServiceRequest()
+	msg := newTestCreateServiceMsg()
 
 	t.Run("create", func(t *testing.T) {
 		resp, err := client.ServiceClient.Create(context.Background(), req)
@@ -74,7 +75,7 @@ func testService(t *testing.T) {
 
 	t.Run("hash", func(t *testing.T) {
 		var hash hash.Hash
-		lcdPost(t, "service/hash", req, &hash)
+		lcdPost(t, "service/hash", msg, &hash)
 		require.Equal(t, testServiceHash, hash)
 	})
 

@@ -27,9 +27,6 @@ var (
 
 	QueryGetProcess    = types.QueryGetProcess
 	QueryListProcesses = types.QueryListProcesses
-
-	NewMsgCreateProcess = types.NewMsgCreateProcess
-	NewMsgDeleteProcess = types.NewMsgDeleteProcess
 )
 
 // module types
@@ -38,6 +35,6 @@ type (
 	GenesisState = types.GenesisState
 	Params       = types.Params
 
-	MsgCreateProcess = types.MsgCreateProcess
-	MsgDeleteProcess = types.MsgDeleteProcess
+	MsgCreate = types.MsgCreate
+	MsgDelete = types.MsgDelete
 )

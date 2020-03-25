@@ -268,7 +268,11 @@ func testExecution(t *testing.T) {
 			acc, err := cclient.GetAccount()
 			require.NoError(t, err)
 			coins := sdk.NewCoins(sdk.NewCoin("atto", expectedCoinsForService))
-			msg := ownership.NewMsgWithdrawCoins(testServiceHash, coins, acc.GetAddress())
+			msg := ownership.MsgWithdraw{
+				Owner:        acc.GetAddress(),
+				Amount:       coins.String(),
+				ResourceHash: testServiceHash,
+			}
 			_, err = cclient.BuildAndBroadcastMsg(msg)
 			require.NoError(t, err)
 
@@ -281,7 +285,11 @@ func testExecution(t *testing.T) {
 			acc, err := cclient.GetAccount()
 			require.NoError(t, err)
 			coins := sdk.NewCoins(sdk.NewCoin("atto", expectedCoinsForExecutor.Add(expectedCoinsForEmitter)))
-			msg := ownership.NewMsgWithdrawCoins(testRunnerHash, coins, acc.GetAddress())
+			msg := ownership.MsgWithdraw{
+				Owner:        acc.GetAddress(),
+				Amount:       coins.String(),
+				ResourceHash: testRunnerHash,
+			}
 			_, err = cclient.BuildAndBroadcastMsg(msg)
 			require.NoError(t, err)
 

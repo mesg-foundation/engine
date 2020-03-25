@@ -34,7 +34,7 @@ service Service {
 message CreateServiceRequest {
   // Service's sid.
   string sid = 1 [
-    (gogoproto.moretags) = 'validate:"printascii,max=63,domain"'
+    (gogoproto.moretags) = 'validate:"omitempty,printascii,max=63,domain"'
   ];
 
   // Service's name.

@@ -11,18 +11,18 @@ func NewHandler(k Keeper) sdk.Handler {
 	return func(ctx sdk.Context, msg sdk.Msg) (*sdk.Result, error) {
 		ctx = ctx.WithEventManager(sdk.NewEventManager())
 		switch msg := msg.(type) {
-		case MsgCreateProcess:
-			return handleMsgCreateProcess(ctx, k, &msg)
-		case MsgDeleteProcess:
-			return handleMsgDeleteProcess(ctx, k, &msg)
+		case MsgCreate:
+			return handleMsgCreate(ctx, k, &msg)
+		case MsgDelete:
+			return handleMsgDelete(ctx, k, &msg)
 		default:
 			return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "unrecognized %s message type: %T", types.ModuleName, msg)
 		}
 	}
 }
 
-// handleMsgCreateProcess creates a new process.
-func handleMsgCreateProcess(ctx sdk.Context, k Keeper, msg *MsgCreateProcess) (*sdk.Result, error) {
+// handleMsgCreate creates a new process.
+func handleMsgCreate(ctx sdk.Context, k Keeper, msg *MsgCreate) (*sdk.Result, error) {
 	p, err := k.Create(ctx, msg)
 	if err != nil {
 		return nil, err
@@ -44,8 +44,8 @@ func handleMsgCreateProcess(ctx sdk.Context, k Keeper, msg *MsgCreateProcess) (*
 	}, nil
 }
 
-// handleMsgDeleteProcess deletes a process.
-func handleMsgDeleteProcess(ctx sdk.Context, k Keeper, msg *MsgDeleteProcess) (*sdk.Result, error) {
+// handleMsgDelete deletes a process.
+func handleMsgDelete(ctx sdk.Context, k Keeper, msg *MsgDelete) (*sdk.Result, error) {
 	if err := k.Delete(ctx, msg); err != nil {
 		return nil, err
 	}
@@ -56,7 +56,7 @@ func handleMsgDeleteProcess(ctx sdk.Context, k Keeper, msg *MsgDeleteProcess) (*
 			sdk.NewAttribute(sdk.AttributeKeyModule, types.AttributeValueCategory),
 			sdk.NewAttribute(sdk.AttributeKeyAction, types.EventTypeDeleteProcess),
 			sdk.NewAttribute(sdk.AttributeKeySender, msg.Owner.String()),
-			sdk.NewAttribute(types.AttributeHash, msg.Request.Hash.String()),
+			sdk.NewAttribute(types.AttributeHash, msg.Hash.String()),
 		),
 	)
 

@@ -58,7 +58,7 @@ func TestValidateProcess(t *testing.T) {
 			},
 			Hash: hash.Int(1),
 			Name: "missing-key",
-		}, err: "Error:Field validation for 'TaskKey' failed on the 'required' tag"},
+		}, err: "Key is a required field. TaskKey is a required field"},
 		{w: &Process{
 			Hash:  hash.Int(1),
 			Name:  "edge-src-missing-node",

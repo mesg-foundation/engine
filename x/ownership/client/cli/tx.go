@@ -27,13 +27,13 @@ func GetTxCmd(cdc *codec.Codec) *cobra.Command {
 	}
 
 	ownershipTxCmd.AddCommand(flags.PostCommands(
-		GetCmdWithdrawCoins(cdc),
+		GetCmdWithdraw(cdc),
 	)...)
 	return ownershipTxCmd
 }
 
-// GetCmdWithdrawCoins is the CLI command for sending a WithdrawCoins transaction
-func GetCmdWithdrawCoins(cdc *codec.Codec) *cobra.Command {
+// GetCmdWithdraw is the CLI command for sending a Withdraw transaction
+func GetCmdWithdraw(cdc *codec.Codec) *cobra.Command {
 	return &cobra.Command{
 		Use:   "withdraw-coins [resource] [amount]",
 		Short: "withdraw amount from resource address",
@@ -49,12 +49,11 @@ func GetCmdWithdrawCoins(cdc *codec.Codec) *cobra.Command {
 				return err
 			}
 
-			coins, err := sdk.ParseCoins(args[1])
-			if err != nil {
-				return err
+			msg := types.MsgWithdraw{
+				Owner:        cliCtx.GetFromAddress(),
+				ResourceHash: h,
+				Amount:       args[1],
 			}
-
-			msg := types.NewMsgWithdrawCoins(h, coins, cliCtx.GetFromAddress())
 			if err = msg.ValidateBasic(); err != nil {
 				return err
 			}

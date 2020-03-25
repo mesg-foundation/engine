@@ -12,7 +12,7 @@ import (
 	"github.com/mesg-foundation/engine/x/ownership/internal/types"
 )
 
-type withdrawCoinsReq struct {
+type withdrawReq struct {
 	BaseReq rest.BaseReq `json:"base_req"`
 	Amount  string       `json:"amount"`
 	Hash    hash.Hash    `json:"hash"`
@@ -21,13 +21,13 @@ type withdrawCoinsReq struct {
 func registerTxRoutes(cliCtx context.CLIContext, r *mux.Router) {
 	r.HandleFunc(
 		"/ownership/withdraw-coins",
-		txWithdrawCoinsHandlerFn(cliCtx),
+		txWithdrawHandlerFn(cliCtx),
 	).Methods(http.MethodPost)
 }
 
-func txWithdrawCoinsHandlerFn(cliCtx context.CLIContext) http.HandlerFunc {
+func txWithdrawHandlerFn(cliCtx context.CLIContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var req withdrawCoinsReq
+		var req withdrawReq
 
 		if !rest.ReadRESTReq(w, r, cliCtx.Codec, &req) {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, "failed to parse request")
@@ -45,13 +45,11 @@ func txWithdrawCoinsHandlerFn(cliCtx context.CLIContext) http.HandlerFunc {
 			return
 		}
 
-		amt, err := sdk.ParseCoins(req.Amount)
-		if err != nil {
-			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
-			return
+		msg := types.MsgWithdraw{
+			Owner:        owner,
+			ResourceHash: req.Hash,
+			Amount:       req.Amount,
 		}
-
-		msg := types.NewMsgWithdrawCoins(req.Hash, amt, owner)
 		if err := msg.ValidateBasic(); err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return

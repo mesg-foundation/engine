@@ -28,9 +28,6 @@ var (
 	QueryGetExecution  = types.QueryGetExecution
 	QueryListExecution = types.QueryListExecution
 
-	NewMsgCreateExecution = types.NewMsgCreateExecution
-	NewMsgUpdateExecution = types.NewMsgUpdateExecution
-
 	M = keeper.M
 )
 
@@ -40,6 +37,8 @@ type (
 	GenesisState = types.GenesisState
 	Params       = types.Params
 
-	MsgCreateExecution = types.MsgCreateExecution
-	MsgUpdateExecution = types.MsgUpdateExecution
+	MsgCreate        = types.MsgCreate
+	MsgUpdate        = types.MsgUpdate
+	MsgUpdateOutputs = types.MsgUpdate_Outputs
+	MsgUpdateError   = types.MsgUpdate_Error
 )

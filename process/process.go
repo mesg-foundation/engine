@@ -24,7 +24,7 @@ func New(name string, nodes []*Process_Node, edges []*Process_Edge) *Process {
 
 // Validate returns an error if the process is invalid for whatever reason
 func (w *Process) Validate() error {
-	if err := xvalidator.Validate.Struct(w); err != nil {
+	if err := xvalidator.Struct(w); err != nil {
 		return err
 	}
 	if err := w.validate(); err != nil {
