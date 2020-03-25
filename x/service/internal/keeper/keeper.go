@@ -56,12 +56,6 @@ func (k Keeper) Create(ctx sdk.Context, msg *types.MsgCreate) (*servicepb.Servic
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "service %q already exists", srv.Hash)
 	}
 
-	// TODO: the following test should be moved in New function
-	if srv.Sid == "" {
-		// make sure that sid doesn't have the same length with id.
-		srv.Sid = "_" + srv.Hash.String()
-	}
-
 	if err := srv.Validate(); err != nil {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, err.Error())
 	}

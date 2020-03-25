@@ -9,6 +9,7 @@ import (
 	"github.com/tendermint/tendermint/crypto"
 )
 
+// New initializes a new Service.
 func New(sid, name, description string, configuration Service_Configuration, tasks []*Service_Task, events []*Service_Event, dependencies []*Service_Dependency, repository, source string) *Service {
 	// create service
 	srv := &Service{
@@ -26,6 +27,13 @@ func New(sid, name, description string, configuration Service_Configuration, tas
 	// calculate and apply hash to service.
 	srv.Hash = hash.Dump(srv)
 	srv.Address = sdk.AccAddress(crypto.AddressHash(srv.Hash))
+
+	// set a sid if this one is empty (yes, after hash calculation..)
+	if srv.Sid == "" {
+		// make sure that sid doesn't have the same length with id.
+		srv.Sid = "_" + srv.Hash.String()
+	}
+
 	return srv
 }
 
