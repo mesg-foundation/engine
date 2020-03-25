@@ -42,19 +42,21 @@ func (b *Builder) Create(req *api.CreateRunnerRequest) (*runnerpb.Runner, error)
 	if err != nil {
 		return nil, err
 	}
-
 	instanceEnv := xos.EnvMergeSlices(srv.Configuration.Env, req.Env)
 	envHash := hash.Dump(instanceEnv)
-	// TODO: should be done by instance or runner
-	instanceHash := hash.Dump(&instancepb.Instance{
-		ServiceHash: srv.Hash,
-		EnvHash:     envHash,
-	})
+
+	inst, err := instancepb.New(srv.Hash, envHash)
+	if err != nil {
+		return nil, err
+	}
 	acc, err := b.mc.GetAccount()
 	if err != nil {
 		return nil, err
 	}
-	expRunner := runnerpb.New(acc.GetAddress().String(), instanceHash)
+	expRunner, err := runnerpb.New(acc.GetAddress().String(), inst.Hash)
+	if err != nil {
+		return nil, err
+	}
 	expRunnerHash := expRunner.Hash
 
 	if runExisting, _ := b.mc.GetRunner(expRunnerHash); runExisting != nil {
@@ -66,7 +68,7 @@ func (b *Builder) Create(req *api.CreateRunnerRequest) (*runnerpb.Runner, error)
 	if err != nil {
 		return nil, err
 	}
-	_, err = start(b.container, srv, instanceHash, expRunnerHash, imageHash, instanceEnv, b.engineName, b.port)
+	_, err = start(b.container, srv, inst.Hash, expRunnerHash, imageHash, instanceEnv, b.engineName, b.port)
 	if err != nil {
 		return nil, err
 	}

@@ -10,7 +10,7 @@ import (
 )
 
 // New initializes a new Service.
-func New(sid, name, description string, configuration Service_Configuration, tasks []*Service_Task, events []*Service_Event, dependencies []*Service_Dependency, repository, source string) *Service {
+func New(sid, name, description string, configuration Service_Configuration, tasks []*Service_Task, events []*Service_Event, dependencies []*Service_Dependency, repository, source string) (*Service, error) {
 	// create service
 	srv := &Service{
 		Sid:           sid,
@@ -34,7 +34,7 @@ func New(sid, name, description string, configuration Service_Configuration, tas
 		srv.Sid = "_" + srv.Hash.String()
 	}
 
-	return srv
+	return srv, srv.Validate()
 }
 
 // MainServiceKey is key for main service.

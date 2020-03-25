@@ -37,7 +37,10 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 func (k Keeper) FetchOrCreate(ctx sdk.Context, serviceHash hash.Hash, envHash hash.Hash) (*instance.Instance, error) {
 	store := ctx.KVStore(k.storeKey)
 
-	inst := instance.New(serviceHash, envHash)
+	inst, err := instance.New(serviceHash, envHash)
+	if err != nil {
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, err.Error())
+	}
 
 	if !store.Has(inst.Hash) {
 		value, err := k.cdc.MarshalBinaryLengthPrefixed(inst)

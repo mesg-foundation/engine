@@ -116,7 +116,11 @@ func queryHashHandlerFn(cliCtx context.CLIContext) http.HandlerFunc {
 			return
 		}
 
-		proc := process.New(req.Name, req.Nodes, req.Edges)
+		proc, err := process.New(req.Name, req.Nodes, req.Edges)
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
+			return
+		}
 
 		rest.PostProcessResponse(w, cliCtx, proc.Hash.String())
 	}
