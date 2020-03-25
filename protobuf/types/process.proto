@@ -16,7 +16,7 @@ message Process {
     message Result {
       // Hash of the instance that triggers the process.
       bytes instanceHash = 2 [
-        (gogoproto.moretags) = 'hash:"name:2" validate:"required"',
+        (gogoproto.moretags) = 'hash:"name:2" validate:"required,hash"',
         (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
         (gogoproto.nullable) = false
       ];
@@ -30,7 +30,7 @@ message Process {
     message Event {
       // Hash of the instance that triggers the process.
       bytes instanceHash = 2 [
-        (gogoproto.moretags) = 'hash:"name:2" validate:"required"',
+        (gogoproto.moretags) = 'hash:"name:2" validate:"required,hash"',
         (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
         (gogoproto.nullable) = false
       ];
@@ -44,7 +44,7 @@ message Process {
     message Task {
       // Hash of the instance to execute.
       bytes instanceHash = 2 [
-        (gogoproto.moretags) = 'hash:"name:2" validate:"required"',
+        (gogoproto.moretags) = 'hash:"name:2" validate:"required,hash"',
         (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
         (gogoproto.nullable) = false
       ];
@@ -233,14 +233,14 @@ message Process {
 
   // Process's hash
   bytes hash = 1 [
-    (gogoproto.moretags) = 'hash:"-" validate:"required"',
+    (gogoproto.moretags) = 'hash:"-" validate:"required,hash"',
     (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
     (gogoproto.nullable) = false
   ];
 
   // Process's name
   string name = 2 [
-    (gogoproto.moretags) = 'hash:"name:2" validate:"required"'
+    (gogoproto.moretags) = 'hash:"name:2" validate:"required,printascii"'
   ];
 
   // Nodes with information related to the execution to trigger.
@@ -255,7 +255,7 @@ message Process {
 
   // The address of the process.
   bytes address = 6 [
-    (gogoproto.moretags) = 'hash:"-"',
+    (gogoproto.moretags) = 'hash:"-" validate:"required,accaddress"',
     (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"
   ];
 }

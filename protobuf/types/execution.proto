@@ -34,7 +34,7 @@ enum Status {
 message Execution {
   // Hash is a unique hash to identify execution.
   bytes hash = 1 [
-    (gogoproto.moretags) = 'hash:"-"',
+    (gogoproto.moretags) = 'hash:"-" validate:"required,hash"',
     (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
     (gogoproto.nullable) = false
   ];
@@ -43,33 +43,33 @@ message Execution {
   // if execution is triggered by another one,
   // dependency execution considered as the parent.
   bytes parentHash = 2 [
-    (gogoproto.moretags) = 'hash:"name:2"',
+    (gogoproto.moretags) = 'hash:"name:2" validate:"omitempty,hash"',
     (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
     (gogoproto.nullable) = false
   ];
 
   // eventHash is unique event hash.
   bytes eventHash = 3 [
-    (gogoproto.moretags) = 'hash:"name:3"',
+    (gogoproto.moretags) = 'hash:"name:3" validate:"omitempty,hash"',
     (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
     (gogoproto.nullable) = false
   ];
 
   // Status is the current status of execution.
   Status status = 4 [
-    (gogoproto.moretags) = 'hash:"-"'
+    (gogoproto.moretags) = 'hash:"-" validate:"required"'
   ];
 
   // instanceHash is hash of the instance that can proceed an execution
   bytes instanceHash = 5 [
-    (gogoproto.moretags) = 'hash:"name:5"',
+    (gogoproto.moretags) = 'hash:"name:5" validate:"required,hash"',
     (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
     (gogoproto.nullable) = false
   ];
 
   // taskKey is the key of the task of this execution.
   string taskKey = 6 [
-    (gogoproto.moretags) = 'hash:"name:6"'
+    (gogoproto.moretags) = 'hash:"name:6" validate:"required,printascii"'
   ];
 
   // inputs data of the execution.
@@ -94,7 +94,7 @@ message Execution {
 
   // processHash is the unique hash of the process associated to this execution.
   bytes processHash = 11 [
-    (gogoproto.moretags) = 'hash:"name:11"',
+    (gogoproto.moretags) = 'hash:"name:11" validate:"omitempty,hash"',
     (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
     (gogoproto.nullable) = false
   ];
@@ -106,7 +106,7 @@ message Execution {
 
   // runner that should execute this execution.
   bytes executorHash = 13 [
-    (gogoproto.moretags) = 'hash:"name:13"',
+    (gogoproto.moretags) = 'hash:"name:13" validate:"required,hash"',
     (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
     (gogoproto.nullable) = false
   ];
@@ -125,14 +125,14 @@ message Execution {
   message Emitter {
     // Emitter's hash.
     bytes runnerHash = 1 [
-      (gogoproto.moretags) = 'hash:"-" validate:"hash"',
+      (gogoproto.moretags) = 'hash:"-" validate:"required,hash"',
       (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
       (gogoproto.nullable) = false
     ];
 
     // Block height when this emitter proposed the execution.
     int64 blockHeight = 2 [
-      (gogoproto.moretags) = 'hash:"-"'
+      (gogoproto.moretags) = 'hash:"-" validate:"required"'
     ];
   }
     
@@ -143,7 +143,7 @@ message Execution {
 
   // The address of the execution.
   bytes address = 17 [
-    (gogoproto.moretags) = 'hash:"-" validate:"accaddress"',
+    (gogoproto.moretags) = 'hash:"-" validate:"required,accaddress"',
     (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"
   ];
 }
