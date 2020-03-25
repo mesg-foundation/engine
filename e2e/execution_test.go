@@ -12,6 +12,7 @@ import (
 	"github.com/mesg-foundation/engine/protobuf/acknowledgement"
 	pb "github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/mesg-foundation/engine/protobuf/types"
+	executionmodule "github.com/mesg-foundation/engine/x/execution"
 	"github.com/mesg-foundation/engine/x/ownership"
 	"github.com/stretchr/testify/require"
 )
@@ -49,12 +50,14 @@ func testExecution(t *testing.T) {
 		acknowledgement.WaitForStreamToBeReady(streamCompleted)
 	})
 
-	t.Run("simple execution", func(t *testing.T) {
+	t.Run("simple execution with price and withdraw", func(t *testing.T) {
 		var (
 			executionHash hash.Hash
+			execAddress   sdk.AccAddress
 			exec          *execution.Execution
 			taskKey       = "task1"
 			eventHash     = hash.Int(1)
+			price         = sdk.NewCoins(sdk.NewInt64Coin("atto", 50000))
 			inputs        = &types.Struct{
 				Fields: map[string]*types.Value{
 					"msg": {
@@ -64,16 +67,39 @@ func testExecution(t *testing.T) {
 					},
 				},
 			}
+			expectedCoinsForExecutor = sdk.NewCoins(sdk.NewInt64Coin("atto", 40000)) // 80%
+			expectedCoinsForService  = sdk.NewCoins(sdk.NewInt64Coin("atto", 5000))  // 10%
+			expectedCoinsForEmitter  = sdk.NewCoins(sdk.NewInt64Coin("atto", 5000))  // 10%
+			executorBalance          sdk.Coins
+			serviceBalance           sdk.Coins
 		)
+
+		lcdGet(t, "bank/balances/"+executorAddress.String(), &executorBalance)
+		lcdGet(t, "bank/balances/"+testServiceAddress.String(), &serviceBalance)
+
 		t.Run("create", func(t *testing.T) {
-			resp, err := client.ExecutionClient.Create(context.Background(), &pb.CreateExecutionRequest{
+			msg := executionmodule.MsgCreate{
+				Signer:       engineAddress,
 				TaskKey:      taskKey,
 				EventHash:    eventHash,
 				ExecutorHash: executorHash,
 				Inputs:       inputs,
-			})
+				Price:        price.String(),
+			}
+			res, err := cclient.BuildAndBroadcastMsg(msg)
 			require.NoError(t, err)
-			executionHash = resp.Hash
+			executionHash = res.Data
+		})
+		t.Run("get execution address", func(t *testing.T) {
+			var exec *execution.Execution
+			lcdGet(t, "execution/get/"+executionHash.String(), &exec)
+			require.Equal(t, exec.Hash, executionHash)
+			execAddress = exec.Address
+		})
+		t.Run("execution balance before completed", func(t *testing.T) {
+			coins := sdk.Coins{}
+			lcdGet(t, "bank/balances/"+execAddress.String(), &coins)
+			require.True(t, coins.IsEqual(price), price, coins)
 		})
 		t.Run("in progress", func(t *testing.T) {
 			execInProgress, err := streamInProgress.Recv()
@@ -98,9 +124,56 @@ func testExecution(t *testing.T) {
 			require.NotEmpty(t, exec.Outputs.Fields["timestamp"].GetNumberValue())
 		})
 		t.Run("get", func(t *testing.T) {
-			exec, err := client.ExecutionClient.Get(context.Background(), &pb.GetExecutionRequest{Hash: executionHash})
-			require.NoError(t, err)
+			var exec *execution.Execution
+			lcdGet(t, "execution/get/"+executionHash.String(), &exec)
 			require.True(t, exec.Equal(exec))
+		})
+		t.Run("executor + emitter balance", func(t *testing.T) {
+			var coins sdk.Coins
+			lcdGet(t, "bank/balances/"+executorAddress.String(), &coins)
+			expectedCoins := expectedCoinsForExecutor.Add(expectedCoinsForEmitter...).Add(executorBalance...)
+			require.True(t, expectedCoins.IsEqual(coins), expectedCoins, coins)
+		})
+		t.Run("service balance", func(t *testing.T) {
+			var coins sdk.Coins
+			lcdGet(t, "bank/balances/"+testServiceAddress.String(), &coins)
+			expectedCoins := expectedCoinsForService.Add(serviceBalance...)
+			require.True(t, expectedCoins.IsEqual(coins), expectedCoins, coins)
+		})
+		t.Run("execution balance", func(t *testing.T) {
+			var coins sdk.Coins
+			lcdGet(t, "bank/balances/"+execAddress.String(), &coins)
+			require.True(t, coins.IsZero(), coins)
+		})
+		t.Run("withdraw from service", func(t *testing.T) {
+			msg := ownership.MsgWithdraw{
+				Owner:        engineAddress,
+				Amount:       expectedCoinsForService.String(),
+				ResourceHash: testServiceHash,
+			}
+			_, err = cclient.BuildAndBroadcastMsg(msg)
+			require.NoError(t, err)
+
+			// check balance
+			var coins sdk.Coins
+			param := bank.NewQueryBalanceParams(testServiceAddress)
+			require.NoError(t, cclient.QueryJSON("custom/bank/balances", param, &coins))
+			require.True(t, serviceBalance.IsEqual(coins), serviceBalance, coins)
+		})
+		t.Run("withdraw from runner", func(t *testing.T) {
+			msg := ownership.MsgWithdraw{
+				Owner:        engineAddress,
+				Amount:       expectedCoinsForExecutor.Add(expectedCoinsForEmitter...).String(),
+				ResourceHash: testRunnerHash,
+			}
+			_, err = cclient.BuildAndBroadcastMsg(msg)
+			require.NoError(t, err)
+
+			// check balance
+			var coins sdk.Coins
+			param := bank.NewQueryBalanceParams(testRunnerAddress)
+			require.NoError(t, cclient.QueryJSON("custom/bank/balances", param, &coins))
+			require.True(t, executorBalance.IsEqual(coins), executorBalance, coins)
 		})
 	})
 
@@ -110,6 +183,7 @@ func testExecution(t *testing.T) {
 			exec          *execution.Execution
 			taskKey       = "task_complex"
 			eventHash     = hash.Int(2)
+			price         = "10000atto"
 			inputs        = &types.Struct{
 				Fields: map[string]*types.Value{
 					"msg": {
@@ -138,14 +212,17 @@ func testExecution(t *testing.T) {
 			}
 		)
 		t.Run("create", func(t *testing.T) {
-			resp, err := client.ExecutionClient.Create(context.Background(), &pb.CreateExecutionRequest{
+			msg := executionmodule.MsgCreate{
+				Signer:       engineAddress,
 				TaskKey:      taskKey,
 				EventHash:    eventHash,
 				ExecutorHash: executorHash,
 				Inputs:       inputs,
-			})
+				Price:        price,
+			}
+			res, err := cclient.BuildAndBroadcastMsg(msg)
 			require.NoError(t, err)
-			executionHash = resp.Hash
+			executionHash = res.Data
 		})
 		t.Run("in progress", func(t *testing.T) {
 			execInProgress, err := streamInProgress.Recv()
@@ -174,129 +251,16 @@ func testExecution(t *testing.T) {
 			require.NotEmpty(t, exec.Outputs.Fields["msg"].GetStructValue().Fields["timestamp"].GetNumberValue())
 		})
 		t.Run("get", func(t *testing.T) {
-			exec, err := client.ExecutionClient.Get(context.Background(), &pb.GetExecutionRequest{Hash: executionHash})
-			require.NoError(t, err)
+			var exec *execution.Execution
+			lcdGet(t, "execution/get/"+executionHash.String(), &exec)
 			require.True(t, exec.Equal(exec))
 		})
 	})
 
 	t.Run("list", func(t *testing.T) {
-		t.Run("grpc", func(t *testing.T) {
-			resp, err := client.ExecutionClient.List(context.Background(), &pb.ListExecutionRequest{})
-			require.NoError(t, err)
-			require.Len(t, resp.Executions, 2)
-		})
-		t.Run("lcd", func(t *testing.T) {
-			execs := make([]*execution.Execution, 0)
-			lcdGet(t, "execution/list", &execs)
-			require.Len(t, execs, 2)
-		})
-	})
-
-	t.Run("execution with price", func(t *testing.T) {
-		var (
-			inputs = &types.Struct{
-				Fields: map[string]*types.Value{
-					"msg": {
-						Kind: &types.Value_StringValue{
-							StringValue: "test",
-						},
-					},
-				},
-			}
-		)
-		resp, err := client.ExecutionClient.Create(context.Background(), &pb.CreateExecutionRequest{
-			TaskKey:      "task1",
-			EventHash:    hash.Int(1),
-			ExecutorHash: executorHash,
-			Price:        "50000atto",
-			Inputs:       inputs,
-		})
-		require.NoError(t, err)
-
-		var execAddress sdk.AccAddress
-		t.Run("get execution address", func(t *testing.T) {
-			var exec *execution.Execution
-			lcdGet(t, "execution/get/"+resp.Hash.String(), &exec)
-			require.Equal(t, exec.Hash, resp.Hash)
-			execAddress = exec.Address
-		})
-
-		// check balance of execution before completed
-		t.Run("execution balance before completed", func(t *testing.T) {
-			coins := sdk.Coins{}
-			lcdGet(t, "bank/balances/"+execAddress.String(), &coins)
-			require.True(t, coins.AmountOf("atto").Equal(sdk.NewInt(50000)), coins)
-		})
-
-		expectedCoinsForExecutor := sdk.NewInt(40000)
-		expectedCoinsForService := sdk.NewInt(5000)
-		expectedCoinsForEmitter := sdk.NewInt(5000)
-
-		var executorBalance sdk.Coins
-		var serviceBalance sdk.Coins
-		lcdGet(t, "bank/balances/"+executorAddress.String(), &executorBalance)
-		lcdGet(t, "bank/balances/"+testServiceAddress.String(), &serviceBalance)
-
-		_, err = streamInProgress.Recv()
-		require.NoError(t, err)
-
-		exec, err := streamCompleted.Recv()
-		require.NoError(t, err)
-		require.Equal(t, resp.Hash, exec.Hash)
-
-		// check balance of executor
-		t.Run("executor + emitter balance", func(t *testing.T) {
-			coins := sdk.Coins{}
-			lcdGet(t, "bank/balances/"+executorAddress.String(), &coins)
-			require.True(t, coins.AmountOf("atto").Equal(expectedCoinsForExecutor.Add(expectedCoinsForEmitter).Add(executorBalance.AmountOf("atto"))), coins)
-		})
-		// check balance of service
-		t.Run("service balance", func(t *testing.T) {
-			coins := sdk.Coins{}
-			lcdGet(t, "bank/balances/"+testServiceAddress.String(), &coins)
-			require.True(t, coins.AmountOf("atto").Equal(expectedCoinsForService.Add(serviceBalance.AmountOf("atto"))), coins)
-		})
-		// check balance of execution
-		t.Run("execution balance", func(t *testing.T) {
-			coins := sdk.Coins{}
-			lcdGet(t, "bank/balances/"+execAddress.String(), &coins)
-			require.True(t, coins.AmountOf("atto").Equal(sdk.NewInt(0)), coins)
-		})
-
-		t.Run("withdraw from service", func(t *testing.T) {
-			acc, err := cclient.GetAccount()
-			require.NoError(t, err)
-			coins := sdk.NewCoins(sdk.NewCoin("atto", expectedCoinsForService))
-			msg := ownership.MsgWithdraw{
-				Owner:        acc.GetAddress(),
-				Amount:       coins.String(),
-				ResourceHash: testServiceHash,
-			}
-			_, err = cclient.BuildAndBroadcastMsg(msg)
-			require.NoError(t, err)
-
-			param := bank.NewQueryBalanceParams(testServiceAddress)
-			require.NoError(t, cclient.QueryJSON("custom/bank/balances", param, &coins))
-			require.True(t, coins.AmountOf("atto").Equal(serviceBalance.AmountOf("atto")), coins)
-		})
-
-		t.Run("withdraw from runner", func(t *testing.T) {
-			acc, err := cclient.GetAccount()
-			require.NoError(t, err)
-			coins := sdk.NewCoins(sdk.NewCoin("atto", expectedCoinsForExecutor.Add(expectedCoinsForEmitter)))
-			msg := ownership.MsgWithdraw{
-				Owner:        acc.GetAddress(),
-				Amount:       coins.String(),
-				ResourceHash: testRunnerHash,
-			}
-			_, err = cclient.BuildAndBroadcastMsg(msg)
-			require.NoError(t, err)
-
-			param := bank.NewQueryBalanceParams(testRunnerAddress)
-			require.NoError(t, cclient.QueryJSON("custom/bank/balances", param, &coins))
-			require.True(t, coins.AmountOf("atto").Equal(executorBalance.AmountOf("atto")), coins)
-		})
+		execs := make([]*execution.Execution, 0)
+		lcdGet(t, "execution/list", &execs)
+		require.Len(t, execs, 2)
 	})
 
 	t.Run("many executions in parallel", func(t *testing.T) {
@@ -304,6 +268,7 @@ func testExecution(t *testing.T) {
 			n          = 10
 			executions = make([]hash.Hash, 0)
 			taskKey    = "task1"
+			price      = "10000atto"
 			inputs     = &types.Struct{
 				Fields: map[string]*types.Value{
 					"msg": {
@@ -323,17 +288,20 @@ func testExecution(t *testing.T) {
 					defer wg.Done()
 					hash, err := hash.Random()
 					require.Nil(t, err)
-					resp, err := client.ExecutionClient.Create(context.Background(), &pb.CreateExecutionRequest{
+					msg := executionmodule.MsgCreate{
+						Signer:       engineAddress,
 						TaskKey:      taskKey,
 						EventHash:    hash,
 						ExecutorHash: executorHash,
 						Inputs:       inputs,
-					})
+						Price:        price,
+					}
+					res, err := cclient.BuildAndBroadcastMsg(msg)
 					require.NoError(t, err)
 					mutex.Lock()
 					defer mutex.Unlock()
-					require.NotContains(t, executions, resp.Hash)
-					executions = append(executions, resp.Hash)
+					require.NotContains(t, executions, res.Data)
+					executions = append(executions, res.Data)
 				}()
 			}
 			wg.Wait()
