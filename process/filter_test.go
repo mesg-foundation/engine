@@ -13,6 +13,7 @@ func TestMatch(t *testing.T) {
 		condition *Process_Node_Filter_Condition
 		data      *types.Value
 		match     bool
+		err       string
 	}{
 		{
 			name: "not matching filter",
@@ -81,6 +82,7 @@ func TestMatch(t *testing.T) {
 				},
 			},
 			match: false,
+			err:   "predicates GT, GTE, LT, and LTE are only compatible with type Number",
 		},
 		{
 			name: "matching GTE",
@@ -250,6 +252,25 @@ func TestMatch(t *testing.T) {
 				},
 			},
 			match: false,
+			err:   "predicate CONTAINS is only compatible on data of type List or String",
+		},
+		{
+			name: "wrong type contains string",
+			condition: &Process_Node_Filter_Condition{
+				Predicate: Process_Node_Filter_Condition_CONTAINS,
+				Value: &types.Value{
+					Kind: &types.Value_NumberValue{
+						NumberValue: 10,
+					},
+				},
+			},
+			data: &types.Value{
+				Kind: &types.Value_StringValue{
+					StringValue: "foo",
+				},
+			},
+			match: false,
+			err:   "predicates CONTAINS on data of type String is only compatible with value of type String",
 		},
 		{
 			name: "string contain",
@@ -268,12 +289,24 @@ func TestMatch(t *testing.T) {
 			},
 			match: true,
 		},
+		{
+			name: "unknown predicate",
+			condition: &Process_Node_Filter_Condition{
+				Predicate: Process_Node_Filter_Condition_Unknown,
+			},
+			match: false,
+			err:   "predicates type is unknown",
+		},
 	}
 
 	for _, tt := range tests {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			require.Equal(t, tt.match, tt.condition.Match(tt.data))
+			match, err := tt.condition.Match(tt.data)
+			require.Equal(t, tt.match, match)
+			if len(tt.err) > 0 || err != nil {
+				require.EqualError(t, err, tt.err)
+			}
 		})
 	}
 }

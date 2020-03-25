@@ -166,9 +166,14 @@ func (s *Orchestrator) filterMatch(f *process.Process_Node_Filter, wf *process.P
 	for _, condition := range f.Conditions {
 		resolvedData, err := s.resolveRef(wf, exec, nodeKey, data, condition.Ref)
 		if err != nil {
+			s.ErrC <- err
 			return false
 		}
-		if !condition.Match(resolvedData) {
+		match, err := condition.Match(resolvedData)
+		if err != nil {
+			s.ErrC <- err
+		}
+		if !match {
 			return false
 		}
 	}
