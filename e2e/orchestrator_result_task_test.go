@@ -51,6 +51,7 @@ func testOrchestratorResultTask(executionStream pb.Execution_StreamClient, runne
 		t.Run("trigger process", func(t *testing.T) {
 			_, err := cclient.BuildAndBroadcastMsg(executionmodule.MsgCreate{
 				Signer:       engineAddress,
+				Price:        "10000atto",
 				TaskKey:      "task1",
 				EventHash:    hash.Int(11010101011),
 				ExecutorHash: runnerHash,
