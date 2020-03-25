@@ -9,7 +9,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/rest"
 	"github.com/gorilla/mux"
 	"github.com/mesg-foundation/engine/process"
-	"github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/mesg-foundation/engine/x/process/internal/types"
 )
 
@@ -110,13 +109,13 @@ func queryHashHandlerFn(cliCtx context.CLIContext) http.HandlerFunc {
 			return
 		}
 
-		var req api.CreateProcessRequest
-		if err := cliCtx.Codec.UnmarshalJSON(data, &req); err != nil {
+		var msg types.MsgCreate
+		if err := cliCtx.Codec.UnmarshalJSON(data, &msg); err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
 
-		proc, err := process.New(req.Name, req.Nodes, req.Edges)
+		proc, err := process.New(msg.Name, msg.Nodes, msg.Edges)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
