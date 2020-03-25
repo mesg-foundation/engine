@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+	"time"
 
 	"github.com/cosmos/cosmos-sdk/crypto/keys"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -15,6 +16,8 @@ import (
 	"github.com/mesg-foundation/engine/app"
 	"github.com/mesg-foundation/engine/config"
 	"github.com/mesg-foundation/engine/cosmos"
+	"github.com/mesg-foundation/engine/execution"
+	"github.com/mesg-foundation/engine/hash"
 	pb "github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/stretchr/testify/require"
 	rpcclient "github.com/tendermint/tendermint/rpc/client"
@@ -72,6 +75,18 @@ func lcdPost(t *testing.T, path string, req interface{}, ptr interface{}) {
 	if len(cosResp.Result) > 0 {
 		require.NoError(t, cdc.UnmarshalJSON(cosResp.Result, ptr))
 	}
+}
+
+func pollExecution(t *testing.T, executionHash hash.Hash, status execution.Status) *execution.Execution {
+	var exec *execution.Execution
+	for {
+		lcdGet(t, "execution/get/"+executionHash.String(), &exec)
+		if exec.Status == status {
+			break
+		}
+		<-time.After(100 * time.Millisecond)
+	}
+	return exec
 }
 
 func TestAPI(t *testing.T) {
