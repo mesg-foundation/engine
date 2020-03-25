@@ -113,7 +113,7 @@ message Execution {
 
   // price of running the exeuction.
   string price = 14 [
-    (gogoproto.moretags) = 'hash:"name:14" validate:"coins"'
+    (gogoproto.moretags) = 'hash:"name:14" validate:"required,coinsPositiveZero"'
   ];
 
   // blockHeight where the execution was included into blockchain.
