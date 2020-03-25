@@ -22,7 +22,6 @@ import (
 )
 
 type apiclient struct {
-	pb.ServiceClient
 	pb.EventClient
 	pb.ExecutionClient
 	pb.ProcessClient
@@ -112,7 +111,6 @@ func TestAPI(t *testing.T) {
 	require.NoError(t, err)
 
 	client = apiclient{
-		pb.NewServiceClient(conn),
 		pb.NewEventClient(conn),
 		pb.NewExecutionClient(conn),
 		pb.NewProcessClient(conn),
@@ -120,10 +118,6 @@ func TestAPI(t *testing.T) {
 		pb.NewOwnershipClient(conn),
 		pb.NewRunnerClient(conn),
 	}
-
-	// ping server to test connection
-	_, err = client.ServiceClient.List(context.Background(), &pb.ListServiceRequest{})
-	require.NoError(t, err)
 
 	// basic tests
 	t.Run("service", testService)

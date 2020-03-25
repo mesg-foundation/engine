@@ -1,14 +1,12 @@
 package main
 
 import (
-	"github.com/mesg-foundation/engine/protobuf/api"
-	pb "github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/mesg-foundation/engine/service"
 	serviceModule "github.com/mesg-foundation/engine/x/service"
 )
 
-func newTestComplexCreateServiceRequest() *pb.CreateServiceRequest {
-	return &api.CreateServiceRequest{
+func newTestComplexCreateServiceMsg() *serviceModule.MsgCreate {
+	return &serviceModule.MsgCreate{
 		Sid:  "test-complex-service",
 		Name: "test-complex-service",
 		Dependencies: []*service.Service_Dependency{
