@@ -11,16 +11,16 @@ func NewHandler(k Keeper) sdk.Handler {
 	return func(ctx sdk.Context, msg sdk.Msg) (*sdk.Result, error) {
 		ctx = ctx.WithEventManager(sdk.NewEventManager())
 		switch msg := msg.(type) {
-		case MsgCreateService:
-			return handleMsgCreateService(ctx, k, &msg)
+		case MsgCreate:
+			return handleMsgCreate(ctx, k, &msg)
 		default:
 			return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "unrecognized %s message type: %T", types.ModuleName, msg)
 		}
 	}
 }
 
-// handleMsgCreateService creates a new process.
-func handleMsgCreateService(ctx sdk.Context, k Keeper, msg *MsgCreateService) (*sdk.Result, error) {
+// handleMsgCreate creates a new process.
+func handleMsgCreate(ctx sdk.Context, k Keeper, msg *MsgCreate) (*sdk.Result, error) {
 	s, err := k.Create(ctx, msg)
 	if err != nil {
 		return nil, err

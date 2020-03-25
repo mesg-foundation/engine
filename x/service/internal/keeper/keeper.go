@@ -9,7 +9,6 @@ import (
 	"github.com/mesg-foundation/engine/hash"
 	ownershippb "github.com/mesg-foundation/engine/ownership"
 	servicepb "github.com/mesg-foundation/engine/service"
-	"github.com/mesg-foundation/engine/service/validator"
 	"github.com/mesg-foundation/engine/x/service/internal/types"
 	"github.com/tendermint/tendermint/libs/log"
 )
@@ -37,19 +36,19 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 }
 
 // Create creates a new service.
-func (k Keeper) Create(ctx sdk.Context, msg *types.MsgCreateService) (*servicepb.Service, error) {
+func (k Keeper) Create(ctx sdk.Context, msg *types.MsgCreate) (*servicepb.Service, error) {
 	store := ctx.KVStore(k.storeKey)
 	// create service
 	srv := servicepb.New(
-		msg.Request.Sid,
-		msg.Request.Name,
-		msg.Request.Description,
-		msg.Request.Configuration,
-		msg.Request.Tasks,
-		msg.Request.Events,
-		msg.Request.Dependencies,
-		msg.Request.Repository,
-		msg.Request.Source,
+		msg.Sid,
+		msg.Name,
+		msg.Description,
+		msg.Configuration,
+		msg.Tasks,
+		msg.Events,
+		msg.Dependencies,
+		msg.Repository,
+		msg.Source,
 	)
 
 	// check if service already exists.
@@ -63,7 +62,7 @@ func (k Keeper) Create(ctx sdk.Context, msg *types.MsgCreateService) (*servicepb
 		srv.Sid = "_" + srv.Hash.String()
 	}
 
-	if err := validator.ValidateService(srv); err != nil {
+	if err := srv.Validate(); err != nil {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, err.Error())
 	}
 

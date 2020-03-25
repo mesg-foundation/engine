@@ -1,4 +1,4 @@
-package validator
+package service
 
 import (
 	"fmt"
@@ -6,23 +6,22 @@ import (
 
 	"github.com/mesg-foundation/engine/ext/xerrors"
 	"github.com/mesg-foundation/engine/ext/xvalidator"
-	"github.com/mesg-foundation/engine/service"
 	validator "gopkg.in/go-playground/validator.v9"
 )
 
 const namespacePrefix = "service."
 
-var validate, translator = xvalidator.NewWithPrefix(namespacePrefix)
+var validate, translator = xvalidator.New(namespacePrefix)
 
-// ValidateService validates if service contains proper data.
-func ValidateService(s *service.Service) error {
-	if err := validateServiceStruct(s); err != nil {
+// Validate validates if service contains proper data.
+func (s *Service) Validate() error {
+	if err := s.validateStruct(); err != nil {
 		return err
 	}
-	return validateServiceData(s)
+	return s.validateData()
 }
 
-func validateServiceStruct(s *service.Service) error {
+func (s *Service) validateStruct() error {
 	var errs xerrors.Errors
 	// validate service struct based on tag
 	if err := validate.Struct(s); err != nil {
@@ -41,9 +40,9 @@ func validateServiceStruct(s *service.Service) error {
 	return errs.ErrorOrNil()
 }
 
-func validateServiceData(s *service.Service) error {
+func (s *Service) validateData() error {
 	var errs xerrors.Errors
-	if err := isServiceKeysUnique(s); err != nil {
+	if err := s.areKeysUnique(); err != nil {
 		errs = append(errs, err)
 	}
 
@@ -80,7 +79,7 @@ func validateServiceData(s *service.Service) error {
 					break
 				}
 			}
-			if !found && depVolumeKey != service.MainServiceKey {
+			if !found && depVolumeKey != MainServiceKey {
 				err := fmt.Errorf("dependencies[%s].volumesFrom is invalid: dependency %q does not exist", dep.Key, depVolumeKey)
 				errs = append(errs, err)
 			}
@@ -89,8 +88,8 @@ func validateServiceData(s *service.Service) error {
 	return errs.ErrorOrNil()
 }
 
-// isServiceKeysUnique checks uniqueness of service deps/tasks/events/params keys.
-func isServiceKeysUnique(s *service.Service) error {
+// areKeysUnique checks uniqueness of service deps/tasks/events/params keys.
+func (s *Service) areKeysUnique() error {
 	var errs xerrors.Errors
 	exist := make(map[string]bool)
 	for _, dep := range s.Dependencies {
@@ -106,10 +105,10 @@ func isServiceKeysUnique(s *service.Service) error {
 			errs = append(errs, fmt.Errorf("tasks[%s] already exists", task.Key))
 		}
 		exist[task.Key] = true
-		if err := isServiceParamsUnique(task.Inputs, fmt.Sprintf("tasks[%s].inputs", task.Key)); err != nil {
+		if err := areServiceParamsUnique(task.Inputs, fmt.Sprintf("tasks[%s].inputs", task.Key)); err != nil {
 			errs = append(errs, err)
 		}
-		if err := isServiceParamsUnique(task.Outputs, fmt.Sprintf("tasks[%s].outputs", task.Key)); err != nil {
+		if err := areServiceParamsUnique(task.Outputs, fmt.Sprintf("tasks[%s].outputs", task.Key)); err != nil {
 			errs = append(errs, err)
 		}
 	}
@@ -121,15 +120,15 @@ func isServiceKeysUnique(s *service.Service) error {
 		}
 		exist[event.Key] = true
 
-		if err := isServiceParamsUnique(event.Data, fmt.Sprintf("events[%s].data", event.Key)); err != nil {
+		if err := areServiceParamsUnique(event.Data, fmt.Sprintf("events[%s].data", event.Key)); err != nil {
 			errs = append(errs, err)
 		}
 	}
 	return errs.ErrorOrNil()
 }
 
-// isServiceParamsUnique checks uniqueness of service params.
-func isServiceParamsUnique(ps []*service.Service_Parameter, errprefix string) error {
+// areServiceParamsUnique checks uniqueness of service params.
+func areServiceParamsUnique(ps []*Service_Parameter, errprefix string) error {
 	if len(ps) == 0 {
 		return nil
 	}
@@ -142,7 +141,7 @@ func isServiceParamsUnique(ps []*service.Service_Parameter, errprefix string) er
 		}
 		existparam[p.Key] = true
 
-		if err := isServiceParamsUnique(p.Object, fmt.Sprintf("%s[%s].object", errprefix, p.Key)); err != nil {
+		if err := areServiceParamsUnique(p.Object, fmt.Sprintf("%s[%s].object", errprefix, p.Key)); err != nil {
 			errs = append(errs, err)
 		}
 	}

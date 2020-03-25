@@ -22,7 +22,7 @@ func TestError(t *testing.T) {
 
 	errs = append(errs, errors.New("a"))
 	errs = append(errs, errors.New("b"))
-	if errs.Error() != "a\nb" {
+	if errs.Error() != "a. b" {
 		t.Fatalf("invalid error message - got: %q, want: %q", errs.Error(), "a\nb")
 	}
 }

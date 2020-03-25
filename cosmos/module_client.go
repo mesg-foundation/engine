@@ -41,7 +41,18 @@ func (mc *ModuleClient) CreateService(req *api.CreateServiceRequest) (*servicepb
 	if err != nil {
 		return nil, err
 	}
-	msg := service.NewMsgCreateService(acc.GetAddress(), req)
+	msg := service.MsgCreate{
+		Owner:         acc.GetAddress(),
+		Sid:           req.Sid,
+		Name:          req.Name,
+		Description:   req.Description,
+		Configuration: req.Configuration,
+		Tasks:         req.Tasks,
+		Events:        req.Events,
+		Dependencies:  req.Dependencies,
+		Repository:    req.Repository,
+		Source:        req.Source,
+	}
 	tx, err := mc.BuildAndBroadcastMsg(msg)
 	if err != nil {
 		return nil, err
@@ -76,7 +87,12 @@ func (mc *ModuleClient) CreateProcess(req *api.CreateProcessRequest) (*processpb
 	if err != nil {
 		return nil, err
 	}
-	msg := process.NewMsgCreateProcess(acc.GetAddress(), req)
+	msg := process.MsgCreate{
+		Name:  req.Name,
+		Edges: req.Edges,
+		Nodes: req.Nodes,
+		Owner: acc.GetAddress(),
+	}
 	tx, err := mc.BuildAndBroadcastMsg(msg)
 	if err != nil {
 		return nil, err
@@ -111,7 +127,10 @@ func (mc *ModuleClient) DeleteProcess(req *api.DeleteProcessRequest) error {
 	if err != nil {
 		return err
 	}
-	msg := process.NewMsgDeleteProcess(acc.GetAddress(), req)
+	msg := process.MsgDelete{
+		Hash:  req.Hash,
+		Owner: acc.GetAddress(),
+	}
 	_, err = mc.BuildAndBroadcastMsg(msg)
 	return err
 }
@@ -136,7 +155,18 @@ func (mc *ModuleClient) CreateExecution(req *api.CreateExecutionRequest) (*execu
 	if err != nil {
 		return nil, err
 	}
-	msg := execution.NewMsgCreateExecution(req, acc.GetAddress())
+	msg := execution.MsgCreate{
+		Signer:       acc.GetAddress(),
+		EventHash:    req.EventHash,
+		ExecutorHash: req.ExecutorHash,
+		Inputs:       req.Inputs,
+		NodeKey:      req.NodeKey,
+		ParentHash:   req.ParentHash,
+		Price:        req.Price,
+		ProcessHash:  req.ProcessHash,
+		Tags:         req.Tags,
+		TaskKey:      req.TaskKey,
+	}
 	tx, err := mc.BuildAndBroadcastMsg(msg)
 	if err != nil {
 		return nil, err
@@ -150,7 +180,20 @@ func (mc *ModuleClient) UpdateExecution(req *api.UpdateExecutionRequest) (*execu
 	if err != nil {
 		return nil, err
 	}
-	msg := execution.NewMsgUpdateExecution(req, acc.GetAddress())
+	msg := execution.MsgUpdate{
+		Executor: acc.GetAddress(),
+		Hash:     req.Hash,
+	}
+	switch result := req.Result.(type) {
+	case *api.UpdateExecutionRequest_Outputs:
+		msg.Result = &execution.MsgUpdateOutputs{
+			Outputs: result.Outputs,
+		}
+	case *api.UpdateExecutionRequest_Error:
+		msg.Result = &execution.MsgUpdateError{
+			Error: result.Error,
+		}
+	}
 	tx, err := mc.BuildAndBroadcastMsg(msg)
 	if err != nil {
 		return nil, err
@@ -221,8 +264,11 @@ func (mc *ModuleClient) CreateRunner(req *api.CreateRunnerRequest) (*runnerpb.Ru
 	if err != nil {
 		return nil, err
 	}
-
-	msg := runner.NewMsgCreateRunner(acc.GetAddress(), req.ServiceHash, envHash)
+	msg := runner.MsgCreate{
+		Owner:       acc.GetAddress(),
+		ServiceHash: req.ServiceHash,
+		EnvHash:     envHash,
+	}
 	tx, err := mc.BuildAndBroadcastMsg(msg)
 	if err != nil {
 		return nil, err
@@ -236,7 +282,10 @@ func (mc *ModuleClient) DeleteRunner(req *api.DeleteRunnerRequest) error {
 	if err != nil {
 		return err
 	}
-	msg := runner.NewMsgDeleteRunner(acc.GetAddress(), req.Hash)
+	msg := runner.MsgDelete{
+		Owner: acc.GetAddress(),
+		Hash:  req.Hash,
+	}
 	_, err = mc.BuildAndBroadcastMsg(msg)
 	return err
 }

@@ -9,7 +9,6 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/types/rest"
-	"github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/mesg-foundation/engine/service"
 	"github.com/mesg-foundation/engine/x/service/internal/types"
 )
@@ -91,7 +90,7 @@ func queryHashHandlerFn(cliCtx context.CLIContext) http.HandlerFunc {
 			return
 		}
 
-		var req api.CreateServiceRequest
+		var req types.MsgCreate
 		if err := cliCtx.Codec.UnmarshalJSON(data, &req); err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return

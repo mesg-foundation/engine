@@ -1,0 +1,62 @@
+syntax = "proto3";
+
+import "gogo/protobuf/gogoproto/gogo.proto";
+import "protobuf/types/service.proto";
+
+package mesg.service.types;
+option go_package = "github.com/mesg-foundation/engine/x/service/internal/types";
+
+// The message to create a Service.
+message MsgCreate {
+  // Service's sid.
+  string sid = 1 [
+    (gogoproto.moretags) = 'validate:"omitempty,printascii,max=63,domain"'
+  ];
+
+  // Service's name.
+  string name = 2 [
+    (gogoproto.moretags) = 'validate:"required,printascii"'
+  ];
+
+  // Service's description.
+  string description = 3 [
+    (gogoproto.moretags) = 'validate:"printascii"'
+  ];
+
+  // Configurations related to the service
+  mesg.types.Service.Configuration configuration = 4 [
+    (gogoproto.moretags) = 'validate:"required"',
+    (gogoproto.nullable) = false
+  ];
+
+  // The list of tasks this service can execute.
+  repeated mesg.types.Service.Task tasks = 5 [
+    (gogoproto.moretags) = 'validate:"dive,required"'
+  ];
+
+  // The list of events this service can emit.
+  repeated mesg.types.Service.Event events = 6 [
+    (gogoproto.moretags) = 'validate:"dive,required"'
+  ];
+
+  // The container dependencies this service requires.
+  repeated mesg.types.Service.Dependency dependencies = 7 [
+    (gogoproto.moretags) = 'validate:"dive,required"'
+  ];
+
+  // Service's repository url.
+  string repository = 8 [
+    (gogoproto.moretags) = 'validate:"omitempty,uri"'
+  ];
+
+  // The hash id of service's source code on IPFS.
+  string source = 9 [
+    (gogoproto.moretags) = 'validate:"required,printascii"'
+  ];
+
+  // The service's owner.
+  bytes owner = 10 [
+    (gogoproto.moretags) = 'validate:"required,accaddress"',
+    (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"
+  ];
+}

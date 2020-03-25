@@ -6,8 +6,8 @@ import (
 
 // RegisterCodec registers concrete types on codec
 func RegisterCodec(cdc *codec.Codec) {
-	cdc.RegisterConcrete(MsgCreateRunner{}, "runner/CreateRunner", nil)
-	cdc.RegisterConcrete(MsgDeleteRunner{}, "runner/DeleteRunner", nil)
+	cdc.RegisterConcrete(MsgCreate{}, "runner/create", nil)
+	cdc.RegisterConcrete(MsgDelete{}, "runner/delete", nil)
 }
 
 // ModuleCdc defines the module codec

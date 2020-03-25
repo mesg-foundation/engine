@@ -1,0 +1,47 @@
+syntax = "proto3";
+
+import "gogo/protobuf/gogoproto/gogo.proto";
+import "protobuf/types/process.proto";
+
+package mesg.process.types;
+option go_package = "github.com/mesg-foundation/engine/x/process/internal/types";
+
+// The message to create a Process.
+message MsgCreate {
+  // Process's name
+  string name = 1 [
+    (gogoproto.moretags) = 'validate:"required,printascii"'
+  ];
+
+  // List of nodes of the process.
+  repeated mesg.types.Process.Node nodes = 2 [
+    (gogoproto.moretags) = 'validate:"dive"'
+  ];
+
+  // List of edges of the process.
+  repeated mesg.types.Process.Edge edges = 3 [
+    (gogoproto.moretags) = 'validate:"dive"'
+  ];
+
+  // The process's owner.
+  bytes owner = 4 [
+    (gogoproto.moretags) = 'validate:"required,accaddress"',
+    (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"
+  ];
+}
+
+// The message to delete a Process.
+message MsgDelete {
+  // The process's hash to delete.
+  bytes hash = 1 [
+    (gogoproto.moretags) = 'validate:"required,hash"',
+    (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
+    (gogoproto.nullable) = false
+  ];
+
+  // The process's owner.
+  bytes owner = 2 [
+    (gogoproto.moretags) = 'validate:"required,accaddress"',
+    (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"
+  ];
+}

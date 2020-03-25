@@ -23,8 +23,7 @@ func (e Errors) Error() string {
 			s = append(s, err.Error())
 		}
 	}
-
-	return strings.Join(s, "\n")
+	return strings.Join(s, ". ")
 }
 
 // SyncErrors is an error for tracing multiple errors safe to use in multiple goroutines.

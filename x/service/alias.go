@@ -28,8 +28,6 @@ var (
 	QueryGetService   = types.QueryGetService
 	QueryListService  = types.QueryListService
 	QueryExistService = types.QueryExistService
-
-	NewMsgCreateService = types.NewMsgCreateService
 )
 
 // module types
@@ -38,5 +36,5 @@ type (
 	GenesisState = types.GenesisState
 	Params       = types.Params
 
-	MsgCreateService = types.MsgCreateService
+	MsgCreate = types.MsgCreate
 )

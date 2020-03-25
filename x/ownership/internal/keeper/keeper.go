@@ -109,20 +109,24 @@ func (k Keeper) Delete(ctx sdk.Context, owner sdk.AccAddress, resourceHash hash.
 	return nil
 }
 
-// WithdrawCoins try to withdraw coins to owner rom specific resource.
-func (k Keeper) WithdrawCoins(ctx sdk.Context, msg types.MsgWithdrawCoins) error {
+// Withdraw try to withdraw coins to owner rom specific resource.
+func (k Keeper) Withdraw(ctx sdk.Context, msg types.MsgWithdraw) error {
 	store := ctx.KVStore(k.storeKey)
-	own, err := k.getOwnership(store, msg.Hash)
+	amount, err := sdk.ParseCoins(msg.Amount)
+	if err != nil {
+		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, err.Error())
+	}
+	own, err := k.getOwnership(store, msg.ResourceHash)
 	if err != nil {
 		return err
 	}
 	if own == nil {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "resource %q does not have any ownership", msg.Hash)
+		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "resource %q does not have any ownership", msg.ResourceHash)
 	}
 	if own.Owner != msg.Owner.String() {
-		return sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, "resource %q is not owned by you", msg.Hash)
+		return sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, "resource %q is not owned by you", msg.ResourceHash)
 	}
-	return k.bankKeeper.SendCoins(ctx, own.ResourceAddress, msg.Owner, msg.Amount)
+	return k.bankKeeper.SendCoins(ctx, own.ResourceAddress, msg.Owner, amount)
 }
 
 // getOwnership returns the ownership of a given resource.

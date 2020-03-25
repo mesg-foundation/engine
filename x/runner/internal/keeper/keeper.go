@@ -38,14 +38,14 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 }
 
 // Create creates a new runner.
-func (k Keeper) Create(ctx sdk.Context, msg *types.MsgCreateRunner) (*runner.Runner, error) {
+func (k Keeper) Create(ctx sdk.Context, msg *types.MsgCreate) (*runner.Runner, error) {
 	store := ctx.KVStore(k.storeKey)
 	inst, err := k.instanceKeeper.FetchOrCreate(ctx, msg.ServiceHash, msg.EnvHash)
 	if err != nil {
 		return nil, err
 	}
 
-	r := runner.New(msg.Address.String(), inst.Hash)
+	r := runner.New(msg.Owner.String(), inst.Hash)
 	if store.Has(r.Hash) {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "runner %q already exists", r.Hash)
 	}
@@ -55,7 +55,7 @@ func (k Keeper) Create(ctx sdk.Context, msg *types.MsgCreateRunner) (*runner.Run
 		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONMarshal, err.Error())
 	}
 
-	if _, err := k.ownershipKeeper.Set(ctx, msg.Address, r.Hash, ownershippb.Ownership_Runner, r.Address); err != nil {
+	if _, err := k.ownershipKeeper.Set(ctx, msg.Owner, r.Hash, ownershippb.Ownership_Runner, r.Address); err != nil {
 		return nil, err
 	}
 
@@ -64,25 +64,25 @@ func (k Keeper) Create(ctx sdk.Context, msg *types.MsgCreateRunner) (*runner.Run
 }
 
 // Delete deletes a runner.
-func (k Keeper) Delete(ctx sdk.Context, msg *types.MsgDeleteRunner) error {
+func (k Keeper) Delete(ctx sdk.Context, msg *types.MsgDelete) error {
 	store := ctx.KVStore(k.storeKey)
-	if !store.Has(msg.RunnerHash) {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "runner %q not found", msg.RunnerHash)
+	if !store.Has(msg.Hash) {
+		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "runner %q not found", msg.Hash)
 	}
 
-	value := store.Get(msg.RunnerHash)
+	value := store.Get(msg.Hash)
 	var r *runner.Runner
 	if err := k.cdc.UnmarshalBinaryLengthPrefixed(value, &r); err != nil {
 		return sdkerrors.Wrap(sdkerrors.ErrJSONUnmarshal, err.Error())
 	}
-	if r.Owner != msg.Address.String() {
+	if r.Owner != msg.Owner.String() {
 		return sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "only the runner owner can remove itself")
 	}
 
-	if err := k.ownershipKeeper.Delete(ctx, msg.Address, r.Hash); err != nil {
+	if err := k.ownershipKeeper.Delete(ctx, msg.Owner, r.Hash); err != nil {
 		return err
 	}
-	store.Delete(msg.RunnerHash)
+	store.Delete(msg.Hash)
 	return nil
 }
 

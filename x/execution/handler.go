@@ -12,18 +12,18 @@ func NewHandler(k Keeper) sdk.Handler {
 	return func(ctx sdk.Context, msg sdk.Msg) (*sdk.Result, error) {
 		ctx = ctx.WithEventManager(sdk.NewEventManager())
 		switch msg := msg.(type) {
-		case MsgCreateExecution:
-			return handleMsgCreateExecution(ctx, k, msg)
-		case MsgUpdateExecution:
-			return handleMsgUpdateExecution(ctx, k, msg)
+		case MsgCreate:
+			return handleMsgCreate(ctx, k, msg)
+		case MsgUpdate:
+			return handleMsgUpdate(ctx, k, msg)
 		default:
 			return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "unrecognized %s message type: %T", types.ModuleName, msg)
 		}
 	}
 }
 
-// handleMsgCreateExecution creates a new execution.
-func handleMsgCreateExecution(ctx sdk.Context, k Keeper, msg MsgCreateExecution) (*sdk.Result, error) {
+// handleMsgCreate creates a new execution.
+func handleMsgCreate(ctx sdk.Context, k Keeper, msg MsgCreate) (*sdk.Result, error) {
 	exec, err := k.Create(ctx, msg)
 	if err != nil {
 		return nil, err
@@ -59,8 +59,8 @@ func handleMsgCreateExecution(ctx sdk.Context, k Keeper, msg MsgCreateExecution)
 	}, nil
 }
 
-// handleMsgUpdateExecution updates an execution.
-func handleMsgUpdateExecution(ctx sdk.Context, k Keeper, msg MsgUpdateExecution) (*sdk.Result, error) {
+// handleMsgUpdate updates an execution.
+func handleMsgUpdate(ctx sdk.Context, k Keeper, msg MsgUpdate) (*sdk.Result, error) {
 	s, err := k.Update(ctx, msg)
 	if err != nil {
 		return nil, err

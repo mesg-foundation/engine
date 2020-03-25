@@ -43,9 +43,9 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 }
 
 // Create creates a new process.
-func (k Keeper) Create(ctx sdk.Context, msg *types.MsgCreateProcess) (*processpb.Process, error) {
+func (k Keeper) Create(ctx sdk.Context, msg *types.MsgCreate) (*processpb.Process, error) {
 	store := ctx.KVStore(k.storeKey)
-	p := process.New(msg.Request.Name, msg.Request.Nodes, msg.Request.Edges)
+	p := process.New(msg.Name, msg.Nodes, msg.Edges)
 	if store.Has(p.Hash) {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "process %q already exists", p.Hash)
 	}
@@ -89,11 +89,11 @@ func (k Keeper) Create(ctx sdk.Context, msg *types.MsgCreateProcess) (*processpb
 }
 
 // Delete deletes a process.
-func (k Keeper) Delete(ctx sdk.Context, msg *types.MsgDeleteProcess) error {
-	if err := k.ownershipKeeper.Delete(ctx, msg.Owner, msg.Request.Hash); err != nil {
+func (k Keeper) Delete(ctx sdk.Context, msg *types.MsgDelete) error {
+	if err := k.ownershipKeeper.Delete(ctx, msg.Owner, msg.Hash); err != nil {
 		return err
 	}
-	ctx.KVStore(k.storeKey).Delete(msg.Request.Hash)
+	ctx.KVStore(k.storeKey).Delete(msg.Hash)
 	return nil
 }
 
