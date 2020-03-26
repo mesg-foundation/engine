@@ -10,6 +10,7 @@ import (
 	"github.com/mesg-foundation/engine/process"
 	pb "github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/mesg-foundation/engine/protobuf/types"
+	processmodule "github.com/mesg-foundation/engine/x/process"
 	"github.com/stretchr/testify/require"
 )
 
@@ -18,8 +19,9 @@ func testOrchestratorFilterPathNested(executionStream pb.Execution_StreamClient,
 		var processHash hash.Hash
 
 		t.Run("create process", func(t *testing.T) {
-			respProc, err := client.ProcessClient.Create(context.Background(), &pb.CreateProcessRequest{
-				Name: "filter",
+			processHash = lcdBroadcastMsg(t, processmodule.MsgCreate{
+				Owner: engineAddress,
+				Name:  "filter",
 				Nodes: []*process.Process_Node{
 					{
 						Key: "n0",
@@ -130,8 +132,6 @@ func testOrchestratorFilterPathNested(executionStream pb.Execution_StreamClient,
 					{Src: "n1", Dst: "n2"},
 				},
 			})
-			require.NoError(t, err)
-			processHash = respProc.Hash
 		})
 		t.Run("pass filter", func(t *testing.T) {
 			t.Run("trigger process", func(t *testing.T) {
@@ -259,8 +259,10 @@ func testOrchestratorFilterPathNested(executionStream pb.Execution_StreamClient,
 			})
 		})
 		t.Run("delete process", func(t *testing.T) {
-			_, err := client.ProcessClient.Delete(context.Background(), &pb.DeleteProcessRequest{Hash: processHash})
-			require.NoError(t, err)
+			lcdBroadcastMsg(t, processmodule.MsgDelete{
+				Owner: engineAddress,
+				Hash:  processHash,
+			})
 		})
 	}
 }
