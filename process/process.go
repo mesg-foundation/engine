@@ -54,6 +54,9 @@ func (w *Process) Validate() error {
 						return fmt.Errorf("filter with condition GT, GTE, LT or LTE only works with value of type Number")
 					}
 				}
+				if _, err := w.FindNode(condition.Ref.NodeKey); err != nil {
+					return err
+				}
 			}
 		}
 	}

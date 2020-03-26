@@ -187,7 +187,7 @@ func TestValidateProcess(t *testing.T) {
 					Outputs: map[string]*Process_Node_Map_Output{
 						"key": {
 							Value: &Process_Node_Map_Output_Ref{
-								Ref: &Process_Node_Map_Output_Reference{NodeKey: "invalid"},
+								Ref: &Process_Node_Reference{NodeKey: "invalid"},
 							},
 						},
 					},
@@ -204,7 +204,7 @@ func TestValidateProcess(t *testing.T) {
 					Outputs: map[string]*Process_Node_Map_Output{
 						"key": {
 							Value: &Process_Node_Map_Output_Ref{
-								Ref: &Process_Node_Map_Output_Reference{NodeKey: "nodeKey1"},
+								Ref: &Process_Node_Reference{NodeKey: "nodeKey1"},
 							},
 						},
 					},
@@ -224,7 +224,14 @@ func TestValidateProcess(t *testing.T) {
 				Type: &Process_Node_Filter_{&Process_Node_Filter{
 					Conditions: []Process_Node_Filter_Condition{
 						{
-							Key:       "foo",
+							Ref: &Process_Node_Reference{
+								NodeKey: "hello",
+								Path: &Process_Node_Reference_Path{
+									Selector: &Process_Node_Reference_Path_Key{
+										Key: "foo",
+									},
+								},
+							},
 							Predicate: Process_Node_Filter_Condition_GT,
 							Value: &types.Value{
 								Kind: &types.Value_StringValue{StringValue: "bar"},
@@ -240,7 +247,7 @@ func TestValidateProcess(t *testing.T) {
 		if test.valid {
 			assert.Nil(t, err, test.w.Name)
 		} else {
-			assert.Contains(t, test.w.Validate().Error(), test.err, test.w.Name)
+			assert.Contains(t, err.Error(), test.err, test.w.Name)
 		}
 	}
 }
