@@ -65,14 +65,10 @@ func (k Keeper) Set(ctx sdk.Context, owner sdk.AccAddress, resourceHash hash.Has
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, "resource %s:%q already has an owner", resource, resourceHash)
 	}
 
-	// TODO: should be moved to a new function
-	own = &ownership.Ownership{
-		Owner:           owner.String(),
-		Resource:        resource,
-		ResourceHash:    resourceHash,
-		ResourceAddress: resourceAddress,
+	own, err = ownership.New(owner.String(), resource, resourceHash, resourceAddress)
+	if err != nil {
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, err.Error())
 	}
-	own.Hash = hash.Dump(own)
 
 	data, err := k.cdc.MarshalBinaryLengthPrefixed(own)
 	if err != nil {

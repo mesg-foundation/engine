@@ -39,7 +39,7 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 func (k Keeper) Create(ctx sdk.Context, msg *types.MsgCreate) (*servicepb.Service, error) {
 	store := ctx.KVStore(k.storeKey)
 	// create service
-	srv := servicepb.New(
+	srv, err := servicepb.New(
 		msg.Sid,
 		msg.Name,
 		msg.Description,
@@ -50,20 +50,13 @@ func (k Keeper) Create(ctx sdk.Context, msg *types.MsgCreate) (*servicepb.Servic
 		msg.Repository,
 		msg.Source,
 	)
+	if err != nil {
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, err.Error())
+	}
 
 	// check if service already exists.
 	if store.Has(srv.Hash) {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "service %q already exists", srv.Hash)
-	}
-
-	// TODO: the following test should be moved in New function
-	if srv.Sid == "" {
-		// make sure that sid doesn't have the same length with id.
-		srv.Sid = "_" + srv.Hash.String()
-	}
-
-	if err := srv.Validate(); err != nil {
-		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, err.Error())
 	}
 
 	if _, err := k.ownershipKeeper.Set(ctx, msg.Owner, srv.Hash, ownershippb.Ownership_Service, srv.Address); err != nil {

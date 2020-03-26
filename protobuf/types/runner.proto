@@ -12,26 +12,26 @@ option (gogoproto.equal_all) = true;
 message Runner {
   // Runner's hash
   bytes hash = 1 [
-    (gogoproto.moretags) = 'hash:"-"',
+    (gogoproto.moretags) = 'hash:"-" validate:"required,hash"',
     (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
     (gogoproto.nullable) = false
   ];
 
   // owner of the engine of this runner
   string owner = 2 [
-    (gogoproto.moretags) = 'hash:"name:2"'
+    (gogoproto.moretags) = 'hash:"name:2" validate:"required"'
   ];
 
   // instanceHash is hash of the instance that runner will handle
   bytes instanceHash = 3 [
-    (gogoproto.moretags) = 'hash:"name:3"',
+    (gogoproto.moretags) = 'hash:"name:3" validate:"required,hash"',
     (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
     (gogoproto.nullable) = false
   ];
 
   // The address of the runner.
   bytes address = 4 [
-    (gogoproto.moretags) = 'hash:"-" validate:"accaddress"',
+    (gogoproto.moretags) = 'hash:"-" validate:"required,accaddress"',
     (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"
   ];
 }

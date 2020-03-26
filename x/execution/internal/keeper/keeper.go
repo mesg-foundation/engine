@@ -105,7 +105,7 @@ func (k *Keeper) Create(ctx sdk.Context, msg types.MsgCreate) (*executionpb.Exec
 		return nil, sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "signer is not the execution's executor")
 	}
 
-	exec := executionpb.New(
+	exec, err := executionpb.New(
 		msg.ProcessHash,
 		run.InstanceHash,
 		msg.ParentHash,
@@ -117,6 +117,9 @@ func (k *Keeper) Create(ctx sdk.Context, msg types.MsgCreate) (*executionpb.Exec
 		msg.Tags,
 		msg.ExecutorHash,
 	)
+	if err != nil {
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, err.Error())
+	}
 
 	// check if exec already exists
 	store := ctx.KVStore(k.storeKey)

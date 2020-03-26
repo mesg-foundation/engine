@@ -109,7 +109,7 @@ func queryHashHandlerFn(cliCtx context.CLIContext) http.HandlerFunc {
 			return
 		}
 
-		srv := service.New(
+		srv, err := service.New(
 			req.Sid,
 			req.Name,
 			req.Description,
@@ -120,6 +120,10 @@ func queryHashHandlerFn(cliCtx context.CLIContext) http.HandlerFunc {
 			req.Repository,
 			req.Source,
 		)
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
+			return
+		}
 
 		rest.PostProcessResponse(w, cliCtx, srv.Hash.String())
 	}

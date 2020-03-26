@@ -145,8 +145,17 @@ func queryHashHandlerFn(cliCtx context.CLIContext) http.HandlerFunc {
 		}
 
 		envHash := hash.Dump(xos.EnvMergeSlices(srv.Configuration.Env, req.Env))
-		inst := instance.New(req.ServiceHash, envHash)
-		run := runner.New(req.Address, inst.Hash)
+		inst, err := instance.New(req.ServiceHash, envHash)
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
+			return
+		}
+
+		run, err := runner.New(req.Address, inst.Hash)
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
+			return
+		}
 
 		res := HashResponse{
 			RunnerHash:   run.Hash,
