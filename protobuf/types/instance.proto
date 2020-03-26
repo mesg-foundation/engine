@@ -11,18 +11,19 @@ option (gogoproto.equal_all) = true;
 // Instance represents service's instance.
 message Instance {
   bytes hash = 1 [
+    (gogoproto.moretags) = 'hash:"-" validate:"required,hash"',
     (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
     (gogoproto.nullable) = false
   ];
 
   bytes serviceHash = 2 [
-    (gogoproto.moretags) = 'hash:"name:2"',
+    (gogoproto.moretags) = 'hash:"name:2" validate:"required,hash"',
     (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
     (gogoproto.nullable) = false
   ];
 
   bytes envHash = 3 [
-    (gogoproto.moretags) = 'hash:"name:3"',
+    (gogoproto.moretags) = 'hash:"name:3" validate:"required,hash"',
     (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
     (gogoproto.nullable) = false
   ];

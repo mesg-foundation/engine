@@ -45,7 +45,12 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 // Create creates a new process.
 func (k Keeper) Create(ctx sdk.Context, msg *types.MsgCreate) (*processpb.Process, error) {
 	store := ctx.KVStore(k.storeKey)
-	p := process.New(msg.Name, msg.Nodes, msg.Edges)
+
+	p, err := process.New(msg.Name, msg.Nodes, msg.Edges)
+	if err != nil {
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, err.Error())
+	}
+
 	if store.Has(p.Hash) {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "process %q already exists", p.Hash)
 	}

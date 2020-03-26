@@ -45,7 +45,11 @@ func (k Keeper) Create(ctx sdk.Context, msg *types.MsgCreate) (*runner.Runner, e
 		return nil, err
 	}
 
-	r := runner.New(msg.Owner.String(), inst.Hash)
+	r, err := runner.New(msg.Owner.String(), inst.Hash)
+	if err != nil {
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, err.Error())
+	}
+
 	if store.Has(r.Hash) {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "runner %q already exists", r.Hash)
 	}

@@ -12,7 +12,7 @@ option (gogoproto.goproto_getters_all) = false;
 message Event {
   // Hash is a unique hash to identify event.
   bytes hash = 1 [
-    (gogoproto.moretags) = 'hash:"-"',
+    (gogoproto.moretags) = 'hash:"-" validate:"required,hash"',
     (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
     (gogoproto.nullable) = false
   ];
