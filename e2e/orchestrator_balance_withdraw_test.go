@@ -9,6 +9,7 @@ import (
 	"github.com/mesg-foundation/engine/execution"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/process"
+	"github.com/mesg-foundation/engine/protobuf/acknowledgement"
 	pb "github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/mesg-foundation/engine/protobuf/types"
 	"github.com/mesg-foundation/engine/x/ownership"
@@ -16,11 +17,12 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func testOrchestratorProcessBalanceWithdraw(executionStream pb.Execution_StreamClient, instanceHash hash.Hash) func(t *testing.T) {
+func testOrchestratorProcessBalanceWithdraw(instanceHash hash.Hash) func(t *testing.T) {
 	return func(t *testing.T) {
 		var (
-			processHash hash.Hash
-			procAddress sdk.AccAddress
+			processHash     hash.Hash
+			procAddress     sdk.AccAddress
+			executionStream pb.Execution_StreamClient
 		)
 
 		t.Run("create process", func(t *testing.T) {
@@ -62,6 +64,12 @@ func testOrchestratorProcessBalanceWithdraw(executionStream pb.Execution_StreamC
 			var coins sdk.Coins
 			lcdGet(t, "bank/balances/"+procAddress.String(), &coins)
 			require.True(t, coins.IsEqual(processInitialBalance), coins)
+		})
+		t.Run("create execution stream", func(t *testing.T) {
+			var err error
+			executionStream, err = client.ExecutionClient.Stream(context.Background(), &pb.StreamExecutionRequest{})
+			require.NoError(t, err)
+			acknowledgement.WaitForStreamToBeReady(executionStream)
 		})
 		t.Run("trigger process", func(t *testing.T) {
 			_, err := client.EventClient.Create(context.Background(), &pb.CreateEventRequest{

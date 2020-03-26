@@ -7,17 +7,19 @@ import (
 	"github.com/mesg-foundation/engine/execution"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/process"
+	"github.com/mesg-foundation/engine/protobuf/acknowledgement"
 	pb "github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/mesg-foundation/engine/protobuf/types"
 	processmodule "github.com/mesg-foundation/engine/x/process"
 	"github.com/stretchr/testify/require"
 )
 
-func testOrchestratorNestedMap(executionStream pb.Execution_StreamClient, instanceHash hash.Hash) func(t *testing.T) {
+func testOrchestratorNestedMap(instanceHash hash.Hash) func(t *testing.T) {
 	return func(t *testing.T) {
 		var (
-			processHash hash.Hash
-			dataEvent   = &types.Struct{
+			processHash     hash.Hash
+			executionStream pb.Execution_StreamClient
+			dataEvent       = &types.Struct{
 				Fields: map[string]*types.Value{
 					"msg": {
 						Kind: &types.Value_StructValue{
@@ -104,6 +106,12 @@ func testOrchestratorNestedMap(executionStream pb.Execution_StreamClient, instan
 					{Src: "n1", Dst: "n2"},
 				},
 			})
+		})
+		t.Run("create execution stream", func(t *testing.T) {
+			var err error
+			executionStream, err = client.ExecutionClient.Stream(context.Background(), &pb.StreamExecutionRequest{})
+			require.NoError(t, err)
+			acknowledgement.WaitForStreamToBeReady(executionStream)
 		})
 		t.Run("trigger process", func(t *testing.T) {
 			_, err := client.EventClient.Create(context.Background(), &pb.CreateEventRequest{

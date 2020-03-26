@@ -1,11 +1,13 @@
 package main
 
 import (
+	"context"
 	"testing"
 
 	"github.com/mesg-foundation/engine/execution"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/process"
+	"github.com/mesg-foundation/engine/protobuf/acknowledgement"
 	pb "github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/mesg-foundation/engine/protobuf/types"
 	executionmodule "github.com/mesg-foundation/engine/x/execution"
@@ -13,9 +15,12 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func testOrchestratorResultTask(executionStream pb.Execution_StreamClient, runnerHash hash.Hash, instanceHash hash.Hash) func(t *testing.T) {
+func testOrchestratorResultTask(runnerHash hash.Hash, instanceHash hash.Hash) func(t *testing.T) {
 	return func(t *testing.T) {
-		var processHash hash.Hash
+		var (
+			processHash     hash.Hash
+			executionStream pb.Execution_StreamClient
+		)
 
 		t.Run("create process", func(t *testing.T) {
 			processHash = lcdBroadcastMsg(t, processmodule.MsgCreate{
@@ -45,6 +50,12 @@ func testOrchestratorResultTask(executionStream pb.Execution_StreamClient, runne
 					{Src: "n0", Dst: "n1"},
 				},
 			})
+		})
+		t.Run("create execution stream", func(t *testing.T) {
+			var err error
+			executionStream, err = client.ExecutionClient.Stream(context.Background(), &pb.StreamExecutionRequest{})
+			require.NoError(t, err)
+			acknowledgement.WaitForStreamToBeReady(executionStream)
 		})
 		t.Run("trigger process", func(t *testing.T) {
 			lcdBroadcastMsg(t, executionmodule.MsgCreate{

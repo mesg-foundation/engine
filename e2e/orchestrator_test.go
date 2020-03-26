@@ -1,30 +1,21 @@
 package main
 
 import (
-	"context"
 	"testing"
-
-	"github.com/mesg-foundation/engine/protobuf/acknowledgement"
-	pb "github.com/mesg-foundation/engine/protobuf/api"
-	"github.com/stretchr/testify/require"
 )
 
 func testOrchestrator(t *testing.T) {
-	executionStream, err := client.ExecutionClient.Stream(context.Background(), &pb.StreamExecutionRequest{})
-	require.NoError(t, err)
-	acknowledgement.WaitForStreamToBeReady(executionStream)
-
 	// running orchestrator tests
-	t.Run("process balance and withdraw", testOrchestratorProcessBalanceWithdraw(executionStream, testInstanceHash))
-	t.Run("event task", testOrchestratorEventTask(executionStream, testInstanceHash))
-	t.Run("result task", testOrchestratorResultTask(executionStream, testRunnerHash, testInstanceHash))
-	t.Run("map const", testOrchestratorMapConst(executionStream, testInstanceHash))
-	t.Run("ref grand parent task", testOrchestratorRefGrandParentTask(executionStream, testInstanceHash))
-	t.Run("nested data", testOrchestratorNestedData(executionStream, testInstanceHash))
-	t.Run("nested map", testOrchestratorNestedMap(executionStream, testInstanceHash))
-	t.Run("ref path nested", testOrchestratorRefPathNested(executionStream, testInstanceHash))
+	t.Run("process balance and withdraw", testOrchestratorProcessBalanceWithdraw(testInstanceHash))
+	t.Run("event task", testOrchestratorEventTask(testInstanceHash))
+	t.Run("result task", testOrchestratorResultTask(testRunnerHash, testInstanceHash))
+	t.Run("map const", testOrchestratorMapConst(testInstanceHash))
+	t.Run("ref grand parent task", testOrchestratorRefGrandParentTask(testInstanceHash))
+	t.Run("nested data", testOrchestratorNestedData(testInstanceHash))
+	t.Run("nested map", testOrchestratorNestedMap(testInstanceHash))
+	t.Run("ref path nested", testOrchestratorRefPathNested(testInstanceHash))
 
 	// to execute last because of go routine leak. See fixme in following function
-	t.Run("filter", testOrchestratorFilter(executionStream, testInstanceHash))
-	t.Run("filter path nested", testOrchestratorFilterPathNested(executionStream, testInstanceHash))
+	t.Run("filter", testOrchestratorFilter(testInstanceHash))
+	t.Run("filter path nested", testOrchestratorFilterPathNested(testInstanceHash))
 }

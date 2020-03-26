@@ -8,15 +8,19 @@ import (
 	"github.com/mesg-foundation/engine/execution"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/process"
+	"github.com/mesg-foundation/engine/protobuf/acknowledgement"
 	pb "github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/mesg-foundation/engine/protobuf/types"
 	processmodule "github.com/mesg-foundation/engine/x/process"
 	"github.com/stretchr/testify/require"
 )
 
-func testOrchestratorEventTask(executionStream pb.Execution_StreamClient, instanceHash hash.Hash) func(t *testing.T) {
+func testOrchestratorEventTask(instanceHash hash.Hash) func(t *testing.T) {
 	return func(t *testing.T) {
-		var processHash hash.Hash
+		var (
+			processHash     hash.Hash
+			executionStream pb.Execution_StreamClient
+		)
 
 		t.Run("create process", func(t *testing.T) {
 			processHash = lcdBroadcastMsg(t, processmodule.MsgCreate{
@@ -46,6 +50,12 @@ func testOrchestratorEventTask(executionStream pb.Execution_StreamClient, instan
 					{Src: "n0", Dst: "n1"},
 				},
 			})
+		})
+		t.Run("create execution stream", func(t *testing.T) {
+			var err error
+			executionStream, err = client.ExecutionClient.Stream(context.Background(), &pb.StreamExecutionRequest{})
+			require.NoError(t, err)
+			acknowledgement.WaitForStreamToBeReady(executionStream)
 		})
 		t.Run("trigger process", func(t *testing.T) {
 			_, err := client.EventClient.Create(context.Background(), &pb.CreateEventRequest{
