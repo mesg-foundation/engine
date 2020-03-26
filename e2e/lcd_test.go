@@ -78,7 +78,10 @@ func pollExecution(t *testing.T, executionHash hash.Hash, status execution.Statu
 }
 
 func lcdBroadcastMsg(t *testing.T, msg sdk.Msg) []byte {
-	tx := createAndSignTx(t, []sdk.Msg{msg})
+	return lcdBroadcastMsgs(t, []sdk.Msg{msg})
+}
+func lcdBroadcastMsgs(t *testing.T, msgs []sdk.Msg) []byte {
+	tx := createAndSignTx(t, msgs)
 	req := authrest.BroadcastReq{
 		Tx:   tx,
 		Mode: "block", // TODO: should be changed to "sync" and wait for the tx event
@@ -124,7 +127,7 @@ func createAndSignTx(t *testing.T, msgs []sdk.Msg) authtypes.StdTx {
 		authutils.GetTxEncoder(cdc),
 		accR.GetAccountNumber(),
 		sequence,
-		flags.DefaultGasLimit,
+		flags.DefaultGasLimit*10,
 		flags.DefaultGasAdjustment,
 		true,
 		cfg.DevGenesis.ChainID,

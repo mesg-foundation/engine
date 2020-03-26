@@ -237,30 +237,28 @@ func testExecution(t *testing.T) {
 			}
 		)
 		t.Run("create executions", func(t *testing.T) {
-			wg := sync.WaitGroup{}
-			var mutex sync.Mutex
-			wg.Add(n)
+			msgs := make([]sdk.Msg, 0)
 			for i := 0; i < n; i++ {
-				go func() {
-					defer wg.Done()
-					hash, err := hash.Random()
-					require.Nil(t, err)
-					msg := executionmodule.MsgCreate{
-						Signer:       engineAddress,
-						TaskKey:      taskKey,
-						EventHash:    hash,
-						ExecutorHash: executorHash,
-						Inputs:       inputs,
-						Price:        price,
-					}
-					execHash := lcdBroadcastMsg(t, msg)
-					mutex.Lock()
-					defer mutex.Unlock()
-					require.NotContains(t, executions, execHash)
-					executions = append(executions, execHash)
-				}()
+				hash, err := hash.Random()
+				require.Nil(t, err)
+				msg := executionmodule.MsgCreate{
+					Signer:       engineAddress,
+					TaskKey:      taskKey,
+					EventHash:    hash,
+					ExecutorHash: executorHash,
+					Inputs:       inputs,
+					Price:        price,
+				}
+				msgs = append(msgs, msg)
 			}
-			wg.Wait()
+			execsHash := lcdBroadcastMsgs(t, msgs)
+			// split hash
+			hashSize := hash.DefaultHash().Size()
+			for i := 0; i < n; i++ {
+				execHash := execsHash[hashSize*i : hashSize*(i+1)]
+				require.NotContains(t, executions, execHash)
+				executions = append(executions, execHash)
+			}
 			require.Len(t, executions, n)
 		})
 		t.Run("check in progress", func(t *testing.T) {
