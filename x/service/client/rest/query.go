@@ -77,6 +77,19 @@ func queryListHandlerFn(cliCtx context.CLIContext) http.HandlerFunc {
 	}
 }
 
+// HashRequest is the request of the hash endpoint.
+type HashRequest struct {
+	Sid           string                        `json:"sid,omitempty"`
+	Name          string                        `json:"name,omitempty"`
+	Description   string                        `json:"description,omitempty"`
+	Configuration service.Service_Configuration `json:"configuration"`
+	Tasks         []*service.Service_Task       `json:"tasks,omitempty"`
+	Events        []*service.Service_Event      `json:"events,omitempty"`
+	Dependencies  []*service.Service_Dependency `json:"dependencies,omitempty"`
+	Repository    string                        `json:"repository,omitempty"`
+	Source        string                        `json:"source,omitempty"`
+}
+
 func queryHashHandlerFn(cliCtx context.CLIContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		cliCtx, ok := rest.ParseQueryHeightOrReturnBadRequest(w, cliCtx, r)
@@ -90,7 +103,7 @@ func queryHashHandlerFn(cliCtx context.CLIContext) http.HandlerFunc {
 			return
 		}
 
-		var req types.MsgCreate
+		var req HashRequest
 		if err := cliCtx.Codec.UnmarshalJSON(data, &req); err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
