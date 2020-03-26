@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/x/bank"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/ownership"
 	"github.com/mesg-foundation/engine/process"
@@ -79,8 +78,7 @@ func testProcess(t *testing.T) {
 
 	t.Run("check coins on process", func(t *testing.T) {
 		var coins sdk.Coins
-		param := bank.NewQueryBalanceParams(processAddress)
-		require.NoError(t, cclient.QueryJSON("custom/bank/balances", param, &coins))
+		lcdGet(t, "bank/balances/"+processAddress.String(), &coins)
 		require.True(t, coins.IsEqual(processInitialBalance), coins)
 	})
 
@@ -111,8 +109,7 @@ func testProcess(t *testing.T) {
 
 	t.Run("check coins on process", func(t *testing.T) {
 		var coins sdk.Coins
-		param := bank.NewQueryBalanceParams(processAddress)
-		require.NoError(t, cclient.QueryJSON("custom/bank/balances", param, &coins))
+		lcdGet(t, "bank/balances/"+processAddress.String(), &coins)
 		require.True(t, coins.IsZero(), coins)
 	})
 }

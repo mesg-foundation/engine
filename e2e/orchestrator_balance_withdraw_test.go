@@ -6,7 +6,6 @@ import (
 	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/x/bank"
 	"github.com/mesg-foundation/engine/execution"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/process"
@@ -61,8 +60,7 @@ func testOrchestratorProcessBalanceWithdraw(executionStream pb.Execution_StreamC
 		})
 		t.Run("check coins on process", func(t *testing.T) {
 			var coins sdk.Coins
-			param := bank.NewQueryBalanceParams(procAddress)
-			require.NoError(t, cclient.QueryJSON("custom/bank/balances", param, &coins))
+			lcdGet(t, "bank/balances/"+procAddress.String(), &coins)
 			require.True(t, coins.IsEqual(processInitialBalance), coins)
 		})
 		t.Run("trigger process", func(t *testing.T) {
@@ -100,8 +98,7 @@ func testOrchestratorProcessBalanceWithdraw(executionStream pb.Execution_StreamC
 		})
 		t.Run("check coins on process after 1 execution", func(t *testing.T) {
 			var coins sdk.Coins
-			param := bank.NewQueryBalanceParams(procAddress)
-			require.NoError(t, cclient.QueryJSON("custom/bank/balances", param, &coins))
+			lcdGet(t, "bank/balances/"+procAddress.String(), &coins)
 			require.True(t, coins.IsEqual(processInitialBalance.Sub(minExecutionPrice)), coins)
 		})
 		t.Run("withdraw from process", func(t *testing.T) {
@@ -113,8 +110,7 @@ func testOrchestratorProcessBalanceWithdraw(executionStream pb.Execution_StreamC
 			}
 			lcdBroadcastMsg(t, msg)
 
-			param := bank.NewQueryBalanceParams(procAddress)
-			require.NoError(t, cclient.QueryJSON("custom/bank/balances", param, &coins))
+			lcdGet(t, "bank/balances/"+procAddress.String(), &coins)
 			require.True(t, coins.IsEqual(processInitialBalance.Sub(minExecutionPrice).Sub(minExecutionPrice)), coins)
 		})
 		t.Run("delete process", func(t *testing.T) {
@@ -125,8 +121,7 @@ func testOrchestratorProcessBalanceWithdraw(executionStream pb.Execution_StreamC
 		})
 		t.Run("check coins on process after deletion", func(t *testing.T) {
 			var coins sdk.Coins
-			param := bank.NewQueryBalanceParams(procAddress)
-			require.NoError(t, cclient.QueryJSON("custom/bank/balances", param, &coins))
+			lcdGet(t, "bank/balances/"+procAddress.String(), &coins)
 			require.True(t, coins.IsZero(), coins)
 		})
 	}

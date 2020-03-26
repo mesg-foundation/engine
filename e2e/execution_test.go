@@ -5,7 +5,6 @@ import (
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/x/bank"
 	"github.com/mesg-foundation/engine/execution"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/protobuf/types"
@@ -121,8 +120,7 @@ func testExecution(t *testing.T) {
 
 			// check balance
 			var coins sdk.Coins
-			param := bank.NewQueryBalanceParams(testServiceAddress)
-			require.NoError(t, cclient.QueryJSON("custom/bank/balances", param, &coins))
+			lcdGet(t, "bank/balances/"+testServiceAddress.String(), &coins)
 			require.True(t, serviceBalance.IsEqual(coins), serviceBalance, coins)
 		})
 		t.Run("withdraw from runner", func(t *testing.T) {
@@ -135,8 +133,7 @@ func testExecution(t *testing.T) {
 
 			// check balance
 			var coins sdk.Coins
-			param := bank.NewQueryBalanceParams(testRunnerAddress)
-			require.NoError(t, cclient.QueryJSON("custom/bank/balances", param, &coins))
+			lcdGet(t, "bank/balances/"+testRunnerAddress.String(), &coins)
 			require.True(t, executorBalance.IsEqual(coins), executorBalance, coins)
 		})
 	})

@@ -13,7 +13,6 @@ import (
 	"github.com/mesg-foundation/engine/cosmos"
 	pb "github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/stretchr/testify/require"
-	rpcclient "github.com/tendermint/tendermint/rpc/client"
 	"google.golang.org/grpc"
 )
 
@@ -29,7 +28,6 @@ type apiclient struct {
 var (
 	minExecutionPrice     sdk.Coins
 	client                apiclient
-	cclient               *cosmos.Client
 	cdc                   = app.MakeCodec()
 	processInitialBalance = sdk.NewCoins(sdk.NewInt64Coin("atto", 10000000))
 	kb                    *cosmos.Keybase
@@ -66,13 +64,6 @@ func TestAPI(t *testing.T) {
 		require.NoError(t, err)
 		engineAddress = acc.GetAddress()
 	}
-
-	httpclient, err := rpcclient.NewHTTP("http://localhost:26657", "/websocket")
-	require.NoError(t, err)
-	require.NoError(t, httpclient.Start())
-	defer httpclient.Stop()
-	cclient, err = cosmos.NewClient(httpclient, cdc, kb, cfg.DevGenesis.ChainID, cfg.Account.Name, cfg.Account.Password, cfg.Cosmos.MinGasPrices)
-	require.NoError(t, err)
 
 	client = apiclient{
 		pb.NewEventClient(conn),
