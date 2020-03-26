@@ -25,7 +25,7 @@ func testOrchestratorProcessBalanceWithdraw(executionStream pb.Execution_StreamC
 		)
 
 		t.Run("create process", func(t *testing.T) {
-			res, err := cclient.BuildAndBroadcastMsg(processmodule.MsgCreate{
+			processHash = lcdBroadcastMsg(t, processmodule.MsgCreate{
 				Owner: engineAddress,
 				Name:  "event-task-process",
 				Nodes: []*process.Process_Node{
@@ -52,8 +52,6 @@ func testOrchestratorProcessBalanceWithdraw(executionStream pb.Execution_StreamC
 					{Src: "n0", Dst: "n1"},
 				},
 			})
-			require.NoError(t, err)
-			processHash = res.Data
 		})
 		t.Run("get process address", func(t *testing.T) {
 			var proc *process.Process
@@ -113,19 +111,17 @@ func testOrchestratorProcessBalanceWithdraw(executionStream pb.Execution_StreamC
 				Amount:       coins.String(),
 				ResourceHash: processHash,
 			}
-			_, err := cclient.BuildAndBroadcastMsg(msg)
-			require.NoError(t, err)
+			lcdBroadcastMsg(t, msg)
 
 			param := bank.NewQueryBalanceParams(procAddress)
 			require.NoError(t, cclient.QueryJSON("custom/bank/balances", param, &coins))
 			require.True(t, coins.IsEqual(processInitialBalance.Sub(minExecutionPrice).Sub(minExecutionPrice)), coins)
 		})
 		t.Run("delete process", func(t *testing.T) {
-			_, err := cclient.BuildAndBroadcastMsg(processmodule.MsgDelete{
+			lcdBroadcastMsg(t, processmodule.MsgDelete{
 				Owner: engineAddress,
 				Hash:  processHash,
 			})
-			require.NoError(t, err)
 		})
 		t.Run("check coins on process after deletion", func(t *testing.T) {
 			var coins sdk.Coins

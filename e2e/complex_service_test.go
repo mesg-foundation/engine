@@ -21,9 +21,7 @@ func testComplexService(t *testing.T) {
 
 	t.Run("create", func(t *testing.T) {
 		msg.Owner = engineAddress
-		res, err := cclient.BuildAndBroadcastMsg(msg)
-		require.NoError(t, err)
-		testServiceHash = res.Data
+		testServiceHash = lcdBroadcastMsg(t, msg)
 	})
 
 	stream, err := client.EventClient.Stream(context.Background(), &pb.StreamEventRequest{})

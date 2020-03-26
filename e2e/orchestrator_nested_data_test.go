@@ -19,7 +19,7 @@ func testOrchestratorNestedData(executionStream pb.Execution_StreamClient, insta
 		var processHash hash.Hash
 
 		t.Run("create process", func(t *testing.T) {
-			res, err := cclient.BuildAndBroadcastMsg(processmodule.MsgCreate{
+			processHash = lcdBroadcastMsg(t, processmodule.MsgCreate{
 				Owner: engineAddress,
 				Name:  "nested-data",
 				Nodes: []*process.Process_Node{
@@ -46,8 +46,6 @@ func testOrchestratorNestedData(executionStream pb.Execution_StreamClient, insta
 					{Src: "n0", Dst: "n1"},
 				},
 			})
-			require.NoError(t, err)
-			processHash = res.Data
 		})
 		data := &types.Struct{
 			Fields: map[string]*types.Value{
@@ -113,11 +111,10 @@ func testOrchestratorNestedData(executionStream pb.Execution_StreamClient, insta
 			require.NotEmpty(t, exec.Outputs.Fields["msg"].GetStructValue().Fields["timestamp"].GetNumberValue())
 		})
 		t.Run("delete process", func(t *testing.T) {
-			_, err := cclient.BuildAndBroadcastMsg(processmodule.MsgDelete{
+			lcdBroadcastMsg(t, processmodule.MsgDelete{
 				Owner: engineAddress,
 				Hash:  processHash,
 			})
-			require.NoError(t, err)
 		})
 	}
 }

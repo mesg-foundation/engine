@@ -19,7 +19,7 @@ func testOrchestratorFilter(executionStream pb.Execution_StreamClient, instanceH
 		var processHash hash.Hash
 
 		t.Run("create process", func(t *testing.T) {
-			res, err := cclient.BuildAndBroadcastMsg(processmodule.MsgCreate{
+			processHash = lcdBroadcastMsg(t, processmodule.MsgCreate{
 				Owner: engineAddress,
 				Name:  "filter",
 				Nodes: []*process.Process_Node{
@@ -88,8 +88,6 @@ func testOrchestratorFilter(executionStream pb.Execution_StreamClient, instanceH
 					{Src: "n1", Dst: "n2"},
 				},
 			})
-			require.NoError(t, err)
-			processHash = res.Data
 		})
 		t.Run("pass filter", func(t *testing.T) {
 			t.Run("trigger process", func(t *testing.T) {
@@ -165,11 +163,10 @@ func testOrchestratorFilter(executionStream pb.Execution_StreamClient, instanceH
 			})
 		})
 		t.Run("delete process", func(t *testing.T) {
-			_, err := cclient.BuildAndBroadcastMsg(processmodule.MsgDelete{
+			lcdBroadcastMsg(t, processmodule.MsgDelete{
 				Owner: engineAddress,
 				Hash:  processHash,
 			})
-			require.NoError(t, err)
 		})
 	}
 }

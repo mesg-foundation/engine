@@ -19,7 +19,7 @@ func testOrchestratorEventTask(executionStream pb.Execution_StreamClient, instan
 		var processHash hash.Hash
 
 		t.Run("create process", func(t *testing.T) {
-			res, err := cclient.BuildAndBroadcastMsg(processmodule.MsgCreate{
+			processHash = lcdBroadcastMsg(t, processmodule.MsgCreate{
 				Owner: engineAddress,
 				Name:  "event-task-process",
 				Nodes: []*process.Process_Node{
@@ -46,8 +46,6 @@ func testOrchestratorEventTask(executionStream pb.Execution_StreamClient, instan
 					{Src: "n0", Dst: "n1"},
 				},
 			})
-			require.NoError(t, err)
-			processHash = res.Data
 		})
 		t.Run("trigger process", func(t *testing.T) {
 			_, err := client.EventClient.Create(context.Background(), &pb.CreateEventRequest{
@@ -90,11 +88,10 @@ func testOrchestratorEventTask(executionStream pb.Execution_StreamClient, instan
 			require.NotEmpty(t, exec.Outputs.Fields["timestamp"].GetNumberValue())
 		})
 		t.Run("delete process", func(t *testing.T) {
-			_, err := cclient.BuildAndBroadcastMsg(processmodule.MsgDelete{
+			lcdBroadcastMsg(t, processmodule.MsgDelete{
 				Owner: engineAddress,
 				Hash:  processHash,
 			})
-			require.NoError(t, err)
 		})
 	}
 }

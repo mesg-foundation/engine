@@ -49,9 +49,7 @@ func testProcess(t *testing.T) {
 	)
 
 	t.Run("create", func(t *testing.T) {
-		res, err := cclient.BuildAndBroadcastMsg(msg)
-		require.NoError(t, err)
-		processHash = res.Data
+		processHash = lcdBroadcastMsg(t, msg)
 	})
 
 	t.Run("get", func(t *testing.T) {
@@ -99,11 +97,10 @@ func testProcess(t *testing.T) {
 	})
 
 	t.Run("delete", func(t *testing.T) {
-		_, err := cclient.BuildAndBroadcastMsg(processmodule.MsgDelete{
+		lcdBroadcastMsg(t, processmodule.MsgDelete{
 			Owner: engineAddress,
 			Hash:  processHash,
 		})
-		require.NoError(t, err)
 	})
 
 	t.Run("check ownership deletion", func(t *testing.T) {

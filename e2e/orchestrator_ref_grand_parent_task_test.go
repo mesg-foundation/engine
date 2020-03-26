@@ -18,7 +18,7 @@ func testOrchestratorRefGrandParentTask(executionStream pb.Execution_StreamClien
 	return func(t *testing.T) {
 		var processHash hash.Hash
 		t.Run("create process", func(t *testing.T) {
-			res, err := cclient.BuildAndBroadcastMsg(processmodule.MsgCreate{
+			processHash = lcdBroadcastMsg(t, processmodule.MsgCreate{
 				Owner: engineAddress,
 				Name:  "ref-grand-parent-task",
 				Nodes: []*process.Process_Node{
@@ -102,8 +102,6 @@ func testOrchestratorRefGrandParentTask(executionStream pb.Execution_StreamClien
 					{Src: "n4", Dst: "n5"},
 				},
 			})
-			require.NoError(t, err)
-			processHash = res.Data
 		})
 		t.Run("trigger process", func(t *testing.T) {
 			_, err := client.EventClient.Create(context.Background(), &pb.CreateEventRequest{
@@ -190,11 +188,10 @@ func testOrchestratorRefGrandParentTask(executionStream pb.Execution_StreamClien
 			})
 		})
 		t.Run("delete process", func(t *testing.T) {
-			_, err := cclient.BuildAndBroadcastMsg(processmodule.MsgDelete{
+			lcdBroadcastMsg(t, processmodule.MsgDelete{
 				Owner: engineAddress,
 				Hash:  processHash,
 			})
-			require.NoError(t, err)
 		})
 	}
 }

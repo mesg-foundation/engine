@@ -56,9 +56,7 @@ func testExecution(t *testing.T) {
 				Inputs:       inputs,
 				Price:        price.String(),
 			}
-			res, err := cclient.BuildAndBroadcastMsg(msg)
-			require.NoError(t, err)
-			executionHash = res.Data
+			executionHash = lcdBroadcastMsg(t, msg)
 		})
 		t.Run("get execution address", func(t *testing.T) {
 			var exec *execution.Execution
@@ -119,8 +117,7 @@ func testExecution(t *testing.T) {
 				Amount:       expectedCoinsForService.String(),
 				ResourceHash: testServiceHash,
 			}
-			_, err := cclient.BuildAndBroadcastMsg(msg)
-			require.NoError(t, err)
+			lcdBroadcastMsg(t, msg)
 
 			// check balance
 			var coins sdk.Coins
@@ -134,8 +131,7 @@ func testExecution(t *testing.T) {
 				Amount:       expectedCoinsForExecutor.Add(expectedCoinsForEmitter...).String(),
 				ResourceHash: testRunnerHash,
 			}
-			_, err := cclient.BuildAndBroadcastMsg(msg)
-			require.NoError(t, err)
+			lcdBroadcastMsg(t, msg)
 
 			// check balance
 			var coins sdk.Coins
@@ -188,9 +184,7 @@ func testExecution(t *testing.T) {
 				Inputs:       inputs,
 				Price:        price,
 			}
-			res, err := cclient.BuildAndBroadcastMsg(msg)
-			require.NoError(t, err)
-			executionHash = res.Data
+			executionHash = lcdBroadcastMsg(t, msg)
 		})
 		t.Run("in progress", func(t *testing.T) {
 			execInProgress := pollExecution(t, executionHash, execution.Status_InProgress)
@@ -262,12 +256,11 @@ func testExecution(t *testing.T) {
 						Inputs:       inputs,
 						Price:        price,
 					}
-					res, err := cclient.BuildAndBroadcastMsg(msg)
-					require.NoError(t, err)
+					execHash := lcdBroadcastMsg(t, msg)
 					mutex.Lock()
 					defer mutex.Unlock()
-					require.NotContains(t, executions, res.Data)
-					executions = append(executions, res.Data)
+					require.NotContains(t, executions, execHash)
+					executions = append(executions, execHash)
 				}()
 			}
 			wg.Wait()

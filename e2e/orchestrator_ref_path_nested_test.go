@@ -19,7 +19,7 @@ func testOrchestratorRefPathNested(executionStream pb.Execution_StreamClient, in
 		var processHash hash.Hash
 
 		t.Run("create process", func(t *testing.T) {
-			res, err := cclient.BuildAndBroadcastMsg(processmodule.MsgCreate{
+			processHash = lcdBroadcastMsg(t, processmodule.MsgCreate{
 				Owner: engineAddress,
 				Name:  "nested-path-data",
 				Nodes: []*process.Process_Node{
@@ -192,8 +192,6 @@ func testOrchestratorRefPathNested(executionStream pb.Execution_StreamClient, in
 					{Src: "n3", Dst: "n4"},
 				},
 			})
-			require.NoError(t, err)
-			processHash = res.Data
 		})
 		data := &types.Struct{
 			Fields: map[string]*types.Value{
@@ -285,11 +283,10 @@ func testOrchestratorRefPathNested(executionStream pb.Execution_StreamClient, in
 			})
 		})
 		t.Run("delete process", func(t *testing.T) {
-			_, err := cclient.BuildAndBroadcastMsg(processmodule.MsgDelete{
+			lcdBroadcastMsg(t, processmodule.MsgDelete{
 				Owner: engineAddress,
 				Hash:  processHash,
 			})
-			require.NoError(t, err)
 		})
 	}
 }
