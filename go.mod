@@ -9,7 +9,7 @@ require (
 	github.com/btcsuite/btcd v0.0.0-20190807005414-4063feeff79a // indirect
 	github.com/containerd/containerd v1.3.0 // indirect
 	github.com/containerd/continuity v0.0.0-20190426062206-aaeac12a7ffc // indirect
-	github.com/cosmos/cosmos-sdk v0.38.1
+	github.com/cosmos/cosmos-sdk v0.38.2
 	github.com/cosmos/go-bip39 v0.0.0-20180819234021-555e2067c45d
 	github.com/cskr/pubsub v1.0.2
 	github.com/docker/cli v0.0.0-20191011045415-5d85cdacd257
@@ -50,12 +50,12 @@ require (
 	github.com/stretchr/testify v1.5.1
 	github.com/tcnksm/ghr v0.13.0
 	github.com/tendermint/go-amino v0.15.1
-	github.com/tendermint/tendermint v0.33.0
-	github.com/tendermint/tm-db v0.4.0
+	github.com/tendermint/tendermint v0.33.2
+	github.com/tendermint/tm-db v0.5.0
 	golang.org/x/crypto v0.0.0-20191206172530-e9b2fee46413
 	golang.org/x/net v0.0.0-20200301022130-244492dfa37a // indirect
 	golang.org/x/sys v0.0.0-20200302150141-5c8b2ff67527 // indirect
-	google.golang.org/grpc v1.27.1
+	google.golang.org/grpc v1.28.0
 	gopkg.in/go-playground/assert.v1 v1.2.1 // indirect
 	gopkg.in/go-playground/validator.v9 v9.31.0
 	gopkg.in/yaml.v2 v2.2.8
