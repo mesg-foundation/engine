@@ -64,23 +64,22 @@ func (b *Builder) Create(req *api.CreateRunnerRequest) (*runnerpb.Runner, error)
 	}
 
 	// start the container
-	imageHash, err := build(b.container, srv, b.ipfsEndpoint)
+	imageHash, err := Build(b.container, srv, b.ipfsEndpoint)
 	if err != nil {
 		return nil, err
 	}
-	_, err = start(b.container, srv, inst.Hash, expRunnerHash, imageHash, instanceEnv, b.engineName, b.port)
-	if err != nil {
+	if err = Start(b.container, srv, inst.Hash, expRunnerHash, imageHash, instanceEnv, b.engineName, b.port); err != nil {
 		return nil, err
 	}
 
 	run, err := b.mc.CreateRunner(req)
 	if err != nil {
-		stop(b.container, expRunnerHash, srv.Dependencies)
+		Stop(b.container, expRunnerHash, srv.Dependencies)
 		return nil, err
 	}
 
 	if !run.Hash.Equal(expRunnerHash) {
-		stop(b.container, expRunnerHash, srv.Dependencies)
+		Stop(b.container, expRunnerHash, srv.Dependencies)
 		return nil, errors.New("calculated runner hash is not the same")
 	}
 	return run, nil
@@ -109,7 +108,7 @@ func (b *Builder) Delete(req *api.DeleteRunnerRequest) error {
 	}
 
 	// stop the local running service
-	if err := stop(b.container, r.Hash, srv.Dependencies); err != nil {
+	if err := Stop(b.container, r.Hash, srv.Dependencies); err != nil {
 		return err
 	}
 

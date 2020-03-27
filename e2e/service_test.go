@@ -14,6 +14,7 @@ import (
 var (
 	testServiceHash    hash.Hash
 	testServiceAddress sdk.AccAddress
+	testServiceStruct  *service.Service
 )
 
 func testService(t *testing.T) {
@@ -23,10 +24,9 @@ func testService(t *testing.T) {
 	})
 
 	t.Run("get", func(t *testing.T) {
-		var s *service.Service
-		lcdGet("service/get/"+testServiceHash.String(), &s)
-		require.Equal(t, testServiceHash, s.Hash)
-		testServiceAddress = s.Address
+		lcdGet("service/get/"+testServiceHash.String(), &testServiceStruct)
+		require.Equal(t, testServiceHash, testServiceStruct.Hash)
+		testServiceAddress = testServiceStruct.Address
 	})
 
 	t.Run("list", func(t *testing.T) {
