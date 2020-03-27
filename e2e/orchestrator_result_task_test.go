@@ -17,10 +17,11 @@ func testOrchestratorResultTask(runnerHash hash.Hash, instanceHash hash.Hash) fu
 		var (
 			processHash     hash.Hash
 			triggerExecHash hash.Hash
+			err             error
 		)
 
 		t.Run("create process", func(t *testing.T) {
-			processHash = lcdBroadcastMsg(processmodule.MsgCreate{
+			msg := processmodule.MsgCreate{
 				Owner: engineAddress,
 				Name:  "result-task-process",
 				Nodes: []*process.Process_Node{
@@ -46,10 +47,12 @@ func testOrchestratorResultTask(runnerHash hash.Hash, instanceHash hash.Hash) fu
 				Edges: []*process.Process_Edge{
 					{Src: "n0", Dst: "n1"},
 				},
-			})
+			}
+			processHash, err = lcd.BroadcastMsg(msg)
+			require.NoError(t, err)
 		})
 		t.Run("trigger process", func(t *testing.T) {
-			triggerExecHash = lcdBroadcastMsg(executionmodule.MsgCreate{
+			msg := executionmodule.MsgCreate{
 				Signer:       engineAddress,
 				Price:        "10000atto",
 				TaskKey:      "task1",
@@ -64,11 +67,14 @@ func testOrchestratorResultTask(runnerHash hash.Hash, instanceHash hash.Hash) fu
 						},
 					},
 				},
-			})
+			}
+			triggerExecHash, err = lcd.BroadcastMsg(msg)
+			require.NoError(t, err)
 		})
 		t.Run("check trigger process execution", func(t *testing.T) {
 			t.Run("in progress", func(t *testing.T) {
-				exec := pollExecution(triggerExecHash, execution.Status_InProgress)
+				exec, err := pollExecution(triggerExecHash, execution.Status_InProgress)
+				require.NoError(t, err)
 				require.Equal(t, triggerExecHash, exec.Hash)
 				require.Equal(t, "task1", exec.TaskKey)
 				require.Equal(t, "", exec.NodeKey)
@@ -85,7 +91,8 @@ func testOrchestratorResultTask(runnerHash hash.Hash, instanceHash hash.Hash) fu
 				}))
 			})
 			t.Run("completed", func(t *testing.T) {
-				exec := pollExecution(triggerExecHash, execution.Status_Completed)
+				exec, err := pollExecution(triggerExecHash, execution.Status_Completed)
+				require.NoError(t, err)
 				require.Equal(t, triggerExecHash, exec.Hash)
 				require.Equal(t, "task1", exec.TaskKey)
 				require.Equal(t, "", exec.NodeKey)
@@ -96,7 +103,8 @@ func testOrchestratorResultTask(runnerHash hash.Hash, instanceHash hash.Hash) fu
 			})
 		})
 		t.Run("check in progress execution", func(t *testing.T) {
-			exec := pollExecutionOfProcess(processHash, execution.Status_InProgress, "n1")
+			exec, err := pollExecutionOfProcess(processHash, execution.Status_InProgress, "n1")
+			require.NoError(t, err)
 			require.Equal(t, "task2", exec.TaskKey)
 			require.Equal(t, "n1", exec.NodeKey)
 			require.Equal(t, processHash, exec.ProcessHash)
@@ -104,7 +112,8 @@ func testOrchestratorResultTask(runnerHash hash.Hash, instanceHash hash.Hash) fu
 			require.Equal(t, "foo_2", exec.Inputs.Fields["msg"].GetStringValue())
 		})
 		t.Run("check completed execution", func(t *testing.T) {
-			exec := pollExecutionOfProcess(processHash, execution.Status_Completed, "n1")
+			exec, err := pollExecutionOfProcess(processHash, execution.Status_Completed, "n1")
+			require.NoError(t, err)
 			require.Equal(t, "task2", exec.TaskKey)
 			require.Equal(t, "n1", exec.NodeKey)
 			require.Equal(t, processHash, exec.ProcessHash)
@@ -113,10 +122,11 @@ func testOrchestratorResultTask(runnerHash hash.Hash, instanceHash hash.Hash) fu
 			require.NotEmpty(t, exec.Outputs.Fields["timestamp"].GetNumberValue())
 		})
 		t.Run("delete process", func(t *testing.T) {
-			lcdBroadcastMsg(processmodule.MsgDelete{
+			_, err := lcd.BroadcastMsg(processmodule.MsgDelete{
 				Owner: engineAddress,
 				Hash:  processHash,
 			})
+			require.NoError(t, err)
 		})
 	}
 }

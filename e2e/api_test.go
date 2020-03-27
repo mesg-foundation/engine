@@ -2,10 +2,12 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strconv"
 	"testing"
+	"time"
 
 	"github.com/cosmos/cosmos-sdk/crypto/keys"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -13,7 +15,9 @@ import (
 	"github.com/mesg-foundation/engine/config"
 	"github.com/mesg-foundation/engine/container"
 	"github.com/mesg-foundation/engine/cosmos"
+	"github.com/mesg-foundation/engine/execution"
 	"github.com/mesg-foundation/engine/ext/xnet"
+	"github.com/mesg-foundation/engine/hash"
 	pb "github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc"
@@ -35,6 +39,13 @@ var (
 	ipfsEndpoint          string
 	engineName            string
 	enginePort            string
+	lcd                   *cosmos.LCD
+)
+
+const (
+	lcdEndpoint     = "http://127.0.0.1:1317/"
+	pollingInterval = 500 * time.Millisecond // half a block
+	pollingTimeout  = 10 * time.Second       // 10 blocks
 )
 
 func TestAPI(t *testing.T) {
@@ -64,7 +75,7 @@ func TestAPI(t *testing.T) {
 		engineAddress = acc.GetAddress()
 	}
 
-	// init runner builder
+	// init container
 	cont, err = container.New(cfg.Name)
 	require.NoError(t, err)
 	_, port, _ := xnet.SplitHostPort(cfg.Server.Address)
@@ -80,6 +91,10 @@ func TestAPI(t *testing.T) {
 		pb.NewEventClient(conn),
 	}
 
+	// init LCD
+	lcd, err = cosmos.NewLCD(lcdEndpoint, cdc, kb, cfg.DevGenesis.ChainID, cfg.Account.Name, cfg.Account.Password, cfg.Cosmos.MinGasPrices)
+	require.NoError(t, err)
+
 	// run tests
 	t.Run("service", testService)
 	t.Run("runner", testRunner)
@@ -90,4 +105,44 @@ func TestAPI(t *testing.T) {
 	t.Run("orchestrator", testOrchestrator)
 	t.Run("runner/delete", testDeleteRunner)
 	t.Run("complex-service", testComplexService)
+}
+
+func pollExecution(executionHash hash.Hash, status execution.Status) (*execution.Execution, error) {
+	timeout := time.After(pollingTimeout)
+	for {
+		var exec *execution.Execution
+		if err := lcd.Get("execution/get/"+executionHash.String(), &exec); err != nil {
+			return nil, err
+		}
+		if exec.Status == status {
+			return exec, nil
+		}
+		select {
+		case <-time.After(pollingInterval):
+			continue
+		case <-timeout:
+			return nil, fmt.Errorf("pollExecution timeout with execution hash %q", executionHash)
+		}
+	}
+}
+
+func pollExecutionOfProcess(processHash hash.Hash, status execution.Status, nodeKey string) (*execution.Execution, error) {
+	timeout := time.After(pollingTimeout)
+	for {
+		var execs []*execution.Execution
+		if err := lcd.Get("execution/list", &execs); err != nil {
+			return nil, err
+		}
+		for _, exec := range execs {
+			if exec.ProcessHash.Equal(processHash) && exec.Status == status && exec.NodeKey == nodeKey {
+				return exec, nil
+			}
+		}
+		select {
+		case <-time.After(pollingInterval):
+			continue
+		case <-timeout:
+			return nil, fmt.Errorf("pollExecutionOfProcess timeout with process hash %q and status %q and nodeKey %q", processHash, status, nodeKey)
+		}
+	}
 }
