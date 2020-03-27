@@ -4,13 +4,16 @@ import (
 	"context"
 	"os"
 	"path/filepath"
+	"strconv"
 	"testing"
 
 	"github.com/cosmos/cosmos-sdk/crypto/keys"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/mesg-foundation/engine/app"
 	"github.com/mesg-foundation/engine/config"
+	"github.com/mesg-foundation/engine/container"
 	"github.com/mesg-foundation/engine/cosmos"
+	"github.com/mesg-foundation/engine/ext/xnet"
 	pb "github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc"
@@ -18,7 +21,6 @@ import (
 
 type apiclient struct {
 	pb.EventClient
-	pb.RunnerClient
 }
 
 var (
@@ -29,6 +31,10 @@ var (
 	kb                    *cosmos.Keybase
 	cfg                   *config.Config
 	engineAddress         sdk.AccAddress
+	cont                  container.Container
+	ipfsEndpoint          string
+	engineName            string
+	enginePort            string
 )
 
 func TestAPI(t *testing.T) {
@@ -58,13 +64,20 @@ func TestAPI(t *testing.T) {
 		engineAddress = acc.GetAddress()
 	}
 
+	// init runner builder
+	cont, err = container.New(cfg.Name)
+	require.NoError(t, err)
+	_, port, _ := xnet.SplitHostPort(cfg.Server.Address)
+	enginePort = strconv.Itoa(port)
+	engineName = cfg.Name
+	ipfsEndpoint = cfg.IpfsEndpoint
+
 	// init gRPC client
 	conn, err := grpc.DialContext(context.Background(), "localhost:50052", grpc.WithInsecure())
 	require.NoError(t, err)
 
 	client = apiclient{
 		pb.NewEventClient(conn),
-		pb.NewRunnerClient(conn),
 	}
 
 	// run tests

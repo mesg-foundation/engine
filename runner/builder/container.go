@@ -12,6 +12,7 @@ import (
 
 	"github.com/docker/docker/client"
 	"github.com/docker/docker/pkg/archive"
+	"github.com/docker/docker/pkg/idtools"
 	"github.com/mesg-foundation/engine/container"
 	"github.com/mesg-foundation/engine/ext/xerrors"
 	"github.com/mesg-foundation/engine/ext/xos"
@@ -20,7 +21,7 @@ import (
 )
 
 // Build the imge of the container
-func build(cont container.Container, srv *service.Service, ipfsEndpoint string) (string, error) {
+func Build(cont container.Container, srv *service.Service, ipfsEndpoint string) (string, error) {
 	// download and untar service context into path.
 	path, err := ioutil.TempDir("", "mesg")
 	if err != nil {
@@ -37,7 +38,10 @@ func build(cont container.Container, srv *service.Service, ipfsEndpoint string) 
 	}
 	defer resp.Body.Close()
 
-	if err := archive.Untar(resp.Body, path, nil); err != nil {
+	if err := archive.Untar(resp.Body, path, &archive.TarOptions{ChownOpts: &idtools.Identity{
+		UID: os.Geteuid(),
+		GID: os.Getegid()},
+	}); err != nil {
 		return "", err
 	}
 
@@ -51,12 +55,12 @@ func build(cont container.Container, srv *service.Service, ipfsEndpoint string) 
 }
 
 // Start starts the service.
-func start(cont container.Container, srv *service.Service, instanceHash hash.Hash, runnerHash hash.Hash, imageHash string, env []string, engineName, port string) (serviceIDs []string, err error) {
+func Start(cont container.Container, srv *service.Service, instanceHash hash.Hash, runnerHash hash.Hash, imageHash string, env []string, engineName, port string) (err error) {
 	endpoint := net.JoinHostPort(engineName, port)
 	namespace := namespace(runnerHash)
 	networkID, err := cont.CreateNetwork(namespace)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	sharedNetworkID := cont.SharedNetworkID()
 	// BUG: https://github.com/mesg-foundation/engine/issues/382
@@ -68,7 +72,7 @@ func start(cont container.Container, srv *service.Service, instanceHash hash.Has
 		volumes := convertVolumes(srv, d.Volumes, d.Key)
 		volumesFrom, err := convertVolumesFrom(srv, d.VolumesFrom)
 		if err != nil {
-			return nil, err
+			return err
 		}
 		configs = append(configs, container.ServiceOptions{
 			Namespace: dependencyNamespace(namespace, d.Key),
@@ -97,7 +101,7 @@ func start(cont container.Container, srv *service.Service, instanceHash hash.Has
 	volumes := convertVolumes(srv, srv.Configuration.Volumes, service.MainServiceKey)
 	volumesFrom, err := convertVolumesFrom(srv, srv.Configuration.VolumesFrom)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	configs = append(configs, container.ServiceOptions{
 		Namespace: dependencyNamespace(namespace, service.MainServiceKey),
@@ -126,21 +130,19 @@ func start(cont container.Container, srv *service.Service, instanceHash hash.Has
 	})
 
 	// Start
-	serviceIDs = make([]string, 0)
 	for _, c := range configs {
-		serviceID, err := cont.StartService(c)
+		_, err := cont.StartService(c)
 		if err != nil {
-			stop(cont, runnerHash, srv.Dependencies)
-			return nil, err
+			Stop(cont, runnerHash, srv.Dependencies)
+			return err
 		}
-		serviceIDs = append(serviceIDs, serviceID)
 	}
 
-	return serviceIDs, nil
+	return nil
 }
 
 // Stop stops an instance.
-func stop(cont container.Container, runnerHash hash.Hash, dependencies []*service.Service_Dependency) error {
+func Stop(cont container.Container, runnerHash hash.Hash, dependencies []*service.Service_Dependency) error {
 	var (
 		wg         sync.WaitGroup
 		errs       xerrors.SyncErrors

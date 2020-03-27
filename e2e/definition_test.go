@@ -2,10 +2,10 @@ package main
 
 import (
 	"github.com/mesg-foundation/engine/service"
-	serviceModule "github.com/mesg-foundation/engine/x/service"
+	servicemodule "github.com/mesg-foundation/engine/x/service"
 )
 
-var testComplexCreateServiceMsg = &serviceModule.MsgCreate{
+var testComplexCreateServiceMsg = &servicemodule.MsgCreate{
 	Sid:  "test-complex-service",
 	Name: "test-complex-service",
 	Dependencies: []*service.Service_Dependency{
@@ -39,7 +39,7 @@ var testComplexCreateServiceMsg = &serviceModule.MsgCreate{
 	Source: "QmSuVcdic2dhS5QKQGWp66SJQUkDRqAqCHpU6Sx9uXJcdc",
 }
 
-var testCreateServiceMsg = &serviceModule.MsgCreate{
+var testCreateServiceMsg = &servicemodule.MsgCreate{
 	Sid:  "test-service",
 	Name: "test-service",
 	Configuration: service.Service_Configuration{
