@@ -48,12 +48,12 @@ func testProcess(t *testing.T) {
 	)
 
 	t.Run("create", func(t *testing.T) {
-		processHash = lcdBroadcastMsg(t, msg)
+		processHash = lcdBroadcastMsg(msg)
 	})
 
 	t.Run("get", func(t *testing.T) {
 		var p *process.Process
-		lcdGet(t, "process/get/"+processHash.String(), &p)
+		lcdGet("process/get/"+processHash.String(), &p)
 		require.True(t, p.Equal(&process.Process{
 			Hash:    p.Hash,
 			Address: p.Address,
@@ -66,7 +66,7 @@ func testProcess(t *testing.T) {
 
 	t.Run("check ownership creation", func(t *testing.T) {
 		ownerships := make([]*ownership.Ownership, 0)
-		lcdGet(t, "ownership/list", &ownerships)
+		lcdGet("ownership/list", &ownerships)
 		owners := make([]*ownership.Ownership, 0)
 		for _, o := range ownerships {
 			if o.ResourceHash.Equal(processHash) && o.Resource == ownership.Ownership_Process && o.Owner != "" {
@@ -78,24 +78,24 @@ func testProcess(t *testing.T) {
 
 	t.Run("check coins on process", func(t *testing.T) {
 		var coins sdk.Coins
-		lcdGet(t, "bank/balances/"+processAddress.String(), &coins)
+		lcdGet("bank/balances/"+processAddress.String(), &coins)
 		require.True(t, coins.IsEqual(processInitialBalance), coins)
 	})
 
 	t.Run("list", func(t *testing.T) {
 		ps := make([]*process.Process, 0)
-		lcdGet(t, "process/list", &ps)
+		lcdGet("process/list", &ps)
 		require.Len(t, ps, 1)
 	})
 
 	t.Run("hash", func(t *testing.T) {
 		var hash hash.Hash
-		lcdPost(t, "process/hash", msg, &hash)
+		lcdPost("process/hash", msg, &hash)
 		require.Equal(t, processHash, hash)
 	})
 
 	t.Run("delete", func(t *testing.T) {
-		lcdBroadcastMsg(t, processmodule.MsgDelete{
+		lcdBroadcastMsg(processmodule.MsgDelete{
 			Owner: engineAddress,
 			Hash:  processHash,
 		})
@@ -103,13 +103,13 @@ func testProcess(t *testing.T) {
 
 	t.Run("check ownership deletion", func(t *testing.T) {
 		ownerships := make([]*ownership.Ownership, 0)
-		lcdGet(t, "ownership/list", &ownerships)
+		lcdGet("ownership/list", &ownerships)
 		require.Len(t, ownerships, 2)
 	})
 
 	t.Run("check coins on process", func(t *testing.T) {
 		var coins sdk.Coins
-		lcdGet(t, "bank/balances/"+processAddress.String(), &coins)
+		lcdGet("bank/balances/"+processAddress.String(), &coins)
 		require.True(t, coins.IsZero(), coins)
 	})
 }

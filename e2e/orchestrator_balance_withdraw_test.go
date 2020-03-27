@@ -24,7 +24,7 @@ func testOrchestratorProcessBalanceWithdraw(instanceHash hash.Hash) func(t *test
 		)
 
 		t.Run("create process", func(t *testing.T) {
-			processHash = lcdBroadcastMsg(t, processmodule.MsgCreate{
+			processHash = lcdBroadcastMsg(processmodule.MsgCreate{
 				Owner: engineAddress,
 				Name:  "balance-withdraw-process",
 				Nodes: []*process.Process_Node{
@@ -54,13 +54,13 @@ func testOrchestratorProcessBalanceWithdraw(instanceHash hash.Hash) func(t *test
 		})
 		t.Run("get process address", func(t *testing.T) {
 			var proc *process.Process
-			lcdGet(t, "process/get/"+processHash.String(), &proc)
+			lcdGet("process/get/"+processHash.String(), &proc)
 			require.Equal(t, proc.Hash, processHash)
 			procAddress = proc.Address
 		})
 		t.Run("check coins on process", func(t *testing.T) {
 			var coins sdk.Coins
-			lcdGet(t, "bank/balances/"+procAddress.String(), &coins)
+			lcdGet("bank/balances/"+procAddress.String(), &coins)
 			require.True(t, coins.IsEqual(processInitialBalance), coins)
 		})
 		t.Run("trigger process", func(t *testing.T) {
@@ -85,7 +85,7 @@ func testOrchestratorProcessBalanceWithdraw(instanceHash hash.Hash) func(t *test
 			require.NoError(t, err)
 		})
 		t.Run("check in progress execution", func(t *testing.T) {
-			exec := pollExecutionOfProcess(t, processHash, execution.Status_InProgress, "n1")
+			exec := pollExecutionOfProcess(processHash, execution.Status_InProgress, "n1")
 			require.True(t, processHash.Equal(exec.ProcessHash))
 			require.Equal(t, execution.Status_InProgress, exec.Status)
 			require.Equal(t, "task1", exec.TaskKey)
@@ -93,7 +93,7 @@ func testOrchestratorProcessBalanceWithdraw(instanceHash hash.Hash) func(t *test
 			require.Equal(t, "foo_1", exec.Inputs.Fields["msg"].GetStringValue())
 		})
 		t.Run("check completed execution", func(t *testing.T) {
-			exec := pollExecutionOfProcess(t, processHash, execution.Status_Completed, "n1")
+			exec := pollExecutionOfProcess(processHash, execution.Status_Completed, "n1")
 			require.True(t, processHash.Equal(exec.ProcessHash))
 			require.Equal(t, execution.Status_Completed, exec.Status)
 			require.Equal(t, "task1", exec.TaskKey)
@@ -103,7 +103,7 @@ func testOrchestratorProcessBalanceWithdraw(instanceHash hash.Hash) func(t *test
 		})
 		t.Run("check coins on process after 1 execution", func(t *testing.T) {
 			var coins sdk.Coins
-			lcdGet(t, "bank/balances/"+procAddress.String(), &coins)
+			lcdGet("bank/balances/"+procAddress.String(), &coins)
 			require.True(t, coins.IsEqual(processInitialBalance.Sub(minExecutionPrice)), coins)
 		})
 		t.Run("withdraw from process", func(t *testing.T) {
@@ -113,20 +113,20 @@ func testOrchestratorProcessBalanceWithdraw(instanceHash hash.Hash) func(t *test
 				Amount:       coins.String(),
 				ResourceHash: processHash,
 			}
-			lcdBroadcastMsg(t, msg)
+			lcdBroadcastMsg(msg)
 
-			lcdGet(t, "bank/balances/"+procAddress.String(), &coins)
+			lcdGet("bank/balances/"+procAddress.String(), &coins)
 			require.True(t, coins.IsEqual(processInitialBalance.Sub(minExecutionPrice).Sub(minExecutionPrice)), coins)
 		})
 		t.Run("delete process", func(t *testing.T) {
-			lcdBroadcastMsg(t, processmodule.MsgDelete{
+			lcdBroadcastMsg(processmodule.MsgDelete{
 				Owner: engineAddress,
 				Hash:  processHash,
 			})
 		})
 		t.Run("check coins on process after deletion", func(t *testing.T) {
 			var coins sdk.Coins
-			lcdGet(t, "bank/balances/"+procAddress.String(), &coins)
+			lcdGet("bank/balances/"+procAddress.String(), &coins)
 			require.True(t, coins.IsZero(), coins)
 		})
 	}

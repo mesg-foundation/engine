@@ -50,7 +50,7 @@ func testOrchestratorNestedMap(instanceHash hash.Hash) func(t *testing.T) {
 			}
 		)
 		t.Run("create process", func(t *testing.T) {
-			processHash = lcdBroadcastMsg(t, processmodule.MsgCreate{
+			processHash = lcdBroadcastMsg(processmodule.MsgCreate{
 				Owner: engineAddress,
 				Name:  "nested-map",
 				Nodes: []*process.Process_Node{
@@ -115,7 +115,7 @@ func testOrchestratorNestedMap(instanceHash hash.Hash) func(t *testing.T) {
 		})
 		t.Run("first task", func(t *testing.T) {
 			t.Run("check in progress execution", func(t *testing.T) {
-				exec := pollExecutionOfProcess(t, processHash, execution.Status_InProgress, "n2")
+				exec := pollExecutionOfProcess(processHash, execution.Status_InProgress, "n2")
 				require.Equal(t, "task_complex", exec.TaskKey)
 				require.Equal(t, "n2", exec.NodeKey)
 				require.True(t, processHash.Equal(exec.ProcessHash))
@@ -128,7 +128,7 @@ func testOrchestratorNestedMap(instanceHash hash.Hash) func(t *testing.T) {
 				require.Equal(t, "fourth-constant", exec.Inputs.Fields["msg"].GetStructValue().Fields["array"].GetListValue().Values[3].GetStringValue())
 			})
 			t.Run("check completed execution", func(t *testing.T) {
-				exec := pollExecutionOfProcess(t, processHash, execution.Status_Completed, "n2")
+				exec := pollExecutionOfProcess(processHash, execution.Status_Completed, "n2")
 				require.Equal(t, "task_complex", exec.TaskKey)
 				require.Equal(t, "n2", exec.NodeKey)
 				require.True(t, processHash.Equal(exec.ProcessHash))
@@ -143,7 +143,7 @@ func testOrchestratorNestedMap(instanceHash hash.Hash) func(t *testing.T) {
 			})
 		})
 		t.Run("delete process", func(t *testing.T) {
-			lcdBroadcastMsg(t, processmodule.MsgDelete{
+			lcdBroadcastMsg(processmodule.MsgDelete{
 				Owner: engineAddress,
 				Hash:  processHash,
 			})

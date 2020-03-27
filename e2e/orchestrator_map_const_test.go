@@ -21,7 +21,7 @@ func testOrchestratorMapConst(instanceHash hash.Hash) func(t *testing.T) {
 		)
 
 		t.Run("create process", func(t *testing.T) {
-			processHash = lcdBroadcastMsg(t, processmodule.MsgCreate{
+			processHash = lcdBroadcastMsg(processmodule.MsgCreate{
 				Owner: engineAddress,
 				Name:  "map-const",
 				Nodes: []*process.Process_Node{
@@ -86,7 +86,7 @@ func testOrchestratorMapConst(instanceHash hash.Hash) func(t *testing.T) {
 			require.NoError(t, err)
 		})
 		t.Run("check in progress execution", func(t *testing.T) {
-			exec := pollExecutionOfProcess(t, processHash, execution.Status_InProgress, "n2")
+			exec := pollExecutionOfProcess(processHash, execution.Status_InProgress, "n2")
 			require.Equal(t, "task1", exec.TaskKey)
 			require.Equal(t, "n2", exec.NodeKey)
 			require.True(t, processHash.Equal(exec.ProcessHash))
@@ -94,7 +94,7 @@ func testOrchestratorMapConst(instanceHash hash.Hash) func(t *testing.T) {
 			require.Equal(t, "itsAConstant", exec.Inputs.Fields["msg"].GetStringValue())
 		})
 		t.Run("check completed execution", func(t *testing.T) {
-			exec := pollExecutionOfProcess(t, processHash, execution.Status_Completed, "n2")
+			exec := pollExecutionOfProcess(processHash, execution.Status_Completed, "n2")
 			require.Equal(t, "task1", exec.TaskKey)
 			require.Equal(t, "n2", exec.NodeKey)
 			require.True(t, processHash.Equal(exec.ProcessHash))
@@ -103,7 +103,7 @@ func testOrchestratorMapConst(instanceHash hash.Hash) func(t *testing.T) {
 			require.NotEmpty(t, exec.Outputs.Fields["timestamp"].GetNumberValue())
 		})
 		t.Run("delete process", func(t *testing.T) {
-			lcdBroadcastMsg(t, processmodule.MsgDelete{
+			lcdBroadcastMsg(processmodule.MsgDelete{
 				Owner: engineAddress,
 				Hash:  processHash,
 			})

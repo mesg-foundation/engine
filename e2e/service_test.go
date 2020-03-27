@@ -20,39 +20,39 @@ func testService(t *testing.T) {
 
 	t.Run("create", func(t *testing.T) {
 		msg.Owner = engineAddress
-		testServiceHash = lcdBroadcastMsg(t, msg)
+		testServiceHash = lcdBroadcastMsg(msg)
 	})
 
 	t.Run("get", func(t *testing.T) {
 		var s *service.Service
-		lcdGet(t, "service/get/"+testServiceHash.String(), &s)
+		lcdGet("service/get/"+testServiceHash.String(), &s)
 		require.Equal(t, testServiceHash, s.Hash)
 		testServiceAddress = s.Address
 	})
 
 	t.Run("list", func(t *testing.T) {
 		ss := make([]*service.Service, 0)
-		lcdGet(t, "service/list", &ss)
+		lcdGet("service/list", &ss)
 		require.Len(t, ss, 1)
 	})
 
 	t.Run("exists", func(t *testing.T) {
 		var exist bool
-		lcdGet(t, "service/exist/"+testServiceHash.String(), &exist)
+		lcdGet("service/exist/"+testServiceHash.String(), &exist)
 		require.True(t, exist)
-		lcdGet(t, "service/exist/"+hash.Int(1).String(), &exist)
+		lcdGet("service/exist/"+hash.Int(1).String(), &exist)
 		require.False(t, exist)
 	})
 
 	t.Run("hash", func(t *testing.T) {
 		var hash hash.Hash
-		lcdPost(t, "service/hash", msg, &hash)
+		lcdPost("service/hash", msg, &hash)
 		require.Equal(t, testServiceHash, hash)
 	})
 
 	t.Run("check ownership creation", func(t *testing.T) {
 		ownerships := make([]*ownership.Ownership, 0)
-		lcdGet(t, "ownership/list", &ownerships)
+		lcdGet("ownership/list", &ownerships)
 		require.Len(t, ownerships, 1)
 		require.NotEmpty(t, ownerships[0].Owner)
 		require.Equal(t, ownership.Ownership_Service, ownerships[0].Resource)

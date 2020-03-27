@@ -43,8 +43,8 @@ func testExecution(t *testing.T) {
 			serviceBalance           sdk.Coins
 		)
 
-		lcdGet(t, "bank/balances/"+executorAddress.String(), &executorBalance)
-		lcdGet(t, "bank/balances/"+testServiceAddress.String(), &serviceBalance)
+		lcdGet("bank/balances/"+executorAddress.String(), &executorBalance)
+		lcdGet("bank/balances/"+testServiceAddress.String(), &serviceBalance)
 
 		t.Run("create", func(t *testing.T) {
 			msg := executionmodule.MsgCreate{
@@ -55,21 +55,21 @@ func testExecution(t *testing.T) {
 				Inputs:       inputs,
 				Price:        price.String(),
 			}
-			executionHash = lcdBroadcastMsg(t, msg)
+			executionHash = lcdBroadcastMsg(msg)
 		})
 		t.Run("get execution address", func(t *testing.T) {
 			var exec *execution.Execution
-			lcdGet(t, "execution/get/"+executionHash.String(), &exec)
+			lcdGet("execution/get/"+executionHash.String(), &exec)
 			require.Equal(t, exec.Hash, executionHash)
 			execAddress = exec.Address
 		})
 		t.Run("execution balance before completed", func(t *testing.T) {
 			coins := sdk.Coins{}
-			lcdGet(t, "bank/balances/"+execAddress.String(), &coins)
+			lcdGet("bank/balances/"+execAddress.String(), &coins)
 			require.True(t, coins.IsEqual(price), price, coins)
 		})
 		t.Run("in progress", func(t *testing.T) {
-			execInProgress := pollExecution(t, executionHash, execution.Status_InProgress)
+			execInProgress := pollExecution(executionHash, execution.Status_InProgress)
 			require.Equal(t, executionHash, execInProgress.Hash)
 			require.Equal(t, taskKey, execInProgress.TaskKey)
 			require.Equal(t, eventHash, execInProgress.EventHash)
@@ -78,7 +78,7 @@ func testExecution(t *testing.T) {
 			require.True(t, inputs.Equal(execInProgress.Inputs))
 		})
 		t.Run("completed", func(t *testing.T) {
-			exec = pollExecution(t, executionHash, execution.Status_Completed)
+			exec = pollExecution(executionHash, execution.Status_Completed)
 			require.Equal(t, executionHash, exec.Hash)
 			require.Equal(t, taskKey, exec.TaskKey)
 			require.Equal(t, eventHash, exec.EventHash)
@@ -90,24 +90,24 @@ func testExecution(t *testing.T) {
 		})
 		t.Run("get", func(t *testing.T) {
 			var execR *execution.Execution
-			lcdGet(t, "execution/get/"+executionHash.String(), &execR)
+			lcdGet("execution/get/"+executionHash.String(), &execR)
 			require.True(t, exec.Equal(execR), exec, execR)
 		})
 		t.Run("executor + emitter balance", func(t *testing.T) {
 			var coins sdk.Coins
-			lcdGet(t, "bank/balances/"+executorAddress.String(), &coins)
+			lcdGet("bank/balances/"+executorAddress.String(), &coins)
 			expectedCoins := expectedCoinsForExecutor.Add(expectedCoinsForEmitter...).Add(executorBalance...)
 			require.True(t, expectedCoins.IsEqual(coins), expectedCoins, coins)
 		})
 		t.Run("service balance", func(t *testing.T) {
 			var coins sdk.Coins
-			lcdGet(t, "bank/balances/"+testServiceAddress.String(), &coins)
+			lcdGet("bank/balances/"+testServiceAddress.String(), &coins)
 			expectedCoins := expectedCoinsForService.Add(serviceBalance...)
 			require.True(t, expectedCoins.IsEqual(coins), expectedCoins, coins)
 		})
 		t.Run("execution balance", func(t *testing.T) {
 			var coins sdk.Coins
-			lcdGet(t, "bank/balances/"+execAddress.String(), &coins)
+			lcdGet("bank/balances/"+execAddress.String(), &coins)
 			require.True(t, coins.IsZero(), coins)
 		})
 		t.Run("withdraw from service", func(t *testing.T) {
@@ -116,11 +116,11 @@ func testExecution(t *testing.T) {
 				Amount:       expectedCoinsForService.String(),
 				ResourceHash: testServiceHash,
 			}
-			lcdBroadcastMsg(t, msg)
+			lcdBroadcastMsg(msg)
 
 			// check balance
 			var coins sdk.Coins
-			lcdGet(t, "bank/balances/"+testServiceAddress.String(), &coins)
+			lcdGet("bank/balances/"+testServiceAddress.String(), &coins)
 			require.True(t, serviceBalance.IsEqual(coins), serviceBalance, coins)
 		})
 		t.Run("withdraw from runner", func(t *testing.T) {
@@ -129,11 +129,11 @@ func testExecution(t *testing.T) {
 				Amount:       expectedCoinsForExecutor.Add(expectedCoinsForEmitter...).String(),
 				ResourceHash: testRunnerHash,
 			}
-			lcdBroadcastMsg(t, msg)
+			lcdBroadcastMsg(msg)
 
 			// check balance
 			var coins sdk.Coins
-			lcdGet(t, "bank/balances/"+testRunnerAddress.String(), &coins)
+			lcdGet("bank/balances/"+testRunnerAddress.String(), &coins)
 			require.True(t, executorBalance.IsEqual(coins), executorBalance, coins)
 		})
 	})
@@ -181,10 +181,10 @@ func testExecution(t *testing.T) {
 				Inputs:       inputs,
 				Price:        price,
 			}
-			executionHash = lcdBroadcastMsg(t, msg)
+			executionHash = lcdBroadcastMsg(msg)
 		})
 		t.Run("in progress", func(t *testing.T) {
-			execInProgress := pollExecution(t, executionHash, execution.Status_InProgress)
+			execInProgress := pollExecution(executionHash, execution.Status_InProgress)
 			require.Equal(t, executionHash, execInProgress.Hash)
 			require.Equal(t, taskKey, execInProgress.TaskKey)
 			require.Equal(t, eventHash, execInProgress.EventHash)
@@ -193,7 +193,7 @@ func testExecution(t *testing.T) {
 			require.True(t, inputs.Equal(execInProgress.Inputs))
 		})
 		t.Run("completed", func(t *testing.T) {
-			exec = pollExecution(t, executionHash, execution.Status_Completed)
+			exec = pollExecution(executionHash, execution.Status_Completed)
 			require.Equal(t, executionHash, exec.Hash)
 			require.Equal(t, taskKey, exec.TaskKey)
 			require.Equal(t, eventHash, exec.EventHash)
@@ -209,14 +209,14 @@ func testExecution(t *testing.T) {
 		})
 		t.Run("get", func(t *testing.T) {
 			var execR *execution.Execution
-			lcdGet(t, "execution/get/"+executionHash.String(), &execR)
+			lcdGet("execution/get/"+executionHash.String(), &execR)
 			require.True(t, exec.Equal(execR))
 		})
 	})
 
 	t.Run("list", func(t *testing.T) {
 		execs := make([]*execution.Execution, 0)
-		lcdGet(t, "execution/list", &execs)
+		lcdGet("execution/list", &execs)
 		require.Len(t, execs, 2)
 	})
 
@@ -251,7 +251,7 @@ func testExecution(t *testing.T) {
 				}
 				msgs = append(msgs, msg)
 			}
-			execsHash := lcdBroadcastMsgs(t, msgs)
+			execsHash := lcdBroadcastMsgs(msgs)
 			// split hash
 			hashSize := hash.DefaultHash().Size()
 			for i := 0; i < n; i++ {
@@ -269,7 +269,7 @@ func testExecution(t *testing.T) {
 			for i := 0; i < n; i++ {
 				go func(i int) {
 					defer wg.Done()
-					exec := pollExecution(t, executions[i], execution.Status_InProgress)
+					exec := pollExecution(executions[i], execution.Status_InProgress)
 					mutex.Lock()
 					defer mutex.Unlock()
 					require.Contains(t, executions, exec.Hash)
@@ -288,7 +288,7 @@ func testExecution(t *testing.T) {
 			for i := 0; i < n; i++ {
 				go func(i int) {
 					defer wg.Done()
-					exec := pollExecution(t, executions[i], execution.Status_Completed)
+					exec := pollExecution(executions[i], execution.Status_Completed)
 					mutex.Lock()
 					defer mutex.Unlock()
 					require.Contains(t, executions, exec.Hash)

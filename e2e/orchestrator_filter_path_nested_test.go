@@ -21,7 +21,7 @@ func testOrchestratorFilterPathNested(instanceHash hash.Hash) func(t *testing.T)
 		)
 
 		t.Run("create process", func(t *testing.T) {
-			processHash = lcdBroadcastMsg(t, processmodule.MsgCreate{
+			processHash = lcdBroadcastMsg(processmodule.MsgCreate{
 				Owner: engineAddress,
 				Name:  "filter",
 				Nodes: []*process.Process_Node{
@@ -184,7 +184,7 @@ func testOrchestratorFilterPathNested(instanceHash hash.Hash) func(t *testing.T)
 				require.NoError(t, err)
 			})
 			t.Run("check in progress execution", func(t *testing.T) {
-				exec := pollExecutionOfProcess(t, processHash, execution.Status_InProgress, "n2")
+				exec := pollExecutionOfProcess(processHash, execution.Status_InProgress, "n2")
 				require.Equal(t, "task_complex", exec.TaskKey)
 				require.Equal(t, "n2", exec.NodeKey)
 				require.True(t, processHash.Equal(exec.ProcessHash))
@@ -192,7 +192,7 @@ func testOrchestratorFilterPathNested(instanceHash hash.Hash) func(t *testing.T)
 				require.Equal(t, "shouldMatch", exec.Inputs.Fields["msg"].GetStructValue().Fields["msg"].GetStringValue())
 			})
 			t.Run("check completed execution", func(t *testing.T) {
-				exec := pollExecutionOfProcess(t, processHash, execution.Status_Completed, "n2")
+				exec := pollExecutionOfProcess(processHash, execution.Status_Completed, "n2")
 				require.Equal(t, "task_complex", exec.TaskKey)
 				require.Equal(t, "n2", exec.NodeKey)
 				require.True(t, processHash.Equal(exec.ProcessHash))
@@ -259,7 +259,7 @@ func testOrchestratorFilterPathNested(instanceHash hash.Hash) func(t *testing.T)
 			})
 		})
 		t.Run("delete process", func(t *testing.T) {
-			lcdBroadcastMsg(t, processmodule.MsgDelete{
+			lcdBroadcastMsg(processmodule.MsgDelete{
 				Owner: engineAddress,
 				Hash:  processHash,
 			})
