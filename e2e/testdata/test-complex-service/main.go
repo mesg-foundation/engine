@@ -68,6 +68,7 @@ func New() (*Client, error) {
 
 // SendEvent creates a new event.
 func (c *Client) SendEvent(key string) {
+	log.Println("sending event:", key)
 	if _, err := c.EventClient.Create(context.Background(), &pb.CreateEventRequest{
 		InstanceHash: c.InstanceHash,
 		Key:          key,

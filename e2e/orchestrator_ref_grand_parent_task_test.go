@@ -10,15 +10,19 @@ import (
 	"github.com/mesg-foundation/engine/process"
 	pb "github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/mesg-foundation/engine/protobuf/types"
+	processmodule "github.com/mesg-foundation/engine/x/process"
 	"github.com/stretchr/testify/require"
 )
 
-func testOrchestratorRefGrandParentTask(executionStream pb.Execution_StreamClient, instanceHash hash.Hash) func(t *testing.T) {
+func testOrchestratorRefGrandParentTask(instanceHash hash.Hash) func(t *testing.T) {
 	return func(t *testing.T) {
-		var processHash hash.Hash
+		var (
+			processHash hash.Hash
+		)
 		t.Run("create process", func(t *testing.T) {
-			respProc, err := client.ProcessClient.Create(context.Background(), &pb.CreateProcessRequest{
-				Name: "ref-grand-parent-task",
+			processHash = lcdBroadcastMsg(processmodule.MsgCreate{
+				Owner: engineAddress,
+				Name:  "ref-grand-parent-task",
 				Nodes: []*process.Process_Node{
 					{
 						Key: "n0",
@@ -100,8 +104,6 @@ func testOrchestratorRefGrandParentTask(executionStream pb.Execution_StreamClien
 					{Src: "n4", Dst: "n5"},
 				},
 			})
-			require.NoError(t, err)
-			processHash = respProc.Hash
 		})
 		t.Run("trigger process", func(t *testing.T) {
 			_, err := client.EventClient.Create(context.Background(), &pb.CreateEventRequest{
@@ -126,8 +128,7 @@ func testOrchestratorRefGrandParentTask(executionStream pb.Execution_StreamClien
 		})
 		t.Run("check first task", func(t *testing.T) {
 			t.Run("check in progress execution", func(t *testing.T) {
-				exec, err := executionStream.Recv()
-				require.NoError(t, err)
+				exec := pollExecutionOfProcess(processHash, execution.Status_InProgress, "n1")
 				require.Equal(t, "n1", exec.NodeKey)
 				require.Equal(t, "task1", exec.TaskKey)
 				require.True(t, processHash.Equal(exec.ProcessHash))
@@ -135,8 +136,7 @@ func testOrchestratorRefGrandParentTask(executionStream pb.Execution_StreamClien
 				require.Equal(t, "foo_event", exec.Inputs.Fields["msg"].GetStringValue())
 			})
 			t.Run("check completed execution", func(t *testing.T) {
-				exec, err := executionStream.Recv()
-				require.NoError(t, err)
+				exec := pollExecutionOfProcess(processHash, execution.Status_Completed, "n1")
 				require.Equal(t, "n1", exec.NodeKey)
 				require.Equal(t, "task1", exec.TaskKey)
 				require.True(t, processHash.Equal(exec.ProcessHash))
@@ -147,8 +147,7 @@ func testOrchestratorRefGrandParentTask(executionStream pb.Execution_StreamClien
 		})
 		t.Run("check second task", func(t *testing.T) {
 			t.Run("check in progress execution", func(t *testing.T) {
-				exec, err := executionStream.Recv()
-				require.NoError(t, err)
+				exec := pollExecutionOfProcess(processHash, execution.Status_InProgress, "n3")
 				require.Equal(t, "n3", exec.NodeKey)
 				require.Equal(t, "task1", exec.TaskKey)
 				require.True(t, processHash.Equal(exec.ProcessHash))
@@ -156,8 +155,7 @@ func testOrchestratorRefGrandParentTask(executionStream pb.Execution_StreamClien
 				require.Equal(t, "itsAConstant", exec.Inputs.Fields["msg"].GetStringValue())
 			})
 			t.Run("check completed execution", func(t *testing.T) {
-				exec, err := executionStream.Recv()
-				require.NoError(t, err)
+				exec := pollExecutionOfProcess(processHash, execution.Status_Completed, "n3")
 				require.Equal(t, "n3", exec.NodeKey)
 				require.Equal(t, "task1", exec.TaskKey)
 				require.True(t, processHash.Equal(exec.ProcessHash))
@@ -168,8 +166,7 @@ func testOrchestratorRefGrandParentTask(executionStream pb.Execution_StreamClien
 		})
 		t.Run("check third task", func(t *testing.T) {
 			t.Run("check in progress execution", func(t *testing.T) {
-				exec, err := executionStream.Recv()
-				require.NoError(t, err)
+				exec := pollExecutionOfProcess(processHash, execution.Status_InProgress, "n5")
 				require.Equal(t, "n5", exec.NodeKey)
 				require.Equal(t, "task1", exec.TaskKey)
 				require.True(t, processHash.Equal(exec.ProcessHash))
@@ -177,8 +174,7 @@ func testOrchestratorRefGrandParentTask(executionStream pb.Execution_StreamClien
 				require.Equal(t, "foo_event", exec.Inputs.Fields["msg"].GetStringValue())
 			})
 			t.Run("check completed execution", func(t *testing.T) {
-				exec, err := executionStream.Recv()
-				require.NoError(t, err)
+				exec := pollExecutionOfProcess(processHash, execution.Status_Completed, "n5")
 				require.Equal(t, "n5", exec.NodeKey)
 				require.Equal(t, "task1", exec.TaskKey)
 				require.True(t, processHash.Equal(exec.ProcessHash))
@@ -188,8 +184,10 @@ func testOrchestratorRefGrandParentTask(executionStream pb.Execution_StreamClien
 			})
 		})
 		t.Run("delete process", func(t *testing.T) {
-			_, err := client.ProcessClient.Delete(context.Background(), &pb.DeleteProcessRequest{Hash: processHash})
-			require.NoError(t, err)
+			lcdBroadcastMsg(processmodule.MsgDelete{
+				Owner: engineAddress,
+				Hash:  processHash,
+			})
 		})
 	}
 }

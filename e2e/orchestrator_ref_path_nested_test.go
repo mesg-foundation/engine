@@ -10,16 +10,20 @@ import (
 	"github.com/mesg-foundation/engine/process"
 	pb "github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/mesg-foundation/engine/protobuf/types"
+	processmodule "github.com/mesg-foundation/engine/x/process"
 	"github.com/stretchr/testify/require"
 )
 
-func testOrchestratorRefPathNested(executionStream pb.Execution_StreamClient, instanceHash hash.Hash) func(t *testing.T) {
+func testOrchestratorRefPathNested(instanceHash hash.Hash) func(t *testing.T) {
 	return func(t *testing.T) {
-		var processHash hash.Hash
+		var (
+			processHash hash.Hash
+		)
 
 		t.Run("create process", func(t *testing.T) {
-			respProc, err := client.ProcessClient.Create(context.Background(), &pb.CreateProcessRequest{
-				Name: "nested-path-data",
+			processHash = lcdBroadcastMsg(processmodule.MsgCreate{
+				Owner: engineAddress,
+				Name:  "nested-path-data",
 				Nodes: []*process.Process_Node{
 					{
 						Key: "n0",
@@ -190,8 +194,6 @@ func testOrchestratorRefPathNested(executionStream pb.Execution_StreamClient, in
 					{Src: "n3", Dst: "n4"},
 				},
 			})
-			require.NoError(t, err)
-			processHash = respProc.Hash
 		})
 		data := &types.Struct{
 			Fields: map[string]*types.Value{
@@ -234,8 +236,7 @@ func testOrchestratorRefPathNested(executionStream pb.Execution_StreamClient, in
 		})
 		t.Run("first ref", func(t *testing.T) {
 			t.Run("check in progress execution", func(t *testing.T) {
-				exec, err := executionStream.Recv()
-				require.NoError(t, err)
+				exec := pollExecutionOfProcess(processHash, execution.Status_InProgress, "n2")
 				require.Equal(t, "task_complex", exec.TaskKey)
 				require.Equal(t, "n2", exec.NodeKey)
 				require.True(t, processHash.Equal(exec.ProcessHash))
@@ -247,8 +248,7 @@ func testOrchestratorRefPathNested(executionStream pb.Execution_StreamClient, in
 				require.Equal(t, "first", exec.Inputs.Fields["msg"].GetStructValue().Fields["array"].GetListValue().Values[2].GetStringValue())
 			})
 			t.Run("check completed execution", func(t *testing.T) {
-				exec, err := executionStream.Recv()
-				require.NoError(t, err)
+				exec := pollExecutionOfProcess(processHash, execution.Status_Completed, "n2")
 				require.Equal(t, "task_complex", exec.TaskKey)
 				require.Equal(t, "n2", exec.NodeKey)
 				require.True(t, processHash.Equal(exec.ProcessHash))
@@ -263,8 +263,7 @@ func testOrchestratorRefPathNested(executionStream pb.Execution_StreamClient, in
 		})
 		t.Run("second ref", func(t *testing.T) {
 			t.Run("check in progress execution", func(t *testing.T) {
-				exec, err := executionStream.Recv()
-				require.NoError(t, err)
+				exec := pollExecutionOfProcess(processHash, execution.Status_InProgress, "n4")
 				require.Equal(t, "task1", exec.TaskKey)
 				require.Equal(t, "n4", exec.NodeKey)
 				require.True(t, processHash.Equal(exec.ProcessHash))
@@ -272,8 +271,7 @@ func testOrchestratorRefPathNested(executionStream pb.Execution_StreamClient, in
 				require.Equal(t, "complex", exec.Inputs.Fields["msg"].GetStringValue())
 			})
 			t.Run("check completed execution", func(t *testing.T) {
-				exec, err := executionStream.Recv()
-				require.NoError(t, err)
+				exec := pollExecutionOfProcess(processHash, execution.Status_Completed, "n4")
 				require.Equal(t, "task1", exec.TaskKey)
 				require.Equal(t, "n4", exec.NodeKey)
 				require.True(t, processHash.Equal(exec.ProcessHash))
@@ -283,8 +281,10 @@ func testOrchestratorRefPathNested(executionStream pb.Execution_StreamClient, in
 			})
 		})
 		t.Run("delete process", func(t *testing.T) {
-			_, err := client.ProcessClient.Delete(context.Background(), &pb.DeleteProcessRequest{Hash: processHash})
-			require.NoError(t, err)
+			lcdBroadcastMsg(processmodule.MsgDelete{
+				Owner: engineAddress,
+				Hash:  processHash,
+			})
 		})
 	}
 }

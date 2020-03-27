@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"testing"
 	"time"
 
@@ -10,16 +11,20 @@ import (
 	"github.com/mesg-foundation/engine/process"
 	pb "github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/mesg-foundation/engine/protobuf/types"
+	processmodule "github.com/mesg-foundation/engine/x/process"
 	"github.com/stretchr/testify/require"
 )
 
-func testOrchestratorFilter(executionStream pb.Execution_StreamClient, instanceHash hash.Hash) func(t *testing.T) {
+func testOrchestratorFilter(instanceHash hash.Hash) func(t *testing.T) {
 	return func(t *testing.T) {
-		var processHash hash.Hash
+		var (
+			processHash hash.Hash
+		)
 
 		t.Run("create process", func(t *testing.T) {
-			respProc, err := client.ProcessClient.Create(context.Background(), &pb.CreateProcessRequest{
-				Name: "filter",
+			processHash = lcdBroadcastMsg(processmodule.MsgCreate{
+				Owner: engineAddress,
+				Name:  "filter",
 				Nodes: []*process.Process_Node{
 					{
 						Key: "n0",
@@ -86,8 +91,6 @@ func testOrchestratorFilter(executionStream pb.Execution_StreamClient, instanceH
 					{Src: "n1", Dst: "n2"},
 				},
 			})
-			require.NoError(t, err)
-			processHash = respProc.Hash
 		})
 		t.Run("pass filter", func(t *testing.T) {
 			t.Run("trigger process", func(t *testing.T) {
@@ -112,8 +115,7 @@ func testOrchestratorFilter(executionStream pb.Execution_StreamClient, instanceH
 				require.NoError(t, err)
 			})
 			t.Run("check in progress execution", func(t *testing.T) {
-				exec, err := executionStream.Recv()
-				require.NoError(t, err)
+				exec := pollExecutionOfProcess(processHash, execution.Status_InProgress, "n2")
 				require.Equal(t, "task1", exec.TaskKey)
 				require.Equal(t, "n2", exec.NodeKey)
 				require.True(t, processHash.Equal(exec.ProcessHash))
@@ -121,8 +123,7 @@ func testOrchestratorFilter(executionStream pb.Execution_StreamClient, instanceH
 				require.Equal(t, "shouldMatch", exec.Inputs.Fields["msg"].GetStringValue())
 			})
 			t.Run("check completed execution", func(t *testing.T) {
-				exec, err := executionStream.Recv()
-				require.NoError(t, err)
+				exec := pollExecutionOfProcess(processHash, execution.Status_Completed, "n2")
 				require.Equal(t, "task1", exec.TaskKey)
 				require.Equal(t, "n2", exec.NodeKey)
 				require.True(t, processHash.Equal(exec.ProcessHash))
@@ -153,18 +154,17 @@ func testOrchestratorFilter(executionStream pb.Execution_StreamClient, instanceH
 				})
 				require.NoError(t, err)
 			})
-			t.Run("wait 5 sec to check execution is not created", func(t *testing.T) {
-				ctx, cancel := context.WithDeadline(context.Background(), time.Now().Add(5*time.Second))
-				defer cancel()
-				executionStream, err := client.ExecutionClient.Stream(ctx, &pb.StreamExecutionRequest{})
-				require.NoError(t, err)
-				_, err = executionStream.Recv()
-				require.Contains(t, err.Error(), context.DeadlineExceeded.Error())
+			t.Run("wait timeout to check execution is not created", func(t *testing.T) {
+				require.PanicsWithError(t, fmt.Sprintf("pollExecutionOfProcess timeout with process hash %q and status %q and nodeKey %q", processHash, execution.Status_InProgress, "n2"), func() {
+					pollExecutionOfProcess(processHash, execution.Status_InProgress, "n2")
+				})
 			})
 		})
 		t.Run("delete process", func(t *testing.T) {
-			_, err := client.ProcessClient.Delete(context.Background(), &pb.DeleteProcessRequest{Hash: processHash})
-			require.NoError(t, err)
+			lcdBroadcastMsg(processmodule.MsgDelete{
+				Owner: engineAddress,
+				Hash:  processHash,
+			})
 		})
 	}
 }
