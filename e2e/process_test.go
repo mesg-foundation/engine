@@ -91,9 +91,9 @@ func testProcess(t *testing.T) {
 
 	t.Run("hash", func(t *testing.T) {
 		msg := processrest.HashRequest{
-			Name:  req.Name,
-			Nodes: req.Nodes,
-			Edges: req.Edges,
+			Name:  msg.Name,
+			Nodes: msg.Nodes,
+			Edges: msg.Edges,
 		}
 		var hash hash.Hash
 		lcdPost("process/hash", msg, &hash)
