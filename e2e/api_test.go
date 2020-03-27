@@ -36,23 +36,20 @@ func TestAPI(t *testing.T) {
 		t.Skip()
 	}
 
+	// init config
 	var err error
 	cfg, err = config.New()
 	require.NoError(t, err)
-
 	minExecutionPrice, err = sdk.ParseCoins(cfg.DefaultExecutionPrice)
 	require.NoError(t, err)
-
 	cosmos.CustomizeConfig(cfg)
-
-	conn, err := grpc.DialContext(context.Background(), "localhost:50052", grpc.WithInsecure())
-	require.NoError(t, err)
 
 	// change and recreate cosmos relative path because CI dir permissions
 	cfg.Cosmos.RelativePath = "e2e.cosmos"
 	err = os.MkdirAll(filepath.Join(cfg.Path, cfg.Cosmos.RelativePath), os.FileMode(0755))
 	require.NoError(t, err)
 
+	// init keybase with account
 	kb, err = cosmos.NewKeybase(filepath.Join(cfg.Path, cfg.Cosmos.RelativePath))
 	require.NoError(t, err)
 	if cfg.Account.Mnemonic != "" {
@@ -61,12 +58,16 @@ func TestAPI(t *testing.T) {
 		engineAddress = acc.GetAddress()
 	}
 
+	// init gRPC client
+	conn, err := grpc.DialContext(context.Background(), "localhost:50052", grpc.WithInsecure())
+	require.NoError(t, err)
+
 	client = apiclient{
 		pb.NewEventClient(conn),
 		pb.NewRunnerClient(conn),
 	}
 
-	// basic tests
+	// run tests
 	t.Run("service", testService)
 	t.Run("runner", testRunner)
 	t.Run("process", testProcess)
