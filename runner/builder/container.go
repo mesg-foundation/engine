@@ -12,6 +12,7 @@ import (
 
 	"github.com/docker/docker/client"
 	"github.com/docker/docker/pkg/archive"
+	"github.com/docker/docker/pkg/idtools"
 	"github.com/mesg-foundation/engine/container"
 	"github.com/mesg-foundation/engine/ext/xerrors"
 	"github.com/mesg-foundation/engine/ext/xos"
@@ -37,7 +38,10 @@ func build(cont container.Container, srv *service.Service, ipfsEndpoint string) 
 	}
 	defer resp.Body.Close()
 
-	if err := archive.Untar(resp.Body, path, nil); err != nil {
+	if err := archive.Untar(resp.Body, path, &archive.TarOptions{ChownOpts: &idtools.Identity{
+		UID: os.Geteuid(),
+		GID: os.Getegid()},
+	}); err != nil {
 		return "", err
 	}
 
