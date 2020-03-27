@@ -9,6 +9,7 @@ import (
 	"github.com/mesg-foundation/engine/ownership"
 	pb "github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/mesg-foundation/engine/service"
+	servicerest "github.com/mesg-foundation/engine/x/service/client/rest"
 	"github.com/stretchr/testify/require"
 )
 
@@ -73,8 +74,19 @@ func testService(t *testing.T) {
 	})
 
 	t.Run("hash", func(t *testing.T) {
+		msg := servicerest.HashRequest{
+			Sid:           req.Sid,
+			Name:          req.Name,
+			Description:   req.Description,
+			Configuration: req.Configuration,
+			Tasks:         req.Tasks,
+			Events:        req.Events,
+			Dependencies:  req.Dependencies,
+			Repository:    req.Repository,
+			Source:        req.Source,
+		}
 		var hash hash.Hash
-		lcdPost(t, "service/hash", req, &hash)
+		lcdPost(t, "service/hash", msg, &hash)
 		require.Equal(t, testServiceHash, hash)
 	})
 

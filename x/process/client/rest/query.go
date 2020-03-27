@@ -9,7 +9,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/rest"
 	"github.com/gorilla/mux"
 	"github.com/mesg-foundation/engine/process"
-	"github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/mesg-foundation/engine/x/process/internal/types"
 )
 
@@ -97,6 +96,13 @@ func queryParamsHandlerFn(cliCtx context.CLIContext) http.HandlerFunc {
 	}
 }
 
+// HashRequest is the request of the hash endpoint.
+type HashRequest struct {
+	Name  string                  `json:"name,omitempty"`
+	Nodes []*process.Process_Node `json:"nodes,omitempty"`
+	Edges []*process.Process_Edge `json:"edges,omitempty"`
+}
+
 func queryHashHandlerFn(cliCtx context.CLIContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		cliCtx, ok := rest.ParseQueryHeightOrReturnBadRequest(w, cliCtx, r)
@@ -110,7 +116,7 @@ func queryHashHandlerFn(cliCtx context.CLIContext) http.HandlerFunc {
 			return
 		}
 
-		var req api.CreateProcessRequest
+		var req HashRequest
 		if err := cliCtx.Codec.UnmarshalJSON(data, &req); err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return

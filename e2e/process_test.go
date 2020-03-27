@@ -10,6 +10,7 @@ import (
 	"github.com/mesg-foundation/engine/ownership"
 	"github.com/mesg-foundation/engine/process"
 	pb "github.com/mesg-foundation/engine/protobuf/api"
+	processrest "github.com/mesg-foundation/engine/x/process/client/rest"
 	"github.com/stretchr/testify/require"
 )
 
@@ -126,8 +127,13 @@ func testProcess(t *testing.T) {
 	})
 
 	t.Run("hash", func(t *testing.T) {
+		msg := processrest.HashRequest{
+			Name:  req.Name,
+			Nodes: req.Nodes,
+			Edges: req.Edges,
+		}
 		var hash hash.Hash
-		lcdPost(t, "process/hash", req, &hash)
+		lcdPost(t, "process/hash", msg, &hash)
 		require.Equal(t, processHash, hash)
 	})
 
