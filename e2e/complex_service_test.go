@@ -17,11 +17,9 @@ func testComplexService(t *testing.T) {
 		testInstanceHash hash.Hash
 	)
 
-	msg := newTestComplexCreateServiceMsg()
-
 	t.Run("create", func(t *testing.T) {
-		msg.Owner = engineAddress
-		testServiceHash = lcdBroadcastMsg(msg)
+		testComplexCreateServiceMsg.Owner = engineAddress
+		testServiceHash = lcdBroadcastMsg(testComplexCreateServiceMsg)
 	})
 
 	stream, err := client.EventClient.Stream(context.Background(), &pb.StreamEventRequest{})

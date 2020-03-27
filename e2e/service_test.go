@@ -7,6 +7,7 @@ import (
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/ownership"
 	"github.com/mesg-foundation/engine/service"
+	servicerest "github.com/mesg-foundation/engine/x/service/client/rest"
 	"github.com/stretchr/testify/require"
 )
 
@@ -16,11 +17,9 @@ var (
 )
 
 func testService(t *testing.T) {
-	msg := newTestCreateServiceMsg()
-
 	t.Run("create", func(t *testing.T) {
-		msg.Owner = engineAddress
-		testServiceHash = lcdBroadcastMsg(msg)
+		testCreateServiceMsg.Owner = engineAddress
+		testServiceHash = lcdBroadcastMsg(testCreateServiceMsg)
 	})
 
 	t.Run("get", func(t *testing.T) {
@@ -45,6 +44,17 @@ func testService(t *testing.T) {
 	})
 
 	t.Run("hash", func(t *testing.T) {
+		msg := servicerest.HashRequest{
+			Sid:           testCreateServiceMsg.Sid,
+			Name:          testCreateServiceMsg.Name,
+			Description:   testCreateServiceMsg.Description,
+			Configuration: testCreateServiceMsg.Configuration,
+			Tasks:         testCreateServiceMsg.Tasks,
+			Events:        testCreateServiceMsg.Events,
+			Dependencies:  testCreateServiceMsg.Dependencies,
+			Repository:    testCreateServiceMsg.Repository,
+			Source:        testCreateServiceMsg.Source,
+		}
 		var hash hash.Hash
 		lcdPost("service/hash", msg, &hash)
 		require.Equal(t, testServiceHash, hash)
