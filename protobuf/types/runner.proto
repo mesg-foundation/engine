@@ -13,8 +13,7 @@ message Runner {
   // Runner's hash
   bytes hash = 1 [
     (gogoproto.moretags) = 'hash:"-" validate:"required,hash"',
-    (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
-    (gogoproto.nullable) = false
+    (gogoproto.casttype) = "github.com/mesg-foundation/engine/hash.Hash"
   ];
 
   // owner of the engine of this runner
@@ -25,8 +24,7 @@ message Runner {
   // instanceHash is hash of the instance that runner will handle
   bytes instanceHash = 3 [
     (gogoproto.moretags) = 'hash:"name:3" validate:"required,hash"',
-    (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
-    (gogoproto.nullable) = false
+    (gogoproto.casttype) = "github.com/mesg-foundation/engine/hash.Hash"
   ];
 
   // The address of the runner.

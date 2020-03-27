@@ -113,37 +113,6 @@ func (h Hash) Equal(h1 Hash) bool {
 	return bytes.Equal(h, h1)
 }
 
-// Marshal marshals hash into slice of bytes. It's used by protobuf.
-func (h Hash) Marshal() ([]byte, error) {
-	if len(h) != size {
-		return nil, errInvalidLen
-	}
-	return h, nil
-}
-
-// MarshalTo marshals hash into slice of bytes. It's used by protobuf.
-func (h Hash) MarshalTo(data []byte) (int, error) {
-	if len(h) != size {
-		return 0, errInvalidLen
-	}
-	return copy(data, h), nil
-}
-
-// Unmarshal unmarshals slice of bytes into hash. It's used by protobuf.
-func (h *Hash) Unmarshal(data []byte) error {
-	if len(data) != size {
-		return errInvalidLen
-	}
-	*h = make([]byte, len(data))
-	copy(*h, data)
-	return nil
-}
-
-// Size retruns size of hash. It's used by protobuf.
-func (h Hash) Size() int {
-	return len(h)
-}
-
 // Valid checks if service hash length is valid.
 // It treats empty hash as valid one.
 func (h Hash) Valid() bool {

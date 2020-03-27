@@ -16,8 +16,7 @@ message MsgWithdraw {
   // Hash of the ressource to withdraw from.
   bytes resourceHash = 2 [
     (gogoproto.moretags) = 'validate:"required,hash"',
-    (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
-    (gogoproto.nullable) = false
+    (gogoproto.casttype) = "github.com/mesg-foundation/engine/hash.Hash"
   ];
 
   // amount to withdraw

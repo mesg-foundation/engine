@@ -15,8 +15,7 @@ message Ownership {
   // Service's hash.
   bytes hash = 1 [
     (gogoproto.moretags) = 'hash:"-" validate:"required,hash"',
-    (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
-    (gogoproto.nullable) = false
+    (gogoproto.casttype) = "github.com/mesg-foundation/engine/hash.Hash"
   ];
 
   // The owner of the resource.
@@ -28,8 +27,7 @@ message Ownership {
   // Resource's hash.
   bytes resourceHash = 3 [
     (gogoproto.moretags) = 'hash:"name:3" validate:"required,hash"',
-    (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
-    (gogoproto.nullable) = false
+    (gogoproto.casttype) = "github.com/mesg-foundation/engine/hash.Hash"
   ];
 
   enum Resource {

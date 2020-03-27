@@ -12,19 +12,16 @@ option (gogoproto.equal_all) = true;
 message Instance {
   bytes hash = 1 [
     (gogoproto.moretags) = 'hash:"-" validate:"required,hash"',
-    (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
-    (gogoproto.nullable) = false
+    (gogoproto.casttype) = "github.com/mesg-foundation/engine/hash.Hash"
   ];
 
   bytes serviceHash = 2 [
     (gogoproto.moretags) = 'hash:"name:2" validate:"required,hash"',
-    (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
-    (gogoproto.nullable) = false
+    (gogoproto.casttype) = "github.com/mesg-foundation/engine/hash.Hash"
   ];
 
   bytes envHash = 3 [
     (gogoproto.moretags) = 'hash:"name:3" validate:"required,hash"',
-    (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
-    (gogoproto.nullable) = false
+    (gogoproto.casttype) = "github.com/mesg-foundation/engine/hash.Hash"
   ];
 }
