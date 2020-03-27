@@ -10,16 +10,20 @@ import (
 	"github.com/mesg-foundation/engine/process"
 	pb "github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/mesg-foundation/engine/protobuf/types"
+	processmodule "github.com/mesg-foundation/engine/x/process"
 	"github.com/stretchr/testify/require"
 )
 
-func testOrchestratorMapConst(executionStream pb.Execution_StreamClient, instanceHash hash.Hash) func(t *testing.T) {
+func testOrchestratorMapConst(instanceHash hash.Hash) func(t *testing.T) {
 	return func(t *testing.T) {
-		var processHash hash.Hash
+		var (
+			processHash hash.Hash
+		)
 
 		t.Run("create process", func(t *testing.T) {
-			respProc, err := client.ProcessClient.Create(context.Background(), &pb.CreateProcessRequest{
-				Name: "map-const",
+			processHash = lcdBroadcastMsg(processmodule.MsgCreate{
+				Owner: engineAddress,
+				Name:  "map-const",
 				Nodes: []*process.Process_Node{
 					{
 						Key: "n0",
@@ -59,8 +63,6 @@ func testOrchestratorMapConst(executionStream pb.Execution_StreamClient, instanc
 					{Src: "n1", Dst: "n2"},
 				},
 			})
-			require.NoError(t, err)
-			processHash = respProc.Hash
 		})
 		t.Run("trigger process", func(t *testing.T) {
 			_, err := client.EventClient.Create(context.Background(), &pb.CreateEventRequest{
@@ -84,8 +86,7 @@ func testOrchestratorMapConst(executionStream pb.Execution_StreamClient, instanc
 			require.NoError(t, err)
 		})
 		t.Run("check in progress execution", func(t *testing.T) {
-			exec, err := executionStream.Recv()
-			require.NoError(t, err)
+			exec := pollExecutionOfProcess(processHash, execution.Status_InProgress, "n2")
 			require.Equal(t, "task1", exec.TaskKey)
 			require.Equal(t, "n2", exec.NodeKey)
 			require.True(t, processHash.Equal(exec.ProcessHash))
@@ -93,8 +94,7 @@ func testOrchestratorMapConst(executionStream pb.Execution_StreamClient, instanc
 			require.Equal(t, "itsAConstant", exec.Inputs.Fields["msg"].GetStringValue())
 		})
 		t.Run("check completed execution", func(t *testing.T) {
-			exec, err := executionStream.Recv()
-			require.NoError(t, err)
+			exec := pollExecutionOfProcess(processHash, execution.Status_Completed, "n2")
 			require.Equal(t, "task1", exec.TaskKey)
 			require.Equal(t, "n2", exec.NodeKey)
 			require.True(t, processHash.Equal(exec.ProcessHash))
@@ -103,8 +103,10 @@ func testOrchestratorMapConst(executionStream pb.Execution_StreamClient, instanc
 			require.NotEmpty(t, exec.Outputs.Fields["timestamp"].GetNumberValue())
 		})
 		t.Run("delete process", func(t *testing.T) {
-			_, err := client.ProcessClient.Delete(context.Background(), &pb.DeleteProcessRequest{Hash: processHash})
-			require.NoError(t, err)
+			lcdBroadcastMsg(processmodule.MsgDelete{
+				Owner: engineAddress,
+				Hash:  processHash,
+			})
 		})
 	}
 }

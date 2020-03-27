@@ -9,10 +9,11 @@ import (
 	"github.com/mesg-foundation/engine/process"
 	pb "github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/mesg-foundation/engine/protobuf/types"
+	processmodule "github.com/mesg-foundation/engine/x/process"
 	"github.com/stretchr/testify/require"
 )
 
-func testOrchestratorNestedMap(executionStream pb.Execution_StreamClient, instanceHash hash.Hash) func(t *testing.T) {
+func testOrchestratorNestedMap(instanceHash hash.Hash) func(t *testing.T) {
 	return func(t *testing.T) {
 		var (
 			processHash hash.Hash
@@ -49,8 +50,9 @@ func testOrchestratorNestedMap(executionStream pb.Execution_StreamClient, instan
 			}
 		)
 		t.Run("create process", func(t *testing.T) {
-			respProc, err := client.ProcessClient.Create(context.Background(), &pb.CreateProcessRequest{
-				Name: "nested-map",
+			processHash = lcdBroadcastMsg(processmodule.MsgCreate{
+				Owner: engineAddress,
+				Name:  "nested-map",
 				Nodes: []*process.Process_Node{
 					{
 						Key: "n0",
@@ -102,8 +104,6 @@ func testOrchestratorNestedMap(executionStream pb.Execution_StreamClient, instan
 					{Src: "n1", Dst: "n2"},
 				},
 			})
-			require.NoError(t, err)
-			processHash = respProc.Hash
 		})
 		t.Run("trigger process", func(t *testing.T) {
 			_, err := client.EventClient.Create(context.Background(), &pb.CreateEventRequest{
@@ -115,8 +115,7 @@ func testOrchestratorNestedMap(executionStream pb.Execution_StreamClient, instan
 		})
 		t.Run("first task", func(t *testing.T) {
 			t.Run("check in progress execution", func(t *testing.T) {
-				exec, err := executionStream.Recv()
-				require.NoError(t, err)
+				exec := pollExecutionOfProcess(processHash, execution.Status_InProgress, "n2")
 				require.Equal(t, "task_complex", exec.TaskKey)
 				require.Equal(t, "n2", exec.NodeKey)
 				require.True(t, processHash.Equal(exec.ProcessHash))
@@ -129,8 +128,7 @@ func testOrchestratorNestedMap(executionStream pb.Execution_StreamClient, instan
 				require.Equal(t, "fourth-constant", exec.Inputs.Fields["msg"].GetStructValue().Fields["array"].GetListValue().Values[3].GetStringValue())
 			})
 			t.Run("check completed execution", func(t *testing.T) {
-				exec, err := executionStream.Recv()
-				require.NoError(t, err)
+				exec := pollExecutionOfProcess(processHash, execution.Status_Completed, "n2")
 				require.Equal(t, "task_complex", exec.TaskKey)
 				require.Equal(t, "n2", exec.NodeKey)
 				require.True(t, processHash.Equal(exec.ProcessHash))
@@ -145,8 +143,10 @@ func testOrchestratorNestedMap(executionStream pb.Execution_StreamClient, instan
 			})
 		})
 		t.Run("delete process", func(t *testing.T) {
-			_, err := client.ProcessClient.Delete(context.Background(), &pb.DeleteProcessRequest{Hash: processHash})
-			require.NoError(t, err)
+			lcdBroadcastMsg(processmodule.MsgDelete{
+				Owner: engineAddress,
+				Hash:  processHash,
+			})
 		})
 	}
 }

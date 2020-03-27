@@ -1,24 +1,28 @@
 package main
 
 import (
-	"context"
 	"testing"
 
 	"github.com/mesg-foundation/engine/execution"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/process"
-	pb "github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/mesg-foundation/engine/protobuf/types"
+	executionmodule "github.com/mesg-foundation/engine/x/execution"
+	processmodule "github.com/mesg-foundation/engine/x/process"
 	"github.com/stretchr/testify/require"
 )
 
-func testOrchestratorResultTask(executionStream pb.Execution_StreamClient, runnerHash hash.Hash, instanceHash hash.Hash) func(t *testing.T) {
+func testOrchestratorResultTask(runnerHash hash.Hash, instanceHash hash.Hash) func(t *testing.T) {
 	return func(t *testing.T) {
-		var processHash hash.Hash
+		var (
+			processHash     hash.Hash
+			triggerExecHash hash.Hash
+		)
 
 		t.Run("create process", func(t *testing.T) {
-			respProc, err := client.ProcessClient.Create(context.Background(), &pb.CreateProcessRequest{
-				Name: "result-task-process",
+			processHash = lcdBroadcastMsg(processmodule.MsgCreate{
+				Owner: engineAddress,
+				Name:  "result-task-process",
 				Nodes: []*process.Process_Node{
 					{
 						Key: "n0",
@@ -43,11 +47,11 @@ func testOrchestratorResultTask(executionStream pb.Execution_StreamClient, runne
 					{Src: "n0", Dst: "n1"},
 				},
 			})
-			require.NoError(t, err)
-			processHash = respProc.Hash
 		})
 		t.Run("trigger process", func(t *testing.T) {
-			_, err := client.ExecutionClient.Create(context.Background(), &pb.CreateExecutionRequest{
+			triggerExecHash = lcdBroadcastMsg(executionmodule.MsgCreate{
+				Signer:       engineAddress,
+				Price:        "10000atto",
 				TaskKey:      "task1",
 				EventHash:    hash.Int(11010101011),
 				ExecutorHash: runnerHash,
@@ -61,12 +65,11 @@ func testOrchestratorResultTask(executionStream pb.Execution_StreamClient, runne
 					},
 				},
 			})
-			require.NoError(t, err)
 		})
 		t.Run("check trigger process execution", func(t *testing.T) {
 			t.Run("in progress", func(t *testing.T) {
-				exec, err := executionStream.Recv()
-				require.NoError(t, err)
+				exec := pollExecution(triggerExecHash, execution.Status_InProgress)
+				require.Equal(t, triggerExecHash, exec.Hash)
 				require.Equal(t, "task1", exec.TaskKey)
 				require.Equal(t, "", exec.NodeKey)
 				require.True(t, hash.Int(11010101011).Equal(exec.EventHash))
@@ -82,8 +85,8 @@ func testOrchestratorResultTask(executionStream pb.Execution_StreamClient, runne
 				}))
 			})
 			t.Run("completed", func(t *testing.T) {
-				exec, err := executionStream.Recv()
-				require.NoError(t, err)
+				exec := pollExecution(triggerExecHash, execution.Status_Completed)
+				require.Equal(t, triggerExecHash, exec.Hash)
 				require.Equal(t, "task1", exec.TaskKey)
 				require.Equal(t, "", exec.NodeKey)
 				require.True(t, hash.Int(11010101011).Equal(exec.EventHash))
@@ -93,8 +96,7 @@ func testOrchestratorResultTask(executionStream pb.Execution_StreamClient, runne
 			})
 		})
 		t.Run("check in progress execution", func(t *testing.T) {
-			exec, err := executionStream.Recv()
-			require.NoError(t, err)
+			exec := pollExecutionOfProcess(processHash, execution.Status_InProgress, "n1")
 			require.Equal(t, "task2", exec.TaskKey)
 			require.Equal(t, "n1", exec.NodeKey)
 			require.Equal(t, processHash, exec.ProcessHash)
@@ -102,8 +104,7 @@ func testOrchestratorResultTask(executionStream pb.Execution_StreamClient, runne
 			require.Equal(t, "foo_2", exec.Inputs.Fields["msg"].GetStringValue())
 		})
 		t.Run("check completed execution", func(t *testing.T) {
-			exec, err := executionStream.Recv()
-			require.NoError(t, err)
+			exec := pollExecutionOfProcess(processHash, execution.Status_Completed, "n1")
 			require.Equal(t, "task2", exec.TaskKey)
 			require.Equal(t, "n1", exec.NodeKey)
 			require.Equal(t, processHash, exec.ProcessHash)
@@ -112,8 +113,10 @@ func testOrchestratorResultTask(executionStream pb.Execution_StreamClient, runne
 			require.NotEmpty(t, exec.Outputs.Fields["timestamp"].GetNumberValue())
 		})
 		t.Run("delete process", func(t *testing.T) {
-			_, err := client.ProcessClient.Delete(context.Background(), &pb.DeleteProcessRequest{Hash: processHash})
-			require.NoError(t, err)
+			lcdBroadcastMsg(processmodule.MsgDelete{
+				Owner: engineAddress,
+				Hash:  processHash,
+			})
 		})
 	}
 }

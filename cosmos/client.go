@@ -131,7 +131,7 @@ func (c *Client) BuildAndBroadcastMsg(msg sdktypes.Msg) (*abci.ResponseDeliverTx
 		}
 		return &data.TxResult.Result, nil
 	case <-ctx.Done():
-		return nil, errors.New("reach timeout for listening for transaction result")
+		return nil, fmt.Errorf("reach timeout for listening for transaction result: %w", ctx.Err())
 	}
 }
 
@@ -150,10 +150,6 @@ func (c *Client) Stream(ctx context.Context, query string) (chan hash.Hash, chan
 			select {
 			case event := <-eventStream:
 				attrs := event.Events[EventHashType]
-				// The following error might be too much as MAYBE if one transaction contains many messages, the events will be merged across the whole transaction
-				if len(attrs) != 1 {
-					errC <- fmt.Errorf("event %s has %d tag(s), but only 1 is expected", EventHashType, len(attrs))
-				}
 				for _, attr := range attrs {
 					hash, err := hash.Decode(attr)
 					if err != nil {
