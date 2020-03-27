@@ -8,7 +8,6 @@ import (
 	"github.com/mesg-foundation/engine/execution"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/process"
-	"github.com/mesg-foundation/engine/protobuf/acknowledgement"
 	pb "github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/mesg-foundation/engine/protobuf/types"
 	processmodule "github.com/mesg-foundation/engine/x/process"
@@ -18,8 +17,7 @@ import (
 func testOrchestratorRefPathNested(instanceHash hash.Hash) func(t *testing.T) {
 	return func(t *testing.T) {
 		var (
-			processHash     hash.Hash
-			executionStream pb.Execution_StreamClient
+			processHash hash.Hash
 		)
 
 		t.Run("create process", func(t *testing.T) {
@@ -228,12 +226,6 @@ func testOrchestratorRefPathNested(instanceHash hash.Hash) func(t *testing.T) {
 				},
 			},
 		}
-		t.Run("create execution stream", func(t *testing.T) {
-			var err error
-			executionStream, err = client.ExecutionClient.Stream(context.Background(), &pb.StreamExecutionRequest{})
-			require.NoError(t, err)
-			acknowledgement.WaitForStreamToBeReady(executionStream)
-		})
 		t.Run("trigger process", func(t *testing.T) {
 			_, err := client.EventClient.Create(context.Background(), &pb.CreateEventRequest{
 				InstanceHash: instanceHash,
@@ -244,8 +236,7 @@ func testOrchestratorRefPathNested(instanceHash hash.Hash) func(t *testing.T) {
 		})
 		t.Run("first ref", func(t *testing.T) {
 			t.Run("check in progress execution", func(t *testing.T) {
-				exec, err := executionStream.Recv()
-				require.NoError(t, err)
+				exec := pollExecutionOfProcess(t, processHash, execution.Status_InProgress, "n2")
 				require.Equal(t, "task_complex", exec.TaskKey)
 				require.Equal(t, "n2", exec.NodeKey)
 				require.True(t, processHash.Equal(exec.ProcessHash))
@@ -257,8 +248,7 @@ func testOrchestratorRefPathNested(instanceHash hash.Hash) func(t *testing.T) {
 				require.Equal(t, "first", exec.Inputs.Fields["msg"].GetStructValue().Fields["array"].GetListValue().Values[2].GetStringValue())
 			})
 			t.Run("check completed execution", func(t *testing.T) {
-				exec, err := executionStream.Recv()
-				require.NoError(t, err)
+				exec := pollExecutionOfProcess(t, processHash, execution.Status_Completed, "n2")
 				require.Equal(t, "task_complex", exec.TaskKey)
 				require.Equal(t, "n2", exec.NodeKey)
 				require.True(t, processHash.Equal(exec.ProcessHash))
@@ -273,8 +263,7 @@ func testOrchestratorRefPathNested(instanceHash hash.Hash) func(t *testing.T) {
 		})
 		t.Run("second ref", func(t *testing.T) {
 			t.Run("check in progress execution", func(t *testing.T) {
-				exec, err := executionStream.Recv()
-				require.NoError(t, err)
+				exec := pollExecutionOfProcess(t, processHash, execution.Status_InProgress, "n4")
 				require.Equal(t, "task1", exec.TaskKey)
 				require.Equal(t, "n4", exec.NodeKey)
 				require.True(t, processHash.Equal(exec.ProcessHash))
@@ -282,8 +271,7 @@ func testOrchestratorRefPathNested(instanceHash hash.Hash) func(t *testing.T) {
 				require.Equal(t, "complex", exec.Inputs.Fields["msg"].GetStringValue())
 			})
 			t.Run("check completed execution", func(t *testing.T) {
-				exec, err := executionStream.Recv()
-				require.NoError(t, err)
+				exec := pollExecutionOfProcess(t, processHash, execution.Status_Completed, "n4")
 				require.Equal(t, "task1", exec.TaskKey)
 				require.Equal(t, "n4", exec.NodeKey)
 				require.True(t, processHash.Equal(exec.ProcessHash))

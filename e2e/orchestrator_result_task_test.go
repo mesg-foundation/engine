@@ -1,14 +1,11 @@
 package main
 
 import (
-	"context"
 	"testing"
 
 	"github.com/mesg-foundation/engine/execution"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/process"
-	"github.com/mesg-foundation/engine/protobuf/acknowledgement"
-	pb "github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/mesg-foundation/engine/protobuf/types"
 	executionmodule "github.com/mesg-foundation/engine/x/execution"
 	processmodule "github.com/mesg-foundation/engine/x/process"
@@ -19,7 +16,7 @@ func testOrchestratorResultTask(runnerHash hash.Hash, instanceHash hash.Hash) fu
 	return func(t *testing.T) {
 		var (
 			processHash     hash.Hash
-			executionStream pb.Execution_StreamClient
+			triggerExecHash hash.Hash
 		)
 
 		t.Run("create process", func(t *testing.T) {
@@ -51,14 +48,8 @@ func testOrchestratorResultTask(runnerHash hash.Hash, instanceHash hash.Hash) fu
 				},
 			})
 		})
-		t.Run("create execution stream", func(t *testing.T) {
-			var err error
-			executionStream, err = client.ExecutionClient.Stream(context.Background(), &pb.StreamExecutionRequest{})
-			require.NoError(t, err)
-			acknowledgement.WaitForStreamToBeReady(executionStream)
-		})
 		t.Run("trigger process", func(t *testing.T) {
-			lcdBroadcastMsg(t, executionmodule.MsgCreate{
+			triggerExecHash = lcdBroadcastMsg(t, executionmodule.MsgCreate{
 				Signer:       engineAddress,
 				Price:        "10000atto",
 				TaskKey:      "task1",
@@ -77,8 +68,8 @@ func testOrchestratorResultTask(runnerHash hash.Hash, instanceHash hash.Hash) fu
 		})
 		t.Run("check trigger process execution", func(t *testing.T) {
 			t.Run("in progress", func(t *testing.T) {
-				exec, err := executionStream.Recv()
-				require.NoError(t, err)
+				exec := pollExecution(t, triggerExecHash, execution.Status_InProgress)
+				require.Equal(t, triggerExecHash, exec.Hash)
 				require.Equal(t, "task1", exec.TaskKey)
 				require.Equal(t, "", exec.NodeKey)
 				require.True(t, hash.Int(11010101011).Equal(exec.EventHash))
@@ -94,8 +85,8 @@ func testOrchestratorResultTask(runnerHash hash.Hash, instanceHash hash.Hash) fu
 				}))
 			})
 			t.Run("completed", func(t *testing.T) {
-				exec, err := executionStream.Recv()
-				require.NoError(t, err)
+				exec := pollExecution(t, triggerExecHash, execution.Status_Completed)
+				require.Equal(t, triggerExecHash, exec.Hash)
 				require.Equal(t, "task1", exec.TaskKey)
 				require.Equal(t, "", exec.NodeKey)
 				require.True(t, hash.Int(11010101011).Equal(exec.EventHash))
@@ -105,8 +96,7 @@ func testOrchestratorResultTask(runnerHash hash.Hash, instanceHash hash.Hash) fu
 			})
 		})
 		t.Run("check in progress execution", func(t *testing.T) {
-			exec, err := executionStream.Recv()
-			require.NoError(t, err)
+			exec := pollExecutionOfProcess(t, processHash, execution.Status_InProgress, "n1")
 			require.Equal(t, "task2", exec.TaskKey)
 			require.Equal(t, "n1", exec.NodeKey)
 			require.Equal(t, processHash, exec.ProcessHash)
@@ -114,8 +104,7 @@ func testOrchestratorResultTask(runnerHash hash.Hash, instanceHash hash.Hash) fu
 			require.Equal(t, "foo_2", exec.Inputs.Fields["msg"].GetStringValue())
 		})
 		t.Run("check completed execution", func(t *testing.T) {
-			exec, err := executionStream.Recv()
-			require.NoError(t, err)
+			exec := pollExecutionOfProcess(t, processHash, execution.Status_Completed, "n1")
 			require.Equal(t, "task2", exec.TaskKey)
 			require.Equal(t, "n1", exec.NodeKey)
 			require.Equal(t, processHash, exec.ProcessHash)

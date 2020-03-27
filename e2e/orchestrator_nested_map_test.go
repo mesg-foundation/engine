@@ -7,7 +7,6 @@ import (
 	"github.com/mesg-foundation/engine/execution"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/process"
-	"github.com/mesg-foundation/engine/protobuf/acknowledgement"
 	pb "github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/mesg-foundation/engine/protobuf/types"
 	processmodule "github.com/mesg-foundation/engine/x/process"
@@ -17,9 +16,8 @@ import (
 func testOrchestratorNestedMap(instanceHash hash.Hash) func(t *testing.T) {
 	return func(t *testing.T) {
 		var (
-			processHash     hash.Hash
-			executionStream pb.Execution_StreamClient
-			dataEvent       = &types.Struct{
+			processHash hash.Hash
+			dataEvent   = &types.Struct{
 				Fields: map[string]*types.Value{
 					"msg": {
 						Kind: &types.Value_StructValue{
@@ -107,12 +105,6 @@ func testOrchestratorNestedMap(instanceHash hash.Hash) func(t *testing.T) {
 				},
 			})
 		})
-		t.Run("create execution stream", func(t *testing.T) {
-			var err error
-			executionStream, err = client.ExecutionClient.Stream(context.Background(), &pb.StreamExecutionRequest{})
-			require.NoError(t, err)
-			acknowledgement.WaitForStreamToBeReady(executionStream)
-		})
 		t.Run("trigger process", func(t *testing.T) {
 			_, err := client.EventClient.Create(context.Background(), &pb.CreateEventRequest{
 				InstanceHash: instanceHash,
@@ -123,8 +115,7 @@ func testOrchestratorNestedMap(instanceHash hash.Hash) func(t *testing.T) {
 		})
 		t.Run("first task", func(t *testing.T) {
 			t.Run("check in progress execution", func(t *testing.T) {
-				exec, err := executionStream.Recv()
-				require.NoError(t, err)
+				exec := pollExecutionOfProcess(t, processHash, execution.Status_InProgress, "n2")
 				require.Equal(t, "task_complex", exec.TaskKey)
 				require.Equal(t, "n2", exec.NodeKey)
 				require.True(t, processHash.Equal(exec.ProcessHash))
@@ -137,8 +128,7 @@ func testOrchestratorNestedMap(instanceHash hash.Hash) func(t *testing.T) {
 				require.Equal(t, "fourth-constant", exec.Inputs.Fields["msg"].GetStructValue().Fields["array"].GetListValue().Values[3].GetStringValue())
 			})
 			t.Run("check completed execution", func(t *testing.T) {
-				exec, err := executionStream.Recv()
-				require.NoError(t, err)
+				exec := pollExecutionOfProcess(t, processHash, execution.Status_Completed, "n2")
 				require.Equal(t, "task_complex", exec.TaskKey)
 				require.Equal(t, "n2", exec.NodeKey)
 				require.True(t, processHash.Equal(exec.ProcessHash))

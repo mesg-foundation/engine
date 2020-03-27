@@ -29,6 +29,8 @@ var (
 const (
 	lcdEndpoint        = "http://127.0.0.1:1317/"
 	lcdPostContentType = "application/json"
+	pollingInterval    = 500 * time.Millisecond
+	pollingTimeout     = 30 * time.Second
 )
 
 func lcdGet(t *testing.T, path string, ptr interface{}) {
@@ -66,15 +68,40 @@ func lcdPostBare(t *testing.T, path string, req interface{}, ptr interface{}) {
 }
 
 func pollExecution(t *testing.T, executionHash hash.Hash, status execution.Status) *execution.Execution {
-	var exec *execution.Execution
+	timeout := time.After(pollingTimeout)
 	for {
+		var exec *execution.Execution
 		lcdGet(t, "execution/get/"+executionHash.String(), &exec)
 		if exec.Status == status {
-			break
+			return exec
 		}
-		<-time.After(100 * time.Millisecond)
+		select {
+		case <-time.After(pollingInterval):
+			continue
+		case <-timeout:
+			t.Errorf("pollExecution timeout with execution hash %q", executionHash)
+		}
 	}
-	return exec
+}
+
+// TODO: add blacklist of execution hash or add blockHeight
+func pollExecutionOfProcess(t *testing.T, processHash hash.Hash, status execution.Status, nodeKey string) *execution.Execution {
+	timeout := time.After(pollingTimeout)
+	for {
+		var execs []*execution.Execution
+		lcdGet(t, "execution/list", &execs)
+		for _, exec := range execs {
+			if exec.ProcessHash.Equal(processHash) && exec.Status == status && exec.NodeKey == nodeKey {
+				return exec
+			}
+		}
+		select {
+		case <-time.After(pollingInterval):
+			continue
+		case <-timeout:
+			t.Errorf("pollExecutionOfProcess timeout with process hash %q and status %q and nodeKey %q", processHash, status, nodeKey)
+		}
+	}
 }
 
 func lcdBroadcastMsg(t *testing.T, msg sdk.Msg) []byte {
