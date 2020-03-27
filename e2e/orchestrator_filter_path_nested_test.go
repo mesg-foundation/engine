@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"testing"
 	"time"
 
@@ -249,13 +250,10 @@ func testOrchestratorFilterPathNested(instanceHash hash.Hash) func(t *testing.T)
 				})
 				require.NoError(t, err)
 			})
-			t.Run("wait 5 sec to check execution is not created", func(t *testing.T) {
-				ctx, cancel := context.WithDeadline(context.Background(), time.Now().Add(5*time.Second))
-				defer cancel()
-				executionStream, err := client.ExecutionClient.Stream(ctx, &pb.StreamExecutionRequest{})
-				require.NoError(t, err)
-				_, err = executionStream.Recv()
-				require.Contains(t, err.Error(), context.DeadlineExceeded.Error())
+			t.Run("wait timeout to check execution is not created", func(t *testing.T) {
+				require.PanicsWithError(t, fmt.Sprintf("pollExecutionOfProcess timeout with process hash %q and status %q and nodeKey %q", processHash, execution.Status_InProgress, "n2"), func() {
+					pollExecutionOfProcess(processHash, execution.Status_InProgress, "n2")
+				})
 			})
 		})
 		t.Run("delete process", func(t *testing.T) {

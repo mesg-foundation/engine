@@ -28,8 +28,8 @@ var (
 const (
 	lcdEndpoint        = "http://127.0.0.1:1317/"
 	lcdPostContentType = "application/json"
-	pollingInterval    = 500 * time.Millisecond
-	pollingTimeout     = 30 * time.Second
+	pollingInterval    = 500 * time.Millisecond // half a block
+	pollingTimeout     = 10 * time.Second       // 10 blocks
 )
 
 func lcdGet(path string, ptr interface{}) {

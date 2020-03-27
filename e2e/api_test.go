@@ -18,7 +18,6 @@ import (
 
 type apiclient struct {
 	pb.EventClient
-	pb.ExecutionClient
 	pb.RunnerClient
 }
 
@@ -64,7 +63,6 @@ func TestAPI(t *testing.T) {
 
 	client = apiclient{
 		pb.NewEventClient(conn),
-		pb.NewExecutionClient(conn),
 		pb.NewRunnerClient(conn),
 	}
 
