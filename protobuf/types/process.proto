@@ -17,8 +17,7 @@ message Process {
       // Hash of the instance that triggers the process.
       bytes instanceHash = 2 [
         (gogoproto.moretags) = 'hash:"name:2" validate:"required,hash"',
-        (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
-        (gogoproto.nullable) = false
+        (gogoproto.casttype) = "github.com/mesg-foundation/engine/hash.Hash"
       ];
 
       // Key of the task that triggers the process.
@@ -31,8 +30,7 @@ message Process {
       // Hash of the instance that triggers the process.
       bytes instanceHash = 2 [
         (gogoproto.moretags) = 'hash:"name:2" validate:"required,hash"',
-        (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
-        (gogoproto.nullable) = false
+        (gogoproto.casttype) = "github.com/mesg-foundation/engine/hash.Hash"
       ];
 
       // Key of the event that triggers the process.
@@ -45,8 +43,7 @@ message Process {
       // Hash of the instance to execute.
       bytes instanceHash = 2 [
         (gogoproto.moretags) = 'hash:"name:2" validate:"required,hash"',
-        (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
-        (gogoproto.nullable) = false
+        (gogoproto.casttype) = "github.com/mesg-foundation/engine/hash.Hash"
       ];
 
       // Task of the instance to execute.
@@ -235,8 +232,7 @@ message Process {
   // Process's hash
   bytes hash = 1 [
     (gogoproto.moretags) = 'hash:"-" validate:"required,hash"',
-    (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
-    (gogoproto.nullable) = false
+    (gogoproto.casttype) = "github.com/mesg-foundation/engine/hash.Hash"
   ];
 
   // Process's name

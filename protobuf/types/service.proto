@@ -179,8 +179,7 @@ message Service {
   // Service's hash.
   bytes hash = 10 [
     (gogoproto.moretags) = 'hash:"-" validate:"required,hash"',
-    (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
-    (gogoproto.nullable) = false
+    (gogoproto.casttype) = "github.com/mesg-foundation/engine/hash.Hash"
   ];
 
   // Service's sid.
