@@ -57,7 +57,7 @@ func (k *Keeper) List(ctx sdk.Context) ([]*ownership.Ownership, error) {
 // Set creates a new ownership.
 func (k Keeper) Set(ctx sdk.Context, owner sdk.AccAddress, resourceHash hash.Hash, resource ownership.Ownership_Resource, resourceAddress sdk.AccAddress) (*ownership.Ownership, error) {
 	store := ctx.KVStore(k.storeKey)
-	own, err := k.getOwnership(store, resourceHash)
+	own, err := k.get(store, resourceHash)
 	if err != nil {
 		return nil, err
 	}
@@ -81,7 +81,7 @@ func (k Keeper) Set(ctx sdk.Context, owner sdk.AccAddress, resourceHash hash.Has
 // Delete deletes an ownership.
 func (k Keeper) Delete(ctx sdk.Context, owner sdk.AccAddress, resourceHash hash.Hash) error {
 	store := ctx.KVStore(k.storeKey)
-	own, err := k.getOwnership(store, resourceHash)
+	own, err := k.get(store, resourceHash)
 	if err != nil {
 		return err
 	}
@@ -112,7 +112,7 @@ func (k Keeper) Withdraw(ctx sdk.Context, msg types.MsgWithdraw) error {
 	if err != nil {
 		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, err.Error())
 	}
-	own, err := k.getOwnership(store, msg.ResourceHash)
+	own, err := k.get(store, msg.ResourceHash)
 	if err != nil {
 		return err
 	}
@@ -125,8 +125,8 @@ func (k Keeper) Withdraw(ctx sdk.Context, msg types.MsgWithdraw) error {
 	return k.bankKeeper.SendCoins(ctx, own.ResourceAddress, msg.Owner, amount)
 }
 
-// getOwnership returns the ownership of a given resource.
-func (k Keeper) getOwnership(store sdk.KVStore, resourceHash hash.Hash) (*ownership.Ownership, error) {
+// get returns the ownership of a given resource.
+func (k Keeper) get(store sdk.KVStore, resourceHash hash.Hash) (*ownership.Ownership, error) {
 	iter := store.Iterator(nil, nil)
 	var own *ownership.Ownership
 	for iter.Valid() {

@@ -21,16 +21,16 @@ func GetTxCmd(cdc *codec.Codec) *cobra.Command {
 	}
 
 	runnerTxCmd.AddCommand(flags.PostCommands(
-		GetCmdCreateRunner(cdc),
-		GetCmdDeleteRunner(cdc),
+		GetCmdCreate(cdc),
+		GetCmdDelete(cdc),
 	)...)
 
 	return runnerTxCmd
 }
 
-func GetCmdCreateRunner(cdc *codec.Codec) *cobra.Command {
+func GetCmdCreate(cdc *codec.Codec) *cobra.Command {
 	return &cobra.Command{
-		Use:   "createRunner [serviceHash] [key=val]...",
+		Use:   "create [runnerHash] [key=val]...",
 		Short: "Creates a new runner",
 		Args:  cobra.MinimumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -40,9 +40,9 @@ func GetCmdCreateRunner(cdc *codec.Codec) *cobra.Command {
 	}
 }
 
-func GetCmdDeleteRunner(cdc *codec.Codec) *cobra.Command {
+func GetCmdDelete(cdc *codec.Codec) *cobra.Command {
 	return &cobra.Command{
-		Use:   "createRunner [serviceHash] [key=val]...",
+		Use:   "delete [runnerHash] [key=val]...",
 		Short: "Creates a new runner",
 		Args:  cobra.MinimumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {

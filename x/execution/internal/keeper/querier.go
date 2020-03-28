@@ -12,17 +12,17 @@ import (
 func NewQuerier(k Keeper) sdk.Querier {
 	return func(ctx sdk.Context, path []string, req abci.RequestQuery) ([]byte, error) {
 		switch path[0] {
-		case types.QueryGetExecution:
-			return getExecution(ctx, k, path[1:])
-		case types.QueryListExecution:
-			return listExecution(ctx, k)
+		case types.QueryGet:
+			return get(ctx, k, path[1:])
+		case types.QueryList:
+			return list(ctx, k)
 		default:
 			return nil, sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, "unknown execution query endpoint")
 		}
 	}
 }
 
-func getExecution(ctx sdk.Context, k Keeper, path []string) ([]byte, error) {
+func get(ctx sdk.Context, k Keeper, path []string) ([]byte, error) {
 	if len(path) == 0 {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "missing hash")
 	}
@@ -43,7 +43,7 @@ func getExecution(ctx sdk.Context, k Keeper, path []string) ([]byte, error) {
 	return res, nil
 }
 
-func listExecution(ctx sdk.Context, k Keeper) ([]byte, error) {
+func list(ctx sdk.Context, k Keeper) ([]byte, error) {
 	es, err := k.List(ctx)
 	if err != nil {
 		return nil, err

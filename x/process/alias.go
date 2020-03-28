@@ -25,8 +25,8 @@ var (
 
 	ModuleCdc = types.ModuleCdc
 
-	QueryGetProcess    = types.QueryGetProcess
-	QueryListProcesses = types.QueryListProcesses
+	QueryGet  = types.QueryGet
+	QueryList = types.QueryList
 )
 
 // module types
