@@ -91,23 +91,43 @@ func (c *RPC) QueryWithData(path string, data []byte) ([]byte, int64, error) {
 
 // BuildAndBroadcastMsg builds and signs message and broadcast it to node.
 func (c *RPC) BuildAndBroadcastMsg(msg sdktypes.Msg) (*abci.ResponseDeliverTx, error) {
-	c.broadcastMutex.Lock() // Lock the whole signature + broadcast of the transaction
-	signedTx, err := c.CreateAndSignTx([]sdktypes.Msg{msg})
+	signedTx, err := c.buildAndBroadcastMsgNoResult(msg)
 	if err != nil {
-		c.broadcastMutex.Unlock()
+		return nil, err
+	}
+	return c.waitForTxResult(signedTx)
+}
+
+func (c *RPC) buildAndBroadcastMsgNoResult(msg sdktypes.Msg) (tenderminttypes.Tx, error) {
+	// Lock the getAccount + create and sign tx + broadcast
+	c.broadcastMutex.Lock()
+	defer c.broadcastMutex.Unlock()
+
+	acc, err := c.GetAccount()
+	if err != nil {
 		return nil, err
 	}
 
+	// create and sign the tx
+	signedTx, err := c.createAndSignTx([]sdktypes.Msg{msg}, acc)
+	if err != nil {
+		return nil, err
+	}
 	txres, err := c.BroadcastTxSync(signedTx)
-	c.broadcastMutex.Unlock()
 	if err != nil {
 		return nil, err
 	}
-
 	if txres.Code != abci.CodeTypeOK {
 		return nil, fmt.Errorf("transaction returned with invalid code %d: %s", txres.Code, txres.Log)
 	}
 
+	// only increase sequence if no error during broadcast of tx
+	acc.SetSequence(acc.GetSequence() + 1)
+
+	return signedTx, nil
+}
+
+func (c *RPC) waitForTxResult(signedTx tenderminttypes.Tx) (*abci.ResponseDeliverTx, error) {
 	// TODO: 20*time.Second should not be hardcoded here
 	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
 	defer cancel()
@@ -199,21 +219,13 @@ func (c *RPC) GetAccount() (authExported.Account, error) {
 	return c.acc, nil
 }
 
-// CreateAndSignTx build and sign a msg with client account.
-func (c *RPC) CreateAndSignTx(msgs []sdktypes.Msg) (tenderminttypes.Tx, error) {
-	// retrieve account
-	accR, err := c.GetAccount()
-	if err != nil {
-		return nil, err
-	}
-	sequence := accR.GetSequence()
-	accR.SetSequence(accR.GetSequence() + 1)
-
+// createAndSignTx build and sign a msg with client account.
+func (c *RPC) createAndSignTx(msgs []sdktypes.Msg, acc authExported.Account) (tenderminttypes.Tx, error) {
 	// Create TxBuilder
 	txBuilder := authtypes.NewTxBuilder(
 		authutils.GetTxEncoder(c.cdc),
-		accR.GetAccountNumber(),
-		sequence,
+		acc.GetAccountNumber(),
+		acc.GetSequence(),
 		flags.DefaultGasLimit,
 		flags.DefaultGasAdjustment,
 		true,
