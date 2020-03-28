@@ -186,8 +186,8 @@ func main() {
 		}
 	}()
 
-	// create cosmos client
-	client, err := cosmos.NewClient(rpcclient.NewLocal(node), cdc, kb, genesis.ChainID, cfg.Account.Name, cfg.Account.Password, cfg.Cosmos.MinGasPrices)
+	// create rpc client
+	client, err := cosmos.NewRPC(rpcclient.NewLocal(node), cdc, kb, genesis.ChainID, cfg.Account.Name, cfg.Account.Password, cfg.Cosmos.MinGasPrices)
 	if err != nil {
 		logrus.WithField("module", "main").Fatalln(err)
 	}
