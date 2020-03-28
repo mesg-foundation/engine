@@ -18,10 +18,11 @@ func testOrchestratorEventTask(instanceHash hash.Hash) func(t *testing.T) {
 	return func(t *testing.T) {
 		var (
 			processHash hash.Hash
+			err         error
 		)
 
 		t.Run("create process", func(t *testing.T) {
-			processHash = lcdBroadcastMsg(processmodule.MsgCreate{
+			msg := processmodule.MsgCreate{
 				Owner: engineAddress,
 				Name:  "event-task-process",
 				Nodes: []*process.Process_Node{
@@ -47,7 +48,9 @@ func testOrchestratorEventTask(instanceHash hash.Hash) func(t *testing.T) {
 				Edges: []*process.Process_Edge{
 					{Src: "n0", Dst: "n1"},
 				},
-			})
+			}
+			processHash, err = lcd.BroadcastMsg(msg)
+			require.NoError(t, err)
 		})
 		t.Run("trigger process", func(t *testing.T) {
 			_, err := client.EventClient.Create(context.Background(), &pb.CreateEventRequest{
@@ -71,7 +74,8 @@ func testOrchestratorEventTask(instanceHash hash.Hash) func(t *testing.T) {
 			require.NoError(t, err)
 		})
 		t.Run("check in progress execution", func(t *testing.T) {
-			exec := pollExecutionOfProcess(processHash, execution.Status_InProgress, "n1")
+			exec, err := pollExecutionOfProcess(processHash, execution.Status_InProgress, "n1")
+			require.NoError(t, err)
 			require.Equal(t, "task1", exec.TaskKey)
 			require.Equal(t, "n1", exec.NodeKey)
 			require.True(t, processHash.Equal(exec.ProcessHash))
@@ -79,7 +83,8 @@ func testOrchestratorEventTask(instanceHash hash.Hash) func(t *testing.T) {
 			require.Equal(t, "foo_1", exec.Inputs.Fields["msg"].GetStringValue())
 		})
 		t.Run("check completed execution", func(t *testing.T) {
-			exec := pollExecutionOfProcess(processHash, execution.Status_Completed, "n1")
+			exec, err := pollExecutionOfProcess(processHash, execution.Status_Completed, "n1")
+			require.NoError(t, err)
 			require.Equal(t, "task1", exec.TaskKey)
 			require.Equal(t, "n1", exec.NodeKey)
 			require.True(t, processHash.Equal(exec.ProcessHash))
@@ -88,10 +93,11 @@ func testOrchestratorEventTask(instanceHash hash.Hash) func(t *testing.T) {
 			require.NotEmpty(t, exec.Outputs.Fields["timestamp"].GetNumberValue())
 		})
 		t.Run("delete process", func(t *testing.T) {
-			lcdBroadcastMsg(processmodule.MsgDelete{
+			_, err := lcd.BroadcastMsg(processmodule.MsgDelete{
 				Owner: engineAddress,
 				Hash:  processHash,
 			})
+			require.NoError(t, err)
 		})
 	}
 }

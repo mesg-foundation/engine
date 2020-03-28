@@ -19,10 +19,11 @@ func testOrchestratorFilterPathNested(instanceHash hash.Hash) func(t *testing.T)
 	return func(t *testing.T) {
 		var (
 			processHash hash.Hash
+			err         error
 		)
 
 		t.Run("create process", func(t *testing.T) {
-			processHash = lcdBroadcastMsg(processmodule.MsgCreate{
+			msg := processmodule.MsgCreate{
 				Owner: engineAddress,
 				Name:  "filter",
 				Nodes: []*process.Process_Node{
@@ -134,7 +135,9 @@ func testOrchestratorFilterPathNested(instanceHash hash.Hash) func(t *testing.T)
 					{Src: "n0", Dst: "n1"},
 					{Src: "n1", Dst: "n2"},
 				},
-			})
+			}
+			processHash, err = lcd.BroadcastMsg(msg)
+			require.NoError(t, err)
 		})
 		t.Run("pass filter", func(t *testing.T) {
 			t.Run("trigger process", func(t *testing.T) {
@@ -185,7 +188,8 @@ func testOrchestratorFilterPathNested(instanceHash hash.Hash) func(t *testing.T)
 				require.NoError(t, err)
 			})
 			t.Run("check in progress execution", func(t *testing.T) {
-				exec := pollExecutionOfProcess(processHash, execution.Status_InProgress, "n2")
+				exec, err := pollExecutionOfProcess(processHash, execution.Status_InProgress, "n2")
+				require.NoError(t, err)
 				require.Equal(t, "task_complex", exec.TaskKey)
 				require.Equal(t, "n2", exec.NodeKey)
 				require.True(t, processHash.Equal(exec.ProcessHash))
@@ -193,7 +197,8 @@ func testOrchestratorFilterPathNested(instanceHash hash.Hash) func(t *testing.T)
 				require.Equal(t, "shouldMatch", exec.Inputs.Fields["msg"].GetStructValue().Fields["msg"].GetStringValue())
 			})
 			t.Run("check completed execution", func(t *testing.T) {
-				exec := pollExecutionOfProcess(processHash, execution.Status_Completed, "n2")
+				exec, err := pollExecutionOfProcess(processHash, execution.Status_Completed, "n2")
+				require.NoError(t, err)
 				require.Equal(t, "task_complex", exec.TaskKey)
 				require.Equal(t, "n2", exec.NodeKey)
 				require.True(t, processHash.Equal(exec.ProcessHash))
@@ -251,16 +256,16 @@ func testOrchestratorFilterPathNested(instanceHash hash.Hash) func(t *testing.T)
 				require.NoError(t, err)
 			})
 			t.Run("wait timeout to check execution is not created", func(t *testing.T) {
-				require.PanicsWithError(t, fmt.Sprintf("pollExecutionOfProcess timeout with process hash %q and status %q and nodeKey %q", processHash, execution.Status_InProgress, "n2"), func() {
-					pollExecutionOfProcess(processHash, execution.Status_InProgress, "n2")
-				})
+				_, err := pollExecutionOfProcess(processHash, execution.Status_InProgress, "n2")
+				require.EqualError(t, err, fmt.Sprintf("pollExecutionOfProcess timeout with process hash %q and status %q and nodeKey %q", processHash, execution.Status_InProgress, "n2"))
 			})
 		})
 		t.Run("delete process", func(t *testing.T) {
-			lcdBroadcastMsg(processmodule.MsgDelete{
+			_, err := lcd.BroadcastMsg(processmodule.MsgDelete{
 				Owner: engineAddress,
 				Hash:  processHash,
 			})
+			require.NoError(t, err)
 		})
 	}
 }
