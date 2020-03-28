@@ -9,6 +9,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/crypto/keys"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/mesg-foundation/engine/app"
@@ -44,8 +45,9 @@ var (
 
 const (
 	lcdEndpoint     = "http://127.0.0.1:1317/"
-	pollingInterval = 500 * time.Millisecond // half a block
-	pollingTimeout  = 10 * time.Second       // 10 blocks
+	pollingInterval = 500 * time.Millisecond     // half a block
+	pollingTimeout  = 10 * time.Second           // 10 blocks
+	gasLimit        = flags.DefaultGasLimit * 10 // x10 so the biggest txs have enough gas
 )
 
 func TestAPI(t *testing.T) {
@@ -92,7 +94,7 @@ func TestAPI(t *testing.T) {
 	}
 
 	// init LCD
-	lcd, err = cosmos.NewLCD(lcdEndpoint, cdc, kb, cfg.DevGenesis.ChainID, cfg.Account.Name, cfg.Account.Password, cfg.Cosmos.MinGasPrices)
+	lcd, err = cosmos.NewLCD(lcdEndpoint, cdc, kb, cfg.DevGenesis.ChainID, cfg.Account.Name, cfg.Account.Password, cfg.Cosmos.MinGasPrices, gasLimit)
 	require.NoError(t, err)
 
 	// run tests

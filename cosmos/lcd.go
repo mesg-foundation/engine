@@ -30,6 +30,7 @@ type LCD struct {
 	accName      string
 	accPassword  string
 	minGasPrices sdktypes.DecCoins
+	gasLimit     uint64
 
 	// local state
 	acc             *auth.BaseAccount
@@ -37,7 +38,7 @@ type LCD struct {
 }
 
 // NewLCD initializes a cosmos LCD client.
-func NewLCD(endpoint string, cdc *codec.Codec, kb keys.Keybase, chainID, accName, accPassword, minGasPrices string) (*LCD, error) {
+func NewLCD(endpoint string, cdc *codec.Codec, kb keys.Keybase, chainID, accName, accPassword, minGasPrices string, gasLimit uint64) (*LCD, error) {
 	minGasPricesDecoded, err := sdktypes.ParseDecCoins(minGasPrices)
 	if err != nil {
 		return nil, err
@@ -50,6 +51,7 @@ func NewLCD(endpoint string, cdc *codec.Codec, kb keys.Keybase, chainID, accName
 		accName:      accName,
 		accPassword:  accPassword,
 		minGasPrices: minGasPricesDecoded,
+		gasLimit:     gasLimit,
 	}, nil
 }
 
@@ -183,7 +185,7 @@ func (lcd *LCD) createAndSignTx(msgs []sdk.Msg) (authtypes.StdTx, error) {
 		authutils.GetTxEncoder(lcd.cdc),
 		accR.GetAccountNumber(),
 		sequence,
-		flags.DefaultGasLimit*10,
+		lcd.gasLimit,
 		flags.DefaultGasAdjustment,
 		true,
 		lcd.chainID,
@@ -191,20 +193,6 @@ func (lcd *LCD) createAndSignTx(msgs []sdk.Msg) (authtypes.StdTx, error) {
 		nil,
 		lcd.minGasPrices,
 	).WithKeybase(lcd.kb)
-
-	// TODO: to put back
-	// calculate gas
-	// if txBuilder.SimulateAndExecute() error {
-	// 	txBytes, err := txBuilder.BuildTxForSim(msgs)
-	// 	if err != nil {
-	// 		return nil, err
-	// 	}
-	// 	_, adjusted, err := authutils.CalculateGas(c.QueryWithData, c.cdc, txBytes, txBuilder.GasAdjustment())
-	// 	if err != nil {
-	// 		return nil, err
-	// 	}
-	// 	txBuilder = txBuilder.WithGas(adjusted)
-	// }
 
 	// create StdSignMsg
 	stdSignMsg, err := txBuilder.BuildSignMsg(msgs)
