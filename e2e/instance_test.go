@@ -13,7 +13,7 @@ var testInstanceHash hash.Hash
 func testInstance(t *testing.T) {
 	t.Run("get", func(t *testing.T) {
 		var inst *instance.Instance
-		lcdGet("instance/get/"+testInstanceHash.String(), &inst)
+		require.NoError(t, lcd.Get("instance/get/"+testInstanceHash.String(), &inst))
 		require.Equal(t, testInstanceHash, inst.Hash)
 		require.Equal(t, testServiceHash, inst.ServiceHash)
 		require.Equal(t, hash.Dump([]string{"BAR=3", "FOO=1", "REQUIRED=4"}), inst.EnvHash)
@@ -21,7 +21,7 @@ func testInstance(t *testing.T) {
 
 	t.Run("list", func(t *testing.T) {
 		insts := make([]*instance.Instance, 0)
-		lcdGet("instance/list", &insts)
+		require.NoError(t, lcd.Get("instance/list", &insts))
 		require.Len(t, insts, 1)
 	})
 }

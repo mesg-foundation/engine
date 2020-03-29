@@ -18,9 +18,10 @@ func testOrchestratorRefGrandParentTask(instanceHash hash.Hash) func(t *testing.
 	return func(t *testing.T) {
 		var (
 			processHash hash.Hash
+			err         error
 		)
 		t.Run("create process", func(t *testing.T) {
-			processHash = lcdBroadcastMsg(processmodule.MsgCreate{
+			msg := processmodule.MsgCreate{
 				Owner: engineAddress,
 				Name:  "ref-grand-parent-task",
 				Nodes: []*process.Process_Node{
@@ -103,7 +104,9 @@ func testOrchestratorRefGrandParentTask(instanceHash hash.Hash) func(t *testing.
 					{Src: "n3", Dst: "n4"},
 					{Src: "n4", Dst: "n5"},
 				},
-			})
+			}
+			processHash, err = lcd.BroadcastMsg(msg)
+			require.NoError(t, err)
 		})
 		t.Run("trigger process", func(t *testing.T) {
 			_, err := client.EventClient.Create(context.Background(), &pb.CreateEventRequest{
@@ -128,7 +131,8 @@ func testOrchestratorRefGrandParentTask(instanceHash hash.Hash) func(t *testing.
 		})
 		t.Run("check first task", func(t *testing.T) {
 			t.Run("check in progress execution", func(t *testing.T) {
-				exec := pollExecutionOfProcess(processHash, execution.Status_InProgress, "n1")
+				exec, err := pollExecutionOfProcess(processHash, execution.Status_InProgress, "n1")
+				require.NoError(t, err)
 				require.Equal(t, "n1", exec.NodeKey)
 				require.Equal(t, "task1", exec.TaskKey)
 				require.True(t, processHash.Equal(exec.ProcessHash))
@@ -136,7 +140,8 @@ func testOrchestratorRefGrandParentTask(instanceHash hash.Hash) func(t *testing.
 				require.Equal(t, "foo_event", exec.Inputs.Fields["msg"].GetStringValue())
 			})
 			t.Run("check completed execution", func(t *testing.T) {
-				exec := pollExecutionOfProcess(processHash, execution.Status_Completed, "n1")
+				exec, err := pollExecutionOfProcess(processHash, execution.Status_Completed, "n1")
+				require.NoError(t, err)
 				require.Equal(t, "n1", exec.NodeKey)
 				require.Equal(t, "task1", exec.TaskKey)
 				require.True(t, processHash.Equal(exec.ProcessHash))
@@ -147,7 +152,8 @@ func testOrchestratorRefGrandParentTask(instanceHash hash.Hash) func(t *testing.
 		})
 		t.Run("check second task", func(t *testing.T) {
 			t.Run("check in progress execution", func(t *testing.T) {
-				exec := pollExecutionOfProcess(processHash, execution.Status_InProgress, "n3")
+				exec, err := pollExecutionOfProcess(processHash, execution.Status_InProgress, "n3")
+				require.NoError(t, err)
 				require.Equal(t, "n3", exec.NodeKey)
 				require.Equal(t, "task1", exec.TaskKey)
 				require.True(t, processHash.Equal(exec.ProcessHash))
@@ -155,7 +161,8 @@ func testOrchestratorRefGrandParentTask(instanceHash hash.Hash) func(t *testing.
 				require.Equal(t, "itsAConstant", exec.Inputs.Fields["msg"].GetStringValue())
 			})
 			t.Run("check completed execution", func(t *testing.T) {
-				exec := pollExecutionOfProcess(processHash, execution.Status_Completed, "n3")
+				exec, err := pollExecutionOfProcess(processHash, execution.Status_Completed, "n3")
+				require.NoError(t, err)
 				require.Equal(t, "n3", exec.NodeKey)
 				require.Equal(t, "task1", exec.TaskKey)
 				require.True(t, processHash.Equal(exec.ProcessHash))
@@ -166,7 +173,8 @@ func testOrchestratorRefGrandParentTask(instanceHash hash.Hash) func(t *testing.
 		})
 		t.Run("check third task", func(t *testing.T) {
 			t.Run("check in progress execution", func(t *testing.T) {
-				exec := pollExecutionOfProcess(processHash, execution.Status_InProgress, "n5")
+				exec, err := pollExecutionOfProcess(processHash, execution.Status_InProgress, "n5")
+				require.NoError(t, err)
 				require.Equal(t, "n5", exec.NodeKey)
 				require.Equal(t, "task1", exec.TaskKey)
 				require.True(t, processHash.Equal(exec.ProcessHash))
@@ -174,7 +182,8 @@ func testOrchestratorRefGrandParentTask(instanceHash hash.Hash) func(t *testing.
 				require.Equal(t, "foo_event", exec.Inputs.Fields["msg"].GetStringValue())
 			})
 			t.Run("check completed execution", func(t *testing.T) {
-				exec := pollExecutionOfProcess(processHash, execution.Status_Completed, "n5")
+				exec, err := pollExecutionOfProcess(processHash, execution.Status_Completed, "n5")
+				require.NoError(t, err)
 				require.Equal(t, "n5", exec.NodeKey)
 				require.Equal(t, "task1", exec.TaskKey)
 				require.True(t, processHash.Equal(exec.ProcessHash))
@@ -184,10 +193,11 @@ func testOrchestratorRefGrandParentTask(instanceHash hash.Hash) func(t *testing.
 			})
 		})
 		t.Run("delete process", func(t *testing.T) {
-			lcdBroadcastMsg(processmodule.MsgDelete{
+			_, err := lcd.BroadcastMsg(processmodule.MsgDelete{
 				Owner: engineAddress,
 				Hash:  processHash,
 			})
+			require.NoError(t, err)
 		})
 	}
 }

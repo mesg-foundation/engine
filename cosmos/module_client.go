@@ -23,12 +23,12 @@ import (
 
 // ModuleClient handles all communication with every module.
 type ModuleClient struct {
-	*Client
+	*RPC
 }
 
 // NewModuleClient creates new module client.
-func NewModuleClient(c *Client) *ModuleClient {
-	return &ModuleClient{Client: c}
+func NewModuleClient(c *RPC) *ModuleClient {
+	return &ModuleClient{RPC: c}
 }
 
 func sroutef(format string, args ...interface{}) string {

@@ -16,6 +16,7 @@ import (
 func testOrchestratorNestedMap(instanceHash hash.Hash) func(t *testing.T) {
 	return func(t *testing.T) {
 		var (
+			err         error
 			processHash hash.Hash
 			dataEvent   = &types.Struct{
 				Fields: map[string]*types.Value{
@@ -50,7 +51,7 @@ func testOrchestratorNestedMap(instanceHash hash.Hash) func(t *testing.T) {
 			}
 		)
 		t.Run("create process", func(t *testing.T) {
-			processHash = lcdBroadcastMsg(processmodule.MsgCreate{
+			msg := processmodule.MsgCreate{
 				Owner: engineAddress,
 				Name:  "nested-map",
 				Nodes: []*process.Process_Node{
@@ -103,7 +104,9 @@ func testOrchestratorNestedMap(instanceHash hash.Hash) func(t *testing.T) {
 					{Src: "n0", Dst: "n1"},
 					{Src: "n1", Dst: "n2"},
 				},
-			})
+			}
+			processHash, err = lcd.BroadcastMsg(msg)
+			require.NoError(t, err)
 		})
 		t.Run("trigger process", func(t *testing.T) {
 			_, err := client.EventClient.Create(context.Background(), &pb.CreateEventRequest{
@@ -115,7 +118,8 @@ func testOrchestratorNestedMap(instanceHash hash.Hash) func(t *testing.T) {
 		})
 		t.Run("first task", func(t *testing.T) {
 			t.Run("check in progress execution", func(t *testing.T) {
-				exec := pollExecutionOfProcess(processHash, execution.Status_InProgress, "n2")
+				exec, err := pollExecutionOfProcess(processHash, execution.Status_InProgress, "n2")
+				require.NoError(t, err)
 				require.Equal(t, "task_complex", exec.TaskKey)
 				require.Equal(t, "n2", exec.NodeKey)
 				require.True(t, processHash.Equal(exec.ProcessHash))
@@ -128,7 +132,8 @@ func testOrchestratorNestedMap(instanceHash hash.Hash) func(t *testing.T) {
 				require.Equal(t, "fourth-constant", exec.Inputs.Fields["msg"].GetStructValue().Fields["array"].GetListValue().Values[3].GetStringValue())
 			})
 			t.Run("check completed execution", func(t *testing.T) {
-				exec := pollExecutionOfProcess(processHash, execution.Status_Completed, "n2")
+				exec, err := pollExecutionOfProcess(processHash, execution.Status_Completed, "n2")
+				require.NoError(t, err)
 				require.Equal(t, "task_complex", exec.TaskKey)
 				require.Equal(t, "n2", exec.NodeKey)
 				require.True(t, processHash.Equal(exec.ProcessHash))
@@ -143,10 +148,11 @@ func testOrchestratorNestedMap(instanceHash hash.Hash) func(t *testing.T) {
 			})
 		})
 		t.Run("delete process", func(t *testing.T) {
-			lcdBroadcastMsg(processmodule.MsgDelete{
+			_, err := lcd.BroadcastMsg(processmodule.MsgDelete{
 				Owner: engineAddress,
 				Hash:  processHash,
 			})
+			require.NoError(t, err)
 		})
 	}
 }

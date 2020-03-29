@@ -15,31 +15,33 @@ var (
 	testServiceHash    hash.Hash
 	testServiceAddress sdk.AccAddress
 	testServiceStruct  *service.Service
+	err                error
 )
 
 func testService(t *testing.T) {
 	t.Run("create", func(t *testing.T) {
 		testCreateServiceMsg.Owner = engineAddress
-		testServiceHash = lcdBroadcastMsg(testCreateServiceMsg)
+		testServiceHash, err = lcd.BroadcastMsg(testCreateServiceMsg)
+		require.NoError(t, err)
 	})
 
 	t.Run("get", func(t *testing.T) {
-		lcdGet("service/get/"+testServiceHash.String(), &testServiceStruct)
+		require.NoError(t, lcd.Get("service/get/"+testServiceHash.String(), &testServiceStruct))
 		require.Equal(t, testServiceHash, testServiceStruct.Hash)
 		testServiceAddress = testServiceStruct.Address
 	})
 
 	t.Run("list", func(t *testing.T) {
 		ss := make([]*service.Service, 0)
-		lcdGet("service/list", &ss)
+		require.NoError(t, lcd.Get("service/list", &ss))
 		require.Len(t, ss, 1)
 	})
 
 	t.Run("exists", func(t *testing.T) {
 		var exist bool
-		lcdGet("service/exist/"+testServiceHash.String(), &exist)
+		require.NoError(t, lcd.Get("service/exist/"+testServiceHash.String(), &exist))
 		require.True(t, exist)
-		lcdGet("service/exist/"+hash.Int(1).String(), &exist)
+		require.NoError(t, lcd.Get("service/exist/"+hash.Int(1).String(), &exist))
 		require.False(t, exist)
 	})
 
@@ -56,13 +58,13 @@ func testService(t *testing.T) {
 			Source:        testCreateServiceMsg.Source,
 		}
 		var hash hash.Hash
-		lcdPost("service/hash", msg, &hash)
+		require.NoError(t, lcd.Post("service/hash", msg, &hash))
 		require.Equal(t, testServiceHash, hash)
 	})
 
 	t.Run("check ownership creation", func(t *testing.T) {
 		ownerships := make([]*ownership.Ownership, 0)
-		lcdGet("ownership/list", &ownerships)
+		require.NoError(t, lcd.Get("ownership/list", &ownerships))
 		require.Len(t, ownerships, 1)
 		require.NotEmpty(t, ownerships[0].Owner)
 		require.Equal(t, ownership.Ownership_Service, ownerships[0].Resource)
