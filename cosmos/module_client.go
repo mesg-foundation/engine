@@ -63,21 +63,21 @@ func (mc *ModuleClient) CreateService(req *api.CreateServiceRequest) (*servicepb
 // GetService returns the service that matches given hash.
 func (mc *ModuleClient) GetService(hash hash.Hash) (*servicepb.Service, error) {
 	var out *servicepb.Service
-	route := sroutef("%s/%s/%s", service.QuerierRoute, service.QueryGetService, hash)
+	route := sroutef("%s/%s/%s", service.QuerierRoute, service.QueryGet, hash)
 	return out, mc.QueryJSON(route, nil, &out)
 }
 
 // ListService returns all services.
 func (mc *ModuleClient) ListService() ([]*servicepb.Service, error) {
 	var out []*servicepb.Service
-	route := sroutef("%s/%s", service.QuerierRoute, service.QueryListService)
+	route := sroutef("%s/%s", service.QuerierRoute, service.QueryList)
 	return out, mc.QueryJSON(route, nil, &out)
 }
 
 // ExistService returns if a service already exists.
 func (mc *ModuleClient) ExistService(hash hash.Hash) (bool, error) {
 	var out bool
-	route := sroutef("%s/%s/%s", service.QuerierRoute, service.QueryExistService, hash)
+	route := sroutef("%s/%s/%s", service.QuerierRoute, service.QueryExist, hash)
 	return out, mc.QueryJSON(route, nil, &out)
 }
 
@@ -103,21 +103,21 @@ func (mc *ModuleClient) CreateProcess(req *api.CreateProcessRequest) (*processpb
 // GetInstance returns the instance that matches given hash.
 func (mc *ModuleClient) GetInstance(hash hash.Hash) (*instancepb.Instance, error) {
 	var out *instancepb.Instance
-	route := sroutef("%s/%s/%s", instance.QuerierRoute, instance.QueryGetInstance, hash)
+	route := sroutef("%s/%s/%s", instance.QuerierRoute, instance.QueryGet, hash)
 	return out, mc.QueryJSON(route, nil, &out)
 }
 
 // ListInstance returns all instances.
 func (mc *ModuleClient) ListInstance(req *api.ListInstanceRequest) ([]*instancepb.Instance, error) {
 	var out []*instancepb.Instance
-	route := sroutef("%s/%s", instance.QuerierRoute, instance.QueryListInstances)
+	route := sroutef("%s/%s", instance.QuerierRoute, instance.QueryList)
 	return out, mc.QueryJSON(route, req, &out)
 }
 
 // ListOwnership returns all ownerships.
 func (mc *ModuleClient) ListOwnership() ([]*ownershippb.Ownership, error) {
 	var out []*ownershippb.Ownership
-	route := sroutef("%s/%s", ownership.QuerierRoute, ownership.QueryListOwnerships)
+	route := sroutef("%s/%s", ownership.QuerierRoute, ownership.QueryList)
 	return out, mc.QueryJSON(route, nil, &out)
 }
 
@@ -138,14 +138,14 @@ func (mc *ModuleClient) DeleteProcess(req *api.DeleteProcessRequest) error {
 // GetProcess returns the process that matches given hash.
 func (mc *ModuleClient) GetProcess(hash hash.Hash) (*processpb.Process, error) {
 	var out *processpb.Process
-	route := sroutef("%s/%s/%s", process.QuerierRoute, process.QueryGetProcess, hash.String())
+	route := sroutef("%s/%s/%s", process.QuerierRoute, process.QueryGet, hash.String())
 	return out, mc.QueryJSON(route, nil, &out)
 }
 
 // ListProcess returns all processes.
 func (mc *ModuleClient) ListProcess() ([]*processpb.Process, error) {
 	var out []*processpb.Process
-	route := sroutef("%s/%s", process.QuerierRoute, process.QueryListProcesses)
+	route := sroutef("%s/%s", process.QuerierRoute, process.QueryList)
 	return out, mc.QueryJSON(route, nil, &out)
 }
 
@@ -204,14 +204,14 @@ func (mc *ModuleClient) UpdateExecution(req *api.UpdateExecutionRequest) (*execu
 // GetExecution returns the execution that matches given hash.
 func (mc *ModuleClient) GetExecution(hash hash.Hash) (*executionpb.Execution, error) {
 	var out *executionpb.Execution
-	route := sroutef("%s/%s/%s", execution.QuerierRoute, execution.QueryGetExecution, hash)
+	route := sroutef("%s/%s/%s", execution.QuerierRoute, execution.QueryGet, hash)
 	return out, mc.QueryJSON(route, nil, &out)
 }
 
 // ListExecution returns all executions.
 func (mc *ModuleClient) ListExecution() ([]*executionpb.Execution, error) {
 	var out []*executionpb.Execution
-	route := sroutef("%s/%s", execution.QuerierRoute, execution.QueryListExecution)
+	route := sroutef("%s/%s", execution.QuerierRoute, execution.QueryList)
 	return out, mc.QueryJSON(route, nil, &out)
 }
 
@@ -293,7 +293,7 @@ func (mc *ModuleClient) DeleteRunner(req *api.DeleteRunnerRequest) error {
 // GetRunner returns the runner that matches given hash.
 func (mc *ModuleClient) GetRunner(hash hash.Hash) (*runnerpb.Runner, error) {
 	var out *runnerpb.Runner
-	route := sroutef("%s/%s/%s", runner.QuerierRoute, runner.QueryGetRunner, hash)
+	route := sroutef("%s/%s/%s", runner.QuerierRoute, runner.QueryGet, hash)
 	return out, mc.QueryJSON(route, nil, &out)
 }
 
@@ -306,7 +306,7 @@ type FilterRunner struct {
 // ListRunner returns all runners.
 func (mc *ModuleClient) ListRunner(f *FilterRunner) ([]*runnerpb.Runner, error) {
 	var rs []*runnerpb.Runner
-	route := sroutef("%s/%s", runner.QuerierRoute, runner.QueryListRunners)
+	route := sroutef("%s/%s", runner.QuerierRoute, runner.QueryList)
 	if err := mc.QueryJSON(route, nil, &rs); err != nil {
 		return nil, err
 	}

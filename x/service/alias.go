@@ -25,9 +25,9 @@ var (
 
 	ModuleCdc = types.ModuleCdc
 
-	QueryGetService   = types.QueryGetService
-	QueryListService  = types.QueryListService
-	QueryExistService = types.QueryExistService
+	QueryGet   = types.QueryGet
+	QueryList  = types.QueryList
+	QueryExist = types.QueryExist
 )
 
 // module types
