@@ -24,26 +24,29 @@ func testComplexService(t *testing.T) {
 		testServiceComplexStruct    *service.Service
 		testServiceComplexImageHash string
 		testInstanceComplexEnv      []string
+		err                         error
 	)
 
 	t.Run("create service", func(t *testing.T) {
 		testComplexCreateServiceMsg.Owner = engineAddress
-		testServiceComplexHash = lcdBroadcastMsg(testComplexCreateServiceMsg)
+		testServiceComplexHash, err = lcd.BroadcastMsg(testComplexCreateServiceMsg)
+		require.NoError(t, err)
 	})
 
-	t.Run("get service", func(t *testing.T) {
-		lcdGet("service/get/"+testServiceComplexHash.String(), &testServiceComplexStruct)
+	t.Run("get", func(t *testing.T) {
+		require.NoError(t, lcd.Get("service/get/"+testServiceComplexHash.String(), &testServiceComplexStruct))
 		require.Equal(t, testServiceComplexHash, testServiceComplexStruct.Hash)
 	})
 	testInstanceComplexEnv = xos.EnvMergeSlices(testServiceComplexStruct.Configuration.Env, []string{"ENVB=is_override"})
 
 	t.Run("get runner hashes", func(t *testing.T) {
 		var res runnerrest.HashResponse
-		lcdPost("runner/hash", &runnerrest.HashRequest{
+		err := lcd.Post("runner/hash", &runnerrest.HashRequest{
 			ServiceHash: testServiceComplexHash,
 			Address:     engineAddress.String(),
 			Env:         testInstanceComplexEnv,
 		}, &res)
+		require.NoError(t, err)
 		testRunnerComplexHash = res.RunnerHash
 		testInstanceComplexHash = res.InstanceHash
 		testInstanceComplexEnvHash = res.EnvHash
@@ -65,7 +68,9 @@ func testComplexService(t *testing.T) {
 			ServiceHash: testServiceComplexHash,
 			EnvHash:     testInstanceComplexEnvHash,
 		}
-		require.True(t, testRunnerComplexHash.Equal(lcdBroadcastMsg(msg)))
+		result, err := lcd.BroadcastMsg(msg)
+		require.NoError(t, err)
+		require.True(t, testRunnerComplexHash.Equal(result))
 	})
 
 	stream, err := client.EventClient.Stream(context.Background(), &pb.StreamEventRequest{})
@@ -99,7 +104,8 @@ func testComplexService(t *testing.T) {
 			Hash:  testRunnerComplexHash,
 		}
 
-		lcdBroadcastMsg(msg)
+		_, err := lcd.BroadcastMsg(msg)
+		require.NoError(t, err)
 
 		require.NoError(t, builder.Stop(cont, testRunnerComplexHash, testServiceComplexStruct.Dependencies))
 	})

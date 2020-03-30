@@ -23,8 +23,8 @@ var (
 	DefaultGenesisState = types.DefaultGenesisState
 	ValidateGenesis     = types.ValidateGenesis
 
-	ModuleCdc           = types.ModuleCdc
-	QueryListOwnerships = types.QueryListOwnerships
+	ModuleCdc = types.ModuleCdc
+	QueryList = types.QueryList
 )
 
 // module types

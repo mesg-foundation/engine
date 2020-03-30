@@ -23,8 +23,8 @@ import (
 	tenderminttypes "github.com/tendermint/tendermint/types"
 )
 
-// Client is a tendermint client with helper functions.
-type Client struct {
+// RPC is a tendermint rpc client with helper functions.
+type RPC struct {
 	rpcclient.Client
 	cdc          *codec.Codec
 	kb           keys.Keybase
@@ -39,13 +39,13 @@ type Client struct {
 	broadcastMutex  sync.Mutex
 }
 
-// NewClient returns a rpc tendermint client.
-func NewClient(client rpcclient.Client, cdc *codec.Codec, kb keys.Keybase, chainID, accName, accPassword, minGasPrices string) (*Client, error) {
+// NewRPC returns a rpc tendermint client.
+func NewRPC(client rpcclient.Client, cdc *codec.Codec, kb keys.Keybase, chainID, accName, accPassword, minGasPrices string) (*RPC, error) {
 	minGasPricesDecoded, err := sdktypes.ParseDecCoins(minGasPrices)
 	if err != nil {
 		return nil, err
 	}
-	return &Client{
+	return &RPC{
 		Client:       client,
 		cdc:          cdc,
 		kb:           kb,
@@ -57,7 +57,7 @@ func NewClient(client rpcclient.Client, cdc *codec.Codec, kb keys.Keybase, chain
 }
 
 // QueryJSON is abci.query wrapper with errors check and decode data.
-func (c *Client) QueryJSON(path string, qdata, ptr interface{}) error {
+func (c *RPC) QueryJSON(path string, qdata, ptr interface{}) error {
 	var data []byte
 	if !xreflect.IsNil(qdata) {
 		b, err := c.cdc.MarshalJSON(qdata)
@@ -77,7 +77,7 @@ func (c *Client) QueryJSON(path string, qdata, ptr interface{}) error {
 // QueryWithData performs a query to a Tendermint node with the provided path
 // and a data payload. It returns the result and height of the query upon success
 // or an error if the query fails.
-func (c *Client) QueryWithData(path string, data []byte) ([]byte, int64, error) {
+func (c *RPC) QueryWithData(path string, data []byte) ([]byte, int64, error) {
 	result, err := c.ABCIQuery(path, data)
 	if err != nil {
 		return nil, 0, err
@@ -90,7 +90,7 @@ func (c *Client) QueryWithData(path string, data []byte) ([]byte, int64, error) 
 }
 
 // BuildAndBroadcastMsg builds and signs message and broadcast it to node.
-func (c *Client) BuildAndBroadcastMsg(msg sdktypes.Msg) (*abci.ResponseDeliverTx, error) {
+func (c *RPC) BuildAndBroadcastMsg(msg sdktypes.Msg) (*abci.ResponseDeliverTx, error) {
 	c.broadcastMutex.Lock() // Lock the whole signature + broadcast of the transaction
 	signedTx, err := c.CreateAndSignTx([]sdktypes.Msg{msg})
 	if err != nil {
@@ -136,7 +136,7 @@ func (c *Client) BuildAndBroadcastMsg(msg sdktypes.Msg) (*abci.ResponseDeliverTx
 }
 
 // Stream subscribes to the provided query and returns the hash of the matching ressources.
-func (c *Client) Stream(ctx context.Context, query string) (chan hash.Hash, chan error, error) {
+func (c *RPC) Stream(ctx context.Context, query string) (chan hash.Hash, chan error, error) {
 	subscriber := xstrings.RandASCIILetters(8)
 	eventStream, err := c.Subscribe(ctx, subscriber, query, 0)
 	if err != nil {
@@ -170,7 +170,7 @@ func (c *Client) Stream(ctx context.Context, query string) (chan hash.Hash, chan
 }
 
 // GetAccount returns the local account.
-func (c *Client) GetAccount() (authExported.Account, error) {
+func (c *RPC) GetAccount() (authExported.Account, error) {
 	c.getAccountMutex.Lock()
 	defer c.getAccountMutex.Unlock()
 	if c.acc == nil {
@@ -200,7 +200,7 @@ func (c *Client) GetAccount() (authExported.Account, error) {
 }
 
 // CreateAndSignTx build and sign a msg with client account.
-func (c *Client) CreateAndSignTx(msgs []sdktypes.Msg) (tenderminttypes.Tx, error) {
+func (c *RPC) CreateAndSignTx(msgs []sdktypes.Msg) (tenderminttypes.Tx, error) {
 	// retrieve account
 	accR, err := c.GetAccount()
 	if err != nil {

@@ -13,17 +13,17 @@ import (
 func NewQuerier(k Keeper) sdk.Querier {
 	return func(ctx sdk.Context, path []string, req abci.RequestQuery) ([]byte, error) {
 		switch path[0] {
-		case types.QueryGetInstance:
-			return getInstance(ctx, path[1:], k)
-		case types.QueryListInstances:
-			return listInstance(ctx, req, k)
+		case types.QueryGet:
+			return get(ctx, path[1:], k)
+		case types.QueryList:
+			return list(ctx, req, k)
 		default:
 			return nil, sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, "unknown instance query endpoint")
 		}
 	}
 }
 
-func getInstance(ctx sdk.Context, path []string, k Keeper) ([]byte, error) {
+func get(ctx sdk.Context, path []string, k Keeper) ([]byte, error) {
 	if len(path) == 0 {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "missing hash")
 	}
@@ -44,7 +44,7 @@ func getInstance(ctx sdk.Context, path []string, k Keeper) ([]byte, error) {
 	return res, nil
 }
 
-func listInstance(ctx sdk.Context, req abci.RequestQuery, k Keeper) ([]byte, error) {
+func list(ctx sdk.Context, req abci.RequestQuery, k Keeper) ([]byte, error) {
 	var f *api.ListInstanceRequest_Filter
 	if len(req.Data) > 0 {
 		var r *api.ListInstanceRequest

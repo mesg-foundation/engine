@@ -29,11 +29,12 @@ func testRunner(t *testing.T) {
 	)
 	t.Run("hash", func(t *testing.T) {
 		var res runnerrest.HashResponse
-		lcdPost("runner/hash", &runnerrest.HashRequest{
+		err := lcd.Post("runner/hash", &runnerrest.HashRequest{
 			ServiceHash: testServiceHash,
 			Address:     engineAddress.String(),
 			Env:         testInstanceEnv,
 		}, &res)
+		require.NoError(t, err)
 		testRunnerHash = res.RunnerHash
 		testInstanceHash = res.InstanceHash
 		testInstanceEnvHash = res.EnvHash
@@ -63,7 +64,9 @@ func testRunner(t *testing.T) {
 			ServiceHash: testServiceHash,
 			EnvHash:     testInstanceEnvHash,
 		}
-		require.True(t, testRunnerHash.Equal(lcdBroadcastMsg(msg)))
+		result, err := lcd.BroadcastMsg(msg)
+		require.NoError(t, err)
+		require.True(t, testRunnerHash.Equal(result))
 
 		// wait for service to be ready
 		_, err = stream.Recv()
@@ -72,14 +75,14 @@ func testRunner(t *testing.T) {
 
 	t.Run("get", func(t *testing.T) {
 		var run *runner.Runner
-		lcdGet("runner/get/"+testRunnerHash.String(), &run)
+		require.NoError(t, lcd.Get("runner/get/"+testRunnerHash.String(), &run))
 		require.Equal(t, testRunnerHash, run.Hash)
 		testRunnerAddress = run.Address
 	})
 
 	t.Run("list", func(t *testing.T) {
 		rs := make([]*runner.Runner, 0)
-		lcdGet("runner/list", &rs)
+		require.NoError(t, lcd.Get("runner/list", &rs))
 		require.Len(t, rs, 1)
 		require.Equal(t, testInstanceHash, rs[0].InstanceHash)
 		require.Equal(t, testRunnerHash, rs[0].Hash)
@@ -91,19 +94,20 @@ func testDeleteRunner(t *testing.T) {
 		Owner: engineAddress,
 		Hash:  testRunnerHash,
 	}
-	lcdBroadcastMsg(msg)
+	_, err := lcd.BroadcastMsg(msg)
+	require.NoError(t, err)
 
 	require.NoError(t, builder.Stop(cont, testRunnerHash, testServiceStruct.Dependencies))
 
 	t.Run("check deletion", func(t *testing.T) {
 		rs := make([]*runner.Runner, 0)
-		lcdGet("runner/list", &rs)
+		require.NoError(t, lcd.Get("runner/list", &rs))
 		require.Len(t, rs, 0)
 	})
 
 	t.Run("check coins on runner", func(t *testing.T) {
 		var coins sdk.Coins
-		lcdGet("bank/balances/"+testRunnerAddress.String(), &coins)
+		require.NoError(t, lcd.Get("bank/balances/"+testRunnerAddress.String(), &coins))
 		require.True(t, coins.IsZero(), coins)
 	})
 }
