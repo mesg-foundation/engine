@@ -33,9 +33,9 @@ type LCD struct {
 	gasLimit     uint64
 
 	// local state
-	acc             *auth.BaseAccount
-	getAccountMutex sync.Mutex
-	broadcastMutex  sync.Mutex
+	acc            *auth.BaseAccount
+	accountMutex   sync.Mutex
+	broadcastMutex sync.Mutex
 }
 
 // NewLCD initializes a cosmos LCD client.
@@ -158,7 +158,9 @@ func (lcd *LCD) BroadcastMsgs(msgs []sdk.Msg) ([]byte, error) {
 	}
 
 	// only increase sequence if no error during broadcast of tx
-	acc.SetSequence(acc.GetSequence() + 1)
+	if err := lcd.setAccountSequence(acc.GetSequence() + 1); err != nil {
+		return nil, err
+	}
 
 	// decode result
 	result, err := hex.DecodeString(res.Data)
@@ -168,9 +170,10 @@ func (lcd *LCD) BroadcastMsgs(msgs []sdk.Msg) ([]byte, error) {
 	return result, nil
 }
 
+// getAccount returns the local account.
 func (lcd *LCD) getAccount() (*auth.BaseAccount, error) {
-	lcd.getAccountMutex.Lock()
-	defer lcd.getAccountMutex.Unlock()
+	lcd.accountMutex.Lock()
+	defer lcd.accountMutex.Unlock()
 	if lcd.acc == nil {
 		accKb, err := lcd.kb.Get(lcd.accName)
 		if err != nil {
@@ -187,6 +190,16 @@ func (lcd *LCD) getAccount() (*auth.BaseAccount, error) {
 		lcd.acc.SetSequence(localSeq)
 	}
 	return lcd.acc, nil
+}
+
+// setAccountSequence sets the sequence on the local account.
+func (lcd *LCD) setAccountSequence(seq uint64) error {
+	lcd.accountMutex.Lock()
+	defer lcd.accountMutex.Unlock()
+	if lcd.acc == nil {
+		return fmt.Errorf("lcd.acc should not be nil. use getAccount first")
+	}
+	return lcd.acc.SetSequence(seq)
 }
 
 func (lcd *LCD) createAndSignTx(msgs []sdk.Msg, acc *auth.BaseAccount) (authtypes.StdTx, error) {

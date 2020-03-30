@@ -34,9 +34,9 @@ type RPC struct {
 	minGasPrices sdktypes.DecCoins
 
 	// Local state
-	acc             authExported.Account
-	getAccountMutex sync.Mutex
-	broadcastMutex  sync.Mutex
+	acc            authExported.Account
+	accountMutex   sync.Mutex
+	broadcastMutex sync.Mutex
 }
 
 // NewRPC returns a rpc tendermint client.
@@ -122,7 +122,9 @@ func (c *RPC) buildAndBroadcastMsgNoResult(msg sdktypes.Msg) (tenderminttypes.Tx
 	}
 
 	// only increase sequence if no error during broadcast of tx
-	acc.SetSequence(acc.GetSequence() + 1)
+	if err := c.setAccountSequence(acc.GetSequence() + 1); err != nil {
+		return nil, err
+	}
 
 	return signedTx, nil
 }
@@ -191,8 +193,8 @@ func (c *RPC) Stream(ctx context.Context, query string) (chan hash.Hash, chan er
 
 // GetAccount returns the local account.
 func (c *RPC) GetAccount() (authExported.Account, error) {
-	c.getAccountMutex.Lock()
-	defer c.getAccountMutex.Unlock()
+	c.accountMutex.Lock()
+	defer c.accountMutex.Unlock()
 	if c.acc == nil {
 		accKb, err := c.kb.Get(c.accName)
 		if err != nil {
@@ -206,17 +208,27 @@ func (c *RPC) GetAccount() (authExported.Account, error) {
 			0,
 		)
 	}
-	localSeq := c.acc.GetSequence()
 	accR, err := auth.NewAccountRetriever(c).GetAccount(c.acc.GetAddress())
 	if err != nil {
 		return nil, err
 	}
+	localSeq := c.acc.GetSequence()
 	c.acc = accR
 	// replace seq if sup
 	if localSeq > c.acc.GetSequence() {
 		c.acc.SetSequence(localSeq)
 	}
 	return c.acc, nil
+}
+
+// setAccountSequence sets the sequence on the local account.
+func (c *RPC) setAccountSequence(seq uint64) error {
+	c.accountMutex.Lock()
+	defer c.accountMutex.Unlock()
+	if c.acc == nil {
+		return fmt.Errorf("c.acc should not be nil. use GetAccount first")
+	}
+	return c.acc.SetSequence(seq)
 }
 
 // createAndSignTx build and sign a msg with client account.
