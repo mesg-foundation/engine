@@ -25,22 +25,22 @@ func GetQueryCmd(queryRoute string, cdc *codec.Codec) *cobra.Command {
 
 	executionQueryCmd.AddCommand(
 		flags.GetCommands(
-			GetCmdGetExecution(queryRoute, cdc),
-			GetCmdListExecution(queryRoute, cdc),
+			GetCmdGet(queryRoute, cdc),
+			GetCmdList(queryRoute, cdc),
 		)...,
 	)
 
 	return executionQueryCmd
 }
 
-func GetCmdGetExecution(queryRoute string, cdc *codec.Codec) *cobra.Command {
+func GetCmdGet(queryRoute string, cdc *codec.Codec) *cobra.Command {
 	return &cobra.Command{
 		Use:   "get [hash]",
 		Short: "get",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
-			res, _, err := cliCtx.QueryWithData(fmt.Sprintf("custom/%s/%s/%s", queryRoute, types.QueryGetExecution, args[0]), nil)
+			res, _, err := cliCtx.QueryWithData(fmt.Sprintf("custom/%s/%s/%s", queryRoute, types.QueryGet, args[0]), nil)
 			if err != nil {
 				fmt.Printf("could not get execution\n%s\n", err.Error())
 				return nil
@@ -53,13 +53,13 @@ func GetCmdGetExecution(queryRoute string, cdc *codec.Codec) *cobra.Command {
 	}
 }
 
-func GetCmdListExecution(queryRoute string, cdc *codec.Codec) *cobra.Command {
+func GetCmdList(queryRoute string, cdc *codec.Codec) *cobra.Command {
 	return &cobra.Command{
 		Use:   "list",
 		Short: "list",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
-			res, _, err := cliCtx.QueryWithData(fmt.Sprintf("custom/%s/%s", queryRoute, types.QueryListExecution), nil)
+			res, _, err := cliCtx.QueryWithData(fmt.Sprintf("custom/%s/%s", queryRoute, types.QueryList), nil)
 			if err != nil {
 				fmt.Printf("could not list executions\n%s\n", err.Error())
 				return nil

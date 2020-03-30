@@ -239,7 +239,7 @@ func (k *Keeper) Update(ctx sdk.Context, msg types.MsgUpdate) (*executionpb.Exec
 
 	switch res := msg.Result.(type) {
 	case *types.MsgUpdate_Outputs:
-		if err := k.validateExecutionOutput(ctx, exec.InstanceHash, exec.TaskKey, res.Outputs); err != nil {
+		if err := k.validateOutput(ctx, exec.InstanceHash, exec.TaskKey, res.Outputs); err != nil {
 			if err1 := exec.Fail(err); err1 != nil {
 				return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, err1.Error())
 			}
@@ -361,7 +361,7 @@ func (k *Keeper) distributePriceShares(ctx sdk.Context, execAddress, runnerAddre
 	return nil
 }
 
-func (k *Keeper) validateExecutionOutput(ctx sdk.Context, instanceHash hash.Hash, taskKey string, outputs *typespb.Struct) error {
+func (k *Keeper) validateOutput(ctx sdk.Context, instanceHash hash.Hash, taskKey string, outputs *typespb.Struct) error {
 	inst, err := k.instanceKeeper.Get(ctx, instanceHash)
 	if err != nil {
 		return err

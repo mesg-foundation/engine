@@ -43,7 +43,7 @@ func queryGetHandlerFn(cliCtx context.CLIContext) http.HandlerFunc {
 			return
 		}
 
-		route := fmt.Sprintf("custom/%s/%s/%s", types.QuerierRoute, types.QueryGetProcess, vars["hash"])
+		route := fmt.Sprintf("custom/%s/%s/%s", types.QuerierRoute, types.QueryGet, vars["hash"])
 
 		res, height, err := cliCtx.QueryWithData(route, nil)
 		if err != nil {
@@ -63,7 +63,7 @@ func queryListHandlerFn(cliCtx context.CLIContext) http.HandlerFunc {
 			return
 		}
 
-		route := fmt.Sprintf("custom/%s/%s", types.QuerierRoute, types.QueryListProcesses)
+		route := fmt.Sprintf("custom/%s/%s", types.QuerierRoute, types.QueryList)
 
 		res, height, err := cliCtx.QueryWithData(route, nil)
 		if err != nil {

@@ -23,9 +23,9 @@ var (
 	DefaultGenesisState = types.DefaultGenesisState
 	ValidateGenesis     = types.ValidateGenesis
 
-	ModuleCdc          = types.ModuleCdc
-	QueryGetInstance   = types.QueryGetInstance
-	QueryListInstances = types.QueryListInstances
+	ModuleCdc = types.ModuleCdc
+	QueryGet  = types.QueryGet
+	QueryList = types.QueryList
 )
 
 // module types
