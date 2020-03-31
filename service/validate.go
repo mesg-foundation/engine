@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"strings"
 
+	validator "github.com/go-playground/validator/v10"
 	"github.com/mesg-foundation/engine/ext/xerrors"
 	"github.com/mesg-foundation/engine/ext/xvalidator"
-	validator "gopkg.in/go-playground/validator.v9"
 )
 
 const namespacePrefix = "service."

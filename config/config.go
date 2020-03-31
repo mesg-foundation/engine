@@ -9,10 +9,10 @@ import (
 
 	sdkcosmos "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/go-bip39"
+	"github.com/go-playground/validator/v10"
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/sirupsen/logrus"
 	tmconfig "github.com/tendermint/tendermint/config"
-	"gopkg.in/go-playground/validator.v9"
 	"gopkg.in/yaml.v2"
 )
 
