@@ -17,9 +17,8 @@ import (
 
 const (
 	// env variables for configure mesg client.
-	envMesgEndpoint  = "MESG_ENDPOINT"
-	envMesgMsg       = "MESG_MSG"
-	envMesgSignature = "MESG_SIGNATURE"
+	envMesgEndpoint        = "MESG_ENDPOINT"
+	envMesgRegisterPayload = "MESG_REGISTER_PAYLOAD"
 )
 
 // newClient creates a new client from env variables supplied by mesg engine.
@@ -48,18 +47,8 @@ func newClient() (runner.RunnerClient, error) {
 }
 
 func register(client runner.RunnerClient) (string, error) {
-	msg := os.Getenv(envMesgMsg)
-	if msg == "" {
-		return "", fmt.Errorf("env %q is empty", envMesgMsg)
-	}
-	signature := os.Getenv(envMesgSignature)
-	if signature == "" {
-		return "", fmt.Errorf("env %q is empty", envMesgSignature)
-	}
-
 	resp, err := client.Register(context.Background(), &runner.RegisterRequest{
-		Msg:       msg,
-		Signature: signature,
+		Payload: os.Getenv(envMesgRegisterPayload),
 	})
 	if err != nil {
 		return "", err

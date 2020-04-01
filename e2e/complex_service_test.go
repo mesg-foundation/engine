@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"encoding/hex"
 	"testing"
 
 	"github.com/mesg-foundation/engine/ext/xos"
@@ -10,6 +9,7 @@ import (
 	"github.com/mesg-foundation/engine/protobuf/acknowledgement"
 	pb "github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/mesg-foundation/engine/runner/builder"
+	grpcrunner "github.com/mesg-foundation/engine/server/grpc/runner"
 	"github.com/mesg-foundation/engine/service"
 	runnermodule "github.com/mesg-foundation/engine/x/runner"
 	runnerrest "github.com/mesg-foundation/engine/x/runner/client/rest"
@@ -60,18 +60,26 @@ func testComplexService(t *testing.T) {
 	})
 
 	t.Run("create msg, sign it and inject into env", func(t *testing.T) {
-		msgCreate := runnermodule.MsgCreate{
-			Owner:       engineAddress,
+		value := grpcrunner.RegisterRequestPayload_Value{
 			ServiceHash: testServiceComplexHash,
 			EnvHash:     testInstanceComplexEnvHash,
 		}
-		encodedMsg, err := cdc.MarshalJSON(msgCreate)
-		require.NoError(t, err)
-		testInstanceComplexEnv = append(testInstanceComplexEnv, "MESG_MSG="+string(encodedMsg))
 
-		signature, _, err := kb.Sign(engineAccountName, engineAccountPassword, encodedMsg)
+		encodedValue, err := cdc.MarshalJSON(value)
 		require.NoError(t, err)
-		testInstanceComplexEnv = append(testInstanceComplexEnv, "MESG_SIGNATURE="+hex.EncodeToString(signature))
+
+		signature, _, err := kb.Sign(engineAccountName, engineAccountPassword, encodedValue)
+		require.NoError(t, err)
+
+		payload := grpcrunner.RegisterRequestPayload{
+			Signature: signature,
+			Value:     value,
+		}
+
+		encodedPayload, err := cdc.MarshalJSON(payload)
+		require.NoError(t, err)
+
+		testInstanceComplexEnv = append(testInstanceComplexEnv, "MESG_REGISTER_PAYLOAD="+string(encodedPayload))
 	})
 
 	t.Run("start runner", func(t *testing.T) {

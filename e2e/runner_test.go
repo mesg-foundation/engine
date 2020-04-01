@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"encoding/hex"
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -12,6 +11,7 @@ import (
 	pb "github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/mesg-foundation/engine/runner"
 	"github.com/mesg-foundation/engine/runner/builder"
+	grpcrunner "github.com/mesg-foundation/engine/server/grpc/runner"
 	runnermodule "github.com/mesg-foundation/engine/x/runner"
 	runnerrest "github.com/mesg-foundation/engine/x/runner/client/rest"
 	"github.com/stretchr/testify/require"
@@ -48,18 +48,25 @@ func testRunner(t *testing.T) {
 	})
 
 	t.Run("create msg, sign it and inject into env", func(t *testing.T) {
-		msgCreate := runnermodule.MsgCreate{
-			Owner:       engineAddress,
+		value := grpcrunner.RegisterRequestPayload_Value{
 			ServiceHash: testServiceHash,
 			EnvHash:     testInstanceEnvHash,
 		}
-		encodedMsg, err := cdc.MarshalJSON(msgCreate)
-		require.NoError(t, err)
-		testInstanceEnv = append(testInstanceEnv, "MESG_MSG="+string(encodedMsg))
 
-		signature, _, err := kb.Sign(engineAccountName, engineAccountPassword, encodedMsg)
+		encodedValue, err := cdc.MarshalJSON(value)
 		require.NoError(t, err)
-		testInstanceEnv = append(testInstanceEnv, "MESG_SIGNATURE="+hex.EncodeToString(signature))
+
+		signature, _, err := kb.Sign(engineAccountName, engineAccountPassword, encodedValue)
+		require.NoError(t, err)
+
+		payload := grpcrunner.RegisterRequestPayload{
+			Signature: signature,
+			Value:     value,
+		}
+		encodedPayload, err := cdc.MarshalJSON(payload)
+		require.NoError(t, err)
+
+		testInstanceEnv = append(testInstanceEnv, "MESG_REGISTER_PAYLOAD="+string(encodedPayload))
 	})
 
 	t.Run("wait for service to be ready", func(t *testing.T) {
