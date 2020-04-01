@@ -7,6 +7,9 @@ protoc --gogo_out=paths=source_relative:. x/runner/internal/types/msg.proto
 protoc --gogo_out=paths=source_relative:. x/execution/internal/types/msg.proto
 protoc --gogo_out=paths=source_relative:. x/ownership/internal/types/msg.proto
 
+# generate gRPC runner api
+protoc --gogo_out=paths=source_relative,plugins=grpc:. server/grpc/runner/runner.proto
+
 TYPES_PATH=protobuf/types
 APIS_PATH=protobuf/api
 

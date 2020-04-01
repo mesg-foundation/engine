@@ -1,0 +1,86 @@
+syntax = "proto3";
+  
+import "gogo/protobuf/gogoproto/gogo.proto";
+import "protobuf/types/execution.proto";
+import "protobuf/types/struct.proto";
+
+package mesg.grpc.runner;
+option go_package = "github.com/mesg-foundation/engine/service/grpc/runner";
+
+// This is the API the Runners use to interact with the Engine.
+service Runner {
+  // Register registers a new runner to the Engine.
+  // This endpoint should only be called when the runner is ready to receive execution and emit events.
+  rpc Register(RegisterRequest) returns (RegisterResponse) {}
+
+  // Execution returns a stream of executions that contains the Execution the Runner must execute.
+  rpc Execution(ExecutionRequest) returns (stream types.Execution) {}
+
+  // Result should be used to return the result of an Execution.
+  rpc Result(ResultRequest) returns (ResultResponse) {}
+
+  // Event should be used to emits an event.
+  rpc Event(EventRequest) returns (EventResponse) {}
+}
+
+// RegisterRequest is the request of the endpoint Register.
+message RegisterRequest {
+  // msg to use to register this runner. it should be a JSON encoded runner module MsgCreate
+  string msg = 1 [
+    (gogoproto.moretags) = 'validate:"required,json"'
+  ];
+  // TODO: the following doesn't work because the msg is declared in an internal package.
+  // mesg.runner.types.MsgCreate msg = 1 [
+  //   (gogoproto.customtype) = "github.com/mesg-foundation/engine/x/runner.MsgCreate"
+  // ];
+
+  // signature of the msg to verify authenticity. it should be hexadecimal encoded.
+  string signature = 2 [ 
+    (gogoproto.moretags) = 'validate:"required,hexadecimal"'
+  ];
+}
+
+// RegisterResponse is the response of the endpoint Register.
+message RegisterResponse {
+  // token to use with the other endpoints of this API.
+  string token = 1;
+}
+
+// ExecutionRequest is the request of the endpoint Execution.
+message ExecutionRequest {}
+
+// EventRequest is the request of the endpoint Result.
+message ResultRequest {
+  // Execution's hash of the executed execution.
+  bytes executionHash = 1 [
+    (gogoproto.moretags) = 'validate:"required,hash"',
+    (gogoproto.casttype) = "github.com/mesg-foundation/engine/hash.Hash"
+  ];
+
+  // Execution's result.
+  oneof result {
+    // outputs of the result.
+    mesg.protobuf.Struct outputs = 2;
+
+    // error should contain the error occured during the execution.
+    string error = 3;
+  }
+}
+
+// ResultResponse is the response of the endpoint Result.
+message ResultResponse {}
+
+
+// EventRequest is the request of the endpoint Event.
+message EventRequest {
+  // Event's key
+  string key = 1 [
+    (gogoproto.moretags) = 'validate:"required,printascii"'
+  ];
+
+  // Event's data
+  mesg.protobuf.Struct data = 2;
+}
+
+// EventResponse is the response of the endpoint Event.
+message EventResponse {}
