@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/hex"
 	"testing"
 
 	"github.com/mesg-foundation/engine/ext/xos"
@@ -58,19 +59,23 @@ func testComplexService(t *testing.T) {
 		require.NoError(t, err)
 	})
 
-	t.Run("start runner", func(t *testing.T) {
-		require.NoError(t, builder.Start(cont, testServiceComplexStruct, testInstanceComplexHash, testRunnerComplexHash, testServiceComplexImageHash, testInstanceComplexEnv, engineName, enginePort))
-	})
-
-	t.Run("register runner", func(t *testing.T) {
-		msg := runnermodule.MsgCreate{
+	t.Run("create msg, sign it and inject into env", func(t *testing.T) {
+		msgCreate := runnermodule.MsgCreate{
 			Owner:       engineAddress,
 			ServiceHash: testServiceComplexHash,
 			EnvHash:     testInstanceComplexEnvHash,
 		}
-		result, err := lcd.BroadcastMsg(msg)
+		encodedMsg, err := cdc.MarshalJSON(msgCreate)
 		require.NoError(t, err)
-		require.True(t, testRunnerComplexHash.Equal(result))
+		testInstanceComplexEnv = append(testInstanceComplexEnv, "MESG_MSG="+string(encodedMsg))
+
+		signature, _, err := kb.Sign(engineAccountName, engineAccountPassword, encodedMsg)
+		require.NoError(t, err)
+		testInstanceComplexEnv = append(testInstanceComplexEnv, "MESG_SIGNATURE="+hex.EncodeToString(signature))
+	})
+
+	t.Run("start runner", func(t *testing.T) {
+		require.NoError(t, builder.Start(cont, testServiceComplexStruct, testInstanceComplexHash, testRunnerComplexHash, testServiceComplexImageHash, testInstanceComplexEnv, engineName, enginePort))
 	})
 
 	stream, err := client.EventClient.Stream(context.Background(), &pb.StreamEventRequest{})

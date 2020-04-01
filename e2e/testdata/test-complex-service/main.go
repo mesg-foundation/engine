@@ -10,38 +10,23 @@ import (
 	"time"
 
 	"github.com/mesg-foundation/engine/ext/xsignal"
-	"github.com/mesg-foundation/engine/hash"
-	pb "github.com/mesg-foundation/engine/protobuf/api"
+	"github.com/mesg-foundation/engine/server/grpc/runner"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/keepalive"
 )
 
 const (
 	// env variables for configure mesg client.
-	envMesgEndpoint     = "MESG_ENDPOINT"
-	envMesgInstanceHash = "MESG_INSTANCE_HASH"
+	envMesgEndpoint  = "MESG_ENDPOINT"
+	envMesgMsg       = "MESG_MSG"
+	envMesgSignature = "MESG_SIGNATURE"
 )
 
-// Client is a client to connect to all mesg exposed API.
-type Client struct {
-	// all clients registered by mesg server.
-	pb.EventClient
-	pb.ExecutionClient
-
-	// instance hash that could be used in api calls.
-	InstanceHash hash.Hash
-}
-
-// New creates a new client from env variables supplied by mesg engine.
-func New() (*Client, error) {
+// newClient creates a new client from env variables supplied by mesg engine.
+func newClient() (runner.RunnerClient, error) {
 	endpoint := os.Getenv(envMesgEndpoint)
 	if endpoint == "" {
-		return nil, fmt.Errorf("client: mesg server address env(%s) is empty", envMesgEndpoint)
-	}
-
-	instanceHash, err := hash.Decode(os.Getenv(envMesgInstanceHash))
-	if err != nil {
-		return nil, fmt.Errorf("client: error with mesg's instance hash env(%s): %s", envMesgInstanceHash, err.Error())
+		return nil, fmt.Errorf("env %q is empty", envMesgEndpoint)
 	}
 
 	dialoptions := []grpc.DialOption{
@@ -59,20 +44,35 @@ func New() (*Client, error) {
 		return nil, fmt.Errorf("client: connection error: %s", err)
 	}
 
-	return &Client{
-		ExecutionClient: pb.NewExecutionClient(conn),
-		EventClient:     pb.NewEventClient(conn),
-		InstanceHash:    instanceHash,
-	}, nil
+	return runner.NewRunnerClient(conn), nil
 }
 
-// SendEvent creates a new event.
-func (c *Client) SendEvent(key string) {
+func register(client runner.RunnerClient) (string, error) {
+	msg := os.Getenv(envMesgMsg)
+	if msg == "" {
+		return "", fmt.Errorf("env %q is empty", envMesgMsg)
+	}
+	signature := os.Getenv(envMesgSignature)
+	if signature == "" {
+		return "", fmt.Errorf("env %q is empty", envMesgSignature)
+	}
+
+	resp, err := client.Register(context.Background(), &runner.RegisterRequest{
+		Msg:       msg,
+		Signature: signature,
+	})
+	if err != nil {
+		return "", err
+	}
+	return resp.Token, nil
+}
+
+// sendEvent creates a new event.
+func sendEvent(client runner.RunnerClient, token string, key string) {
 	log.Println("sending event:", key)
-	if _, err := c.EventClient.Create(context.Background(), &pb.CreateEventRequest{
-		InstanceHash: c.InstanceHash,
-		Key:          key,
-	}); err != nil {
+	if _, err := client.Event(context.Background(), &runner.EventRequest{
+		Key: key,
+	}, grpc.PerRPCCredentials(runner.NewTokenCredential(token))); err != nil {
 		log.Fatal(err)
 	}
 }
@@ -80,47 +80,53 @@ func (c *Client) SendEvent(key string) {
 func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 
-	client, err := New()
+	client, err := newClient()
 	if err != nil {
 		log.Fatal(err)
 	}
 	log.Printf("connected to %s\n", os.Getenv(envMesgEndpoint))
 
+	token, err := register(client)
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Printf("registered with token %s\n", token)
+
 	// give some time to nginx to start
 	time.Sleep(10 * time.Second)
 
-	client.SendEvent("test_service_ready")
+	sendEvent(client, token, "test_service_ready")
 
 	// check env default value
 	if os.Getenv("ENVA") == "do_not_override" {
-		client.SendEvent("read_env_ok")
+		sendEvent(client, token, "read_env_ok")
 	} else {
-		client.SendEvent("read_env_error")
+		sendEvent(client, token, "read_env_error")
 	}
 
 	// check env override value
 	if os.Getenv("ENVB") == "is_override" {
-		client.SendEvent("read_env_override_ok")
+		sendEvent(client, token, "read_env_override_ok")
 	} else {
-		client.SendEvent("read_env_override_error")
+		sendEvent(client, token, "read_env_override_error")
 	}
 
 	if err := ioutil.WriteFile("/volume/test/test.txt", []byte("foo"), 0644); err == nil {
-		client.SendEvent("access_volumes_ok")
+		sendEvent(client, token, "access_volumes_ok")
 	} else {
-		client.SendEvent("access_volumes_error")
+		sendEvent(client, token, "access_volumes_error")
 	}
 
 	if _, err := http.Get("http://nginx:80/"); err == nil {
-		client.SendEvent("resolve_dependence_ok")
+		sendEvent(client, token, "resolve_dependence_ok")
 	} else {
-		client.SendEvent("resolve_dependence_error")
+		sendEvent(client, token, "resolve_dependence_error")
 	}
 
 	if content, err := ioutil.ReadFile("/etc/nginx/nginx.conf"); len(content) > 0 && err == nil {
-		client.SendEvent("access_volumes_from_ok")
+		sendEvent(client, token, "access_volumes_from_ok")
 	} else {
-		client.SendEvent("access_volumes_from_error")
+		sendEvent(client, token, "access_volumes_from_error")
 	}
 
 	<-xsignal.WaitForInterrupt()

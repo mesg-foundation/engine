@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/hex"
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -46,11 +47,22 @@ func testRunner(t *testing.T) {
 		require.NoError(t, err)
 	})
 
-	t.Run("start", func(t *testing.T) {
-		require.NoError(t, builder.Start(cont, testServiceStruct, testInstanceHash, testRunnerHash, testServiceImageHash, testInstanceEnv, engineName, enginePort))
+	t.Run("create msg, sign it and inject into env", func(t *testing.T) {
+		msgCreate := runnermodule.MsgCreate{
+			Owner:       engineAddress,
+			ServiceHash: testServiceHash,
+			EnvHash:     testInstanceEnvHash,
+		}
+		encodedMsg, err := cdc.MarshalJSON(msgCreate)
+		require.NoError(t, err)
+		testInstanceEnv = append(testInstanceEnv, "MESG_MSG="+string(encodedMsg))
+
+		signature, _, err := kb.Sign(engineAccountName, engineAccountPassword, encodedMsg)
+		require.NoError(t, err)
+		testInstanceEnv = append(testInstanceEnv, "MESG_SIGNATURE="+hex.EncodeToString(signature))
 	})
 
-	t.Run("register", func(t *testing.T) {
+	t.Run("wait for service to be ready", func(t *testing.T) {
 		stream, err := client.EventClient.Stream(context.Background(), &pb.StreamEventRequest{
 			Filter: &pb.StreamEventRequest_Filter{
 				Key: "test_service_ready",
@@ -59,14 +71,9 @@ func testRunner(t *testing.T) {
 		require.NoError(t, err)
 		acknowledgement.WaitForStreamToBeReady(stream)
 
-		msg := runnermodule.MsgCreate{
-			Owner:       engineAddress,
-			ServiceHash: testServiceHash,
-			EnvHash:     testInstanceEnvHash,
-		}
-		result, err := lcd.BroadcastMsg(msg)
-		require.NoError(t, err)
-		require.True(t, testRunnerHash.Equal(result))
+		t.Run("start", func(t *testing.T) {
+			require.NoError(t, builder.Start(cont, testServiceStruct, testInstanceHash, testRunnerHash, testServiceImageHash, testInstanceEnv, engineName, enginePort))
+		})
 
 		// wait for service to be ready
 		_, err = stream.Recv()
