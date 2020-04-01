@@ -2,7 +2,6 @@ package runner
 
 import (
 	"context"
-	"encoding/hex"
 	"fmt"
 	"strings"
 	"sync"
@@ -38,35 +37,32 @@ func NewServer(rpc *cosmos.RPC, ep *publisher.EventPublisher) *Server {
 // Register register a new runner.
 func (s *Server) Register(ctx context.Context, req *RegisterRequest) (*RegisterResponse, error) {
 	// decode msg
-	var msg runnermodule.MsgCreate
-	if err := s.rpc.Codec().UnmarshalJSON([]byte(req.Msg), &msg); err != nil {
-		return nil, err
-	}
-	if err := msg.ValidateBasic(); err != nil {
+	var payload RegisterRequestPayload
+	if err := s.rpc.Codec().UnmarshalJSON([]byte(req.Payload), &payload); err != nil {
 		return nil, err
 	}
 
-	// decode signature
-	signature, err := hex.DecodeString(req.Signature)
+	// get account
+	acc, err := s.rpc.GetAccount()
 	if err != nil {
 		return nil, err
 	}
 
 	// check signature
-	acc, err := s.rpc.GetAccount()
+	encodedValue, err := s.rpc.Codec().MarshalJSON(payload)
 	if err != nil {
 		return nil, err
 	}
-	if !acc.GetPubKey().VerifyBytes([]byte(req.Msg), signature) {
+	if !acc.GetPubKey().VerifyBytes(encodedValue, payload.Signature) {
 		return nil, fmt.Errorf("verification of the signature failed, it should be signed by %q", acc.GetAddress())
 	}
 
 	// calculate runner hash
-	inst, err := instance.New(msg.ServiceHash, msg.EnvHash)
+	inst, err := instance.New(payload.Value.ServiceHash, payload.Value.EnvHash)
 	if err != nil {
 		return nil, err
 	}
-	run, err := runner.New(msg.Owner.String(), inst.Hash)
+	run, err := runner.New(acc.GetAddress().String(), inst.Hash)
 	if err != nil {
 		return nil, err
 	}
@@ -85,7 +81,11 @@ func (s *Server) Register(ctx context.Context, req *RegisterRequest) (*RegisterR
 
 	// only broadcast if runner doesn't exist
 	if !runnerExist {
-		tx, err := s.rpc.BuildAndBroadcastMsg(msg)
+		tx, err := s.rpc.BuildAndBroadcastMsg(runnermodule.MsgCreate{
+			Owner:       acc.GetAddress(),
+			ServiceHash: payload.Value.ServiceHash,
+			EnvHash:     payload.Value.EnvHash,
+		})
 		if err != nil {
 			return nil, err
 		}
@@ -96,7 +96,7 @@ func (s *Server) Register(ctx context.Context, req *RegisterRequest) (*RegisterR
 		if !runnerHashCreated.Equal(runnerHash) {
 			// delete wrong runner
 			_, err := s.rpc.BuildAndBroadcastMsg(runnermodule.MsgDelete{
-				Owner: msg.Owner,
+				Owner: acc.GetAddress(),
 				Hash:  runnerHashCreated,
 			})
 			if err != nil {

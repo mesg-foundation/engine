@@ -1,5 +1,5 @@
 syntax = "proto3";
-  
+
 import "gogo/protobuf/gogoproto/gogo.proto";
 import "protobuf/types/execution.proto";
 import "protobuf/types/struct.proto";
@@ -25,19 +25,39 @@ service Runner {
 
 // RegisterRequest is the request of the endpoint Register.
 message RegisterRequest {
-  // msg to use to register this runner. it should be a JSON encoded runner module MsgCreate
-  string msg = 1 [
-    (gogoproto.moretags) = 'validate:"required,json"'
+  // payload to use to register this runner. it should be the content of the env variable MESG_REGISTER_PAYLOAD.
+  string payload = 1 [
+    (gogoproto.moretags) = 'validate:"required"'
   ];
-  // TODO: the following doesn't work because the msg is declared in an internal package.
-  // mesg.runner.types.MsgCreate msg = 1 [
-  //   (gogoproto.customtype) = "github.com/mesg-foundation/engine/x/runner.MsgCreate"
-  // ];
+}
 
-  // signature of the msg to verify authenticity. it should be hexadecimal encoded.
-  string signature = 2 [ 
-    (gogoproto.moretags) = 'validate:"required,hexadecimal"'
+// // RegisterRequest is the request of the endpoint Register.
+message RegisterRequestPayload {
+  // signature of the value to verify authenticity.
+  bytes signature = 1 [
+    (gogoproto.moretags) = 'validate:"required"'
   ];
+
+  // value contains what the engine actually needs to register the runner.
+  Value value = 2 [
+    (gogoproto.moretags) = 'validate:"required"',
+    (gogoproto.nullable) = false
+  ];
+
+  // Value message
+  message Value {
+    // Service's hash to start the runner with.
+    bytes serviceHash = 1 [
+      (gogoproto.moretags) = 'validate:"required,hash"',
+      (gogoproto.casttype) = "github.com/mesg-foundation/engine/hash.Hash"
+    ];
+  
+    // Hash of the environmental variables to start the runner with.
+    bytes envHash = 2 [
+      (gogoproto.moretags) = 'validate:"omitempty,hash"',
+      (gogoproto.casttype) = "github.com/mesg-foundation/engine/hash.Hash"
+    ];
+  }
 }
 
 // RegisterResponse is the response of the endpoint Register.
