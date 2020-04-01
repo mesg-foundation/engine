@@ -49,12 +49,12 @@ func (s *Server) Register(ctx context.Context, req *RegisterRequest) (*RegisterR
 	}
 
 	// check signature
-	encodedValue, err := s.rpc.Codec().MarshalJSON(payload)
+	encodedValue, err := s.rpc.Codec().MarshalJSON(payload.Value)
 	if err != nil {
 		return nil, err
 	}
 	if !acc.GetPubKey().VerifyBytes(encodedValue, payload.Signature) {
-		return nil, fmt.Errorf("verification of the signature failed, it should be signed by %q", acc.GetAddress())
+		return nil, fmt.Errorf("verification of the signature failed, it should be signed by %q", acc.GetAddress().String())
 	}
 
 	// calculate runner hash
@@ -265,7 +265,6 @@ func (c *TokenCredential) GetRequestMetadata(context.Context, ...string) (map[st
 // RequireTransportSecurity tells if the transport should be secured.
 func (c *TokenCredential) RequireTransportSecurity() bool {
 	return false
-	// TODO: test with true
 }
 
 // authorize checks the context for a token, matches it against the saved tokens, returns the runner hash if found.

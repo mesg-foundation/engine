@@ -31,7 +31,7 @@ message RegisterRequest {
   ];
 }
 
-// // RegisterRequest is the request of the endpoint Register.
+// RegisterRequest is the request of the endpoint Register.
 message RegisterRequestPayload {
   // signature of the value to verify authenticity.
   bytes signature = 1 [
