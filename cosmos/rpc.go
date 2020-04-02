@@ -56,6 +56,11 @@ func NewRPC(client rpcclient.Client, cdc *codec.Codec, kb keys.Keybase, chainID,
 	}, nil
 }
 
+// Codec returns the codec used by RPC.
+func (c *RPC) Codec() *codec.Codec {
+	return c.cdc
+}
+
 // QueryJSON is abci.query wrapper with errors check and decode data.
 func (c *RPC) QueryJSON(path string, qdata, ptr interface{}) error {
 	var data []byte

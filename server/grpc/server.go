@@ -14,6 +14,7 @@ import (
 	protobuf_api "github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/mesg-foundation/engine/runner/builder"
 	"github.com/mesg-foundation/engine/server/grpc/api"
+	"github.com/mesg-foundation/engine/server/grpc/runner"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/keepalive"
@@ -90,6 +91,8 @@ func (s *Server) register() {
 	protobuf_api.RegisterProcessServer(s.instance, api.NewProcessServer(s.mc))
 	protobuf_api.RegisterOwnershipServer(s.instance, api.NewOwnershipServer(s.mc))
 	protobuf_api.RegisterRunnerServer(s.instance, api.NewRunnerServer(s.mc, s.b))
+
+	runner.RegisterRunnerServer(s.instance, runner.NewServer(s.mc.RPC, s.ep))
 
 	reflection.Register(s.instance)
 }

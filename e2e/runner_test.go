@@ -11,6 +11,7 @@ import (
 	pb "github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/mesg-foundation/engine/runner"
 	"github.com/mesg-foundation/engine/runner/builder"
+	grpcrunner "github.com/mesg-foundation/engine/server/grpc/runner"
 	runnermodule "github.com/mesg-foundation/engine/x/runner"
 	runnerrest "github.com/mesg-foundation/engine/x/runner/client/rest"
 	"github.com/stretchr/testify/require"
@@ -46,11 +47,29 @@ func testRunner(t *testing.T) {
 		require.NoError(t, err)
 	})
 
-	t.Run("start", func(t *testing.T) {
-		require.NoError(t, builder.Start(cont, testServiceStruct, testInstanceHash, testRunnerHash, testServiceImageHash, testInstanceEnv, engineName, enginePort))
+	t.Run("create msg, sign it and inject into env", func(t *testing.T) {
+		value := grpcrunner.RegisterRequestPayload_Value{
+			ServiceHash: testServiceHash,
+			EnvHash:     testInstanceEnvHash,
+		}
+
+		encodedValue, err := cdc.MarshalJSON(value)
+		require.NoError(t, err)
+
+		signature, _, err := kb.Sign(engineAccountName, engineAccountPassword, encodedValue)
+		require.NoError(t, err)
+
+		payload := grpcrunner.RegisterRequestPayload{
+			Signature: signature,
+			Value:     value,
+		}
+		encodedPayload, err := cdc.MarshalJSON(payload)
+		require.NoError(t, err)
+
+		testInstanceEnv = append(testInstanceEnv, "MESG_REGISTER_PAYLOAD="+string(encodedPayload))
 	})
 
-	t.Run("register", func(t *testing.T) {
+	t.Run("wait for service to be ready", func(t *testing.T) {
 		stream, err := client.EventClient.Stream(context.Background(), &pb.StreamEventRequest{
 			Filter: &pb.StreamEventRequest_Filter{
 				Key: "test_service_ready",
@@ -59,14 +78,9 @@ func testRunner(t *testing.T) {
 		require.NoError(t, err)
 		acknowledgement.WaitForStreamToBeReady(stream)
 
-		msg := runnermodule.MsgCreate{
-			Owner:       engineAddress,
-			ServiceHash: testServiceHash,
-			EnvHash:     testInstanceEnvHash,
-		}
-		result, err := lcd.BroadcastMsg(msg)
-		require.NoError(t, err)
-		require.True(t, testRunnerHash.Equal(result))
+		t.Run("start", func(t *testing.T) {
+			require.NoError(t, builder.Start(cont, testServiceStruct, testInstanceHash, testRunnerHash, testServiceImageHash, testInstanceEnv, engineName, enginePort))
+		})
 
 		// wait for service to be ready
 		_, err = stream.Recv()

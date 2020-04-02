@@ -36,6 +36,8 @@ var (
 	kb                    *cosmos.Keybase
 	cfg                   *config.Config
 	engineAddress         sdk.AccAddress
+	engineAccountName     string
+	engineAccountPassword string
 	cont                  container.Container
 	ipfsEndpoint          string
 	engineName            string
@@ -75,6 +77,8 @@ func TestAPI(t *testing.T) {
 		acc, err := kb.CreateAccount(cfg.Account.Name, cfg.Account.Mnemonic, "", cfg.Account.Password, keys.CreateHDPath(cfg.Account.Number, cfg.Account.Index).String(), cosmos.DefaultAlgo)
 		require.NoError(t, err)
 		engineAddress = acc.GetAddress()
+		engineAccountName = cfg.Account.Name
+		engineAccountPassword = cfg.Account.Password
 	}
 
 	// init container

@@ -9,6 +9,7 @@ import (
 	"github.com/mesg-foundation/engine/protobuf/acknowledgement"
 	pb "github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/mesg-foundation/engine/runner/builder"
+	grpcrunner "github.com/mesg-foundation/engine/server/grpc/runner"
 	"github.com/mesg-foundation/engine/service"
 	runnermodule "github.com/mesg-foundation/engine/x/runner"
 	runnerrest "github.com/mesg-foundation/engine/x/runner/client/rest"
@@ -58,19 +59,31 @@ func testComplexService(t *testing.T) {
 		require.NoError(t, err)
 	})
 
-	t.Run("start runner", func(t *testing.T) {
-		require.NoError(t, builder.Start(cont, testServiceComplexStruct, testInstanceComplexHash, testRunnerComplexHash, testServiceComplexImageHash, testInstanceComplexEnv, engineName, enginePort))
-	})
-
-	t.Run("register runner", func(t *testing.T) {
-		msg := runnermodule.MsgCreate{
-			Owner:       engineAddress,
+	t.Run("create msg, sign it and inject into env", func(t *testing.T) {
+		value := grpcrunner.RegisterRequestPayload_Value{
 			ServiceHash: testServiceComplexHash,
 			EnvHash:     testInstanceComplexEnvHash,
 		}
-		result, err := lcd.BroadcastMsg(msg)
+
+		encodedValue, err := cdc.MarshalJSON(value)
 		require.NoError(t, err)
-		require.True(t, testRunnerComplexHash.Equal(result))
+
+		signature, _, err := kb.Sign(engineAccountName, engineAccountPassword, encodedValue)
+		require.NoError(t, err)
+
+		payload := grpcrunner.RegisterRequestPayload{
+			Signature: signature,
+			Value:     value,
+		}
+
+		encodedPayload, err := cdc.MarshalJSON(payload)
+		require.NoError(t, err)
+
+		testInstanceComplexEnv = append(testInstanceComplexEnv, "MESG_REGISTER_PAYLOAD="+string(encodedPayload))
+	})
+
+	t.Run("start runner", func(t *testing.T) {
+		require.NoError(t, builder.Start(cont, testServiceComplexStruct, testInstanceComplexHash, testRunnerComplexHash, testServiceComplexImageHash, testInstanceComplexEnv, engineName, enginePort))
 	})
 
 	stream, err := client.EventClient.Stream(context.Background(), &pb.StreamEventRequest{})
