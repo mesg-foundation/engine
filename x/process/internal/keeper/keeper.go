@@ -116,6 +116,11 @@ func (k Keeper) Get(ctx sdk.Context, hash hash.Hash) (*processpb.Process, error)
 	return p, nil
 }
 
+// Exists returns true if a specific set of data exists in the database, false otherwise
+func (k Keeper) Exists(ctx sdk.Context, hash hash.Hash) (bool, error) {
+	return ctx.KVStore(k.storeKey).Has(hash), nil
+}
+
 // List returns all processes.
 func (k Keeper) List(ctx sdk.Context) ([]*processpb.Process, error) {
 	var (

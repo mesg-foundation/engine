@@ -16,6 +16,8 @@ func NewQuerier(k Keeper) sdk.Querier {
 			return get(ctx, path[1:], k)
 		case types.QueryList:
 			return list(ctx, k)
+		case types.QueryExist:
+			return exist(ctx, k, path[1:])
 		default:
 			return nil, sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, "unknown process query endpoint")
 		}
@@ -50,6 +52,27 @@ func list(ctx sdk.Context, k Keeper) ([]byte, error) {
 	}
 
 	res, err := types.ModuleCdc.MarshalJSON(instances)
+	if err != nil {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONMarshal, err.Error())
+	}
+	return res, nil
+}
+
+func exist(ctx sdk.Context, k Keeper, path []string) ([]byte, error) {
+	if len(path) == 0 {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "missing hash")
+	}
+	hash, err := hash.Decode(path[0])
+	if err != nil {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, err.Error())
+	}
+
+	exists, err := k.Exists(ctx, hash)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := types.ModuleCdc.MarshalJSON(exists)
 	if err != nil {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONMarshal, err.Error())
 	}
