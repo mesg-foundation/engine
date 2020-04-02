@@ -22,7 +22,7 @@ const (
 )
 
 // newClient creates a new client from env variables supplied by mesg engine.
-func newClient() (runner.RunnerClient, error) {
+func newClient(credential *credential) (runner.RunnerClient, error) {
 	endpoint := os.Getenv(envMesgEndpoint)
 	if endpoint == "" {
 		return nil, fmt.Errorf("env %q is empty", envMesgEndpoint)
@@ -36,6 +36,7 @@ func newClient() (runner.RunnerClient, error) {
 		}),
 		grpc.WithTimeout(10 * time.Second),
 		grpc.WithInsecure(),
+		grpc.WithPerRPCCredentials(credential),
 	}
 
 	conn, err := grpc.DialContext(context.Background(), endpoint, dialoptions...)
@@ -61,7 +62,7 @@ func sendEvent(client runner.RunnerClient, token string, key string) {
 	log.Println("sending event:", key)
 	if _, err := client.Event(context.Background(), &runner.EventRequest{
 		Key: key,
-	}, grpc.PerRPCCredentials(runner.NewTokenCredential(token))); err != nil {
+	}); err != nil {
 		log.Fatal(err)
 	}
 }
@@ -69,7 +70,8 @@ func sendEvent(client runner.RunnerClient, token string, key string) {
 func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 
-	client, err := newClient()
+	cred := &credential{}
+	client, err := newClient(cred)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -79,6 +81,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	cred.token = token
 	log.Printf("registered with token %s\n", token)
 
 	// give some time to nginx to start
@@ -119,4 +122,21 @@ func main() {
 	}
 
 	<-xsignal.WaitForInterrupt()
+}
+
+// credential is a structure that manage a token.
+type credential struct {
+	token string
+}
+
+// GetRequestMetadata returns the metadata for the request.
+func (c *credential) GetRequestMetadata(context.Context, ...string) (map[string]string, error) {
+	return map[string]string{
+		runner.CredentialToken: c.token,
+	}, nil
+}
+
+// RequireTransportSecurity tells if the transport should be secured.
+func (c *credential) RequireTransportSecurity() bool {
+	return false
 }
