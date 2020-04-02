@@ -67,12 +67,12 @@ func exist(ctx sdk.Context, k Keeper, path []string) ([]byte, error) {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, err.Error())
 	}
 
-	srv, err := k.Exists(ctx, hash)
+	exists, err := k.Exists(ctx, hash)
 	if err != nil {
 		return nil, err
 	}
 
-	res, err := types.ModuleCdc.MarshalJSON(srv)
+	res, err := types.ModuleCdc.MarshalJSON(exists)
 	if err != nil {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONMarshal, err.Error())
 	}
