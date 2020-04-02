@@ -240,20 +240,20 @@ func (s *Server) Event(ctx context.Context, req *EventRequest) (*EventResponse, 
 
 // TokenCredential is a structure that manage a token.
 type TokenCredential struct {
-	token string
+	value string
 }
 
 // NewTokenCredential return a token credential struct that implements credentials.PerRPCCredentials interface.
-func NewTokenCredential(token string) *TokenCredential {
+func NewTokenCredential(value string) *TokenCredential {
 	return &TokenCredential{
-		token: token,
+		value: value,
 	}
 }
 
 // GetRequestMetadata returns the metadata for the request.
 func (c *TokenCredential) GetRequestMetadata(context.Context, ...string) (map[string]string, error) {
 	return map[string]string{
-		"token": c.token,
+		"mesg_credential_token": c.value,
 	}, nil
 }
 
@@ -265,14 +265,14 @@ func (c *TokenCredential) RequireTransportSecurity() bool {
 // authorize checks the context for a token, matches it against the saved tokens, returns the runner hash if found.
 func (s *Server) authorize(ctx context.Context) (hash.Hash, error) {
 	if md, ok := metadata.FromIncomingContext(ctx); ok {
-		if len(md["token"]) > 0 {
-			token := md["token"][0]
+		if len(md["mesg_credential_token"]) > 0 {
+			token := md["mesg_credential_token"][0]
 			runnerHash, ok := s.tokenToRunnerHash.Load(token)
 			if !ok {
-				return nil, fmt.Errorf("credential token doesn't exist")
+				return nil, fmt.Errorf("mesg_credential_token doesn't exist")
 			}
 			return runnerHash.(hash.Hash), nil
 		}
 	}
-	return nil, fmt.Errorf("no credential token found")
+	return nil, fmt.Errorf("no mesg_credential_token found")
 }
