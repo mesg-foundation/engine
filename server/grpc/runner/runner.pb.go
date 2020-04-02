@@ -68,7 +68,7 @@ func (m *RegisterRequest) GetPayload() string {
 	return ""
 }
 
-// // RegisterRequest is the request of the endpoint Register.
+// RegisterRequest is the request of the endpoint Register.
 type RegisterRequestPayload struct {
 	// signature of the value to verify authenticity.
 	Signature []byte `protobuf:"bytes,1,opt,name=signature,proto3" json:"signature,omitempty" validate:"required"`
@@ -507,12 +507,16 @@ const _ = grpc.SupportPackageIsVersion4
 type RunnerClient interface {
 	// Register registers a new runner to the Engine.
 	// This endpoint should only be called when the runner is ready to receive execution and emit events.
+	// This endpoint returns a credential token that must be passed to any following call to the Engine using the next endpoints.
 	Register(ctx context.Context, in *RegisterRequest, opts ...grpc.CallOption) (*RegisterResponse, error)
 	// Execution returns a stream of executions that contains the Execution the Runner must execute.
+	// This request requires the credential token, obtained from the Register endpoint, to be injected in the request's metadata using the key "mesg_credential_token".
 	Execution(ctx context.Context, in *ExecutionRequest, opts ...grpc.CallOption) (Runner_ExecutionClient, error)
 	// Result should be used to return the result of an Execution.
+	// This request requires the credential token, obtained from the Register endpoint, to be injected in the request's metadata using the key "mesg_credential_token".
 	Result(ctx context.Context, in *ResultRequest, opts ...grpc.CallOption) (*ResultResponse, error)
 	// Event should be used to emits an event.
+	// This request requires the credential token, obtained from the Register endpoint, to be injected in the request's metadata using the key "mesg_credential_token".
 	Event(ctx context.Context, in *EventRequest, opts ...grpc.CallOption) (*EventResponse, error)
 }
 
@@ -587,12 +591,16 @@ func (c *runnerClient) Event(ctx context.Context, in *EventRequest, opts ...grpc
 type RunnerServer interface {
 	// Register registers a new runner to the Engine.
 	// This endpoint should only be called when the runner is ready to receive execution and emit events.
+	// This endpoint returns a credential token that must be passed to any following call to the Engine using the next endpoints.
 	Register(context.Context, *RegisterRequest) (*RegisterResponse, error)
 	// Execution returns a stream of executions that contains the Execution the Runner must execute.
+	// This request requires the credential token, obtained from the Register endpoint, to be injected in the request's metadata using the key "mesg_credential_token".
 	Execution(*ExecutionRequest, Runner_ExecutionServer) error
 	// Result should be used to return the result of an Execution.
+	// This request requires the credential token, obtained from the Register endpoint, to be injected in the request's metadata using the key "mesg_credential_token".
 	Result(context.Context, *ResultRequest) (*ResultResponse, error)
 	// Event should be used to emits an event.
+	// This request requires the credential token, obtained from the Register endpoint, to be injected in the request's metadata using the key "mesg_credential_token".
 	Event(context.Context, *EventRequest) (*EventResponse, error)
 }
 

@@ -11,15 +11,19 @@ option go_package = "github.com/mesg-foundation/engine/service/grpc/runner";
 service Runner {
   // Register registers a new runner to the Engine.
   // This endpoint should only be called when the runner is ready to receive execution and emit events.
+  // This endpoint returns a credential token that must be passed to any following call to the Engine using the next endpoints.
   rpc Register(RegisterRequest) returns (RegisterResponse) {}
 
   // Execution returns a stream of executions that contains the Execution the Runner must execute.
+  // This request requires the credential token, obtained from the Register endpoint, to be injected in the request's metadata using the key "mesg_credential_token".
   rpc Execution(ExecutionRequest) returns (stream types.Execution) {}
 
   // Result should be used to return the result of an Execution.
+  // This request requires the credential token, obtained from the Register endpoint, to be injected in the request's metadata using the key "mesg_credential_token".
   rpc Result(ResultRequest) returns (ResultResponse) {}
 
   // Event should be used to emits an event.
+  // This request requires the credential token, obtained from the Register endpoint, to be injected in the request's metadata using the key "mesg_credential_token".
   rpc Event(EventRequest) returns (EventResponse) {}
 }
 
