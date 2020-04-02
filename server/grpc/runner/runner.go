@@ -3,7 +3,6 @@ package runner
 import (
 	"context"
 	"fmt"
-	"strings"
 	"sync"
 
 	"github.com/mesg-foundation/engine/cosmos"
@@ -69,14 +68,10 @@ func (s *Server) Register(ctx context.Context, req *RegisterRequest) (*RegisterR
 	runnerHash := run.Hash
 
 	// check that runner doesn't already exist
-	runnerExist := true
-	route := fmt.Sprintf("custom/%s/%s/%s", runnermodule.QuerierRoute, runnermodule.QueryGet, runnerHash)
-	if _, _, err := s.rpc.QueryWithData(route, nil); err != nil {
-		if strings.Contains(err.Error(), fmt.Sprintf("runner %q not found", runnerHash)) {
-			runnerExist = false
-		} else {
-			return nil, err
-		}
+	var runnerExist bool
+	route := fmt.Sprintf("custom/%s/%s/%s", runnermodule.QuerierRoute, runnermodule.QueryExist, runnerHash)
+	if err := s.rpc.QueryJSON(route, nil, &runnerExist); err != nil {
+		return nil, err
 	}
 
 	// only broadcast if runner doesn't exist
