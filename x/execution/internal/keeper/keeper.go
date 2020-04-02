@@ -194,6 +194,24 @@ func (k *Keeper) Create(ctx sdk.Context, msg types.MsgCreate) (*executionpb.Exec
 		if err := exec.Execute(); err != nil {
 			return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, err.Error())
 		}
+
+		// emit event
+		event := sdk.NewEvent(
+			types.EventType,
+			sdk.NewAttribute(sdk.AttributeKeyAction, types.AttributeActionCreated),
+			sdk.NewAttribute(types.AttributeKeyHash, exec.Hash.String()),
+			sdk.NewAttribute(types.AttributeKeyAddress, exec.Address.String()),
+			sdk.NewAttribute(types.AttributeKeyStatus, exec.Status.String()),
+			sdk.NewAttribute(types.AttributeKeyExecutor, exec.ExecutorHash.String()),
+			sdk.NewAttribute(types.AttributeKeyInstance, exec.InstanceHash.String()),
+		)
+		if !exec.ProcessHash.IsZero() {
+			event = event.AppendAttributes(
+				sdk.NewAttribute(types.AttributeKeyExecutor, exec.ProcessHash.String()),
+			)
+		}
+		ctx.EventManager().EmitEvent(event)
+
 		if !ctx.IsCheckTx() {
 			M.InProgress.Add(1)
 		}
@@ -277,6 +295,24 @@ func (k *Keeper) Update(ctx sdk.Context, msg types.MsgUpdate) (*executionpb.Exec
 	}
 
 	store.Set(exec.Hash, value)
+
+	// emit event
+	event := sdk.NewEvent(
+		types.EventType,
+		sdk.NewAttribute(sdk.AttributeKeyAction, types.AttributeActionUpdated),
+		sdk.NewAttribute(types.AttributeKeyHash, exec.Hash.String()),
+		sdk.NewAttribute(types.AttributeKeyAddress, exec.Address.String()),
+		sdk.NewAttribute(types.AttributeKeyStatus, exec.Status.String()),
+		sdk.NewAttribute(types.AttributeKeyExecutor, exec.ExecutorHash.String()),
+		sdk.NewAttribute(types.AttributeKeyInstance, exec.InstanceHash.String()),
+	)
+	if !exec.ProcessHash.IsZero() {
+		event = event.AppendAttributes(
+			sdk.NewAttribute(types.AttributeKeyExecutor, exec.ProcessHash.String()),
+		)
+	}
+	ctx.EventManager().EmitEvent(event)
+
 	return exec, nil
 }
 

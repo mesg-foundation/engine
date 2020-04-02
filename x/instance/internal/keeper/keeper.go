@@ -48,6 +48,14 @@ func (k Keeper) FetchOrCreate(ctx sdk.Context, serviceHash hash.Hash, envHash ha
 			return nil, sdkerrors.Wrapf(sdkerrors.ErrJSONMarshal, err.Error())
 		}
 		store.Set(inst.Hash, value)
+
+		// emit event
+		ctx.EventManager().EmitEvent(sdk.NewEvent(
+			types.EventType,
+			sdk.NewAttribute(sdk.AttributeKeyAction, types.AttributeActionCreated),
+			sdk.NewAttribute(types.AttributeKeyHash, inst.Hash.String()),
+			sdk.NewAttribute(types.AttributeKeyService, inst.ServiceHash.String()),
+		))
 	}
 
 	return inst, nil

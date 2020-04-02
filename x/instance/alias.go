@@ -26,6 +26,11 @@ var (
 	ModuleCdc = types.ModuleCdc
 	QueryGet  = types.QueryGet
 	QueryList = types.QueryList
+
+	EventType              = types.EventType
+	AttributeKeyHash       = types.AttributeKeyHash
+	AttributeKeyService    = types.AttributeKeyService
+	AttributeActionCreated = types.AttributeActionCreated
 )
 
 // module types

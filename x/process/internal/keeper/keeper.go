@@ -90,15 +90,41 @@ func (k Keeper) Create(ctx sdk.Context, msg *types.MsgCreate) (*processpb.Proces
 	}
 
 	store.Set(p.Hash, value)
+
+	// emit event
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			types.EventType,
+			sdk.NewAttribute(sdk.AttributeKeyAction, types.AttributeActionCreated),
+			sdk.NewAttribute(types.AttributeKeyHash, p.Hash.String()),
+			sdk.NewAttribute(types.AttributeKeyAddress, p.Address.String()),
+		),
+	)
+
 	return p, nil
 }
 
 // Delete deletes a process.
 func (k Keeper) Delete(ctx sdk.Context, msg *types.MsgDelete) error {
+	p, err := k.Get(ctx, msg.Hash)
+	if err != nil {
+		return err
+	}
 	if err := k.ownershipKeeper.Delete(ctx, msg.Owner, msg.Hash); err != nil {
 		return err
 	}
 	ctx.KVStore(k.storeKey).Delete(msg.Hash)
+
+	// emit event
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			types.EventType,
+			sdk.NewAttribute(sdk.AttributeKeyAction, types.AttributeActionDeleted),
+			sdk.NewAttribute(types.AttributeKeyHash, p.Hash.String()),
+			sdk.NewAttribute(types.AttributeKeyAddress, p.Address.String()),
+		),
+	)
+
 	return nil
 }
 

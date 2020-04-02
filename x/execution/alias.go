@@ -29,6 +29,14 @@ var (
 	QueryList = types.QueryList
 
 	M = keeper.M
+
+	EventType            = types.EventType
+	AttributeKeyHash     = types.AttributeKeyHash
+	AttributeKeyAddress  = types.AttributeKeyAddress
+	AttributeKeyStatus   = types.AttributeKeyStatus
+	AttributeKeyExecutor = types.AttributeKeyExecutor
+	AttributeKeyProcess  = types.AttributeKeyProcess
+	AttributeKeyInstance = types.AttributeKeyInstance
 )
 
 // module types
