@@ -2,7 +2,7 @@ package types
 
 // module event types and attributes
 const (
-	EventType = "event"
+	EventType = "instance"
 
 	AttributeKeyHash    = "hash"
 	AttributeKeyService = "service"
