@@ -167,6 +167,23 @@ func (k *Keeper) Create(ctx sdk.Context, msg types.MsgCreate) (*executionpb.Exec
 		if runEmitter.Owner == msg.Signer.String() {
 			emitterIsPresent = true
 			emitter.BlockHeight = ctx.BlockHeight()
+
+			// emit event with action proposed
+			event := sdk.NewEvent(
+				types.EventType,
+				sdk.NewAttribute(sdk.AttributeKeyAction, types.AttributeActionProposed),
+				sdk.NewAttribute(types.AttributeKeyHash, exec.Hash.String()),
+				sdk.NewAttribute(types.AttributeKeyAddress, exec.Address.String()),
+				sdk.NewAttribute(types.AttributeKeyExecutor, exec.ExecutorHash.String()),
+				sdk.NewAttribute(types.AttributeKeyInstance, exec.InstanceHash.String()),
+			)
+			if !exec.ProcessHash.IsZero() {
+				event = event.AppendAttributes(
+					sdk.NewAttribute(types.AttributeKeyExecutor, exec.ProcessHash.String()),
+				)
+			}
+			ctx.EventManager().EmitEvent(event)
+
 			break
 		}
 	}
@@ -231,22 +248,6 @@ func (k *Keeper) Create(ctx sdk.Context, msg types.MsgCreate) (*executionpb.Exec
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrJSONMarshal, err.Error())
 	}
 	store.Set(exec.Hash, value)
-
-	// emit event with action proposed
-	event := sdk.NewEvent(
-		types.EventType,
-		sdk.NewAttribute(sdk.AttributeKeyAction, types.AttributeActionProposed),
-		sdk.NewAttribute(types.AttributeKeyHash, exec.Hash.String()),
-		sdk.NewAttribute(types.AttributeKeyAddress, exec.Address.String()),
-		sdk.NewAttribute(types.AttributeKeyExecutor, exec.ExecutorHash.String()),
-		sdk.NewAttribute(types.AttributeKeyInstance, exec.InstanceHash.String()),
-	)
-	if !exec.ProcessHash.IsZero() {
-		event = event.AppendAttributes(
-			sdk.NewAttribute(types.AttributeKeyExecutor, exec.ProcessHash.String()),
-		)
-	}
-	ctx.EventManager().EmitEvent(event)
 
 	return exec, nil
 }
