@@ -1,10 +1,11 @@
 package types
 
-// service module event types
+// module event types and attributes
 const (
-	EventTypeCreateService = "CreateService"
+	EventType = "service"
 
-	AttributeHash = "hash"
+	AttributeKeyHash    = "hash"
+	AttributeKeyAddress = "address"
 
-	AttributeValueCategory = ModuleName
+	AttributeActionCreated = "created"
 )

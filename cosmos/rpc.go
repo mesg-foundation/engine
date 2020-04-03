@@ -16,8 +16,6 @@ import (
 	authExported "github.com/cosmos/cosmos-sdk/x/auth/exported"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/mesg-foundation/engine/ext/xreflect"
-	"github.com/mesg-foundation/engine/ext/xstrings"
-	"github.com/mesg-foundation/engine/hash"
 	abci "github.com/tendermint/tendermint/abci/types"
 	rpcclient "github.com/tendermint/tendermint/rpc/client"
 	tenderminttypes "github.com/tendermint/tendermint/types"
@@ -138,40 +136,6 @@ func (c *RPC) BuildAndBroadcastMsg(msg sdktypes.Msg) (*abci.ResponseDeliverTx, e
 	case <-ctx.Done():
 		return nil, fmt.Errorf("reach timeout for listening for transaction result: %w", ctx.Err())
 	}
-}
-
-// Stream subscribes to the provided query and returns the hash of the matching ressources.
-func (c *RPC) Stream(ctx context.Context, query string) (chan hash.Hash, chan error, error) {
-	subscriber := xstrings.RandASCIILetters(8)
-	eventStream, err := c.Subscribe(ctx, subscriber, query, 0)
-	if err != nil {
-		return nil, nil, err
-	}
-	hashC := make(chan hash.Hash)
-	errC := make(chan error)
-	go func() {
-	loop:
-		for {
-			select {
-			case event := <-eventStream:
-				attrs := event.Events[EventHashType]
-				for _, attr := range attrs {
-					hash, err := hash.Decode(attr)
-					if err != nil {
-						errC <- err
-					} else {
-						hashC <- hash
-					}
-				}
-			case <-ctx.Done():
-				break loop
-			}
-		}
-		close(errC)
-		close(hashC)
-		c.Unsubscribe(context.Background(), subscriber, query)
-	}()
-	return hashC, errC, nil
 }
 
 // GetAccount returns the local account.

@@ -6,6 +6,7 @@ import (
 
 	executionpb "github.com/mesg-foundation/engine/execution"
 	"github.com/mesg-foundation/engine/ext/xos"
+	"github.com/mesg-foundation/engine/ext/xstrings"
 	"github.com/mesg-foundation/engine/hash"
 	instancepb "github.com/mesg-foundation/engine/instance"
 	ownershippb "github.com/mesg-foundation/engine/ownership"
@@ -221,7 +222,9 @@ func (mc *ModuleClient) StreamExecution(ctx context.Context, req *api.StreamExec
 		return nil, nil, err
 	}
 
-	stream, serrC, err := mc.Stream(ctx, EventModuleQuery(execution.ModuleName))
+	subscriber := xstrings.RandASCIILetters(8)
+	query := fmt.Sprintf("%s.%s EXISTS", execution.EventType, execution.AttributeKeyHash)
+	eventStream, err := mc.Subscribe(ctx, subscriber, query, 0)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -232,23 +235,39 @@ func (mc *ModuleClient) StreamExecution(ctx context.Context, req *api.StreamExec
 	loop:
 		for {
 			select {
-			case hash := <-stream:
-				exec, err := mc.GetExecution(hash)
-				if err != nil {
-					errC <- err
-					break
+			case event := <-eventStream:
+				attrHash := fmt.Sprintf("%s.%s", execution.EventType, execution.AttributeKeyHash)
+				attrs := event.Events[attrHash]
+				alreadySeeHashes := make(map[string]bool)
+				for _, attr := range attrs {
+					// skip already see hash. it deduplicate same execution in multiple event.
+					if alreadySeeHashes[attr] {
+						continue
+					}
+					alreadySeeHashes[attr] = true
+					hash, err := hash.Decode(attr)
+					if err != nil {
+						errC <- err
+						continue
+					}
+					exec, err := mc.GetExecution(hash)
+					if err != nil {
+						errC <- err
+						continue
+					}
+					if req.Filter.Match(exec) {
+						execC <- exec
+					}
 				}
-				if req.Filter.Match(exec) {
-					execC <- exec
-				}
-			case err := <-serrC:
-				errC <- err
 			case <-ctx.Done():
 				break loop
 			}
 		}
-		close(errC)
+		if err := mc.Unsubscribe(context.Background(), subscriber, query); err != nil {
+			errC <- err
+		}
 		close(execC)
+		close(errC)
 	}()
 	return execC, errC, nil
 }

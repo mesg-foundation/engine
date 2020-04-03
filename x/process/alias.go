@@ -28,6 +28,12 @@ var (
 	QueryGet   = types.QueryGet
 	QueryList  = types.QueryList
 	QueryExist = types.QueryExist
+
+	EventType              = types.EventType
+	AttributeKeyHash       = types.AttributeKeyHash
+	AttributeKeyAddress    = types.AttributeKeyAddress
+	AttributeActionCreated = types.AttributeActionCreated
+	AttributeActionDeleted = types.AttributeActionDeleted
 )
 
 // module types

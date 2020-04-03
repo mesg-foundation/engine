@@ -5,9 +5,11 @@ import (
 	"fmt"
 	"sync"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/mesg-foundation/engine/cosmos"
 	"github.com/mesg-foundation/engine/event/publisher"
 	"github.com/mesg-foundation/engine/execution"
+	"github.com/mesg-foundation/engine/ext/xstrings"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/instance"
 	"github.com/mesg-foundation/engine/protobuf/acknowledgement"
@@ -153,7 +155,12 @@ func (s *Server) Execution(req *ExecutionRequest, stream Runner_ExecutionServer)
 	// create rpc event stream
 	ctx, cancel := context.WithCancel(stream.Context())
 	defer cancel()
-	execChan, execErrChan, err := s.rpc.Stream(ctx, cosmos.EventModuleQuery(executionmodule.ModuleName))
+	subscriber := xstrings.RandASCIILetters(8)
+	query := fmt.Sprintf("%s.%s='%s' AND %s.%s='%s'",
+		executionmodule.EventType, executionmodule.AttributeKeyExecutor, runnerHash.String(),
+		executionmodule.EventType, sdk.AttributeKeyAction, executionmodule.AttributeActionCreated,
+	)
+	eventStream, err := s.rpc.Subscribe(ctx, subscriber, query, 0)
 	if err != nil {
 		return err
 	}
@@ -161,23 +168,35 @@ func (s *Server) Execution(req *ExecutionRequest, stream Runner_ExecutionServer)
 		return err
 	}
 
-	// route channels
+	// listen to event stream
 	for {
 		select {
-		case execHash := <-execChan:
-			var exec *execution.Execution
-			route := fmt.Sprintf("custom/%s/%s/%s", executionmodule.QuerierRoute, executionmodule.QueryGet, execHash)
-			if err := s.rpc.QueryJSON(route, nil, &exec); err != nil {
-				return err
+		case event := <-eventStream:
+			// get the index of the action=created attributes
+			attrKeyActionCreated := fmt.Sprintf("%s.%s", executionmodule.EventType, sdk.AttributeKeyAction)
+			attrIndexes := make([]int, 0)
+			for index, attr := range event.Events[attrKeyActionCreated] {
+				if attr == executionmodule.AttributeActionCreated {
+					attrIndexes = append(attrIndexes, index)
+				}
 			}
-			// filter execution of this runner
-			if exec.ExecutorHash.Equal(runnerHash) && exec.Status == execution.Status_InProgress {
+			// iterate only on the index of attribute hash where action=created
+			attrKeyHash := fmt.Sprintf("%s.%s", executionmodule.EventType, executionmodule.AttributeKeyHash)
+			for _, index := range attrIndexes {
+				attr := event.Events[attrKeyHash][index]
+				hash, err := hash.Decode(attr)
+				if err != nil {
+					return err
+				}
+				var exec *execution.Execution
+				route := fmt.Sprintf("custom/%s/%s/%s", executionmodule.QuerierRoute, executionmodule.QueryGet, hash)
+				if err := s.rpc.QueryJSON(route, nil, &exec); err != nil {
+					return err
+				}
 				if err := stream.Send(exec); err != nil {
 					return err
 				}
 			}
-		case err := <-execErrChan:
-			return err
 		case <-ctx.Done():
 			return ctx.Err()
 		case <-stream.Context().Done():

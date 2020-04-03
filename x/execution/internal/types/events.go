@@ -1,12 +1,17 @@
 package types
 
-// execution module event types
+// module event types and attributes
 const (
-	EventTypeExecutionProposed   = "ExecutionProposed"
-	EventTypeExecutionInProgress = "ExecutionInProgress"
-	EventTypeUpdateExecution     = "UpdateExecution"
+	EventType = "execution"
 
-	AttributeHash = "hash"
+	AttributeKeyHash     = "hash"
+	AttributeKeyAddress  = "address"
+	AttributeKeyExecutor = "executor"
+	AttributeKeyProcess  = "process"
+	AttributeKeyInstance = "instance"
 
-	AttributeValueCategory = ModuleName
+	AttributeActionProposed  = "proposed"
+	AttributeActionCreated   = "created"
+	AttributeActionCompleted = "completed"
+	AttributeActionFailed    = "failed"
 )
