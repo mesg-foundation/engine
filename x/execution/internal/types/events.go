@@ -6,11 +6,12 @@ const (
 
 	AttributeKeyHash     = "hash"
 	AttributeKeyAddress  = "address"
-	AttributeKeyStatus   = "status"
 	AttributeKeyExecutor = "executor"
 	AttributeKeyProcess  = "process"
 	AttributeKeyInstance = "instance"
 
-	AttributeActionCreated = "created"
-	AttributeActionUpdated = "updated"
+	AttributeActionProposed  = "proposed"
+	AttributeActionCreated   = "created"
+	AttributeActionCompleted = "completed"
+	AttributeActionFailed    = "failed"
 )

@@ -201,7 +201,6 @@ func (k *Keeper) Create(ctx sdk.Context, msg types.MsgCreate) (*executionpb.Exec
 			sdk.NewAttribute(sdk.AttributeKeyAction, types.AttributeActionCreated),
 			sdk.NewAttribute(types.AttributeKeyHash, exec.Hash.String()),
 			sdk.NewAttribute(types.AttributeKeyAddress, exec.Address.String()),
-			sdk.NewAttribute(types.AttributeKeyStatus, exec.Status.String()),
 			sdk.NewAttribute(types.AttributeKeyExecutor, exec.ExecutorHash.String()),
 			sdk.NewAttribute(types.AttributeKeyInstance, exec.InstanceHash.String()),
 		)
@@ -232,6 +231,23 @@ func (k *Keeper) Create(ctx sdk.Context, msg types.MsgCreate) (*executionpb.Exec
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrJSONMarshal, err.Error())
 	}
 	store.Set(exec.Hash, value)
+
+	// emit event with action proposed
+	event := sdk.NewEvent(
+		types.EventType,
+		sdk.NewAttribute(sdk.AttributeKeyAction, types.AttributeActionProposed),
+		sdk.NewAttribute(types.AttributeKeyHash, exec.Hash.String()),
+		sdk.NewAttribute(types.AttributeKeyAddress, exec.Address.String()),
+		sdk.NewAttribute(types.AttributeKeyExecutor, exec.ExecutorHash.String()),
+		sdk.NewAttribute(types.AttributeKeyInstance, exec.InstanceHash.String()),
+	)
+	if !exec.ProcessHash.IsZero() {
+		event = event.AppendAttributes(
+			sdk.NewAttribute(types.AttributeKeyExecutor, exec.ProcessHash.String()),
+		)
+	}
+	ctx.EventManager().EmitEvent(event)
+
 	return exec, nil
 }
 
@@ -255,6 +271,7 @@ func (k *Keeper) Update(ctx sdk.Context, msg types.MsgUpdate) (*executionpb.Exec
 		return nil, sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "signer is not the execution's executor")
 	}
 
+	eventAction := types.AttributeActionFailed
 	switch res := msg.Result.(type) {
 	case *types.MsgUpdate_Outputs:
 		if err := k.validateOutput(ctx, exec.InstanceHash, exec.TaskKey, res.Outputs); err != nil {
@@ -264,6 +281,7 @@ func (k *Keeper) Update(ctx sdk.Context, msg types.MsgUpdate) (*executionpb.Exec
 		} else if err := exec.Complete(res.Outputs); err != nil {
 			return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, err.Error())
 		}
+		eventAction = types.AttributeActionCompleted
 	case *types.MsgUpdate_Error:
 		if err := exec.Fail(errors.New(res.Error)); err != nil {
 			return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, err.Error())
@@ -299,10 +317,9 @@ func (k *Keeper) Update(ctx sdk.Context, msg types.MsgUpdate) (*executionpb.Exec
 	// emit event
 	event := sdk.NewEvent(
 		types.EventType,
-		sdk.NewAttribute(sdk.AttributeKeyAction, types.AttributeActionUpdated),
+		sdk.NewAttribute(sdk.AttributeKeyAction, eventAction),
 		sdk.NewAttribute(types.AttributeKeyHash, exec.Hash.String()),
 		sdk.NewAttribute(types.AttributeKeyAddress, exec.Address.String()),
-		sdk.NewAttribute(types.AttributeKeyStatus, exec.Status.String()),
 		sdk.NewAttribute(types.AttributeKeyExecutor, exec.ExecutorHash.String()),
 		sdk.NewAttribute(types.AttributeKeyInstance, exec.InstanceHash.String()),
 	)

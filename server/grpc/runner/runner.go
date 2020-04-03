@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"sync"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/mesg-foundation/engine/cosmos"
 	"github.com/mesg-foundation/engine/event/publisher"
 	"github.com/mesg-foundation/engine/execution"
@@ -157,7 +158,7 @@ func (s *Server) Execution(req *ExecutionRequest, stream Runner_ExecutionServer)
 	subscriber := xstrings.RandASCIILetters(8)
 	query := fmt.Sprintf("%s.%s='%s' AND %s.%s='%s'",
 		executionmodule.EventType, executionmodule.AttributeKeyExecutor, runnerHash.String(),
-		executionmodule.EventType, executionmodule.AttributeKeyStatus, execution.Status_InProgress.String(),
+		executionmodule.EventType, sdk.AttributeKeyAction, executionmodule.AttributeActionCreated,
 	)
 	eventStream, err := s.rpc.Subscribe(ctx, subscriber, query, 0)
 	if err != nil {
@@ -171,9 +172,18 @@ func (s *Server) Execution(req *ExecutionRequest, stream Runner_ExecutionServer)
 	for {
 		select {
 		case event := <-eventStream:
-			attrHash := fmt.Sprintf("%s.%s", executionmodule.EventType, executionmodule.AttributeKeyHash)
-			attrs := event.Events[attrHash]
-			for _, attr := range attrs {
+			// get the index of the action=created attributes
+			attrKeyActionCreated := fmt.Sprintf("%s.%s", executionmodule.EventType, sdk.AttributeKeyAction)
+			attrIndexes := make([]int, 0)
+			for index, attr := range event.Events[attrKeyActionCreated] {
+				if attr == executionmodule.AttributeActionCreated {
+					attrIndexes = append(attrIndexes, index)
+				}
+			}
+			// iterate only on the index of attribute hash where action=created
+			attrKeyHash := fmt.Sprintf("%s.%s", executionmodule.EventType, executionmodule.AttributeKeyHash)
+			for _, index := range attrIndexes {
+				attr := event.Events[attrKeyHash][index]
 				hash, err := hash.Decode(attr)
 				if err != nil {
 					return err
