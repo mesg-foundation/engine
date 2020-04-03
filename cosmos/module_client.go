@@ -238,10 +238,10 @@ func (mc *ModuleClient) StreamExecution(ctx context.Context, req *api.StreamExec
 			case event := <-eventStream:
 				attrHash := fmt.Sprintf("%s.%s", execution.EventType, execution.AttributeKeyHash)
 				attrs := event.Events[attrHash]
-				alreadySeeHashes := make(map[string]bool, 0)
+				alreadySeeHashes := make(map[string]bool)
 				for _, attr := range attrs {
 					// skip already see hash. it deduplicate same execution in multiple event.
-					if alreadySeeHashes[attr] == true {
+					if alreadySeeHashes[attr] {
 						continue
 					}
 					alreadySeeHashes[attr] = true
