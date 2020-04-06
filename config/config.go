@@ -20,6 +20,9 @@ const (
 
 	// CosmosCoinType is the mesg registered coin type from https://github.com/satoshilabs/slips/blob/master/slip-0044.md.
 	CosmosCoinType = uint32(470)
+
+	// FullFundraiserPath is the parts of the BIP44 HD path that are fixed by what we used during the fundraiser.
+	FullFundraiserPath = "44'/470'/0'/0/0"
 )
 
 const (
