@@ -2,7 +2,7 @@ package main
 
 import (
 	"bufio"
-	"encoding/hex"
+	"encoding/base64"
 	"fmt"
 
 	"github.com/cosmos/cosmos-sdk/client/flags"
@@ -30,7 +30,7 @@ func signCommand() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			fmt.Println(hex.EncodeToString(signature))
+			fmt.Println(base64.RawStdEncoding.EncodeToString(signature))
 			return nil
 		},
 	}
@@ -41,7 +41,7 @@ func signCommand() *cobra.Command {
 
 func verifySignCommand() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "verifySign <name> <message>",
+		Use:   "verifySign <name> <message> <signature>",
 		Short: "Verify the signature of the given message",
 		Args:  cobra.MinimumNArgs(3),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -57,7 +57,7 @@ func verifySignCommand() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			signature, err := hex.DecodeString(args[2])
+			signature, err := base64.RawStdEncoding.DecodeString(args[2])
 			if err != nil {
 				return err
 			}
