@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/base64"
 	"testing"
 
 	"github.com/mesg-foundation/engine/ext/xos"
@@ -9,11 +10,12 @@ import (
 	"github.com/mesg-foundation/engine/protobuf/acknowledgement"
 	pb "github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/mesg-foundation/engine/runner/builder"
-	grpcrunner "github.com/mesg-foundation/engine/server/grpc/runner"
+	"github.com/mesg-foundation/engine/server/grpc/orchestrator"
+	grpcorchestrator "github.com/mesg-foundation/engine/server/grpc/orchestrator"
 	"github.com/mesg-foundation/engine/service"
-	runnermodule "github.com/mesg-foundation/engine/x/runner"
 	runnerrest "github.com/mesg-foundation/engine/x/runner/client/rest"
 	"github.com/stretchr/testify/require"
+	"google.golang.org/grpc"
 )
 
 func testComplexService(t *testing.T) {
@@ -29,7 +31,7 @@ func testComplexService(t *testing.T) {
 	)
 
 	t.Run("create service", func(t *testing.T) {
-		testComplexCreateServiceMsg.Owner = engineAddress
+		testComplexCreateServiceMsg.Owner = cliAddress
 		testServiceComplexHash, err = lcd.BroadcastMsg(testComplexCreateServiceMsg)
 		require.NoError(t, err)
 	})
@@ -51,6 +53,7 @@ func testComplexService(t *testing.T) {
 		testRunnerComplexHash = res.RunnerHash
 		testInstanceComplexHash = res.InstanceHash
 		testInstanceComplexEnvHash = res.EnvHash
+		testInstanceComplexEnv = append(testInstanceComplexEnv, "MESG_ENV_HASH="+testInstanceComplexEnvHash.String())
 	})
 
 	t.Run("build service image", func(t *testing.T) {
@@ -60,26 +63,14 @@ func testComplexService(t *testing.T) {
 	})
 
 	t.Run("create msg, sign it and inject into env", func(t *testing.T) {
-		value := grpcrunner.RegisterRequestPayload_Value{
+		value := grpcorchestrator.RunnerRegisterRequest{
 			ServiceHash: testServiceComplexHash,
 			EnvHash:     testInstanceComplexEnvHash,
 		}
 
-		encodedValue, err := cdc.MarshalJSON(value)
+		signature, err := signPayload(value)
 		require.NoError(t, err)
-
-		signature, _, err := kb.Sign(engineAccountName, engineAccountPassword, encodedValue)
-		require.NoError(t, err)
-
-		payload := grpcrunner.RegisterRequestPayload{
-			Signature: signature,
-			Value:     value,
-		}
-
-		encodedPayload, err := cdc.MarshalJSON(payload)
-		require.NoError(t, err)
-
-		testInstanceComplexEnv = append(testInstanceComplexEnv, "MESG_REGISTER_PAYLOAD="+string(encodedPayload))
+		testInstanceComplexEnv = append(testInstanceComplexEnv, "MESG_REGISTER_SIGNATURE="+base64.RawStdEncoding.EncodeToString(signature))
 	})
 
 	t.Run("start runner", func(t *testing.T) {
@@ -112,12 +103,10 @@ func testComplexService(t *testing.T) {
 
 	t.Run("delete", func(t *testing.T) {
 		t.Skip("FIXME: this test timeout on CIRCLE CI. works well on local computer")
-		msg := runnermodule.MsgDelete{
-			Owner: engineAddress,
-			Hash:  testRunnerComplexHash,
+		req := orchestrator.RunnerDeleteRequest{
+			RunnerHash: testRunnerComplexHash,
 		}
-
-		_, err := lcd.BroadcastMsg(msg)
+		_, err := client.RunnerClient.Delete(context.Background(), &req, grpc.PerRPCCredentials(&signCred{req}))
 		require.NoError(t, err)
 
 		require.NoError(t, builder.Stop(cont, testRunnerComplexHash, testServiceComplexStruct.Dependencies))

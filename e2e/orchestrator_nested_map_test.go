@@ -52,7 +52,7 @@ func testOrchestratorNestedMap(instanceHash hash.Hash) func(t *testing.T) {
 		)
 		t.Run("create process", func(t *testing.T) {
 			msg := processmodule.MsgCreate{
-				Owner: engineAddress,
+				Owner: cliAddress,
 				Name:  "nested-map",
 				Nodes: []*process.Process_Node{
 					{
@@ -149,7 +149,7 @@ func testOrchestratorNestedMap(instanceHash hash.Hash) func(t *testing.T) {
 		})
 		t.Run("delete process", func(t *testing.T) {
 			_, err := lcd.BroadcastMsg(processmodule.MsgDelete{
-				Owner: engineAddress,
+				Owner: cliAddress,
 				Hash:  processHash,
 			})
 			require.NoError(t, err)

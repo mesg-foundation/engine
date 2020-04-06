@@ -26,7 +26,7 @@ func testOrchestratorProcessBalanceWithdraw(instanceHash hash.Hash) func(t *test
 
 		t.Run("create process", func(t *testing.T) {
 			msg := processmodule.MsgCreate{
-				Owner: engineAddress,
+				Owner: cliAddress,
 				Name:  "balance-withdraw-process",
 				Nodes: []*process.Process_Node{
 					{
@@ -114,7 +114,7 @@ func testOrchestratorProcessBalanceWithdraw(instanceHash hash.Hash) func(t *test
 		t.Run("withdraw from process", func(t *testing.T) {
 			coins := minExecutionPrice
 			msg := ownership.MsgWithdraw{
-				Owner:        engineAddress,
+				Owner:        cliAddress,
 				Amount:       coins.String(),
 				ResourceHash: processHash,
 			}
@@ -126,7 +126,7 @@ func testOrchestratorProcessBalanceWithdraw(instanceHash hash.Hash) func(t *test
 		})
 		t.Run("delete process", func(t *testing.T) {
 			_, err := lcd.BroadcastMsg(processmodule.MsgDelete{
-				Owner: engineAddress,
+				Owner: cliAddress,
 				Hash:  processHash,
 			})
 			require.NoError(t, err)

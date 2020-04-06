@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/base64"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -12,6 +13,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/crypto/keys"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/x/bank"
 	"github.com/mesg-foundation/engine/app"
 	"github.com/mesg-foundation/engine/config"
 	"github.com/mesg-foundation/engine/container"
@@ -20,36 +22,45 @@ import (
 	"github.com/mesg-foundation/engine/ext/xnet"
 	"github.com/mesg-foundation/engine/hash"
 	pb "github.com/mesg-foundation/engine/protobuf/api"
+	"github.com/mesg-foundation/engine/server/grpc/orchestrator"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc"
 )
 
 type apiclient struct {
-	pb.EventClient
+	EventClient pb.EventClient
+	// TODO: to switch when e2e tests doesn't create any event
+	// EventClient     orchestrator.EventClient
+	ExecutionClient orchestrator.ExecutionClient
+	RunnerClient    orchestrator.RunnerClient
 }
 
 var (
 	minExecutionPrice     sdk.Coins
-	client                apiclient
+	client                *apiclient
 	cdc                   = app.MakeCodec()
 	processInitialBalance = sdk.NewCoins(sdk.NewInt64Coin("atto", 10000000))
 	kb                    *cosmos.Keybase
 	cfg                   *config.Config
 	engineAddress         sdk.AccAddress
-	engineAccountName     string
-	engineAccountPassword string
 	cont                  container.Container
 	ipfsEndpoint          string
 	engineName            string
 	enginePort            string
 	lcd                   *cosmos.LCD
+	lcdEngine             *cosmos.LCD
+	cliAddress            sdk.AccAddress
+	cliInitialBalance, _  = sdk.ParseCoins("100000000000000000000000000atto")
 )
 
 const (
-	lcdEndpoint     = "http://127.0.0.1:1317/"
-	pollingInterval = 500 * time.Millisecond     // half a block
-	pollingTimeout  = 10 * time.Second           // 10 blocks
-	gasLimit        = flags.DefaultGasLimit * 10 // x10 so the biggest txs have enough gas
+	lcdEndpoint        = "http://127.0.0.1:1317/"
+	pollingInterval    = 500 * time.Millisecond     // half a block
+	pollingTimeout     = 10 * time.Second           // 10 blocks
+	gasLimit           = flags.DefaultGasLimit * 10 // x10 so the biggest txs have enough gas
+	cliAccountMnemonic = "large fork soccer lab answer enlist robust vacant narrow please inmate primary father must add hub shy couch rail video tool marine pill give"
+	cliAccountName     = "cli"
+	cliAccountPassword = "pass"
 )
 
 func TestAPI(t *testing.T) {
@@ -70,16 +81,24 @@ func TestAPI(t *testing.T) {
 	err = os.MkdirAll(filepath.Join(cfg.Path, cfg.Cosmos.RelativePath), os.FileMode(0755))
 	require.NoError(t, err)
 
-	// init keybase with account
+	// init keybase with engine account and cli account
 	kb, err = cosmos.NewKeybase(filepath.Join(cfg.Path, cfg.Cosmos.RelativePath))
 	require.NoError(t, err)
-	if cfg.Account.Mnemonic != "" {
-		acc, err := kb.CreateAccount(cfg.Account.Name, cfg.Account.Mnemonic, "", cfg.Account.Password, keys.CreateHDPath(cfg.Account.Number, cfg.Account.Index).String(), cosmos.DefaultAlgo)
-		require.NoError(t, err)
-		engineAddress = acc.GetAddress()
-		engineAccountName = cfg.Account.Name
-		engineAccountPassword = cfg.Account.Password
-	}
+	// init engine account
+	engineAcc, err := kb.CreateAccount(cfg.Account.Name, cfg.Account.Mnemonic, "", cfg.Account.Password, keys.CreateHDPath(cfg.Account.Number, cfg.Account.Index).String(), cosmos.DefaultAlgo)
+	require.NoError(t, err)
+	engineAddress = engineAcc.GetAddress()
+
+	// init cli account
+	cliAcc, err := kb.CreateAccount(cliAccountName, cliAccountMnemonic, "", cliAccountPassword, keys.CreateHDPath(cfg.Account.Number, cfg.Account.Index).String(), cosmos.DefaultAlgo)
+	require.NoError(t, err)
+	cliAddress = cliAcc.GetAddress()
+
+	// init LCD with engine account and make a transfer to cli account
+	lcdEngine, err = cosmos.NewLCD(lcdEndpoint, cdc, kb, cfg.DevGenesis.ChainID, cfg.Account.Name, cfg.Account.Password, cfg.Cosmos.MinGasPrices, gasLimit)
+	require.NoError(t, err)
+	_, err = lcdEngine.BroadcastMsg(bank.NewMsgSend(engineAddress, cliAddress, cliInitialBalance))
+	require.NoError(t, err)
 
 	// init container
 	cont, err = container.New(cfg.Name)
@@ -93,12 +112,16 @@ func TestAPI(t *testing.T) {
 	conn, err := grpc.DialContext(context.Background(), "localhost:50052", grpc.WithInsecure())
 	require.NoError(t, err)
 
-	client = apiclient{
-		pb.NewEventClient(conn),
+	client = &apiclient{
+		EventClient: pb.NewEventClient(conn),
+		// TODO: to switch when e2e tests doesn't create any event
+		// EventClient:     orchestrator.NewEventClient(conn),
+		ExecutionClient: orchestrator.NewExecutionClient(conn),
+		RunnerClient:    orchestrator.NewRunnerClient(conn),
 	}
 
 	// init LCD
-	lcd, err = cosmos.NewLCD(lcdEndpoint, cdc, kb, cfg.DevGenesis.ChainID, cfg.Account.Name, cfg.Account.Password, cfg.Cosmos.MinGasPrices, gasLimit)
+	lcd, err = cosmos.NewLCD(lcdEndpoint, cdc, kb, cfg.DevGenesis.ChainID, cliAccountName, cliAccountPassword, cfg.Cosmos.MinGasPrices, gasLimit)
 	require.NoError(t, err)
 
 	// run tests
@@ -151,4 +174,37 @@ func pollExecutionOfProcess(processHash hash.Hash, status execution.Status, node
 			return nil, fmt.Errorf("pollExecutionOfProcess timeout with process hash %q and status %q and nodeKey %q", processHash, status, nodeKey)
 		}
 	}
+}
+
+func signPayload(payload interface{}) ([]byte, error) {
+	encodedValue, err := cdc.MarshalJSON(payload)
+	if err != nil {
+		return nil, err
+	}
+	signature, _, err := kb.Sign(cliAccountName, cliAccountPassword, encodedValue)
+	if err != nil {
+		return nil, err
+	}
+	return signature, nil
+}
+
+// signCred is a structure that manage a token.
+type signCred struct {
+	request interface{}
+}
+
+// GetRequestMetadata returns the metadata for the request.
+func (c *signCred) GetRequestMetadata(context.Context, ...string) (map[string]string, error) {
+	signature, err := signPayload(c.request)
+	if err != nil {
+		return nil, err
+	}
+	return map[string]string{
+		orchestrator.RequestSignature: base64.RawStdEncoding.EncodeToString(signature),
+	}, nil
+}
+
+// RequireTransportSecurity tells if the transport should be secured.
+func (c *signCred) RequireTransportSecurity() bool {
+	return false
 }
