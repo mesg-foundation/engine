@@ -245,7 +245,7 @@ func testExecution(t *testing.T) {
 			var mutex sync.Mutex
 			wg.Add(n)
 			for i := 0; i < n; i++ {
-				go func(i int) {
+				go func() {
 					defer wg.Done()
 					req := orchestrator.ExecutionCreateRequest{
 						TaskKey:      taskKey,
@@ -259,7 +259,7 @@ func testExecution(t *testing.T) {
 					defer mutex.Unlock()
 					require.NotContains(t, executions, resp.Hash)
 					executions = append(executions, resp.Hash)
-				}(i)
+				}()
 			}
 			wg.Wait()
 			require.Len(t, executions, n)
