@@ -9,11 +9,6 @@ option go_package = "github.com/mesg-foundation/engine/service/grpc/runner";
 
 // This is the API the Runners use to interact with the Engine.
 service Runner {
-  // Register registers a new runner to the Engine.
-  // This endpoint should only be called when the runner is ready to receive execution and emit events.
-  // This endpoint returns a credential token that must be passed to any following call to the Engine using the next endpoints.
-  rpc Register(RegisterRequest) returns (RegisterResponse) {}
-
   // Execution returns a stream of executions that contains the Execution the Runner must execute.
   // This request requires the credential token, obtained from the Register endpoint, to be injected in the request's metadata using the key "mesg_credential_token".
   rpc Execution(ExecutionRequest) returns (stream types.Execution) {}
@@ -25,49 +20,6 @@ service Runner {
   // Event should be used to emits an event.
   // This request requires the credential token, obtained from the Register endpoint, to be injected in the request's metadata using the key "mesg_credential_token".
   rpc Event(EventRequest) returns (EventResponse) {}
-}
-
-// RegisterRequest is the request of the endpoint Register.
-message RegisterRequest {
-  // payload to use to register this runner. it should be the content of the env variable MESG_REGISTER_PAYLOAD.
-  string payload = 1 [
-    (gogoproto.moretags) = 'validate:"required"'
-  ];
-}
-
-// RegisterRequest is the request of the endpoint Register.
-message RegisterRequestPayload {
-  // signature of the value to verify authenticity.
-  bytes signature = 1 [
-    (gogoproto.moretags) = 'validate:"required"'
-  ];
-
-  // value contains what the engine actually needs to register the runner.
-  Value value = 2 [
-    (gogoproto.moretags) = 'validate:"required"',
-    (gogoproto.nullable) = false
-  ];
-
-  // Value message
-  message Value {
-    // Service's hash to start the runner with.
-    bytes serviceHash = 1 [
-      (gogoproto.moretags) = 'validate:"required,hash"',
-      (gogoproto.casttype) = "github.com/mesg-foundation/engine/hash.Hash"
-    ];
-  
-    // Hash of the environmental variables to start the runner with.
-    bytes envHash = 2 [
-      (gogoproto.moretags) = 'validate:"omitempty,hash"',
-      (gogoproto.casttype) = "github.com/mesg-foundation/engine/hash.Hash"
-    ];
-  }
-}
-
-// RegisterResponse is the response of the endpoint Register.
-message RegisterResponse {
-  // token to use with the other endpoints of this API.
-  string token = 1;
 }
 
 // ExecutionRequest is the request of the endpoint Execution.

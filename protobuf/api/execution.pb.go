@@ -30,21 +30,18 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 // CreateExecutionRequest defines request to create a single execution.
 type CreateExecutionRequest struct {
-	// taskKey to filter executions.
-	TaskKey string        `protobuf:"bytes,2,opt,name=taskKey,proto3" json:"taskKey,omitempty" validate:"required,printascii"`
-	Inputs  *types.Struct `protobuf:"bytes,3,opt,name=inputs,proto3" json:"inputs,omitempty"`
-	// tags the execution.
-	Tags         []string                                    `protobuf:"bytes,4,rep,name=tags,proto3" json:"tags,omitempty" validate:"dive,printascii"`
-	ParentHash   github_com_mesg_foundation_engine_hash.Hash `protobuf:"bytes,5,opt,name=parentHash,proto3,casttype=github.com/mesg-foundation/engine/hash.Hash" json:"parentHash,omitempty" validate:"omitempty,hash"`
-	EventHash    github_com_mesg_foundation_engine_hash.Hash `protobuf:"bytes,6,opt,name=eventHash,proto3,casttype=github.com/mesg-foundation/engine/hash.Hash" json:"eventHash,omitempty" validate:"omitempty,hash"`
-	ProcessHash  github_com_mesg_foundation_engine_hash.Hash `protobuf:"bytes,7,opt,name=processHash,proto3,casttype=github.com/mesg-foundation/engine/hash.Hash" json:"processHash,omitempty" validate:"omitempty,hash"`
-	NodeKey      string                                      `protobuf:"bytes,8,opt,name=nodeKey,proto3" json:"nodeKey,omitempty"`
-	ExecutorHash github_com_mesg_foundation_engine_hash.Hash `protobuf:"bytes,9,opt,name=executorHash,proto3,casttype=github.com/mesg-foundation/engine/hash.Hash" json:"executorHash,omitempty" validate:"omitempty,hash"`
-	// price of running the execution.
-	Price                string   `protobuf:"bytes,10,opt,name=price,proto3" json:"price,omitempty" validate:"coins"`
-	XXX_NoUnkeyedLiteral struct{} `json:"-"`
-	XXX_unrecognized     []byte   `json:"-"`
-	XXX_sizecache        int32    `json:"-"`
+	TaskKey              string                                      `protobuf:"bytes,2,opt,name=taskKey,proto3" json:"taskKey,omitempty" validate:"required,printascii"`
+	Inputs               *types.Struct                               `protobuf:"bytes,3,opt,name=inputs,proto3" json:"inputs,omitempty"`
+	Tags                 []string                                    `protobuf:"bytes,4,rep,name=tags,proto3" json:"tags,omitempty" validate:"dive,printascii"`
+	ParentHash           github_com_mesg_foundation_engine_hash.Hash `protobuf:"bytes,5,opt,name=parentHash,proto3,casttype=github.com/mesg-foundation/engine/hash.Hash" json:"parentHash,omitempty" validate:"omitempty,hash"`
+	EventHash            github_com_mesg_foundation_engine_hash.Hash `protobuf:"bytes,6,opt,name=eventHash,proto3,casttype=github.com/mesg-foundation/engine/hash.Hash" json:"eventHash,omitempty" validate:"omitempty,hash"`
+	ProcessHash          github_com_mesg_foundation_engine_hash.Hash `protobuf:"bytes,7,opt,name=processHash,proto3,casttype=github.com/mesg-foundation/engine/hash.Hash" json:"processHash,omitempty" validate:"omitempty,hash"`
+	NodeKey              string                                      `protobuf:"bytes,8,opt,name=nodeKey,proto3" json:"nodeKey,omitempty"`
+	ExecutorHash         github_com_mesg_foundation_engine_hash.Hash `protobuf:"bytes,9,opt,name=executorHash,proto3,casttype=github.com/mesg-foundation/engine/hash.Hash" json:"executorHash,omitempty" validate:"omitempty,hash"`
+	Price                string                                      `protobuf:"bytes,10,opt,name=price,proto3" json:"price,omitempty" validate:"coins"`
+	XXX_NoUnkeyedLiteral struct{}                                    `json:"-"`
+	XXX_unrecognized     []byte                                      `json:"-"`
+	XXX_sizecache        int32                                       `json:"-"`
 }
 
 func (m *CreateExecutionRequest) Reset()         { *m = CreateExecutionRequest{} }

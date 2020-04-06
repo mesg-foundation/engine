@@ -117,6 +117,7 @@ func Start(cont container.Container, srv *service.Service, instanceHash hash.Has
 		Args:    srv.Configuration.Args,
 		Command: srv.Configuration.Command,
 		Env: xos.EnvMergeSlices(env, []string{
+			"MESG_SERVICE_HASH=" + srv.Hash.String(),
 			"MESG_INSTANCE_HASH=" + instanceHash.String(),
 			"MESG_RUNNER_HASH=" + runnerHash.String(),
 			"MESG_ENDPOINT=" + endpoint,
