@@ -29,12 +29,12 @@ message ExecutionCreateRequest {
     (gogoproto.moretags) = 'validate:"dive,printascii"'
   ];
 
-  bytes executorHash = 8 [
+  bytes executorHash = 4 [
     (gogoproto.moretags) = 'validate:"omitempty,hash"',
     (gogoproto.casttype) = "github.com/mesg-foundation/engine/hash.Hash"
   ];
 
-  string price = 9 [
+  string price = 5 [
     (gogoproto.moretags) = 'validate:"coins"'
   ];
 }
