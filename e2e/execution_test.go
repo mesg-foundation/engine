@@ -127,7 +127,6 @@ func testExecution(t *testing.T) {
 			require.True(t, serviceBalance.IsEqual(coins), serviceBalance, coins)
 		})
 		t.Run("withdraw from runner", func(t *testing.T) {
-			require.NoError(t, err)
 			msg := ownership.MsgWithdraw{
 				Owner:        engineAddress,
 				Amount:       expectedCoinsForExecutor.Add(expectedCoinsForEmitter...).String(),
