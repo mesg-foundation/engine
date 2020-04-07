@@ -200,7 +200,7 @@ func (c *signCred) GetRequestMetadata(context.Context, ...string) (map[string]st
 		return nil, err
 	}
 	return map[string]string{
-		orchestrator.RequestSignature: base64.RawStdEncoding.EncodeToString(signature),
+		orchestrator.RequestSignature: base64.StdEncoding.EncodeToString(signature),
 	}, nil
 }
 

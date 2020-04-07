@@ -58,7 +58,7 @@ func testRunner(t *testing.T) {
 
 		signature, err := signPayload(value)
 		require.NoError(t, err)
-		testInstanceEnv = append(testInstanceEnv, "MESG_REGISTER_SIGNATURE="+base64.RawStdEncoding.EncodeToString(signature))
+		testInstanceEnv = append(testInstanceEnv, "MESG_REGISTER_SIGNATURE="+base64.StdEncoding.EncodeToString(signature))
 	})
 
 	t.Run("wait for service to be ready", func(t *testing.T) {

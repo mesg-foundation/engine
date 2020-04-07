@@ -30,7 +30,7 @@ func signCommand() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			fmt.Println(base64.RawStdEncoding.EncodeToString(signature))
+			fmt.Println(base64.StdEncoding.EncodeToString(signature))
 			return nil
 		},
 	}
@@ -57,7 +57,7 @@ func verifySignCommand() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			signature, err := base64.RawStdEncoding.DecodeString(args[2])
+			signature, err := base64.StdEncoding.DecodeString(args[2])
 			if err != nil {
 				return err
 			}

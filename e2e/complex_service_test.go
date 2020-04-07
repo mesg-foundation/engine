@@ -70,7 +70,7 @@ func testComplexService(t *testing.T) {
 
 		signature, err := signPayload(value)
 		require.NoError(t, err)
-		testInstanceComplexEnv = append(testInstanceComplexEnv, "MESG_REGISTER_SIGNATURE="+base64.RawStdEncoding.EncodeToString(signature))
+		testInstanceComplexEnv = append(testInstanceComplexEnv, "MESG_REGISTER_SIGNATURE="+base64.StdEncoding.EncodeToString(signature))
 	})
 
 	t.Run("start runner", func(t *testing.T) {

@@ -48,7 +48,7 @@ func (a *Authorizer) IsAuthorized(ctx context.Context, payload interface{}) erro
 		return fmt.Errorf("signature not found in metadata, make sure to set it using the key %q", RequestSignature)
 	}
 	signature := md[RequestSignature][0]
-	signatureBytes, err := base64.RawStdEncoding.DecodeString(signature)
+	signatureBytes, err := base64.StdEncoding.DecodeString(signature)
 	if err != nil {
 		return err
 	}
