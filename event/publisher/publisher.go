@@ -1,11 +1,17 @@
 package publisher
 
 import (
+	"fmt"
+
 	"github.com/cskr/pubsub"
 	"github.com/mesg-foundation/engine/cosmos"
 	"github.com/mesg-foundation/engine/event"
 	"github.com/mesg-foundation/engine/hash"
+	"github.com/mesg-foundation/engine/instance"
 	"github.com/mesg-foundation/engine/protobuf/types"
+	"github.com/mesg-foundation/engine/service"
+	instancemodule "github.com/mesg-foundation/engine/x/instance"
+	servicemodule "github.com/mesg-foundation/engine/x/service"
 )
 
 const (
@@ -15,27 +21,29 @@ const (
 
 // EventPublisher exposes event APIs of MESG.
 type EventPublisher struct {
-	ps *pubsub.PubSub
-	mc *cosmos.ModuleClient
+	ps  *pubsub.PubSub
+	rpc *cosmos.RPC
 }
 
 // New creates a new Event SDK with given options.
-func New(mc *cosmos.ModuleClient) *EventPublisher {
+func New(rpc *cosmos.RPC) *EventPublisher {
 	return &EventPublisher{
-		ps: pubsub.New(0),
-		mc: mc,
+		ps:  pubsub.New(0),
+		rpc: rpc,
 	}
 }
 
 // Publish a MESG event eventKey with eventData for service token.
 func (ep *EventPublisher) Publish(instanceHash hash.Hash, eventKey string, eventData *types.Struct) (*event.Event, error) {
-	i, err := ep.mc.GetInstance(instanceHash)
-	if err != nil {
+	var i *instance.Instance
+	route := fmt.Sprintf("custom/%s/%s/%s", instancemodule.QuerierRoute, instancemodule.QueryGet, instanceHash)
+	if err := ep.rpc.QueryJSON(route, nil, &i); err != nil {
 		return nil, err
 	}
 
-	s, err := ep.mc.GetService(i.ServiceHash)
-	if err != nil {
+	var s *service.Service
+	route = fmt.Sprintf("custom/%s/%s/%s", servicemodule.QuerierRoute, servicemodule.QueryGet, i.ServiceHash)
+	if err := ep.rpc.QueryJSON(route, nil, &s); err != nil {
 		return nil, err
 	}
 

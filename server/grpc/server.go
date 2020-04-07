@@ -12,9 +12,6 @@ import (
 	"github.com/mesg-foundation/engine/cosmos"
 	"github.com/mesg-foundation/engine/event/publisher"
 	"github.com/mesg-foundation/engine/ext/xvalidator"
-	protobuf_api "github.com/mesg-foundation/engine/protobuf/api"
-	"github.com/mesg-foundation/engine/runner/builder"
-	"github.com/mesg-foundation/engine/server/grpc/api"
 	"github.com/mesg-foundation/engine/server/grpc/orchestrator"
 	"github.com/mesg-foundation/engine/server/grpc/runner"
 	"github.com/sirupsen/logrus"
@@ -26,20 +23,16 @@ import (
 // Server contains the server config.
 type Server struct {
 	instance          *grpc.Server
-	mc                *cosmos.ModuleClient
+	rpc               *cosmos.RPC
 	ep                *publisher.EventPublisher
-	b                 *builder.Builder
-	execPrice         string
 	authorizedPubKeys []string
 }
 
 // New returns a new gRPC server.
-func New(mc *cosmos.ModuleClient, ep *publisher.EventPublisher, b *builder.Builder, execPrice string, authorizedPubKeys []string) *Server {
+func New(rpc *cosmos.RPC, ep *publisher.EventPublisher, authorizedPubKeys []string) *Server {
 	return &Server{
-		mc:                mc,
+		rpc:               rpc,
 		ep:                ep,
-		b:                 b,
-		execPrice:         execPrice,
 		authorizedPubKeys: authorizedPubKeys,
 	}
 }
@@ -91,25 +84,17 @@ func validateInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryS
 
 // register all server
 func (s *Server) register() error {
-	protobuf_api.RegisterEventServer(s.instance, api.NewEventServer(s.ep))
-	protobuf_api.RegisterExecutionServer(s.instance, api.NewExecutionServer(s.mc, s.execPrice))
-	protobuf_api.RegisterInstanceServer(s.instance, api.NewInstanceServer(s.mc))
-	protobuf_api.RegisterServiceServer(s.instance, api.NewServiceServer(s.mc))
-	protobuf_api.RegisterProcessServer(s.instance, api.NewProcessServer(s.mc))
-	protobuf_api.RegisterOwnershipServer(s.instance, api.NewOwnershipServer(s.mc))
-	protobuf_api.RegisterRunnerServer(s.instance, api.NewRunnerServer(s.mc, s.b))
-
 	tokenToRunnerHash := &sync.Map{}
 
-	runner.RegisterRunnerServer(s.instance, runner.NewServer(s.mc.RPC, s.ep, tokenToRunnerHash))
+	runner.RegisterRunnerServer(s.instance, runner.NewServer(s.rpc, s.ep, tokenToRunnerHash))
 
-	authorizer, err := orchestrator.NewAuthorizer(s.mc.RPC.Codec(), s.authorizedPubKeys)
+	authorizer, err := orchestrator.NewAuthorizer(s.rpc.Codec(), s.authorizedPubKeys)
 	if err != nil {
 		return err
 	}
 	orchestrator.RegisterEventServer(s.instance, orchestrator.NewEventServer(s.ep, authorizer))
-	orchestrator.RegisterExecutionServer(s.instance, orchestrator.NewExecutionServer(s.mc.RPC, authorizer))
-	orchestrator.RegisterRunnerServer(s.instance, orchestrator.NewRunnerServer(s.mc.RPC, tokenToRunnerHash, authorizer))
+	orchestrator.RegisterExecutionServer(s.instance, orchestrator.NewExecutionServer(s.rpc, authorizer))
+	orchestrator.RegisterRunnerServer(s.instance, orchestrator.NewRunnerServer(s.rpc, tokenToRunnerHash, authorizer))
 
 	reflection.Register(s.instance)
 
