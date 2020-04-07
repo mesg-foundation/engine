@@ -6,14 +6,14 @@ import (
 
 func testOrchestrator(t *testing.T) {
 	// running orchestrator tests
-	t.Run("process balance and withdraw", testOrchestratorProcessBalanceWithdraw(testInstanceHash))
-	t.Run("event task", testOrchestratorEventTask(testInstanceHash))
+	t.Run("process balance and withdraw", testOrchestratorProcessBalanceWithdraw(testRunnerHash, testInstanceHash))
+	t.Run("event task", testOrchestratorEventTask(testRunnerHash, testInstanceHash))
 	t.Run("result task", testOrchestratorResultTask(testRunnerHash, testInstanceHash))
-	t.Run("map const", testOrchestratorMapConst(testInstanceHash))
-	t.Run("ref grand parent task", testOrchestratorRefGrandParentTask(testInstanceHash))
-	t.Run("nested data", testOrchestratorNestedData(testInstanceHash))
-	t.Run("nested map", testOrchestratorNestedMap(testInstanceHash))
-	t.Run("ref path nested", testOrchestratorRefPathNested(testInstanceHash))
-	t.Run("filter", testOrchestratorFilter(testInstanceHash))
-	t.Run("filter path nested", testOrchestratorFilterPathNested(testInstanceHash))
+	t.Run("map const", testOrchestratorMapConst(testRunnerHash, testInstanceHash))
+	t.Run("ref grand parent task", testOrchestratorRefGrandParentTask(testRunnerHash, testInstanceHash))
+	t.Run("nested data", testOrchestratorNestedData(testRunnerHash, testInstanceHash))
+	t.Run("nested map", testOrchestratorNestedMap(testRunnerHash, testInstanceHash))
+	t.Run("ref path nested", testOrchestratorRefPathNested(testRunnerHash, testInstanceHash))
+	t.Run("filter", testOrchestratorFilter(testRunnerHash, testInstanceHash))
+	t.Run("filter path nested", testOrchestratorFilterPathNested(testRunnerHash, testInstanceHash))
 }

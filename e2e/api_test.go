@@ -21,16 +21,13 @@ import (
 	"github.com/mesg-foundation/engine/execution"
 	"github.com/mesg-foundation/engine/ext/xnet"
 	"github.com/mesg-foundation/engine/hash"
-	pb "github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/mesg-foundation/engine/server/grpc/orchestrator"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc"
 )
 
 type apiclient struct {
-	EventClient pb.EventClient
-	// TODO: to switch when e2e tests doesn't create any event
-	// EventClient     orchestrator.EventClient
+	EventClient     orchestrator.EventClient
 	ExecutionClient orchestrator.ExecutionClient
 	RunnerClient    orchestrator.RunnerClient
 }
@@ -113,9 +110,7 @@ func TestAPI(t *testing.T) {
 	require.NoError(t, err)
 
 	client = &apiclient{
-		EventClient: pb.NewEventClient(conn),
-		// TODO: to switch when e2e tests doesn't create any event
-		// EventClient:     orchestrator.NewEventClient(conn),
+		EventClient:     orchestrator.NewEventClient(conn),
 		ExecutionClient: orchestrator.NewExecutionClient(conn),
 		RunnerClient:    orchestrator.NewRunnerClient(conn),
 	}

@@ -26,7 +26,7 @@ func testProcess(t *testing.T) {
 					Type: &process.Process_Node_Event_{
 						Event: &process.Process_Node_Event{
 							InstanceHash: testInstanceHash,
-							EventKey:     "test_service_ready",
+							EventKey:     "service_ready",
 						},
 					},
 				},
@@ -35,7 +35,7 @@ func testProcess(t *testing.T) {
 					Type: &process.Process_Node_Task_{
 						Task: &process.Process_Node_Task{
 							InstanceHash: testInstanceHash,
-							TaskKey:      "test_service_ready",
+							TaskKey:      "service_ready",
 						},
 					},
 				},

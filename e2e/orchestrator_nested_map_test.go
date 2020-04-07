@@ -7,48 +7,18 @@ import (
 	"github.com/mesg-foundation/engine/execution"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/process"
-	pb "github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/mesg-foundation/engine/protobuf/types"
+	"github.com/mesg-foundation/engine/server/grpc/orchestrator"
 	processmodule "github.com/mesg-foundation/engine/x/process"
 	"github.com/stretchr/testify/require"
+	"google.golang.org/grpc"
 )
 
-func testOrchestratorNestedMap(instanceHash hash.Hash) func(t *testing.T) {
+func testOrchestratorNestedMap(runnerHash, instanceHash hash.Hash) func(t *testing.T) {
 	return func(t *testing.T) {
 		var (
 			err         error
 			processHash hash.Hash
-			dataEvent   = &types.Struct{
-				Fields: map[string]*types.Value{
-					"msg": {
-						Kind: &types.Value_StructValue{
-							StructValue: &types.Struct{
-								Fields: map[string]*types.Value{
-									"msg": {
-										Kind: &types.Value_StringValue{
-											StringValue: "complex",
-										},
-									},
-									"timestamp": {
-										Kind: &types.Value_NumberValue{
-											NumberValue: 101,
-										},
-									},
-									"array": {
-										Kind: &types.Value_ListValue{
-											ListValue: &types.ListValue{Values: []*types.Value{
-												{Kind: &types.Value_StringValue{StringValue: "first"}},
-												{Kind: &types.Value_StringValue{StringValue: "second"}},
-												{Kind: &types.Value_StringValue{StringValue: "third"}},
-											}},
-										},
-									},
-								},
-							},
-						},
-					},
-				},
-			}
 		)
 		t.Run("create process", func(t *testing.T) {
 			msg := processmodule.MsgCreate{
@@ -60,7 +30,7 @@ func testOrchestratorNestedMap(instanceHash hash.Hash) func(t *testing.T) {
 						Type: &process.Process_Node_Event_{
 							Event: &process.Process_Node_Event{
 								InstanceHash: instanceHash,
-								EventKey:     "test_event_complex",
+								EventKey:     "event_complex_trigger",
 							},
 						},
 					},
@@ -109,11 +79,43 @@ func testOrchestratorNestedMap(instanceHash hash.Hash) func(t *testing.T) {
 			require.NoError(t, err)
 		})
 		t.Run("trigger process", func(t *testing.T) {
-			_, err := client.EventClient.Create(context.Background(), &pb.CreateEventRequest{
-				InstanceHash: instanceHash,
-				Key:          "test_event_complex",
-				Data:         dataEvent,
-			})
+			req := orchestrator.ExecutionCreateRequest{
+				Price:        "10000atto",
+				TaskKey:      "task_complex_trigger",
+				ExecutorHash: runnerHash,
+				Inputs: &types.Struct{
+					Fields: map[string]*types.Value{
+						"msg": {
+							Kind: &types.Value_StructValue{
+								StructValue: &types.Struct{
+									Fields: map[string]*types.Value{
+										"msg": {
+											Kind: &types.Value_StringValue{
+												StringValue: "complex",
+											},
+										},
+										"timestamp": {
+											Kind: &types.Value_NumberValue{
+												NumberValue: 101,
+											},
+										},
+										"array": {
+											Kind: &types.Value_ListValue{
+												ListValue: &types.ListValue{Values: []*types.Value{
+													{Kind: &types.Value_StringValue{StringValue: "first"}},
+													{Kind: &types.Value_StringValue{StringValue: "second"}},
+													{Kind: &types.Value_StringValue{StringValue: "third"}},
+												}},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			}
+			_, err := client.ExecutionClient.Create(context.Background(), &req, grpc.PerRPCCredentials(&signCred{req}))
 			require.NoError(t, err)
 		})
 		t.Run("first task", func(t *testing.T) {
