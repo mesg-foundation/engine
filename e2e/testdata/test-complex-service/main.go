@@ -110,7 +110,7 @@ func main() {
 	// give some time to nginx to start
 	time.Sleep(10 * time.Second)
 
-	sendEvent(client, token, "test_service_ready")
+	sendEvent(client, token, "service_ready")
 
 	// check env default value
 	if os.Getenv("ENVA") == "do_not_override" {
