@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"encoding/base64"
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -10,7 +9,6 @@ import (
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/protobuf/acknowledgement"
 	"github.com/mesg-foundation/engine/runner"
-	"github.com/mesg-foundation/engine/runner/builder"
 	"github.com/mesg-foundation/engine/server/grpc/orchestrator"
 	grpcorchestrator "github.com/mesg-foundation/engine/server/grpc/orchestrator"
 	runnerrest "github.com/mesg-foundation/engine/x/runner/client/rest"
@@ -19,15 +17,15 @@ import (
 )
 
 var (
-	testRunnerHash       hash.Hash
-	testInstanceEnvHash  hash.Hash
-	testRunnerAddress    sdk.AccAddress
-	testServiceImageHash string
+	testRunnerHash      hash.Hash
+	testInstanceEnvHash hash.Hash
+	testRunnerAddress   sdk.AccAddress
 )
 
 func testRunner(t *testing.T) {
 	var (
-		testInstanceEnv = xos.EnvMergeSlices(testServiceStruct.Configuration.Env, []string{"BAR=3", "REQUIRED=4"})
+		testInstanceEnv          = xos.EnvMergeSlices(testServiceStruct.Configuration.Env, []string{"BAR=3", "REQUIRED=4"})
+		registerPayloadSignature []byte
 	)
 	t.Run("hash", func(t *testing.T) {
 		var res runnerrest.HashResponse
@@ -40,13 +38,10 @@ func testRunner(t *testing.T) {
 		testRunnerHash = res.RunnerHash
 		testInstanceHash = res.InstanceHash
 		testInstanceEnvHash = res.EnvHash
-		testInstanceEnv = append(testInstanceEnv, "MESG_ENV_HASH="+testInstanceEnvHash.String())
 	})
 
 	t.Run("build service image", func(t *testing.T) {
-		var err error
-		testServiceImageHash, err = builder.Build(cont, testServiceStruct, ipfsEndpoint)
-		require.NoError(t, err)
+		require.NoError(t, cont.Build(testServiceStruct))
 	})
 
 	t.Run("create msg, sign it and inject into env", func(t *testing.T) {
@@ -55,9 +50,9 @@ func testRunner(t *testing.T) {
 			EnvHash:     testInstanceEnvHash,
 		}
 
-		signature, err := signPayload(value)
+		var err error
+		registerPayloadSignature, err = signPayload(value)
 		require.NoError(t, err)
-		testInstanceEnv = append(testInstanceEnv, "MESG_REGISTER_SIGNATURE="+base64.StdEncoding.EncodeToString(signature))
 	})
 
 	t.Run("wait for service to be ready", func(t *testing.T) {
@@ -71,7 +66,7 @@ func testRunner(t *testing.T) {
 		acknowledgement.WaitForStreamToBeReady(stream)
 
 		t.Run("start", func(t *testing.T) {
-			require.NoError(t, builder.Start(cont, testServiceStruct, testInstanceHash, testRunnerHash, testServiceImageHash, testInstanceEnv, engineName, enginePort))
+			require.NoError(t, cont.Start(testServiceStruct, testInstanceHash, testRunnerHash, testInstanceEnvHash, testInstanceEnv, registerPayloadSignature))
 		})
 
 		// wait for service to be ready
@@ -102,7 +97,7 @@ func testDeleteRunner(t *testing.T) {
 	_, err := client.RunnerClient.Delete(context.Background(), &req, grpc.PerRPCCredentials(&signCred{req}))
 	require.NoError(t, err)
 
-	require.NoError(t, builder.Stop(cont, testRunnerHash, testServiceStruct.Dependencies))
+	require.NoError(t, cont.Stop(testServiceStruct, testRunnerHash))
 
 	t.Run("check deletion", func(t *testing.T) {
 		rs := make([]*runner.Runner, 0)
