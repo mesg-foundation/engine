@@ -10,7 +10,6 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/docker/docker/client"
 	"github.com/docker/docker/pkg/archive"
 	"github.com/docker/docker/pkg/idtools"
 	"github.com/mesg-foundation/engine/container"
@@ -177,33 +176,33 @@ func Stop(cont container.Container, runnerHash hash.Hash, dependencies []*servic
 // TODO: right now deleteData() is not compatible to work with multiple instances of same
 // service since extractVolumes() accepts service, not instance. same applies in the start
 // api as well. make it work with multiple instances.
-func deleteData(cont container.Container, s *service.Service) error {
-	var (
-		wg      sync.WaitGroup
-		errs    xerrors.SyncErrors
-		volumes = make([]container.Mount, 0)
-	)
+// func deleteData(cont container.Container, s *service.Service) error {
+// 	var (
+// 		wg      sync.WaitGroup
+// 		errs    xerrors.SyncErrors
+// 		volumes = make([]container.Mount, 0)
+// 	)
 
-	for _, d := range s.Dependencies {
-		volumes = append(volumes, convertVolumes(s, d.Volumes, d.Key)...)
-	}
-	volumes = append(volumes, convertVolumes(s, s.Configuration.Volumes, service.MainServiceKey)...)
+// 	for _, d := range s.Dependencies {
+// 		volumes = append(volumes, convertVolumes(s, d.Volumes, d.Key)...)
+// 	}
+// 	volumes = append(volumes, convertVolumes(s, s.Configuration.Volumes, service.MainServiceKey)...)
 
-	for _, volume := range volumes {
-		// TODO: is it actually necessary to remvoe in parallel? I worry that some volume will be deleted at the same time and create side effect
-		wg.Add(1)
-		go func(source string) {
-			defer wg.Done()
-			// if service is never started before, data volume won't be created and Docker Engine
-			// will return with the not found error. therefore, we can safely ignore it.
-			if err := cont.DeleteVolume(source); err != nil && !client.IsErrNotFound(err) {
-				errs.Append(err)
-			}
-		}(volume.Source)
-	}
-	wg.Wait()
-	return errs.ErrorOrNil()
-}
+// 	for _, volume := range volumes {
+// 		// TODO: is it actually necessary to remvoe in parallel? I worry that some volume will be deleted at the same time and create side effect
+// 		wg.Add(1)
+// 		go func(source string) {
+// 			defer wg.Done()
+// 			// if service is never started before, data volume won't be created and Docker Engine
+// 			// will return with the not found error. therefore, we can safely ignore it.
+// 			if err := cont.DeleteVolume(source); err != nil && !client.IsErrNotFound(err) {
+// 				errs.Append(err)
+// 			}
+// 		}(volume.Source)
+// 	}
+// 	wg.Wait()
+// 	return errs.ErrorOrNil()
+// }
 
 // namespace returns the namespace of the service.
 func namespace(hash hash.Hash) string {
