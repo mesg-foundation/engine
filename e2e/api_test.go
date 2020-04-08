@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"strconv"
 	"testing"
 	"time"
 
@@ -19,7 +18,6 @@ import (
 	"github.com/mesg-foundation/engine/container"
 	"github.com/mesg-foundation/engine/cosmos"
 	"github.com/mesg-foundation/engine/execution"
-	"github.com/mesg-foundation/engine/ext/xnet"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/server/grpc/orchestrator"
 	"github.com/stretchr/testify/require"
@@ -40,10 +38,7 @@ var (
 	kb                    *cosmos.Keybase
 	cfg                   *config.Config
 	engineAddress         sdk.AccAddress
-	cont                  container.Container
-	ipfsEndpoint          string
-	engineName            string
-	enginePort            string
+	cont                  *container.Container
 	lcd                   *cosmos.LCD
 	lcdEngine             *cosmos.LCD
 	cliAddress            sdk.AccAddress
@@ -98,12 +93,8 @@ func TestAPI(t *testing.T) {
 	require.NoError(t, err)
 
 	// init container
-	cont, err = container.New(cfg.Name)
+	cont, err = container.New(cfg.IpfsEndpoint, cfg.Name, cfg.Server.Address, cfg.Name)
 	require.NoError(t, err)
-	_, port, _ := xnet.SplitHostPort(cfg.Server.Address)
-	enginePort = strconv.Itoa(port)
-	engineName = cfg.Name
-	ipfsEndpoint = cfg.IpfsEndpoint
 
 	// init gRPC client
 	conn, err := grpc.DialContext(context.Background(), "localhost:50052", grpc.WithInsecure())
