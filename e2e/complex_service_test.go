@@ -8,7 +8,6 @@ import (
 	"github.com/mesg-foundation/engine/ext/xos"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/protobuf/acknowledgement"
-	pb "github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/mesg-foundation/engine/runner/builder"
 	"github.com/mesg-foundation/engine/server/grpc/orchestrator"
 	grpcorchestrator "github.com/mesg-foundation/engine/server/grpc/orchestrator"
@@ -77,7 +76,8 @@ func testComplexService(t *testing.T) {
 		require.NoError(t, builder.Start(cont, testServiceComplexStruct, testInstanceComplexHash, testRunnerComplexHash, testServiceComplexImageHash, testInstanceComplexEnv, engineName, enginePort))
 	})
 
-	stream, err := client.EventClient.Stream(context.Background(), &pb.StreamEventRequest{})
+	req := orchestrator.EventStreamRequest{}
+	stream, err := client.EventClient.Stream(context.Background(), &req, grpc.PerRPCCredentials(&signCred{req}))
 	require.NoError(t, err)
 	acknowledgement.WaitForStreamToBeReady(stream)
 
@@ -93,7 +93,7 @@ func testComplexService(t *testing.T) {
 			i++
 
 			switch ev.Key {
-			case "test_service_ready", "read_env_ok", "read_env_override_ok", "access_volumes_ok", "access_volumes_from_ok", "resolve_dependence_ok":
+			case "service_ready", "read_env_ok", "read_env_override_ok", "access_volumes_ok", "access_volumes_from_ok", "resolve_dependence_ok":
 				t.Logf("received event %s ", ev.Key)
 			default:
 				t.Fatalf("failed on event %s", ev.Key)

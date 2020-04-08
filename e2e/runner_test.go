@@ -9,7 +9,6 @@ import (
 	"github.com/mesg-foundation/engine/ext/xos"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/protobuf/acknowledgement"
-	pb "github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/mesg-foundation/engine/runner"
 	"github.com/mesg-foundation/engine/runner/builder"
 	"github.com/mesg-foundation/engine/server/grpc/orchestrator"
@@ -62,11 +61,12 @@ func testRunner(t *testing.T) {
 	})
 
 	t.Run("wait for service to be ready", func(t *testing.T) {
-		stream, err := client.EventClient.Stream(context.Background(), &pb.StreamEventRequest{
-			Filter: &pb.StreamEventRequest_Filter{
-				Key: "test_service_ready",
+		req := orchestrator.EventStreamRequest{
+			Filter: &orchestrator.EventStreamRequest_Filter{
+				Key: "service_ready",
 			},
-		})
+		}
+		stream, err := client.EventClient.Stream(context.Background(), &req, grpc.PerRPCCredentials(&signCred{req}))
 		require.NoError(t, err)
 		acknowledgement.WaitForStreamToBeReady(stream)
 

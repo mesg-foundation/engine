@@ -9,14 +9,15 @@ import (
 	"github.com/mesg-foundation/engine/execution"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/process"
-	pb "github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/mesg-foundation/engine/protobuf/types"
+	"github.com/mesg-foundation/engine/server/grpc/orchestrator"
 	"github.com/mesg-foundation/engine/x/ownership"
 	processmodule "github.com/mesg-foundation/engine/x/process"
 	"github.com/stretchr/testify/require"
+	"google.golang.org/grpc"
 )
 
-func testOrchestratorProcessBalanceWithdraw(instanceHash hash.Hash) func(t *testing.T) {
+func testOrchestratorProcessBalanceWithdraw(runnerHash, instanceHash hash.Hash) func(t *testing.T) {
 	return func(t *testing.T) {
 		var (
 			processHash hash.Hash
@@ -34,7 +35,7 @@ func testOrchestratorProcessBalanceWithdraw(instanceHash hash.Hash) func(t *test
 						Type: &process.Process_Node_Event_{
 							Event: &process.Process_Node_Event{
 								InstanceHash: instanceHash,
-								EventKey:     "test_event",
+								EventKey:     "event_trigger",
 							},
 						},
 					},
@@ -67,10 +68,11 @@ func testOrchestratorProcessBalanceWithdraw(instanceHash hash.Hash) func(t *test
 			require.True(t, coins.IsEqual(processInitialBalance), coins)
 		})
 		t.Run("trigger process", func(t *testing.T) {
-			_, err := client.EventClient.Create(context.Background(), &pb.CreateEventRequest{
-				InstanceHash: instanceHash,
-				Key:          "test_event",
-				Data: &types.Struct{
+			req := orchestrator.ExecutionCreateRequest{
+				Price:        "10000atto",
+				TaskKey:      "task_trigger",
+				ExecutorHash: runnerHash,
+				Inputs: &types.Struct{
 					Fields: map[string]*types.Value{
 						"msg": {
 							Kind: &types.Value_StringValue{
@@ -84,7 +86,8 @@ func testOrchestratorProcessBalanceWithdraw(instanceHash hash.Hash) func(t *test
 						},
 					},
 				},
-			})
+			}
+			_, err := client.ExecutionClient.Create(context.Background(), &req, grpc.PerRPCCredentials(&signCred{req}))
 			require.NoError(t, err)
 		})
 		t.Run("check in progress execution", func(t *testing.T) {

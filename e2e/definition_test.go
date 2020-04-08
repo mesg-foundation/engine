@@ -24,7 +24,7 @@ var testComplexCreateServiceMsg = &servicemodule.MsgCreate{
 		VolumesFrom: []string{"nginx"},
 	},
 	Events: []*service.Service_Event{
-		{Key: "test_service_ready"},
+		{Key: "service_ready"},
 		{Key: "read_env_ok"},
 		{Key: "read_env_error"},
 		{Key: "read_env_override_ok"},
@@ -36,7 +36,7 @@ var testComplexCreateServiceMsg = &servicemodule.MsgCreate{
 		{Key: "resolve_dependence_ok"},
 		{Key: "resolve_dependence_error"},
 	},
-	Source: "QmYBRgatKfaqwDB6xwjo4GeVnrQzoAba6DhNX2p2kHZRuz",
+	Source: "QmQbobdv3tg1UdPiHBGaqbQF2mjGHPBBNAK4M9hoFA3NVU",
 }
 
 var testCreateServiceMsg = &servicemodule.MsgCreate{
@@ -46,6 +46,25 @@ var testCreateServiceMsg = &servicemodule.MsgCreate{
 		Env: []string{"FOO=1", "BAR=2", "REQUIRED"},
 	},
 	Tasks: []*service.Service_Task{
+		{
+			Key: "task_trigger",
+			Inputs: []*service.Service_Parameter{
+				{
+					Key:  "msg",
+					Type: "String",
+				},
+			},
+			Outputs: []*service.Service_Parameter{
+				{
+					Key:  "msg",
+					Type: "String",
+				},
+				{
+					Key:  "timestamp",
+					Type: "Number",
+				},
+			},
+		},
 		{
 			Key: "task1",
 			Inputs: []*service.Service_Parameter{
@@ -127,13 +146,56 @@ var testCreateServiceMsg = &servicemodule.MsgCreate{
 				},
 			},
 		},
+		{
+			Key: "task_complex_trigger",
+			Inputs: []*service.Service_Parameter{
+				{
+					Key:  "msg",
+					Type: "Object",
+					Object: []*service.Service_Parameter{
+						{
+							Key:  "msg",
+							Type: "String",
+						},
+						{
+							Key:      "array",
+							Type:     "String",
+							Repeated: true,
+							Optional: true,
+						},
+					},
+				},
+			},
+			Outputs: []*service.Service_Parameter{
+				{
+					Key:  "msg",
+					Type: "Object",
+					Object: []*service.Service_Parameter{
+						{
+							Key:  "msg",
+							Type: "String",
+						},
+						{
+							Key:  "timestamp",
+							Type: "Number",
+						},
+						{
+							Key:      "array",
+							Type:     "String",
+							Repeated: true,
+							Optional: true,
+						},
+					},
+				},
+			},
+		},
 	},
 	Events: []*service.Service_Event{
 		{
-			Key: "test_service_ready",
+			Key: "service_ready",
 		},
 		{
-			Key: "test_event",
+			Key: "event_trigger",
 			Data: []*service.Service_Parameter{
 				{
 					Key:  "msg",
@@ -146,7 +208,7 @@ var testCreateServiceMsg = &servicemodule.MsgCreate{
 			},
 		},
 		{
-			Key: "test_event_complex",
+			Key: "event_complex_trigger",
 			Data: []*service.Service_Parameter{
 				{
 					Key:  "msg",
@@ -169,19 +231,6 @@ var testCreateServiceMsg = &servicemodule.MsgCreate{
 				},
 			},
 		},
-		{
-			Key: "event_after_task",
-			Data: []*service.Service_Parameter{
-				{
-					Key:  "task_key",
-					Type: "String",
-				},
-				{
-					Key:  "timestamp",
-					Type: "Number",
-				},
-			},
-		},
 	},
-	Source: "QmeGzyEwoNMRGX537K3AGN6B9CBvgKzGu2nVFqyXYzRMjP",
+	Source: "QmXiBMy2rguhPn5hCmHh8rw1jjpq6YcekiUcvh91htVndM",
 }

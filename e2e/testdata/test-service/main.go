@@ -103,11 +103,11 @@ func main() {
 	log.Printf("created execution stream\n")
 
 	if _, err := client.Event(context.Background(), &runner.EventRequest{
-		Key: "test_service_ready",
+		Key: "service_ready",
 	}); err != nil {
 		log.Fatal(err)
 	}
-	log.Printf("emitted test_service_ready event\n")
+	log.Printf("emitted service_ready event\n")
 
 	for {
 		exec, err := stream.Recv()
@@ -121,28 +121,23 @@ func main() {
 }
 
 func processExec(client runner.RunnerClient, token string, exec *execution.Execution) {
-	req := &runner.ResultRequest{
-		ExecutionHash: exec.Hash,
-	}
-
-	if exec.TaskKey == "task1" || exec.TaskKey == "task2" {
-		req.Result = &runner.ResultRequest_Outputs{
-			Outputs: &types.Struct{
-				Fields: map[string]*types.Value{
-					"msg": {
-						Kind: &types.Value_StringValue{
-							StringValue: exec.Inputs.Fields["msg"].GetStringValue(),
-						},
+	var outputs *types.Struct
+	if exec.TaskKey == "task_trigger" || exec.TaskKey == "task1" || exec.TaskKey == "task2" {
+		outputs = &types.Struct{
+			Fields: map[string]*types.Value{
+				"msg": {
+					Kind: &types.Value_StringValue{
+						StringValue: exec.Inputs.Fields["msg"].GetStringValue(),
 					},
-					"timestamp": {
-						Kind: &types.Value_NumberValue{
-							NumberValue: float64(time.Now().Unix()),
-						},
+				},
+				"timestamp": {
+					Kind: &types.Value_NumberValue{
+						NumberValue: float64(time.Now().Unix()),
 					},
 				},
 			},
 		}
-	} else if exec.TaskKey == "task_complex" {
+	} else if exec.TaskKey == "task_complex_trigger" || exec.TaskKey == "task_complex" {
 		var fields = map[string]*types.Value{
 			"msg": {
 				Kind: &types.Value_StringValue{
@@ -162,14 +157,12 @@ func processExec(client runner.RunnerClient, token string, exec *execution.Execu
 				},
 			}
 		}
-		req.Result = &runner.ResultRequest_Outputs{
-			Outputs: &types.Struct{
-				Fields: map[string]*types.Value{
-					"msg": {
-						Kind: &types.Value_StructValue{
-							StructValue: &types.Struct{
-								Fields: fields,
-							},
+		outputs = &types.Struct{
+			Fields: map[string]*types.Value{
+				"msg": {
+					Kind: &types.Value_StructValue{
+						StructValue: &types.Struct{
+							Fields: fields,
 						},
 					},
 				},
@@ -179,31 +172,34 @@ func processExec(client runner.RunnerClient, token string, exec *execution.Execu
 		log.Fatalf("Taskkey %q not implemented", exec.TaskKey)
 	}
 
-	if _, err := client.Result(context.Background(), req); err != nil {
-		log.Fatal(err)
-	}
-	log.Printf("execution result submitted\n")
-
-	if _, err := client.Event(context.Background(), &runner.EventRequest{
-		Key: "event_after_task",
-		Data: &types.Struct{
-			Fields: map[string]*types.Value{
-				"task_key": {
-					Kind: &types.Value_StringValue{
-						StringValue: exec.TaskKey,
-					},
-				},
-				"timestamp": {
-					Kind: &types.Value_NumberValue{
-						NumberValue: float64(time.Now().Unix()),
-					},
-				},
-			},
+	if _, err := client.Result(context.Background(), &runner.ResultRequest{
+		ExecutionHash: exec.Hash,
+		Result: &runner.ResultRequest_Outputs{
+			Outputs: outputs,
 		},
 	}); err != nil {
 		log.Fatal(err)
 	}
-	log.Printf("emitted event_after_task event\n")
+	log.Printf("execution result submitted\n")
+
+	if exec.TaskKey == "task_trigger" {
+		if _, err := client.Event(context.Background(), &runner.EventRequest{
+			Key:  "event_trigger",
+			Data: outputs,
+		}); err != nil {
+			log.Fatal(err)
+		}
+		log.Printf("emitted event_trigger event\n")
+	}
+	if exec.TaskKey == "task_complex_trigger" {
+		if _, err := client.Event(context.Background(), &runner.EventRequest{
+			Key:  "event_complex_trigger",
+			Data: outputs,
+		}); err != nil {
+			log.Fatal(err)
+		}
+		log.Printf("emitted event_complex_trigger event\n")
+	}
 }
 
 // tokenCred is a structure that manage a token.
