@@ -56,9 +56,13 @@ func (a *Authorizer) IsAuthorized(ctx context.Context, payload interface{}) erro
 	if err != nil {
 		return err
 	}
+	encodedValueSorted, err := sdk.SortJSON(encodedValue)
+	if err != nil {
+		return err
+	}
 	isAuthorized := false
 	for _, authorizedPubKey := range a.authorizedPubKeys {
-		if authorizedPubKey.VerifyBytes(encodedValue, signatureBytes) {
+		if authorizedPubKey.VerifyBytes(encodedValueSorted, signatureBytes) {
 			isAuthorized = true
 			break
 		}

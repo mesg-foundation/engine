@@ -167,7 +167,11 @@ func signPayload(payload interface{}) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	signature, _, err := kb.Sign(cliAccountName, cliAccountPassword, encodedValue)
+	encodedValueSorted, err := sdk.SortJSON(encodedValue)
+	if err != nil {
+		return nil, err
+	}
+	signature, _, err := kb.Sign(cliAccountName, cliAccountPassword, encodedValueSorted)
 	if err != nil {
 		return nil, err
 	}
