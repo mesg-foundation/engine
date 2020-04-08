@@ -36,7 +36,7 @@ var testComplexCreateServiceMsg = &servicemodule.MsgCreate{
 		{Key: "resolve_dependence_ok"},
 		{Key: "resolve_dependence_error"},
 	},
-	Source: "Qmeb4usAtvVuJmF9oh21P8pywC1o1eLrEn6dMvq1x7mHeq",
+	Source: "QmYBRgatKfaqwDB6xwjo4GeVnrQzoAba6DhNX2p2kHZRuz",
 }
 
 var testCreateServiceMsg = &servicemodule.MsgCreate{
@@ -183,5 +183,5 @@ var testCreateServiceMsg = &servicemodule.MsgCreate{
 			},
 		},
 	},
-	Source: "QmYvof2HbuHn1BwajHCJeyqhkdmvdFerhLWxxDFFxhWgD3",
+	Source: "QmeGzyEwoNMRGX537K3AGN6B9CBvgKzGu2nVFqyXYzRMjP",
 }

@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/base64"
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -11,10 +12,11 @@ import (
 	pb "github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/mesg-foundation/engine/runner"
 	"github.com/mesg-foundation/engine/runner/builder"
-	grpcrunner "github.com/mesg-foundation/engine/server/grpc/runner"
-	runnermodule "github.com/mesg-foundation/engine/x/runner"
+	"github.com/mesg-foundation/engine/server/grpc/orchestrator"
+	grpcorchestrator "github.com/mesg-foundation/engine/server/grpc/orchestrator"
 	runnerrest "github.com/mesg-foundation/engine/x/runner/client/rest"
 	"github.com/stretchr/testify/require"
+	"google.golang.org/grpc"
 )
 
 var (
@@ -39,6 +41,7 @@ func testRunner(t *testing.T) {
 		testRunnerHash = res.RunnerHash
 		testInstanceHash = res.InstanceHash
 		testInstanceEnvHash = res.EnvHash
+		testInstanceEnv = append(testInstanceEnv, "MESG_ENV_HASH="+testInstanceEnvHash.String())
 	})
 
 	t.Run("build service image", func(t *testing.T) {
@@ -48,25 +51,14 @@ func testRunner(t *testing.T) {
 	})
 
 	t.Run("create msg, sign it and inject into env", func(t *testing.T) {
-		value := grpcrunner.RegisterRequestPayload_Value{
+		value := grpcorchestrator.RunnerRegisterRequest{
 			ServiceHash: testServiceHash,
 			EnvHash:     testInstanceEnvHash,
 		}
 
-		encodedValue, err := cdc.MarshalJSON(value)
+		signature, err := signPayload(value)
 		require.NoError(t, err)
-
-		signature, _, err := kb.Sign(engineAccountName, engineAccountPassword, encodedValue)
-		require.NoError(t, err)
-
-		payload := grpcrunner.RegisterRequestPayload{
-			Signature: signature,
-			Value:     value,
-		}
-		encodedPayload, err := cdc.MarshalJSON(payload)
-		require.NoError(t, err)
-
-		testInstanceEnv = append(testInstanceEnv, "MESG_REGISTER_PAYLOAD="+string(encodedPayload))
+		testInstanceEnv = append(testInstanceEnv, "MESG_REGISTER_SIGNATURE="+base64.StdEncoding.EncodeToString(signature))
 	})
 
 	t.Run("wait for service to be ready", func(t *testing.T) {
@@ -104,11 +96,10 @@ func testRunner(t *testing.T) {
 }
 
 func testDeleteRunner(t *testing.T) {
-	msg := runnermodule.MsgDelete{
-		Owner: engineAddress,
-		Hash:  testRunnerHash,
+	req := orchestrator.RunnerDeleteRequest{
+		RunnerHash: testRunnerHash,
 	}
-	_, err := lcd.BroadcastMsg(msg)
+	_, err := client.RunnerClient.Delete(context.Background(), &req, grpc.PerRPCCredentials(&signCred{req}))
 	require.NoError(t, err)
 
 	require.NoError(t, builder.Stop(cont, testRunnerHash, testServiceStruct.Dependencies))

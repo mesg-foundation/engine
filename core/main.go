@@ -207,7 +207,7 @@ func main() {
 	}
 
 	// init gRPC server.
-	server := grpc.New(mc, ep, b, cfg.DefaultExecutionPrice)
+	server := grpc.New(mc, ep, b, cfg.DefaultExecutionPrice, cfg.AuthorizedPubKeys)
 	logrus.WithField("module", "main").Infof("starting MESG Engine version %s", version.Version)
 	defer func() {
 		logrus.WithField("module", "main").Info("stopping grpc server")

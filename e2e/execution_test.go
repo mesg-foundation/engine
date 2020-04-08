@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"sync"
 	"testing"
 
@@ -8,9 +9,10 @@ import (
 	"github.com/mesg-foundation/engine/execution"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/protobuf/types"
-	executionmodule "github.com/mesg-foundation/engine/x/execution"
+	"github.com/mesg-foundation/engine/server/grpc/orchestrator"
 	"github.com/mesg-foundation/engine/x/ownership"
 	"github.com/stretchr/testify/require"
+	"google.golang.org/grpc"
 )
 
 func testExecution(t *testing.T) {
@@ -26,7 +28,6 @@ func testExecution(t *testing.T) {
 			execAddress   sdk.AccAddress
 			exec          *execution.Execution
 			taskKey       = "task1"
-			eventHash     = hash.Int(1)
 			price         = sdk.NewCoins(sdk.NewInt64Coin("atto", 50000))
 			inputs        = &types.Struct{
 				Fields: map[string]*types.Value{
@@ -48,16 +49,15 @@ func testExecution(t *testing.T) {
 		require.NoError(t, lcd.Get("bank/balances/"+testServiceAddress.String(), &serviceBalance))
 
 		t.Run("create", func(t *testing.T) {
-			msg := executionmodule.MsgCreate{
-				Signer:       engineAddress,
+			req := orchestrator.ExecutionCreateRequest{
 				TaskKey:      taskKey,
-				EventHash:    eventHash,
 				ExecutorHash: executorHash,
 				Inputs:       inputs,
 				Price:        price.String(),
 			}
-			executionHash, err = lcd.BroadcastMsg(msg)
+			resp, err := client.ExecutionClient.Create(context.Background(), &req, grpc.PerRPCCredentials(&signCred{req}))
 			require.NoError(t, err)
+			executionHash = resp.Hash
 		})
 		t.Run("get execution address", func(t *testing.T) {
 			var exec *execution.Execution
@@ -75,7 +75,6 @@ func testExecution(t *testing.T) {
 			require.NoError(t, err)
 			require.Equal(t, executionHash, execInProgress.Hash)
 			require.Equal(t, taskKey, execInProgress.TaskKey)
-			require.Equal(t, eventHash, execInProgress.EventHash)
 			require.Equal(t, executorHash, execInProgress.ExecutorHash)
 			require.Equal(t, execution.Status_InProgress, execInProgress.Status)
 			require.True(t, inputs.Equal(execInProgress.Inputs))
@@ -85,7 +84,6 @@ func testExecution(t *testing.T) {
 			require.NoError(t, err)
 			require.Equal(t, executionHash, exec.Hash)
 			require.Equal(t, taskKey, exec.TaskKey)
-			require.Equal(t, eventHash, exec.EventHash)
 			require.Equal(t, executorHash, exec.ExecutorHash)
 			require.Equal(t, execution.Status_Completed, exec.Status)
 			require.True(t, inputs.Equal(exec.Inputs))
@@ -116,7 +114,7 @@ func testExecution(t *testing.T) {
 		})
 		t.Run("withdraw from service", func(t *testing.T) {
 			msg := ownership.MsgWithdraw{
-				Owner:        engineAddress,
+				Owner:        cliAddress,
 				Amount:       expectedCoinsForService.String(),
 				ResourceHash: testServiceHash,
 			}
@@ -134,7 +132,7 @@ func testExecution(t *testing.T) {
 				Amount:       expectedCoinsForExecutor.Add(expectedCoinsForEmitter...).String(),
 				ResourceHash: testRunnerHash,
 			}
-			_, err := lcd.BroadcastMsg(msg)
+			_, err := lcdEngine.BroadcastMsg(msg)
 			require.NoError(t, err)
 
 			// check balance
@@ -149,7 +147,6 @@ func testExecution(t *testing.T) {
 			executionHash hash.Hash
 			exec          *execution.Execution
 			taskKey       = "task_complex"
-			eventHash     = hash.Int(2)
 			price         = "10000atto"
 			inputs        = &types.Struct{
 				Fields: map[string]*types.Value{
@@ -179,23 +176,21 @@ func testExecution(t *testing.T) {
 			}
 		)
 		t.Run("create", func(t *testing.T) {
-			msg := executionmodule.MsgCreate{
-				Signer:       engineAddress,
+			req := orchestrator.ExecutionCreateRequest{
 				TaskKey:      taskKey,
-				EventHash:    eventHash,
 				ExecutorHash: executorHash,
 				Inputs:       inputs,
 				Price:        price,
 			}
-			executionHash, err = lcd.BroadcastMsg(msg)
+			resp, err := client.ExecutionClient.Create(context.Background(), &req, grpc.PerRPCCredentials(&signCred{req}))
 			require.NoError(t, err)
+			executionHash = resp.Hash
 		})
 		t.Run("in progress", func(t *testing.T) {
 			execInProgress, err := pollExecution(executionHash, execution.Status_InProgress)
 			require.NoError(t, err)
 			require.Equal(t, executionHash, execInProgress.Hash)
 			require.Equal(t, taskKey, execInProgress.TaskKey)
-			require.Equal(t, eventHash, execInProgress.EventHash)
 			require.Equal(t, executorHash, execInProgress.ExecutorHash)
 			require.Equal(t, execution.Status_InProgress, execInProgress.Status)
 			require.True(t, inputs.Equal(execInProgress.Inputs))
@@ -205,7 +200,6 @@ func testExecution(t *testing.T) {
 			require.NoError(t, err)
 			require.Equal(t, executionHash, exec.Hash)
 			require.Equal(t, taskKey, exec.TaskKey)
-			require.Equal(t, eventHash, exec.EventHash)
 			require.Equal(t, executorHash, exec.ExecutorHash)
 			require.Equal(t, execution.Status_Completed, exec.Status)
 			require.True(t, inputs.Equal(exec.Inputs))
@@ -246,29 +240,27 @@ func testExecution(t *testing.T) {
 			}
 		)
 		t.Run("create executions", func(t *testing.T) {
-			msgs := make([]sdk.Msg, 0)
+			wg := sync.WaitGroup{}
+			var mutex sync.Mutex
+			wg.Add(n)
 			for i := 0; i < n; i++ {
-				hash, err := hash.Random()
-				require.Nil(t, err)
-				msg := executionmodule.MsgCreate{
-					Signer:       engineAddress,
-					TaskKey:      taskKey,
-					EventHash:    hash,
-					ExecutorHash: executorHash,
-					Inputs:       inputs,
-					Price:        price,
-				}
-				msgs = append(msgs, msg)
+				go func() {
+					defer wg.Done()
+					req := orchestrator.ExecutionCreateRequest{
+						TaskKey:      taskKey,
+						ExecutorHash: executorHash,
+						Inputs:       inputs,
+						Price:        price,
+					}
+					resp, err := client.ExecutionClient.Create(context.Background(), &req, grpc.PerRPCCredentials(&signCred{req}))
+					require.NoError(t, err)
+					mutex.Lock()
+					defer mutex.Unlock()
+					require.NotContains(t, executions, resp.Hash)
+					executions = append(executions, resp.Hash)
+				}()
 			}
-			execsHash, err := lcd.BroadcastMsgs(msgs)
-			require.NoError(t, err)
-			// split hash
-			hashSize := hash.DefaultHash().Size()
-			for i := 0; i < n; i++ {
-				execHash := execsHash[hashSize*i : hashSize*(i+1)]
-				require.NotContains(t, executions, execHash)
-				executions = append(executions, execHash)
-			}
+			wg.Wait()
 			require.Len(t, executions, n)
 		})
 		t.Run("check in progress", func(t *testing.T) {

@@ -22,7 +22,7 @@ func testOrchestratorRefGrandParentTask(instanceHash hash.Hash) func(t *testing.
 		)
 		t.Run("create process", func(t *testing.T) {
 			msg := processmodule.MsgCreate{
-				Owner: engineAddress,
+				Owner: cliAddress,
 				Name:  "ref-grand-parent-task",
 				Nodes: []*process.Process_Node{
 					{
@@ -194,7 +194,7 @@ func testOrchestratorRefGrandParentTask(instanceHash hash.Hash) func(t *testing.
 		})
 		t.Run("delete process", func(t *testing.T) {
 			_, err := lcd.BroadcastMsg(processmodule.MsgDelete{
-				Owner: engineAddress,
+				Owner: cliAddress,
 				Hash:  processHash,
 			})
 			require.NoError(t, err)

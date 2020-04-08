@@ -11,7 +11,6 @@ import (
 	"github.com/mesg-foundation/engine/execution"
 	"github.com/mesg-foundation/engine/ext/xstrings"
 	"github.com/mesg-foundation/engine/hash"
-	"github.com/mesg-foundation/engine/instance"
 	"github.com/mesg-foundation/engine/protobuf/acknowledgement"
 	"github.com/mesg-foundation/engine/runner"
 	executionmodule "github.com/mesg-foundation/engine/x/execution"
@@ -24,130 +23,41 @@ const CredentialToken = "mesg_credential_token"
 
 // Server is the type to aggregate all Runner APIs.
 type Server struct {
-	rpc *cosmos.RPC
-	ep  *publisher.EventPublisher
-
-	tokenToRunnerHash sync.Map
+	rpc               *cosmos.RPC
+	eventPublisher    *publisher.EventPublisher
+	tokenToRunnerHash *sync.Map
 }
 
 // NewServer creates a new Server.
-func NewServer(rpc *cosmos.RPC, ep *publisher.EventPublisher) *Server {
+func NewServer(rpc *cosmos.RPC, eventPublisher *publisher.EventPublisher, tokenToRunnerHash *sync.Map) *Server {
 	return &Server{
-		rpc: rpc,
-		ep:  ep,
+		rpc:               rpc,
+		eventPublisher:    eventPublisher,
+		tokenToRunnerHash: tokenToRunnerHash,
 	}
 }
 
-// authorize checks the context for a token, matches it against the saved tokens, returns the runner hash if found.
-func (s *Server) authorize(ctx context.Context) (hash.Hash, error) {
-	if md, ok := metadata.FromIncomingContext(ctx); ok {
-		if len(md[CredentialToken]) > 0 {
-			token := md[CredentialToken][0]
-			runnerHash, ok := s.tokenToRunnerHash.Load(token)
-			if !ok {
-				return nil, fmt.Errorf("credential token doesn't exist")
-			}
-			return runnerHash.(hash.Hash), nil
-		}
+// isAuthorized checks the context for a token, matches it against the saved tokens, returns the runner hash if found.
+func (s *Server) isAuthorized(ctx context.Context) (hash.Hash, error) {
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok {
+		return nil, fmt.Errorf("credential not found in metadata, make sure to set it using the name %q", CredentialToken)
 	}
-	return nil, fmt.Errorf("credential not found in metadata, make sure to set it using the name %q", CredentialToken)
-}
-
-// Register register a new runner.
-func (s *Server) Register(ctx context.Context, req *RegisterRequest) (*RegisterResponse, error) {
-	// decode msg
-	var payload RegisterRequestPayload
-	if err := s.rpc.Codec().UnmarshalJSON([]byte(req.Payload), &payload); err != nil {
-		return nil, err
+	if len(md[CredentialToken]) == 0 {
+		return nil, fmt.Errorf("credential not found in metadata, make sure to set it using the name %q", CredentialToken)
 	}
-
-	// get account
-	acc, err := s.rpc.GetAccount()
-	if err != nil {
-		return nil, err
+	token := md[CredentialToken][0]
+	runnerHash, ok := s.tokenToRunnerHash.Load(token)
+	if !ok {
+		return nil, fmt.Errorf("credential token doesn't exist")
 	}
-
-	// check signature
-	encodedValue, err := s.rpc.Codec().MarshalJSON(payload.Value)
-	if err != nil {
-		return nil, err
-	}
-	if !acc.GetPubKey().VerifyBytes(encodedValue, payload.Signature) {
-		return nil, fmt.Errorf("verification of the signature failed, it should be signed by %q", acc.GetAddress().String())
-	}
-
-	// calculate runner hash
-	inst, err := instance.New(payload.Value.ServiceHash, payload.Value.EnvHash)
-	if err != nil {
-		return nil, err
-	}
-	run, err := runner.New(acc.GetAddress().String(), inst.Hash)
-	if err != nil {
-		return nil, err
-	}
-	runnerHash := run.Hash
-
-	// check that runner doesn't already exist
-	var runnerExist bool
-	route := fmt.Sprintf("custom/%s/%s/%s", runnermodule.QuerierRoute, runnermodule.QueryExist, runnerHash)
-	if err := s.rpc.QueryJSON(route, nil, &runnerExist); err != nil {
-		return nil, err
-	}
-
-	// only broadcast if runner doesn't exist
-	if !runnerExist {
-		tx, err := s.rpc.BuildAndBroadcastMsg(runnermodule.MsgCreate{
-			Owner:       acc.GetAddress(),
-			ServiceHash: payload.Value.ServiceHash,
-			EnvHash:     payload.Value.EnvHash,
-		})
-		if err != nil {
-			return nil, err
-		}
-		runnerHashCreated, err := hash.DecodeFromBytes(tx.Data)
-		if err != nil {
-			return nil, err
-		}
-		if !runnerHashCreated.Equal(runnerHash) {
-			// delete wrong runner
-			_, err := s.rpc.BuildAndBroadcastMsg(runnermodule.MsgDelete{
-				Owner: acc.GetAddress(),
-				Hash:  runnerHashCreated,
-			})
-			if err != nil {
-				return nil, err
-			}
-			return nil, fmt.Errorf("runner hash created is not expected: got %q, expect %q", runnerHashCreated, runnerHash)
-		}
-	}
-
-	// delete any other token corresponding to runnerHash
-	s.tokenToRunnerHash.Range(func(key, value interface{}) bool {
-		savedRunnerHash := value.(hash.Hash)
-		if savedRunnerHash.Equal(runnerHash) {
-			s.tokenToRunnerHash.Delete(key)
-		}
-		return true
-	})
-
-	// generate unique token
-	token, err := hash.Random()
-	if err != nil {
-		return nil, err
-	}
-
-	// save token locally with ref to runnerHash
-	s.tokenToRunnerHash.Store(token.String(), runnerHash)
-
-	return &RegisterResponse{
-		Token: token.String(),
-	}, nil
+	return runnerHash.(hash.Hash), nil
 }
 
 // Execution returns a stream of Execution for a specific Runner.
 func (s *Server) Execution(req *ExecutionRequest, stream Runner_ExecutionServer) error {
 	// check authorization and get runner hash
-	runnerHash, err := s.authorize(stream.Context())
+	runnerHash, err := s.isAuthorized(stream.Context())
 	if err != nil {
 		return err
 	}
@@ -161,6 +71,7 @@ func (s *Server) Execution(req *ExecutionRequest, stream Runner_ExecutionServer)
 		executionmodule.EventType, sdk.AttributeKeyAction, executionmodule.AttributeActionCreated,
 	)
 	eventStream, err := s.rpc.Subscribe(ctx, subscriber, query, 0)
+	defer s.rpc.Unsubscribe(context.Background(), subscriber, query)
 	if err != nil {
 		return err
 	}
@@ -208,7 +119,7 @@ func (s *Server) Execution(req *ExecutionRequest, stream Runner_ExecutionServer)
 // Result emits the result of an Execution.
 func (s *Server) Result(ctx context.Context, req *ResultRequest) (*ResultResponse, error) {
 	// check authorization and get runner hash
-	runnerHash, err := s.authorize(ctx)
+	runnerHash, err := s.isAuthorized(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -251,7 +162,7 @@ func (s *Server) Result(ctx context.Context, req *ResultRequest) (*ResultRespons
 // Event emits an event.
 func (s *Server) Event(ctx context.Context, req *EventRequest) (*EventResponse, error) {
 	// check authorization and get runner hash
-	runnerHash, err := s.authorize(ctx)
+	runnerHash, err := s.isAuthorized(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -264,7 +175,7 @@ func (s *Server) Event(ctx context.Context, req *EventRequest) (*EventResponse, 
 	}
 
 	// publish event
-	if _, err := s.ep.Publish(run.InstanceHash, req.Key, req.Data); err != nil {
+	if _, err := s.eventPublisher.Publish(run.InstanceHash, req.Key, req.Data); err != nil {
 		return nil, err
 	}
 

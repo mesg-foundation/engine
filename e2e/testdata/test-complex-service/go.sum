@@ -306,6 +306,12 @@ github.com/matttproud/golang_protobuf_extensions v1.0.1 h1:4hp9jkHxhMHkqkrB3Ix0j
 github.com/matttproud/golang_protobuf_extensions v1.0.1/go.mod h1:D8He9yQNgCq6Z5Ld7szi9bcBfOoFv/3dc6xSMkL2PC0=
 github.com/mesg-foundation/engine v0.18.4-0.20200402055258-ff1bb6a08721 h1:phDRjfATdCfyvreTyk45L5TiXFLbG0W9TzYkgrOyWuM=
 github.com/mesg-foundation/engine v0.18.4-0.20200402055258-ff1bb6a08721/go.mod h1:TjchQ1Y4OqVkOA3nJ3pJ8Pagxl360dmqzH+PhyR8NLE=
+github.com/mesg-foundation/engine v0.18.4-0.20200406080522-ff6a40ead454 h1:GVwuKVMa3SdPn67i7R8ZI8KQB0w3wd4b6z1rB5eOtwc=
+github.com/mesg-foundation/engine v0.18.4-0.20200406080522-ff6a40ead454/go.mod h1:TjchQ1Y4OqVkOA3nJ3pJ8Pagxl360dmqzH+PhyR8NLE=
+github.com/mesg-foundation/engine v0.18.4-0.20200406094054-953626b372e7 h1:IJcitSp6L2bUJ4dQ54GyB3whPXQ+AC9PKfEGum9nHcU=
+github.com/mesg-foundation/engine v0.18.4-0.20200406094054-953626b372e7/go.mod h1:TjchQ1Y4OqVkOA3nJ3pJ8Pagxl360dmqzH+PhyR8NLE=
+github.com/mesg-foundation/engine v0.18.4-0.20200406120519-06c3e44902e9 h1:LXD6PywTNfGZsDytVDGfHcDbqEWCh3RhQztGqaJyxnA=
+github.com/mesg-foundation/engine v0.18.4-0.20200406120519-06c3e44902e9/go.mod h1:TjchQ1Y4OqVkOA3nJ3pJ8Pagxl360dmqzH+PhyR8NLE=
 github.com/miekg/dns v1.0.14/go.mod h1:W1PPwlIAgtquWBMBEV9nkV9Cazfe8ScdGz/Lj7v3Nrg=
 github.com/mimoo/StrobeGo v0.0.0-20181016162300-f8f6d4d2b643 h1:hLDRPB66XQT/8+wG9WsDpiCvZf1yKO7sz7scAjSlBa0=
 github.com/mimoo/StrobeGo v0.0.0-20181016162300-f8f6d4d2b643/go.mod h1:43+3pMjjKimDBf5Kr4ZFNGbLql1zKkbImw+fZbw3geM=
