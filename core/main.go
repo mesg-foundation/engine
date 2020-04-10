@@ -74,18 +74,21 @@ func loadOrGenDevGenesis(cdc *codec.Codec, kb *cosmos.Keybase, cfg *config.Confi
 		"nodeID": validator.NodeID,
 		"peer":   fmt.Sprintf("%s@%s:26656", validator.NodeID, validator.Name),
 	}).Warnln("Validator")
-	return cosmos.GenGenesis(cdc, kb, app.NewDefaultGenesisState(), cfg.DevGenesis.ChainID, cfg.DevGenesis.InitialBalances, cfg.DevGenesis.ValidatorDelegationCoin, cfg.Tendermint.Config.GenesisFile(), []cosmos.GenesisValidator{validator})
+	return cosmos.GenGenesis(cdc, kb, app.NewDefaultGenesisState(), cfg.DevGenesis.ChainID, cfg.DevGenesis.InitialBalances, cfg.Tendermint.Config.GenesisFile(), []cosmos.GenesisValidator{validator})
 }
 
 //nolint:gocyclo
 func main() {
 	xrand.SeedInit()
 
+	// init the config of cosmos
+	cosmos.InitConfig()
+
+	// load engine config
 	cfg, err := config.New()
 	if err != nil {
 		logrus.WithField("module", "main").Fatalln(err)
 	}
-	cosmos.CustomizeConfig(cfg)
 
 	// init logger.
 	logger.Init(cfg.Log.Format, cfg.Log.Level, cfg.Log.ForceColors)
