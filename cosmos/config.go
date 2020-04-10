@@ -1,15 +1,12 @@
 package cosmos
 
 import (
-	"math/big"
-
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/x/staking"
-	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/mesg-foundation/engine/config"
 )
 
-func init() {
+// InitConfig sets the bech32 prefix and HDPath to cosmos config.
+func InitConfig() {
 	// See github.com/cosmos/cosmos-sdk/types/address.go
 	const (
 		// Bech32PrefixAccAddr defines the Bech32 prefix of an account's address
@@ -33,19 +30,4 @@ func init() {
 	cfg.SetFullFundraiserPath(config.FullFundraiserPath)
 	cfg.SetCoinType(config.CosmosCoinType)
 	cfg.Seal()
-}
-
-// CustomizeConfig customizes the cosmos application like addresses prefixes and coin type
-func CustomizeConfig(engineCfg *config.Config) {
-	// From github.com/cosmos/cosmos-sdk/types/staking.go
-	// Set the power reduction from token to voting power to 10^18 (number of decimal of the token).
-	sdktypes.PowerReduction = sdktypes.NewIntFromBigInt(new(big.Int).Exp(big.NewInt(10), big.NewInt(engineCfg.Cosmos.PowerReduction), nil))
-
-	// From github.com/cosmos/cosmos-sdk/x/staking/types/params.go
-	// Override default genesis state of staking module to set the bond denom
-	staking.DefaultGenesisState = func() staking.GenesisState {
-		state := stakingtypes.DefaultGenesisState()
-		state.Params.BondDenom = engineCfg.Cosmos.StakeTokenDenom
-		return state
-	}
 }

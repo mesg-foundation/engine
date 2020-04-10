@@ -60,13 +60,15 @@ func TestAPI(t *testing.T) {
 		t.Skip()
 	}
 
+	// init the config of cosmos
+	cosmos.InitConfig()
+
 	// init config
 	var err error
 	cfg, err = config.New()
 	require.NoError(t, err)
 	minExecutionPrice, err = sdk.ParseCoins(cfg.DefaultExecutionPrice)
 	require.NoError(t, err)
-	cosmos.CustomizeConfig(cfg)
 
 	// change and recreate cosmos relative path because CI dir permissions
 	cfg.Cosmos.RelativePath = "e2e.cosmos"

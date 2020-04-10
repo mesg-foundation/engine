@@ -54,11 +54,7 @@ func LoadGenesis(genesisFile string) (*tmtypes.GenesisDoc, error) {
 }
 
 // GenGenesis generates a new genesis and save it.
-func GenGenesis(cdc *codec.Codec, kb *Keybase, defaultGenesisŚtate map[string]json.RawMessage, chainID, initialBalances, validatorDelegationCoin, genesisFile string, validators []GenesisValidator) (*tmtypes.GenesisDoc, error) {
-	valDelCoin, err := sdktypes.ParseCoin(validatorDelegationCoin)
-	if err != nil {
-		return nil, err
-	}
+func GenGenesis(cdc *codec.Codec, kb *Keybase, defaultGenesisŚtate map[string]json.RawMessage, chainID, initialBalances, genesisFile string, validators []GenesisValidator) (*tmtypes.GenesisDoc, error) {
 	msgs := []sdktypes.Msg{}
 	for _, validator := range validators {
 		// get account
@@ -67,7 +63,7 @@ func GenGenesis(cdc *codec.Codec, kb *Keybase, defaultGenesisŚtate map[string]j
 			return nil, err
 		}
 		// generate msg to add this validator
-		msgs = append(msgs, genCreateValidatorMsg(acc.GetAddress(), validator.Name, valDelCoin, validator.ValPubKey))
+		msgs = append(msgs, genCreateValidatorMsg(acc.GetAddress(), validator.Name, validator.ValPubKey))
 	}
 	// generate genesis transaction
 	accNumber := uint64(0)
@@ -147,11 +143,11 @@ func genGenesisAppState(cdc *codec.Codec, defaultGenesisŚtate map[string]json.R
 	return genutil.SetGenTxsInAppGenesisState(cdc, defaultGenesisŚtate, []authtypes.StdTx{signedStdTx})
 }
 
-func genCreateValidatorMsg(accAddress sdktypes.AccAddress, accName string, validatorDelegationCoin sdktypes.Coin, valPubKey crypto.PubKey) stakingtypes.MsgCreateValidator {
+func genCreateValidatorMsg(accAddress sdktypes.AccAddress, accName string, valPubKey crypto.PubKey) stakingtypes.MsgCreateValidator {
 	return stakingtypes.NewMsgCreateValidator(
 		sdktypes.ValAddress(accAddress),
 		valPubKey,
-		validatorDelegationCoin,
+		sdktypes.NewCoin(sdktypes.DefaultBondDenom, sdktypes.TokensFromConsensusPower(100)),
 		stakingtypes.Description{
 			Moniker: accName,
 			Details: "init-validator",
