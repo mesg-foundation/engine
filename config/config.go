@@ -63,18 +63,11 @@ type Config struct {
 
 		// Minimum gas prices for transactions.
 		MinGasPrices string `validate:"required,deccoins"`
-
-		// Token name to use in the staking module.
-		StakeTokenDenom string `validate:"required"`
-
-		// Power reduction between the staking token and the voting power on tendermint.
-		PowerReduction int64 `validate:"required"`
 	}
 
 	DevGenesis struct {
-		ChainID                 string `validate:"required"`
-		InitialBalances         string `validate:"required,coins"`
-		ValidatorDelegationCoin string `validate:"required,coin"`
+		ChainID         string `validate:"required"`
+		InitialBalances string `validate:"required,coins"`
 	}
 
 	Account struct {
@@ -120,12 +113,9 @@ func defaultConfig() (*Config, error) {
 
 	c.Cosmos.RelativePath = "cosmos"
 	c.Cosmos.MinGasPrices = "1.0atto"
-	c.Cosmos.StakeTokenDenom = "atto"
-	c.Cosmos.PowerReduction = 18
 
 	c.DevGenesis.ChainID = "mesg-dev-chain"
-	c.DevGenesis.InitialBalances = "250000000000000000000000000atto"       // 250 000 000 * 10^18
-	c.DevGenesis.ValidatorDelegationCoin = "1000000000000000000000000atto" // 1 000 000 * 10^18
+	c.DevGenesis.InitialBalances = "250000000000000000000000000atto,100000000stake" // 250 000 000 * 10^18 atto + 100,000,000 stake
 
 	c.Account.Name = "engine"
 	c.Account.Password = "pass"
