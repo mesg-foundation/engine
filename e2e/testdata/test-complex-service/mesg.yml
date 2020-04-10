@@ -17,7 +17,7 @@ dependencies:
       - /etc/nginx
 
 events:
-  test_service_ready:
+  service_ready:
 
   read_env_ok:
   read_env_error:

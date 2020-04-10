@@ -27,6 +27,7 @@ func GetQueryCmd(queryRoute string, cdc *codec.Codec) *cobra.Command {
 		flags.GetCommands(
 			GetCmdGet(queryRoute, cdc),
 			GetCmdList(queryRoute, cdc),
+			GetCmdExist(queryRoute, cdc),
 		)...,
 	)
 
@@ -66,6 +67,26 @@ func GetCmdList(queryRoute string, cdc *codec.Codec) *cobra.Command {
 			}
 
 			var out []*runner.Runner
+			cdc.MustUnmarshalJSON(res, &out)
+			return cliCtx.PrintOutput(out)
+		},
+	}
+}
+
+func GetCmdExist(queryRoute string, cdc *codec.Codec) *cobra.Command {
+	return &cobra.Command{
+		Use:   "exist [hash]",
+		Short: "exist",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			cliCtx := context.NewCLIContext().WithCodec(cdc)
+			res, _, err := cliCtx.QueryWithData(fmt.Sprintf("custom/%s/%s/%s", queryRoute, types.QueryExist, args[0]), nil)
+			if err != nil {
+				fmt.Printf("could not check runner\n%s\n", err.Error())
+				return nil
+			}
+
+			var out bool
 			cdc.MustUnmarshalJSON(res, &out)
 			return cliCtx.PrintOutput(out)
 		},

@@ -2,7 +2,6 @@ package types
 
 import (
 	"github.com/cosmos/cosmos-sdk/codec"
-	"github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/mesg-foundation/engine/protobuf/types"
 )
 
@@ -22,7 +21,6 @@ func init() {
 	ModuleCdc = codec.New()
 	RegisterCodec(ModuleCdc)
 	types.RegisterCodec(ModuleCdc)
-	api.RegisterCodec(ModuleCdc)
 	codec.RegisterCrypto(ModuleCdc)
 	ModuleCdc.Seal()
 }

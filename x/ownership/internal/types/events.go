@@ -1,8 +1,14 @@
 package types
 
-// ownership module event types
+// module event types and attributes
 const (
-	EventTypeWithdraw = "Withdraw"
+	EventType = "ownership"
 
-	AttributeValueCategory = ModuleName
+	AttributeKeyHash            = "hash"
+	AttributeKeyResourceHash    = "resource_hash"
+	AttributeKeyResourceType    = "ressource_type"
+	AttributeKeyResourceAddress = "ressource_address"
+
+	AttributeActionCreated = "created"
+	AttributeActionDeleted = "deleted"
 )

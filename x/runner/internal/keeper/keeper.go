@@ -64,6 +64,18 @@ func (k Keeper) Create(ctx sdk.Context, msg *types.MsgCreate) (*runner.Runner, e
 	}
 
 	store.Set(r.Hash, value)
+
+	// emit event
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			types.EventType,
+			sdk.NewAttribute(sdk.AttributeKeyAction, types.AttributeActionCreated),
+			sdk.NewAttribute(types.AttributeKeyHash, r.Hash.String()),
+			sdk.NewAttribute(types.AttributeKeyAddress, r.Address.String()),
+			sdk.NewAttribute(types.AttributeKeyInstance, r.InstanceHash.String()),
+		),
+	)
+
 	return r, nil
 }
 
@@ -74,10 +86,9 @@ func (k Keeper) Delete(ctx sdk.Context, msg *types.MsgDelete) error {
 		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "runner %q not found", msg.Hash)
 	}
 
-	value := store.Get(msg.Hash)
-	var r *runner.Runner
-	if err := k.cdc.UnmarshalBinaryLengthPrefixed(value, &r); err != nil {
-		return sdkerrors.Wrap(sdkerrors.ErrJSONUnmarshal, err.Error())
+	r, err := k.Get(ctx, msg.Hash)
+	if err != nil {
+		return err
 	}
 	if r.Owner != msg.Owner.String() {
 		return sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "only the runner owner can remove itself")
@@ -87,6 +98,18 @@ func (k Keeper) Delete(ctx sdk.Context, msg *types.MsgDelete) error {
 		return err
 	}
 	store.Delete(msg.Hash)
+
+	// emit event
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			types.EventType,
+			sdk.NewAttribute(sdk.AttributeKeyAction, types.AttributeActionDeleted),
+			sdk.NewAttribute(types.AttributeKeyHash, r.Hash.String()),
+			sdk.NewAttribute(types.AttributeKeyAddress, r.Address.String()),
+			sdk.NewAttribute(types.AttributeKeyInstance, r.InstanceHash.String()),
+		),
+	)
+
 	return nil
 }
 
@@ -102,6 +125,11 @@ func (k Keeper) Get(ctx sdk.Context, hash hash.Hash) (*runner.Runner, error) {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrJSONUnmarshal, err.Error())
 	}
 	return r, nil
+}
+
+// Exists returns true if a specific set of data exists in the database, false otherwise
+func (k Keeper) Exists(ctx sdk.Context, hash hash.Hash) (bool, error) {
+	return ctx.KVStore(k.storeKey).Has(hash), nil
 }
 
 // List returns all runners.

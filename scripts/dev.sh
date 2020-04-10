@@ -83,7 +83,6 @@ function start_engine {
     --label com.docker.stack.namespace=$MESG_NAME \
     --label com.docker.stack.image=mesg/engine:local \
     --env MESG_NAME=$MESG_NAME \
-    --mount type=bind,source=/var/run/docker.sock,destination=/var/run/docker.sock \
     --mount type=bind,source=$MESG_PATH,destination=/root/.mesg \
     --network $MESG_NAME \
     --network name=$MESG_TENDERMINT_NETWORK \

@@ -75,6 +75,19 @@ func (k Keeper) Set(ctx sdk.Context, owner sdk.AccAddress, resourceHash hash.Has
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrJSONMarshal, err.Error())
 	}
 	store.Set(own.Hash, data)
+
+	// emit event
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			types.EventType,
+			sdk.NewAttribute(sdk.AttributeKeyAction, types.AttributeActionCreated),
+			sdk.NewAttribute(types.AttributeKeyHash, own.Hash.String()),
+			sdk.NewAttribute(types.AttributeKeyResourceHash, own.ResourceHash.String()),
+			sdk.NewAttribute(types.AttributeKeyResourceType, own.Resource.String()),
+			sdk.NewAttribute(types.AttributeKeyResourceAddress, own.ResourceAddress.String()),
+		),
+	)
+
 	return own, nil
 }
 
@@ -102,6 +115,19 @@ func (k Keeper) Delete(ctx sdk.Context, owner sdk.AccAddress, resourceHash hash.
 
 	// remove ownership
 	store.Delete(own.Hash)
+
+	// emit event
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			types.EventType,
+			sdk.NewAttribute(sdk.AttributeKeyAction, types.AttributeActionDeleted),
+			sdk.NewAttribute(types.AttributeKeyHash, own.Hash.String()),
+			sdk.NewAttribute(types.AttributeKeyResourceHash, own.ResourceHash.String()),
+			sdk.NewAttribute(types.AttributeKeyResourceType, own.Resource.String()),
+			sdk.NewAttribute(types.AttributeKeyResourceAddress, own.ResourceAddress.String()),
+		),
+	)
+
 	return nil
 }
 

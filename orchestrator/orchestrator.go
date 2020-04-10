@@ -6,21 +6,26 @@ import (
 	"fmt"
 	"math/rand"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/mesg-foundation/engine/cosmos"
 	"github.com/mesg-foundation/engine/event"
 	"github.com/mesg-foundation/engine/event/publisher"
 	"github.com/mesg-foundation/engine/execution"
+	"github.com/mesg-foundation/engine/ext/xstrings"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/process"
-	"github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/mesg-foundation/engine/protobuf/types"
+	"github.com/mesg-foundation/engine/runner"
+	executionmodule "github.com/mesg-foundation/engine/x/execution"
+	processmodule "github.com/mesg-foundation/engine/x/process"
+	runnermodule "github.com/mesg-foundation/engine/x/runner"
 	"github.com/sirupsen/logrus"
 )
 
 // New creates a new Process instance
-func New(mc *cosmos.ModuleClient, ep *publisher.EventPublisher, execPrice string) *Orchestrator {
+func New(rpc *cosmos.RPC, ep *publisher.EventPublisher, execPrice string) *Orchestrator {
 	return &Orchestrator{
-		mc:        mc,
+		rpc:       rpc,
 		ep:        ep,
 		ErrC:      make(chan error),
 		stopC:     make(chan bool),
@@ -38,16 +43,10 @@ func (s *Orchestrator) Start() error {
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-
-	executionStream, errC, err := s.mc.StreamExecution(ctx, &api.StreamExecutionRequest{
-		Filter: &api.StreamExecutionRequest_Filter{
-			Statuses: []execution.Status{execution.Status_Completed},
-		},
-	})
-	if err != nil {
+	if err := s.startExecutionStream(ctx); err != nil {
 		return err
 	}
-	s.executionStream = executionStream
+
 	for {
 		select {
 		case event := <-s.eventStream.C:
@@ -55,8 +54,6 @@ func (s *Orchestrator) Start() error {
 		case execution := <-s.executionStream:
 			go s.execute(s.resultFilter(execution), execution, nil, execution.Outputs)
 			go s.execute(s.dependencyFilter(execution), execution, nil, execution.Outputs)
-		case err := <-errC:
-			s.ErrC <- err
 		case <-s.stopC:
 			return nil
 		}
@@ -66,6 +63,7 @@ func (s *Orchestrator) Start() error {
 // Stop stops the orchestrator engine
 func (s *Orchestrator) Stop() {
 	s.stopC <- true
+	s.eventStream.Close()
 }
 
 func (s *Orchestrator) eventFilter(event *event.Event) func(wf *process.Process, node *process.Process_Node) (bool, error) {
@@ -113,8 +111,9 @@ func (s *Orchestrator) findNodes(wf *process.Process, filter func(wf *process.Pr
 }
 
 func (s *Orchestrator) execute(filter func(wf *process.Process, node *process.Process_Node) (bool, error), exec *execution.Execution, event *event.Event, data *types.Struct) {
-	processes, err := s.mc.ListProcess()
-	if err != nil {
+	var processes []*process.Process
+	route := fmt.Sprintf("custom/%s/%s", processmodule.QuerierRoute, processmodule.QueryList)
+	if err := s.rpc.QueryJSON(route, nil, &processes); err != nil {
 		s.ErrC <- err
 		return
 	}
@@ -273,8 +272,9 @@ func (s *Orchestrator) resolveInput(wfHash hash.Hash, exec *execution.Execution,
 		return path.Resolve(exec.Outputs)
 	}
 	// get parentExec and do a recursive call
-	parentExec, err := s.mc.GetExecution(exec.ParentHash)
-	if err != nil {
+	var parentExec *execution.Execution
+	route := fmt.Sprintf("custom/%s/%s/%s", executionmodule.QuerierRoute, executionmodule.QueryGet, exec.ParentHash)
+	if err := s.rpc.QueryJSON(route, nil, &parentExec); err != nil {
 		return nil, err
 	}
 	return s.resolveInput(wfHash, parentExec, refNodeKey, path)
@@ -289,17 +289,29 @@ func (s *Orchestrator) processTask(nodeKey string, task *process.Process_Node_Ta
 	if exec != nil {
 		execHash = exec.Hash
 	}
-	executors, err := s.mc.ListRunner(&cosmos.FilterRunner{
-		InstanceHash: task.InstanceHash,
-	})
-	if err != nil {
+	var runners []*runner.Runner
+	route := fmt.Sprintf("custom/%s/%s", runnermodule.QuerierRoute, runnermodule.QueryList)
+	if err := s.rpc.QueryJSON(route, nil, &runners); err != nil {
 		return err
+	}
+	executors := make([]*runner.Runner, 0)
+	for _, run := range runners {
+		if run.InstanceHash.Equal(task.InstanceHash) {
+			executors = append(executors, run)
+		}
 	}
 	if len(executors) == 0 {
 		return fmt.Errorf("no runner is running instance %q", task.InstanceHash)
 	}
 	executor := executors[rand.Intn(len(executors))]
-	_, err = s.mc.CreateExecution(&api.CreateExecutionRequest{
+
+	// create execution
+	acc, err := s.rpc.GetAccount()
+	if err != nil {
+		return err
+	}
+	msg := executionmodule.MsgCreate{
+		Signer:       acc.GetAddress(),
 		ProcessHash:  wf.Hash,
 		EventHash:    eventHash,
 		ParentHash:   execHash,
@@ -309,6 +321,63 @@ func (s *Orchestrator) processTask(nodeKey string, task *process.Process_Node_Ta
 		ExecutorHash: executor.Hash,
 		Price:        s.execPrice,
 		Tags:         nil,
-	})
-	return err
+	}
+	if _, err := s.rpc.BuildAndBroadcastMsg(msg); err != nil {
+		return err
+	}
+	return nil
+}
+
+// startExecutionStream returns execution that matches given hash.
+func (s *Orchestrator) startExecutionStream(ctx context.Context) error {
+	subscriber := xstrings.RandASCIILetters(8)
+	query := fmt.Sprintf("%s.%s EXISTS AND %s.%s='%s'",
+		executionmodule.EventType, executionmodule.AttributeKeyHash,
+		executionmodule.EventType, sdk.AttributeKeyAction, executionmodule.AttributeActionCompleted,
+	)
+	eventStream, err := s.rpc.Subscribe(ctx, subscriber, query, 0)
+	if err != nil {
+		return err
+	}
+
+	s.executionStream = make(chan *execution.Execution)
+	go func() {
+	loop:
+		for {
+			select {
+			case event := <-eventStream:
+				// get the index of the action=completed attributes
+				attrKeyActionCreated := fmt.Sprintf("%s.%s", executionmodule.EventType, sdk.AttributeKeyAction)
+				attrIndexes := make([]int, 0)
+				for index, attr := range event.Events[attrKeyActionCreated] {
+					if attr == executionmodule.AttributeActionCompleted {
+						attrIndexes = append(attrIndexes, index)
+					}
+				}
+				// iterate only on the index of attribute hash where action=completed
+				attrKeyHash := fmt.Sprintf("%s.%s", executionmodule.EventType, executionmodule.AttributeKeyHash)
+				for _, index := range attrIndexes {
+					attr := event.Events[attrKeyHash][index]
+					hash, err := hash.Decode(attr)
+					if err != nil {
+						s.ErrC <- err
+						continue
+					}
+					var exec *execution.Execution
+					route := fmt.Sprintf("custom/%s/%s/%s", executionmodule.QuerierRoute, executionmodule.QueryGet, hash)
+					if err := s.rpc.QueryJSON(route, nil, &exec); err != nil {
+						s.ErrC <- err
+						continue
+					}
+					s.executionStream <- exec
+				}
+			case <-ctx.Done():
+				break loop
+			}
+		}
+		if err := s.rpc.Unsubscribe(context.Background(), subscriber, query); err != nil {
+			s.ErrC <- err
+		}
+	}()
+	return nil
 }

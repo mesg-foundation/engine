@@ -1,15 +1,17 @@
 package main
 
 import (
+	"context"
 	"testing"
 
 	"github.com/mesg-foundation/engine/execution"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/process"
 	"github.com/mesg-foundation/engine/protobuf/types"
-	executionmodule "github.com/mesg-foundation/engine/x/execution"
+	"github.com/mesg-foundation/engine/server/grpc/orchestrator"
 	processmodule "github.com/mesg-foundation/engine/x/process"
 	"github.com/stretchr/testify/require"
+	"google.golang.org/grpc"
 )
 
 func testOrchestratorResultTask(runnerHash hash.Hash, instanceHash hash.Hash) func(t *testing.T) {
@@ -22,7 +24,7 @@ func testOrchestratorResultTask(runnerHash hash.Hash, instanceHash hash.Hash) fu
 
 		t.Run("create process", func(t *testing.T) {
 			msg := processmodule.MsgCreate{
-				Owner: engineAddress,
+				Owner: cliAddress,
 				Name:  "result-task-process",
 				Nodes: []*process.Process_Node{
 					{
@@ -52,11 +54,9 @@ func testOrchestratorResultTask(runnerHash hash.Hash, instanceHash hash.Hash) fu
 			require.NoError(t, err)
 		})
 		t.Run("trigger process", func(t *testing.T) {
-			msg := executionmodule.MsgCreate{
-				Signer:       engineAddress,
+			req := orchestrator.ExecutionCreateRequest{
 				Price:        "10000atto",
 				TaskKey:      "task1",
-				EventHash:    hash.Int(11010101011),
 				ExecutorHash: runnerHash,
 				Inputs: &types.Struct{
 					Fields: map[string]*types.Value{
@@ -68,8 +68,9 @@ func testOrchestratorResultTask(runnerHash hash.Hash, instanceHash hash.Hash) fu
 					},
 				},
 			}
-			triggerExecHash, err = lcd.BroadcastMsg(msg)
+			resp, err := client.ExecutionClient.Create(context.Background(), &req, grpc.PerRPCCredentials(&signCred{req}))
 			require.NoError(t, err)
+			triggerExecHash = resp.Hash
 		})
 		t.Run("check trigger process execution", func(t *testing.T) {
 			t.Run("in progress", func(t *testing.T) {
@@ -78,7 +79,6 @@ func testOrchestratorResultTask(runnerHash hash.Hash, instanceHash hash.Hash) fu
 				require.Equal(t, triggerExecHash, exec.Hash)
 				require.Equal(t, "task1", exec.TaskKey)
 				require.Equal(t, "", exec.NodeKey)
-				require.True(t, hash.Int(11010101011).Equal(exec.EventHash))
 				require.Equal(t, execution.Status_InProgress, exec.Status)
 				require.True(t, exec.Inputs.Equal(&types.Struct{
 					Fields: map[string]*types.Value{
@@ -96,7 +96,6 @@ func testOrchestratorResultTask(runnerHash hash.Hash, instanceHash hash.Hash) fu
 				require.Equal(t, triggerExecHash, exec.Hash)
 				require.Equal(t, "task1", exec.TaskKey)
 				require.Equal(t, "", exec.NodeKey)
-				require.True(t, hash.Int(11010101011).Equal(exec.EventHash))
 				require.Equal(t, execution.Status_Completed, exec.Status)
 				require.Equal(t, "foo_2", exec.Outputs.Fields["msg"].GetStringValue())
 				require.NotEmpty(t, exec.Outputs.Fields["timestamp"].GetNumberValue())
@@ -123,7 +122,7 @@ func testOrchestratorResultTask(runnerHash hash.Hash, instanceHash hash.Hash) fu
 		})
 		t.Run("delete process", func(t *testing.T) {
 			_, err := lcd.BroadcastMsg(processmodule.MsgDelete{
-				Owner: engineAddress,
+				Owner: cliAddress,
 				Hash:  processHash,
 			})
 			require.NoError(t, err)

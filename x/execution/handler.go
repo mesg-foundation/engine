@@ -3,7 +3,6 @@ package execution
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/mesg-foundation/engine/execution"
 	"github.com/mesg-foundation/engine/x/execution/internal/types"
 )
 
@@ -29,29 +28,13 @@ func handleMsgCreate(ctx sdk.Context, k Keeper, msg MsgCreate) (*sdk.Result, err
 		return nil, err
 	}
 
-	// TODO: don't emit propsoed event to not break the stream listener in cosmos/client.go#152.
-	// ctx.EventManager().EmitEvent(
-	// 	sdk.NewEvent(
-	// 		sdk.EventTypeMessage,
-	// 		sdk.NewAttribute(sdk.AttributeKeyModule, types.AttributeValueCategory),
-	// 		sdk.NewAttribute(sdk.AttributeKeyAction, types.EventTypeExecutionProposed),
-	// 		sdk.NewAttribute(sdk.AttributeKeySender, msg.Signer.String()),
-	// 		sdk.NewAttribute(types.AttributeHash, exec.Hash.String()),
-	// 	),
-	// )
-
-	// emit EventTypeExecutionInProgress event only when execution status is "in progress"
-	if exec.Status == execution.Status_InProgress {
-		ctx.EventManager().EmitEvent(
-			sdk.NewEvent(
-				sdk.EventTypeMessage,
-				sdk.NewAttribute(sdk.AttributeKeyModule, types.AttributeValueCategory),
-				sdk.NewAttribute(sdk.AttributeKeyAction, types.EventTypeExecutionInProgress),
-				sdk.NewAttribute(sdk.AttributeKeySender, msg.Signer.String()),
-				sdk.NewAttribute(types.AttributeHash, exec.Hash.String()),
-			),
-		)
-	}
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			sdk.EventTypeMessage,
+			sdk.NewAttribute(sdk.AttributeKeyModule, ModuleName),
+			sdk.NewAttribute(sdk.AttributeKeySender, msg.Signer.String()),
+		),
+	)
 
 	return &sdk.Result{
 		Data:   exec.Hash,
@@ -61,7 +44,7 @@ func handleMsgCreate(ctx sdk.Context, k Keeper, msg MsgCreate) (*sdk.Result, err
 
 // handleMsgUpdate updates an execution.
 func handleMsgUpdate(ctx sdk.Context, k Keeper, msg MsgUpdate) (*sdk.Result, error) {
-	s, err := k.Update(ctx, msg)
+	exec, err := k.Update(ctx, msg)
 	if err != nil {
 		return nil, err
 	}
@@ -69,15 +52,13 @@ func handleMsgUpdate(ctx sdk.Context, k Keeper, msg MsgUpdate) (*sdk.Result, err
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
 			sdk.EventTypeMessage,
-			sdk.NewAttribute(sdk.AttributeKeyModule, types.AttributeValueCategory),
-			sdk.NewAttribute(sdk.AttributeKeyAction, types.EventTypeUpdateExecution),
+			sdk.NewAttribute(sdk.AttributeKeyModule, ModuleName),
 			sdk.NewAttribute(sdk.AttributeKeySender, msg.Executor.String()),
-			sdk.NewAttribute(types.AttributeHash, s.Hash.String()),
 		),
 	)
 
 	return &sdk.Result{
-		Data:   s.Hash,
+		Data:   exec.Hash,
 		Events: ctx.EventManager().Events(),
 	}, nil
 }
