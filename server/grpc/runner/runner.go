@@ -26,14 +26,18 @@ type Server struct {
 	rpc               *cosmos.RPC
 	eventPublisher    *publisher.EventPublisher
 	tokenToRunnerHash *sync.Map
+	accName           string
+	accPassword       string
 }
 
 // NewServer creates a new Server.
-func NewServer(rpc *cosmos.RPC, eventPublisher *publisher.EventPublisher, tokenToRunnerHash *sync.Map) *Server {
+func NewServer(rpc *cosmos.RPC, eventPublisher *publisher.EventPublisher, tokenToRunnerHash *sync.Map, accName, accPassword string) *Server {
 	return &Server{
 		rpc:               rpc,
 		eventPublisher:    eventPublisher,
 		tokenToRunnerHash: tokenToRunnerHash,
+		accName:           accName,
+		accPassword:       accPassword,
 	}
 }
 
@@ -135,7 +139,7 @@ func (s *Server) Result(ctx context.Context, req *ResultRequest) (*ResultRespons
 	}
 
 	// update execution
-	acc, err := s.rpc.GetAccount()
+	acc, err := s.rpc.GetAccount(s.accName)
 	if err != nil {
 		return nil, err
 	}
@@ -153,7 +157,7 @@ func (s *Server) Result(ctx context.Context, req *ResultRequest) (*ResultRespons
 			Error: result.Error,
 		}
 	}
-	if _, err := s.rpc.BuildAndBroadcastMsg(msg); err != nil {
+	if _, err := s.rpc.BuildAndBroadcastMsg(s.accName, s.accPassword, msg); err != nil {
 		return nil, err
 	}
 	return &ResultResponse{}, nil

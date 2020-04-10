@@ -118,7 +118,7 @@ func testExecution(t *testing.T) {
 				Amount:       expectedCoinsForService.String(),
 				ResourceHash: testServiceHash,
 			}
-			_, err := lcd.BroadcastMsg(msg)
+			_, err := lcd.BroadcastMsg(cliAccountName, cliAccountPassword, msg)
 			require.NoError(t, err)
 
 			// check balance
@@ -132,7 +132,7 @@ func testExecution(t *testing.T) {
 				Amount:       expectedCoinsForExecutor.Add(expectedCoinsForEmitter...).String(),
 				ResourceHash: testRunnerHash,
 			}
-			_, err := lcdEngine.BroadcastMsg(msg)
+			_, err := lcd.BroadcastMsg(cfg.Account.Name, cfg.Account.Password, msg)
 			require.NoError(t, err)
 
 			// check balance

@@ -106,7 +106,7 @@ func testOrchestratorRefGrandParentTask(runnerHash, instanceHash hash.Hash) func
 					{Src: "n4", Dst: "n5"},
 				},
 			}
-			processHash, err = lcd.BroadcastMsg(msg)
+			processHash, err = lcd.BroadcastMsg(cliAccountName, cliAccountPassword, msg)
 			require.NoError(t, err)
 		})
 		t.Run("trigger process", func(t *testing.T) {
@@ -196,7 +196,7 @@ func testOrchestratorRefGrandParentTask(runnerHash, instanceHash hash.Hash) func
 			})
 		})
 		t.Run("delete process", func(t *testing.T) {
-			_, err := lcd.BroadcastMsg(processmodule.MsgDelete{
+			_, err := lcd.BroadcastMsg(cliAccountName, cliAccountPassword, processmodule.MsgDelete{
 				Owner: cliAddress,
 				Hash:  processHash,
 			})

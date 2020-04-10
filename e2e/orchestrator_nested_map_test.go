@@ -75,7 +75,7 @@ func testOrchestratorNestedMap(runnerHash, instanceHash hash.Hash) func(t *testi
 					{Src: "n1", Dst: "n2"},
 				},
 			}
-			processHash, err = lcd.BroadcastMsg(msg)
+			processHash, err = lcd.BroadcastMsg(cliAccountName, cliAccountPassword, msg)
 			require.NoError(t, err)
 		})
 		t.Run("trigger process", func(t *testing.T) {
@@ -150,7 +150,7 @@ func testOrchestratorNestedMap(runnerHash, instanceHash hash.Hash) func(t *testi
 			})
 		})
 		t.Run("delete process", func(t *testing.T) {
-			_, err := lcd.BroadcastMsg(processmodule.MsgDelete{
+			_, err := lcd.BroadcastMsg(cliAccountName, cliAccountPassword, processmodule.MsgDelete{
 				Owner: cliAddress,
 				Hash:  processHash,
 			})

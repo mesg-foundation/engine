@@ -26,14 +26,18 @@ type Server struct {
 	rpc               *cosmos.RPC
 	ep                *publisher.EventPublisher
 	authorizedPubKeys []string
+	accName           string
+	accPassword       string
 }
 
 // New returns a new gRPC server.
-func New(rpc *cosmos.RPC, ep *publisher.EventPublisher, authorizedPubKeys []string) *Server {
+func New(rpc *cosmos.RPC, ep *publisher.EventPublisher, authorizedPubKeys []string, accName, accPassword string) *Server {
 	return &Server{
 		rpc:               rpc,
 		ep:                ep,
 		authorizedPubKeys: authorizedPubKeys,
+		accName:           accName,
+		accPassword:       accPassword,
 	}
 }
 
@@ -86,15 +90,15 @@ func validateInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryS
 func (s *Server) register() error {
 	tokenToRunnerHash := &sync.Map{}
 
-	runner.RegisterRunnerServer(s.instance, runner.NewServer(s.rpc, s.ep, tokenToRunnerHash))
+	runner.RegisterRunnerServer(s.instance, runner.NewServer(s.rpc, s.ep, tokenToRunnerHash, s.accName, s.accPassword))
 
 	authorizer, err := orchestrator.NewAuthorizer(s.rpc.Codec(), s.authorizedPubKeys)
 	if err != nil {
 		return err
 	}
 	orchestrator.RegisterEventServer(s.instance, orchestrator.NewEventServer(s.ep, authorizer))
-	orchestrator.RegisterExecutionServer(s.instance, orchestrator.NewExecutionServer(s.rpc, authorizer))
-	orchestrator.RegisterRunnerServer(s.instance, orchestrator.NewRunnerServer(s.rpc, tokenToRunnerHash, authorizer))
+	orchestrator.RegisterExecutionServer(s.instance, orchestrator.NewExecutionServer(s.rpc, authorizer, s.accName, s.accPassword))
+	orchestrator.RegisterRunnerServer(s.instance, orchestrator.NewRunnerServer(s.rpc, tokenToRunnerHash, authorizer, s.accName, s.accPassword))
 
 	reflection.Register(s.instance)
 

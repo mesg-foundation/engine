@@ -16,14 +16,18 @@ type runnerServer struct {
 	rpc               *cosmos.RPC
 	tokenToRunnerHash *sync.Map
 	auth              *Authorizer
+	accName           string
+	accPassword       string
 }
 
 // NewRunnerServer creates a new Runner Server.
-func NewRunnerServer(rpc *cosmos.RPC, tokenToRunnerHash *sync.Map, auth *Authorizer) RunnerServer {
+func NewRunnerServer(rpc *cosmos.RPC, tokenToRunnerHash *sync.Map, auth *Authorizer, accName, accPassword string) RunnerServer {
 	return &runnerServer{
 		rpc:               rpc,
 		tokenToRunnerHash: tokenToRunnerHash,
 		auth:              auth,
+		accName:           accName,
+		accPassword:       accPassword,
 	}
 }
 
@@ -35,7 +39,7 @@ func (s *runnerServer) Register(ctx context.Context, req *RunnerRegisterRequest)
 	}
 
 	// get engine account
-	acc, err := s.rpc.GetAccount()
+	acc, err := s.rpc.GetAccount(s.accName)
 	if err != nil {
 		return nil, err
 	}
@@ -60,7 +64,7 @@ func (s *runnerServer) Register(ctx context.Context, req *RunnerRegisterRequest)
 
 	// only broadcast if runner doesn't exist
 	if !runnerExist {
-		tx, err := s.rpc.BuildAndBroadcastMsg(runnermodule.MsgCreate{
+		tx, err := s.rpc.BuildAndBroadcastMsg(s.accName, s.accPassword, runnermodule.MsgCreate{
 			Owner:       acc.GetAddress(),
 			ServiceHash: req.ServiceHash,
 			EnvHash:     req.EnvHash,
@@ -74,7 +78,7 @@ func (s *runnerServer) Register(ctx context.Context, req *RunnerRegisterRequest)
 		}
 		if !runnerHashCreated.Equal(runnerHash) {
 			// delete wrong runner
-			_, err := s.rpc.BuildAndBroadcastMsg(runnermodule.MsgDelete{
+			_, err := s.rpc.BuildAndBroadcastMsg(s.accName, s.accPassword, runnermodule.MsgDelete{
 				Owner: acc.GetAddress(),
 				Hash:  runnerHashCreated,
 			})
@@ -116,7 +120,7 @@ func (s *runnerServer) Delete(ctx context.Context, req *RunnerDeleteRequest) (*R
 	}
 
 	// create execution
-	acc, err := s.rpc.GetAccount()
+	acc, err := s.rpc.GetAccount(s.accName)
 	if err != nil {
 		return nil, err
 	}
@@ -124,7 +128,7 @@ func (s *runnerServer) Delete(ctx context.Context, req *RunnerDeleteRequest) (*R
 		Owner: acc.GetAddress(),
 		Hash:  req.RunnerHash,
 	}
-	if _, err := s.rpc.BuildAndBroadcastMsg(msg); err != nil {
+	if _, err := s.rpc.BuildAndBroadcastMsg(s.accName, s.accPassword, msg); err != nil {
 		return nil, err
 	}
 	return &RunnerDeleteResponse{}, nil

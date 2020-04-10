@@ -50,7 +50,7 @@ func testOrchestratorNestedData(runnerHash, instanceHash hash.Hash) func(t *test
 					{Src: "n0", Dst: "n1"},
 				},
 			}
-			processHash, err = lcd.BroadcastMsg(msg)
+			processHash, err = lcd.BroadcastMsg(cliAccountName, cliAccountPassword, msg)
 			require.NoError(t, err)
 		})
 		t.Run("trigger process", func(t *testing.T) {
@@ -129,7 +129,7 @@ func testOrchestratorNestedData(runnerHash, instanceHash hash.Hash) func(t *test
 			require.NotEmpty(t, exec.Outputs.Fields["msg"].GetStructValue().Fields["timestamp"].GetNumberValue())
 		})
 		t.Run("delete process", func(t *testing.T) {
-			_, err := lcd.BroadcastMsg(processmodule.MsgDelete{
+			_, err := lcd.BroadcastMsg(cliAccountName, cliAccountPassword, processmodule.MsgDelete{
 				Owner: cliAddress,
 				Hash:  processHash,
 			})

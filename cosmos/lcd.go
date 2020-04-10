@@ -17,6 +17,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	authrest "github.com/cosmos/cosmos-sdk/x/auth/client/rest"
 	authutils "github.com/cosmos/cosmos-sdk/x/auth/client/utils"
+	authExported "github.com/cosmos/cosmos-sdk/x/auth/exported"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	abci "github.com/tendermint/tendermint/abci/types"
 )
@@ -27,18 +28,17 @@ type LCD struct {
 	cdc          *codec.Codec
 	kb           keys.Keybase
 	chainID      string
-	accName      string
-	accPassword  string
 	minGasPrices sdktypes.DecCoins
 	gasLimit     uint64
 
 	// local state
-	acc             *auth.BaseAccount
+	accs            map[string]authExported.Account
+	accsMutex       sync.Mutex
 	getAccountMutex sync.Mutex
 }
 
 // NewLCD initializes a cosmos LCD client.
-func NewLCD(endpoint string, cdc *codec.Codec, kb keys.Keybase, chainID, accName, accPassword, minGasPrices string, gasLimit uint64) (*LCD, error) {
+func NewLCD(endpoint string, cdc *codec.Codec, kb keys.Keybase, chainID, minGasPrices string, gasLimit uint64) (*LCD, error) {
 	minGasPricesDecoded, err := sdktypes.ParseDecCoins(minGasPrices)
 	if err != nil {
 		return nil, err
@@ -48,8 +48,6 @@ func NewLCD(endpoint string, cdc *codec.Codec, kb keys.Keybase, chainID, accName
 		cdc:          cdc,
 		kb:           kb,
 		chainID:      chainID,
-		accName:      accName,
-		accPassword:  accPassword,
 		minGasPrices: minGasPricesDecoded,
 		gasLimit:     gasLimit,
 	}, nil
@@ -122,13 +120,13 @@ func (lcd *LCD) PostBare(path string, req interface{}, ptr interface{}) error {
 }
 
 //BroadcastMsg sign and broadcast a transaction from a message.
-func (lcd *LCD) BroadcastMsg(msg sdk.Msg) ([]byte, error) {
-	return lcd.BroadcastMsgs([]sdk.Msg{msg})
+func (lcd *LCD) BroadcastMsg(accName, accPassword string, msg sdk.Msg) ([]byte, error) {
+	return lcd.BroadcastMsgs(accName, accPassword, []sdk.Msg{msg})
 }
 
 //BroadcastMsgs sign and broadcast a transaction from multiple messages.
-func (lcd *LCD) BroadcastMsgs(msgs []sdk.Msg) ([]byte, error) {
-	tx, err := lcd.createAndSignTx(msgs)
+func (lcd *LCD) BroadcastMsgs(accName, accPassword string, msgs []sdk.Msg) ([]byte, error) {
+	tx, err := lcd.createAndSignTx(accName, accPassword, msgs)
 	if err != nil {
 		return nil, err
 	}
@@ -150,30 +148,32 @@ func (lcd *LCD) BroadcastMsgs(msgs []sdk.Msg) ([]byte, error) {
 	return result, nil
 }
 
-func (lcd *LCD) getAccount() (*auth.BaseAccount, error) {
-	lcd.getAccountMutex.Lock()
-	defer lcd.getAccountMutex.Unlock()
-	if lcd.acc == nil {
-		accKb, err := lcd.kb.Get(lcd.accName)
+func (lcd *LCD) getAccount(accName string) (authExported.Account, error) {
+	lcd.accsMutex.Lock()
+	defer lcd.accsMutex.Unlock()
+	if _, ok := lcd.accs[accName]; !ok {
+		accKb, err := lcd.kb.Get(accName)
 		if err != nil {
 			return nil, err
 		}
-		lcd.acc = auth.NewBaseAccount(accKb.GetAddress(), nil, accKb.GetPubKey(), 0, 0)
+		lcd.accs[accName] = auth.NewBaseAccount(accKb.GetAddress(), nil, accKb.GetPubKey(), 0, 0)
 	}
-	localSeq := lcd.acc.GetSequence()
-	if err := lcd.Get("auth/accounts/"+lcd.acc.GetAddress().String(), &lcd.acc); err != nil {
+	localSeq := lcd.accs[accName].GetSequence()
+	var accR *auth.BaseAccount
+	if err := lcd.Get("auth/accounts/"+lcd.accs[accName].GetAddress().String(), &accR); err != nil {
 		return nil, err
 	}
+	lcd.accs[accName] = accR
 	// replace seq if sup
-	if localSeq > lcd.acc.GetSequence() {
-		lcd.acc.SetSequence(localSeq)
+	if localSeq > lcd.accs[accName].GetSequence() {
+		lcd.accs[accName].SetSequence(localSeq)
 	}
-	return lcd.acc, nil
+	return lcd.accs[accName], nil
 }
 
-func (lcd *LCD) createAndSignTx(msgs []sdk.Msg) (authtypes.StdTx, error) {
+func (lcd *LCD) createAndSignTx(accName, accPassword string, msgs []sdk.Msg) (authtypes.StdTx, error) {
 	// retrieve account
-	accR, err := lcd.getAccount()
+	accR, err := lcd.getAccount(accName)
 	if err != nil {
 		return authtypes.StdTx{}, err
 	}
@@ -204,7 +204,7 @@ func (lcd *LCD) createAndSignTx(msgs []sdk.Msg) (authtypes.StdTx, error) {
 	stdTx := authtypes.NewStdTx(stdSignMsg.Msgs, stdSignMsg.Fee, nil, stdSignMsg.Memo)
 
 	// sign StdTx
-	signedTx, err := txBuilder.SignStdTx(lcd.accName, lcd.accPassword, stdTx, false)
+	signedTx, err := txBuilder.SignStdTx(accName, accPassword, stdTx, false)
 	if err != nil {
 		return authtypes.StdTx{}, err
 	}

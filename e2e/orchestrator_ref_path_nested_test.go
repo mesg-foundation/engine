@@ -196,7 +196,7 @@ func testOrchestratorRefPathNested(runnerHash, instanceHash hash.Hash) func(t *t
 					{Src: "n3", Dst: "n4"},
 				},
 			}
-			processHash, err = lcd.BroadcastMsg(msg)
+			processHash, err = lcd.BroadcastMsg(cliAccountName, cliAccountPassword, msg)
 			require.NoError(t, err)
 		})
 		t.Run("trigger process", func(t *testing.T) {
@@ -290,7 +290,7 @@ func testOrchestratorRefPathNested(runnerHash, instanceHash hash.Hash) func(t *t
 			})
 		})
 		t.Run("delete process", func(t *testing.T) {
-			_, err := lcd.BroadcastMsg(processmodule.MsgDelete{
+			_, err := lcd.BroadcastMsg(cliAccountName, cliAccountPassword, processmodule.MsgDelete{
 				Owner: cliAddress,
 				Hash:  processHash,
 			})

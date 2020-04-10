@@ -50,7 +50,7 @@ func testProcess(t *testing.T) {
 	)
 
 	t.Run("create", func(t *testing.T) {
-		processHash, err = lcd.BroadcastMsg(msg)
+		processHash, err = lcd.BroadcastMsg(cliAccountName, cliAccountPassword, msg)
 		require.NoError(t, err)
 	})
 
@@ -103,7 +103,7 @@ func testProcess(t *testing.T) {
 	})
 
 	t.Run("delete", func(t *testing.T) {
-		_, err := lcd.BroadcastMsg(processmodule.MsgDelete{
+		_, err := lcd.BroadcastMsg(cliAccountName, cliAccountPassword, processmodule.MsgDelete{
 			Owner: cliAddress,
 			Hash:  processHash,
 		})

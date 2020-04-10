@@ -27,18 +27,16 @@ type RPC struct {
 	cdc          *codec.Codec
 	kb           keys.Keybase
 	chainID      string
-	accName      string
-	accPassword  string
 	minGasPrices sdktypes.DecCoins
 
-	// Local state
-	acc             authExported.Account
-	getAccountMutex sync.Mutex
-	broadcastMutex  sync.Mutex
+	// local state
+	accs           map[string]authExported.Account
+	accsMutex      sync.Mutex
+	broadcastMutex sync.Mutex
 }
 
 // NewRPC returns a rpc tendermint client.
-func NewRPC(client rpcclient.Client, cdc *codec.Codec, kb keys.Keybase, chainID, accName, accPassword, minGasPrices string) (*RPC, error) {
+func NewRPC(client rpcclient.Client, cdc *codec.Codec, kb keys.Keybase, chainID, minGasPrices string) (*RPC, error) {
 	minGasPricesDecoded, err := sdktypes.ParseDecCoins(minGasPrices)
 	if err != nil {
 		return nil, err
@@ -48,8 +46,6 @@ func NewRPC(client rpcclient.Client, cdc *codec.Codec, kb keys.Keybase, chainID,
 		cdc:          cdc,
 		kb:           kb,
 		chainID:      chainID,
-		accName:      accName,
-		accPassword:  accPassword,
 		minGasPrices: minGasPricesDecoded,
 	}, nil
 }
@@ -93,9 +89,9 @@ func (c *RPC) QueryWithData(path string, data []byte) ([]byte, int64, error) {
 }
 
 // BuildAndBroadcastMsg builds and signs message and broadcast it to node.
-func (c *RPC) BuildAndBroadcastMsg(msg sdktypes.Msg) (*abci.ResponseDeliverTx, error) {
+func (c *RPC) BuildAndBroadcastMsg(accName, accPassword string, msg sdktypes.Msg) (*abci.ResponseDeliverTx, error) {
 	c.broadcastMutex.Lock() // Lock the whole signature + broadcast of the transaction
-	signedTx, err := c.CreateAndSignTx([]sdktypes.Msg{msg})
+	signedTx, err := c.CreateAndSignTx(accName, accPassword, []sdktypes.Msg{msg})
 	if err != nil {
 		c.broadcastMutex.Unlock()
 		return nil, err
@@ -138,40 +134,34 @@ func (c *RPC) BuildAndBroadcastMsg(msg sdktypes.Msg) (*abci.ResponseDeliverTx, e
 	}
 }
 
-// GetAccount returns the local account.
-func (c *RPC) GetAccount() (authExported.Account, error) {
-	c.getAccountMutex.Lock()
-	defer c.getAccountMutex.Unlock()
-	if c.acc == nil {
-		accKb, err := c.kb.Get(c.accName)
+// GetAccount returns an account.
+func (c *RPC) GetAccount(accName string) (authExported.Account, error) {
+	c.accsMutex.Lock()
+	defer c.accsMutex.Unlock()
+	if _, ok := c.accs[accName]; !ok {
+		accKb, err := c.kb.Get(accName)
 		if err != nil {
 			return nil, err
 		}
-		c.acc = auth.NewBaseAccount(
-			accKb.GetAddress(),
-			nil,
-			accKb.GetPubKey(),
-			0,
-			0,
-		)
+		c.accs[accName] = auth.NewBaseAccount(accKb.GetAddress(), nil, accKb.GetPubKey(), 0, 0)
 	}
-	localSeq := c.acc.GetSequence()
-	accR, err := auth.NewAccountRetriever(c).GetAccount(c.acc.GetAddress())
+	localSeq := c.accs[accName].GetSequence()
+	accR, err := auth.NewAccountRetriever(c).GetAccount(c.accs[accName].GetAddress())
 	if err != nil {
 		return nil, err
 	}
-	c.acc = accR
+	c.accs[accName] = accR
 	// replace seq if sup
-	if localSeq > c.acc.GetSequence() {
-		c.acc.SetSequence(localSeq)
+	if localSeq > c.accs[accName].GetSequence() {
+		c.accs[accName].SetSequence(localSeq)
 	}
-	return c.acc, nil
+	return c.accs[accName], nil
 }
 
 // CreateAndSignTx build and sign a msg with client account.
-func (c *RPC) CreateAndSignTx(msgs []sdktypes.Msg) (tenderminttypes.Tx, error) {
+func (c *RPC) CreateAndSignTx(accName, accPassword string, msgs []sdktypes.Msg) (tenderminttypes.Tx, error) {
 	// retrieve account
-	accR, err := c.GetAccount()
+	accR, err := c.GetAccount(accName)
 	if err != nil {
 		return nil, err
 	}
@@ -215,7 +205,7 @@ func (c *RPC) CreateAndSignTx(msgs []sdktypes.Msg) (tenderminttypes.Tx, error) {
 	stdTx := authtypes.NewStdTx(stdSignMsg.Msgs, stdSignMsg.Fee, nil, stdSignMsg.Memo)
 
 	// sign StdTx
-	signedTx, err := txBuilder.SignStdTx(c.accName, c.accPassword, stdTx, false)
+	signedTx, err := txBuilder.SignStdTx(accName, accPassword, stdTx, false)
 	if err != nil {
 		return nil, err
 	}

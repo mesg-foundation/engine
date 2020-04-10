@@ -65,7 +65,7 @@ func testOrchestratorMapConst(runnerHash, instanceHash hash.Hash) func(t *testin
 					{Src: "n1", Dst: "n2"},
 				},
 			}
-			processHash, err = lcd.BroadcastMsg(msg)
+			processHash, err = lcd.BroadcastMsg(cliAccountName, cliAccountPassword, msg)
 			require.NoError(t, err)
 		})
 		t.Run("trigger process", func(t *testing.T) {
@@ -111,7 +111,7 @@ func testOrchestratorMapConst(runnerHash, instanceHash hash.Hash) func(t *testin
 			require.NotEmpty(t, exec.Outputs.Fields["timestamp"].GetNumberValue())
 		})
 		t.Run("delete process", func(t *testing.T) {
-			_, err := lcd.BroadcastMsg(processmodule.MsgDelete{
+			_, err := lcd.BroadcastMsg(cliAccountName, cliAccountPassword, processmodule.MsgDelete{
 				Owner: cliAddress,
 				Hash:  processHash,
 			})

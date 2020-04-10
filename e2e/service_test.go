@@ -21,7 +21,7 @@ var (
 func testService(t *testing.T) {
 	t.Run("create", func(t *testing.T) {
 		testCreateServiceMsg.Owner = cliAddress
-		testServiceHash, err = lcd.BroadcastMsg(testCreateServiceMsg)
+		testServiceHash, err = lcd.BroadcastMsg(cliAccountName, cliAccountPassword, testCreateServiceMsg)
 		require.NoError(t, err)
 	})
 

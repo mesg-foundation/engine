@@ -13,15 +13,19 @@ import (
 )
 
 type executionServer struct {
-	rpc  *cosmos.RPC
-	auth *Authorizer
+	rpc         *cosmos.RPC
+	auth        *Authorizer
+	accName     string
+	accPassword string
 }
 
 // NewExecutionServer creates a new Execution Server.
-func NewExecutionServer(rpc *cosmos.RPC, auth *Authorizer) ExecutionServer {
+func NewExecutionServer(rpc *cosmos.RPC, auth *Authorizer, accName, accPassword string) ExecutionServer {
 	return &executionServer{
-		rpc:  rpc,
-		auth: auth,
+		rpc:         rpc,
+		auth:        auth,
+		accName:     accName,
+		accPassword: accPassword,
 	}
 }
 
@@ -33,7 +37,7 @@ func (s *executionServer) Create(ctx context.Context, req *ExecutionCreateReques
 	}
 
 	// create execution
-	acc, err := s.rpc.GetAccount()
+	acc, err := s.rpc.GetAccount(s.accName)
 	if err != nil {
 		return nil, err
 	}
@@ -50,7 +54,7 @@ func (s *executionServer) Create(ctx context.Context, req *ExecutionCreateReques
 		Tags:         req.Tags,
 		TaskKey:      req.TaskKey,
 	}
-	tx, err := s.rpc.BuildAndBroadcastMsg(msg)
+	tx, err := s.rpc.BuildAndBroadcastMsg(s.accName, s.accPassword, msg)
 	if err != nil {
 		return nil, err
 	}

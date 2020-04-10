@@ -139,7 +139,7 @@ func main() {
 	}()
 
 	// create rpc client
-	rpc, err := cosmos.NewRPC(rpcclient.NewLocal(node), cdc, kb, genesis.ChainID, cfg.Account.Name, cfg.Account.Password, cfg.Cosmos.MinGasPrices)
+	rpc, err := cosmos.NewRPC(rpcclient.NewLocal(node), cdc, kb, genesis.ChainID, cfg.Cosmos.MinGasPrices)
 	if err != nil {
 		logrus.WithField("module", "main").Fatalln(err)
 	}
@@ -154,7 +154,7 @@ func main() {
 	}
 
 	// init gRPC server.
-	server := grpc.New(rpc, ep, cfg.AuthorizedPubKeys)
+	server := grpc.New(rpc, ep, cfg.AuthorizedPubKeys, cfg.Account.Name, cfg.Account.Password)
 	logrus.WithField("module", "main").Infof("starting MESG Engine version %s", version.Version)
 	defer func() {
 		logrus.WithField("module", "main").Info("stopping grpc server")
@@ -168,7 +168,7 @@ func main() {
 	}()
 
 	logrus.WithField("module", "main").Info("starting process engine")
-	orch := orchestrator.New(rpc, ep, cfg.DefaultExecutionPrice)
+	orch := orchestrator.New(rpc, ep, cfg.Account.Name, cfg.Account.Password, cfg.DefaultExecutionPrice)
 	defer func() {
 		logrus.WithField("module", "main").Info("stopping orchestrator")
 		orch.Stop()

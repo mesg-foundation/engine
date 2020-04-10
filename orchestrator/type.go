@@ -18,5 +18,7 @@ type Orchestrator struct {
 	ErrC            chan error
 	stopC           chan bool
 
-	execPrice string
+	accName     string
+	accPassword string
+	execPrice   string
 }

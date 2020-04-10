@@ -87,9 +87,11 @@ func TestAPI(t *testing.T) {
 	cliAddress = cliAcc.GetAddress()
 
 	// init LCD with engine account and make a transfer to cli account
-	lcdEngine, err = cosmos.NewLCD(lcdEndpoint, cdc, kb, cfg.DevGenesis.ChainID, cfg.Account.Name, cfg.Account.Password, cfg.Cosmos.MinGasPrices, gasLimit)
+	lcd, err = cosmos.NewLCD(lcdEndpoint, cdc, kb, cfg.DevGenesis.ChainID, cfg.Cosmos.MinGasPrices, gasLimit)
 	require.NoError(t, err)
-	_, err = lcdEngine.BroadcastMsg(bank.NewMsgSend(engineAddress, cliAddress, cliInitialBalance))
+
+	// transfer coins to cli address
+	_, err = lcd.BroadcastMsg(cfg.Account.Name, cfg.Account.Password, bank.NewMsgSend(engineAddress, cliAddress, cliInitialBalance))
 	require.NoError(t, err)
 
 	// init container
@@ -105,10 +107,6 @@ func TestAPI(t *testing.T) {
 		ExecutionClient: orchestrator.NewExecutionClient(conn),
 		RunnerClient:    orchestrator.NewRunnerClient(conn),
 	}
-
-	// init LCD
-	lcd, err = cosmos.NewLCD(lcdEndpoint, cdc, kb, cfg.DevGenesis.ChainID, cliAccountName, cliAccountPassword, cfg.Cosmos.MinGasPrices, gasLimit)
-	require.NoError(t, err)
 
 	// run tests
 	t.Run("service", testService)

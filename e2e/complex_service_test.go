@@ -29,7 +29,7 @@ func testComplexService(t *testing.T) {
 
 	t.Run("create service", func(t *testing.T) {
 		testComplexCreateServiceMsg.Owner = cliAddress
-		testServiceComplexHash, err = lcd.BroadcastMsg(testComplexCreateServiceMsg)
+		testServiceComplexHash, err = lcd.BroadcastMsg(cliAccountName, cliAccountPassword, testComplexCreateServiceMsg)
 		require.NoError(t, err)
 	})
 

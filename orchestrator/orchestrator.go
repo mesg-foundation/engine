@@ -23,13 +23,15 @@ import (
 )
 
 // New creates a new Process instance
-func New(rpc *cosmos.RPC, ep *publisher.EventPublisher, execPrice string) *Orchestrator {
+func New(rpc *cosmos.RPC, ep *publisher.EventPublisher, accName, accPassword, execPrice string) *Orchestrator {
 	return &Orchestrator{
-		rpc:       rpc,
-		ep:        ep,
-		ErrC:      make(chan error),
-		stopC:     make(chan bool),
-		execPrice: execPrice,
+		rpc:         rpc,
+		ep:          ep,
+		ErrC:        make(chan error),
+		stopC:       make(chan bool),
+		accName:     accName,
+		accPassword: accPassword,
+		execPrice:   execPrice,
 	}
 }
 
@@ -306,7 +308,7 @@ func (s *Orchestrator) processTask(nodeKey string, task *process.Process_Node_Ta
 	executor := executors[rand.Intn(len(executors))]
 
 	// create execution
-	acc, err := s.rpc.GetAccount()
+	acc, err := s.rpc.GetAccount(s.accName)
 	if err != nil {
 		return err
 	}
@@ -322,7 +324,7 @@ func (s *Orchestrator) processTask(nodeKey string, task *process.Process_Node_Ta
 		Price:        s.execPrice,
 		Tags:         nil,
 	}
-	if _, err := s.rpc.BuildAndBroadcastMsg(msg); err != nil {
+	if _, err := s.rpc.BuildAndBroadcastMsg(s.accName, s.accPassword, msg); err != nil {
 		return err
 	}
 	return nil
