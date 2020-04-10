@@ -8,24 +8,24 @@ import (
 	"github.com/mesg-foundation/engine/ext/xos"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/protobuf/acknowledgement"
-	pb "github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/mesg-foundation/engine/runner"
-	"github.com/mesg-foundation/engine/runner/builder"
-	runnermodule "github.com/mesg-foundation/engine/x/runner"
+	"github.com/mesg-foundation/engine/server/grpc/orchestrator"
+	grpcorchestrator "github.com/mesg-foundation/engine/server/grpc/orchestrator"
 	runnerrest "github.com/mesg-foundation/engine/x/runner/client/rest"
 	"github.com/stretchr/testify/require"
+	"google.golang.org/grpc"
 )
 
 var (
-	testRunnerHash       hash.Hash
-	testInstanceEnvHash  hash.Hash
-	testRunnerAddress    sdk.AccAddress
-	testServiceImageHash string
+	testRunnerHash      hash.Hash
+	testInstanceEnvHash hash.Hash
+	testRunnerAddress   sdk.AccAddress
 )
 
 func testRunner(t *testing.T) {
 	var (
-		testInstanceEnv = xos.EnvMergeSlices(testServiceStruct.Configuration.Env, []string{"BAR=3", "REQUIRED=4"})
+		testInstanceEnv          = xos.EnvMergeSlices(testServiceStruct.Configuration.Env, []string{"BAR=3", "REQUIRED=4"})
+		registerPayloadSignature []byte
 	)
 	t.Run("hash", func(t *testing.T) {
 		var res runnerrest.HashResponse
@@ -41,32 +41,33 @@ func testRunner(t *testing.T) {
 	})
 
 	t.Run("build service image", func(t *testing.T) {
-		var err error
-		testServiceImageHash, err = builder.Build(cont, testServiceStruct, ipfsEndpoint)
-		require.NoError(t, err)
+		require.NoError(t, cont.Build(testServiceStruct))
 	})
 
-	t.Run("start", func(t *testing.T) {
-		require.NoError(t, builder.Start(cont, testServiceStruct, testInstanceHash, testRunnerHash, testServiceImageHash, testInstanceEnv, engineName, enginePort))
-	})
-
-	t.Run("register", func(t *testing.T) {
-		stream, err := client.EventClient.Stream(context.Background(), &pb.StreamEventRequest{
-			Filter: &pb.StreamEventRequest_Filter{
-				Key: "test_service_ready",
-			},
-		})
-		require.NoError(t, err)
-		acknowledgement.WaitForStreamToBeReady(stream)
-
-		msg := runnermodule.MsgCreate{
-			Owner:       engineAddress,
+	t.Run("create msg, sign it and inject into env", func(t *testing.T) {
+		value := grpcorchestrator.RunnerRegisterRequest{
 			ServiceHash: testServiceHash,
 			EnvHash:     testInstanceEnvHash,
 		}
-		result, err := lcd.BroadcastMsg(msg)
+
+		var err error
+		registerPayloadSignature, err = signPayload(value)
 		require.NoError(t, err)
-		require.True(t, testRunnerHash.Equal(result))
+	})
+
+	t.Run("wait for service to be ready", func(t *testing.T) {
+		req := orchestrator.EventStreamRequest{
+			Filter: &orchestrator.EventStreamRequest_Filter{
+				Key: "service_ready",
+			},
+		}
+		stream, err := client.EventClient.Stream(context.Background(), &req, grpc.PerRPCCredentials(&signCred{req}))
+		require.NoError(t, err)
+		acknowledgement.WaitForStreamToBeReady(stream)
+
+		t.Run("start", func(t *testing.T) {
+			require.NoError(t, cont.Start(testServiceStruct, testInstanceHash, testRunnerHash, testInstanceEnvHash, testInstanceEnv, registerPayloadSignature))
+		})
 
 		// wait for service to be ready
 		_, err = stream.Recv()
@@ -90,14 +91,13 @@ func testRunner(t *testing.T) {
 }
 
 func testDeleteRunner(t *testing.T) {
-	msg := runnermodule.MsgDelete{
-		Owner: engineAddress,
-		Hash:  testRunnerHash,
+	req := orchestrator.RunnerDeleteRequest{
+		RunnerHash: testRunnerHash,
 	}
-	_, err := lcd.BroadcastMsg(msg)
+	_, err := client.RunnerClient.Delete(context.Background(), &req, grpc.PerRPCCredentials(&signCred{req}))
 	require.NoError(t, err)
 
-	require.NoError(t, builder.Stop(cont, testRunnerHash, testServiceStruct.Dependencies))
+	require.NoError(t, cont.Stop(testServiceStruct, testRunnerHash))
 
 	t.Run("check deletion", func(t *testing.T) {
 		rs := make([]*runner.Runner, 0)

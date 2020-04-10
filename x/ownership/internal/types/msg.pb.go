@@ -27,7 +27,7 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 type MsgWithdraw struct {
 	// The ownership's owner.
 	Owner github_com_cosmos_cosmos_sdk_types.AccAddress `protobuf:"bytes,1,opt,name=owner,proto3,casttype=github.com/cosmos/cosmos-sdk/types.AccAddress" json:"owner,omitempty" validate:"required,accaddress"`
-	// Hash of the ressource to withdraw from.
+	// Hash of the resource to withdraw from.
 	ResourceHash github_com_mesg_foundation_engine_hash.Hash `protobuf:"bytes,2,opt,name=resourceHash,proto3,casttype=github.com/mesg-foundation/engine/hash.Hash" json:"resourceHash,omitempty" validate:"required,hash"`
 	// amount to withdraw
 	Amount               string   `protobuf:"bytes,3,opt,name=amount,proto3" json:"amount,omitempty" validate:"required,coinsPositiveZero"`

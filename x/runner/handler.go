@@ -23,7 +23,7 @@ func NewHandler(k Keeper) sdk.Handler {
 
 // handleMsgCreate creates a new runner.
 func handleMsgCreate(ctx sdk.Context, k Keeper, msg *MsgCreate) (*sdk.Result, error) {
-	runner, err := k.Create(ctx, msg)
+	run, err := k.Create(ctx, msg)
 	if err != nil {
 		return nil, err
 	}
@@ -31,15 +31,13 @@ func handleMsgCreate(ctx sdk.Context, k Keeper, msg *MsgCreate) (*sdk.Result, er
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
 			sdk.EventTypeMessage,
-			sdk.NewAttribute(sdk.AttributeKeyModule, types.AttributeValueCategory),
-			sdk.NewAttribute(sdk.AttributeKeyAction, types.EventTypeCreateRunner),
+			sdk.NewAttribute(sdk.AttributeKeyModule, ModuleName),
 			sdk.NewAttribute(sdk.AttributeKeySender, msg.Owner.String()),
-			sdk.NewAttribute(types.AttributeHash, runner.Hash.String()),
 		),
 	)
 
 	return &sdk.Result{
-		Data:   runner.Hash,
+		Data:   run.Hash,
 		Events: ctx.EventManager().Events(),
 	}, nil
 }
@@ -53,10 +51,8 @@ func handleMsgDelete(ctx sdk.Context, k Keeper, msg *MsgDelete) (*sdk.Result, er
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
 			sdk.EventTypeMessage,
-			sdk.NewAttribute(sdk.AttributeKeyModule, types.AttributeValueCategory),
-			sdk.NewAttribute(sdk.AttributeKeyAction, types.EventTypeDeleteRunner),
+			sdk.NewAttribute(sdk.AttributeKeyModule, ModuleName),
 			sdk.NewAttribute(sdk.AttributeKeySender, msg.Owner.String()),
-			sdk.NewAttribute(types.AttributeHash, msg.Hash.String()),
 		),
 	)
 

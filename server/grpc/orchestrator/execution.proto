@@ -1,0 +1,82 @@
+syntax = "proto3";
+
+import "gogo/protobuf/gogoproto/gogo.proto";
+import "protobuf/types/execution.proto";
+import "protobuf/types/struct.proto";
+
+package mesg.grpc.orchestrator;
+option go_package = "github.com/mesg-foundation/engine/service/grpc/orchestrator";
+
+// This is the Execution API to interact with the Orchestrator.
+// This API requires all requests to be signed for authentication. The signature should be passed in the request's metadata using the key `mesg_request_signature` and base64 encoded.
+service Execution {
+  // Create an execution on the blockchain.
+  rpc Create(ExecutionCreateRequest) returns (ExecutionCreateResponse) {}
+
+  // Stream returns a stream of executions that satisfy specified filter.
+  rpc Stream(ExecutionStreamRequest) returns (stream types.Execution) {}
+}
+
+// ExecutionCreateRequest is the request of the endpoint ExecutionCreate.
+message ExecutionCreateRequest {
+  string taskKey = 1 [
+    (gogoproto.moretags) = 'validate:"required,printascii"'
+  ];
+
+  mesg.protobuf.Struct inputs = 2;
+
+  repeated string tags = 3 [
+    (gogoproto.moretags) = 'validate:"dive,printascii"'
+  ];
+
+  bytes executorHash = 4 [
+    (gogoproto.moretags) = 'validate:"omitempty,hash"',
+    (gogoproto.casttype) = "github.com/mesg-foundation/engine/hash.Hash"
+  ];
+
+  string price = 5 [
+    (gogoproto.moretags) = 'validate:"coins"'
+  ];
+}
+
+// ExecutionCreateResponse is the response of the endpoint ExecutionCreate.
+message ExecutionCreateResponse {
+  // Execution's hash.
+  bytes hash = 1 [
+    (gogoproto.casttype) = "github.com/mesg-foundation/engine/hash.Hash"
+  ];
+}
+
+// ExecutionStreamRequest defines request to retrieve a stream of executions.
+message ExecutionStreamRequest{
+  // Filter contains filtering criteria.
+  message Filter {
+    // Statuses to filter executions. One status needs to be present in the execution.
+    repeated types.Status statuses = 1;
+
+    // Instance's hash to filter executions.
+    bytes instanceHash = 2 [
+      (gogoproto.moretags) = 'validate:"omitempty,hash"',
+      (gogoproto.casttype) = "github.com/mesg-foundation/engine/hash.Hash"
+    ];
+
+    // taskKey to filter executions.
+    string taskKey = 3 [
+      (gogoproto.moretags) = 'validate:"printascii"'
+    ];
+
+    // tags to filter executions. All tags needs to be present in the execution.
+    repeated string tags = 4 [
+      (gogoproto.moretags) = 'validate:"dive,printascii"'
+    ];
+    
+    // Executor's hash to filter executions.
+    bytes executorHash = 5 [
+      (gogoproto.moretags) = 'validate:"omitempty,hash"',
+      (gogoproto.casttype) = "github.com/mesg-foundation/engine/hash.Hash"
+    ];
+  }
+
+  // Filter used to filter a stream of executions.
+  Filter filter = 1;
+}

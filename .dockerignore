@@ -19,7 +19,6 @@ schema1.svg
 **/*.test
 **/debug
 **/node_modules
-/docker-images
 /test
 /vendor
 coverage.txt

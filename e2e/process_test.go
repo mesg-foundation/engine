@@ -18,7 +18,7 @@ func testProcess(t *testing.T) {
 		processHash    hash.Hash
 		processAddress sdk.AccAddress
 		msg            = &processmodule.MsgCreate{
-			Owner: engineAddress,
+			Owner: cliAddress,
 			Name:  "test-process",
 			Nodes: []*process.Process_Node{
 				{
@@ -26,7 +26,7 @@ func testProcess(t *testing.T) {
 					Type: &process.Process_Node_Event_{
 						Event: &process.Process_Node_Event{
 							InstanceHash: testInstanceHash,
-							EventKey:     "test_service_ready",
+							EventKey:     "service_ready",
 						},
 					},
 				},
@@ -35,7 +35,7 @@ func testProcess(t *testing.T) {
 					Type: &process.Process_Node_Task_{
 						Task: &process.Process_Node_Task{
 							InstanceHash: testInstanceHash,
-							TaskKey:      "test_service_ready",
+							TaskKey:      "service_ready",
 						},
 					},
 				},
@@ -104,7 +104,7 @@ func testProcess(t *testing.T) {
 
 	t.Run("delete", func(t *testing.T) {
 		_, err := lcd.BroadcastMsg(processmodule.MsgDelete{
-			Owner: engineAddress,
+			Owner: cliAddress,
 			Hash:  processHash,
 		})
 		require.NoError(t, err)

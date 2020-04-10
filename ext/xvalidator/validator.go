@@ -8,13 +8,14 @@ import (
 	"strings"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/go-bip39"
 	"github.com/go-playground/locales/en"
 	ut "github.com/go-playground/universal-translator"
+	validator "github.com/go-playground/validator/v10"
+	en_translations "github.com/go-playground/validator/v10/translations/en"
 	"github.com/mesg-foundation/engine/ext/xerrors"
 	"github.com/mesg-foundation/engine/ext/xnet"
 	"github.com/mesg-foundation/engine/hash"
-	validator "gopkg.in/go-playground/validator.v9"
-	en_translations "gopkg.in/go-playground/validator.v9/translations/en"
 )
 
 const (
@@ -92,9 +93,41 @@ func New(prefix string) (*validator.Validate, ut.Translator) {
 		return t
 	})
 
+	validate.RegisterValidation("coin", IsCoin)
+	validate.RegisterTranslation("coin", trans, func(ut ut.Translator) error {
+		return ut.Add("coin", "{0} must be a valid coin", false)
+	}, func(ut ut.Translator, fe validator.FieldError) string {
+		t, _ := ut.T(fe.Tag(), fe.Field(), prefix)
+		return t
+	})
+
 	validate.RegisterValidation("coinsPositiveZero", IsCoinsPositiveOrZero)
 	validate.RegisterTranslation("coinsPositiveZero", trans, func(ut ut.Translator) error {
 		return ut.Add("coinsPositiveZero", "{0} must be positive or zero coins", false)
+	}, func(ut ut.Translator, fe validator.FieldError) string {
+		t, _ := ut.T(fe.Tag(), fe.Field(), prefix)
+		return t
+	})
+
+	validate.RegisterValidation("deccoins", IsDecCoins)
+	validate.RegisterTranslation("deccoins", trans, func(ut ut.Translator) error {
+		return ut.Add("deccoins", "{0} must be a valid deccoins", false)
+	}, func(ut ut.Translator, fe validator.FieldError) string {
+		t, _ := ut.T(fe.Tag(), fe.Field(), prefix)
+		return t
+	})
+
+	validate.RegisterValidation("mnemonic", IsMnemonic)
+	validate.RegisterTranslation("mnemonic", trans, func(ut ut.Translator) error {
+		return ut.Add("mnemonic", "{0} must be a valid mnemonic", false)
+	}, func(ut ut.Translator, fe validator.FieldError) string {
+		t, _ := ut.T(fe.Tag(), fe.Field(), prefix)
+		return t
+	})
+
+	validate.RegisterValidation("bech32accpubkey", IsBech32AccPubKey)
+	validate.RegisterTranslation("bech32accpubkey", trans, func(ut ut.Translator) error {
+		return ut.Add("bech32accpubkey", "{0} must be a valid bech32accpubkey", false)
 	}, func(ut ut.Translator, fe validator.FieldError) string {
 		t, _ := ut.T(fe.Tag(), fe.Field(), prefix)
 		return t
@@ -141,6 +174,29 @@ func IsAccAddress(fl validator.FieldLevel) bool {
 // IsCoins validates if given field is valid cosmos coins.
 func IsCoins(fl validator.FieldLevel) bool {
 	_, err := sdk.ParseCoins(fl.Field().String())
+	return err == nil
+}
+
+// IsCoin validates if given field is valid cosmos coins.
+func IsCoin(fl validator.FieldLevel) bool {
+	_, err := sdk.ParseCoin(fl.Field().String())
+	return err == nil
+}
+
+// IsDecCoins validates if given field is valid cosmos coins.
+func IsDecCoins(fl validator.FieldLevel) bool {
+	_, err := sdk.ParseDecCoins(fl.Field().String())
+	return err == nil
+}
+
+// IsMnemonic validates if given field is valid cosmos coins.
+func IsMnemonic(fl validator.FieldLevel) bool {
+	return bip39.IsMnemonicValid(fl.Field().String())
+}
+
+// IsBech32AccPubKey validates if given field is valid cosmos coins.
+func IsBech32AccPubKey(fl validator.FieldLevel) bool {
+	_, err := sdk.GetPubKeyFromBech32(sdk.Bech32PubKeyTypeAccPub, fl.Field().String())
 	return err == nil
 }
 

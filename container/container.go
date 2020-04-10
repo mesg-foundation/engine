@@ -1,28 +1,45 @@
 package container
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
+	"encoding/base64"
 	"errors"
 	"fmt"
-	"io"
 	"io/ioutil"
+	"net"
+	"net/http"
+	"os"
+	"strconv"
 	"strings"
 	"time"
 
 	"github.com/docker/cli/cli/command/image/build"
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/filters"
+	"github.com/docker/docker/api/types/mount"
+	"github.com/docker/docker/api/types/swarm"
 	"github.com/docker/docker/client"
 	"github.com/docker/docker/errdefs"
 	"github.com/docker/docker/pkg/archive"
+	"github.com/docker/docker/pkg/idtools"
+	"github.com/mesg-foundation/engine/ext/xerrors"
+	"github.com/mesg-foundation/engine/ext/xnet"
+	"github.com/mesg-foundation/engine/ext/xos"
+	"github.com/mesg-foundation/engine/hash"
+	"github.com/mesg-foundation/engine/service"
 )
 
-// defaultStopGracePeriod is the timeout value between stopping a container and killing it.
-const defaultStopGracePeriod = 10 * time.Second
+const (
+	// defaultStopGracePeriod is the timeout value between stopping a container and killing it.
+	defaultStopGracePeriod = 10 * time.Second
 
-var errSwarmNotInit = errors.New(`docker swarm is not initialized. run "docker swarm init" and try again`)
+	defaultMaxAttempts = uint64(3)
+
+	servicePrefix = "mesg_srv_"
+	imageTag      = "mesg:"
+
+	pollingTime = 500 * time.Millisecond
+)
 
 // Status of the service.
 type Status uint
@@ -35,7 +52,7 @@ const (
 	RUNNING
 )
 
-// statuses is a struct used to map service and contaienr statuses.
+// statuses is a struct used to map service and container statuses.
 var statuses = []struct {
 	container bool
 	service   bool
@@ -47,63 +64,67 @@ var statuses = []struct {
 	{service: false, container: false, status: STOPPED},
 }
 
-// buildResponse is the object that is returned by the docker build api.
-type buildResponse struct {
-	Stream string `json:"stream"`
-	Error  string `json:"error"`
-}
-
-// Container describes the API of container package.
-type Container interface {
-	Build(path string) (tag string, err error)
-	CreateNetwork(namespace string) (id string, err error)
-	DeleteNetwork(namespace string) error
-	SharedNetworkID() string
-	StartService(options ServiceOptions) (serviceID string, err error)
-	StopService(namespace string) (err error)
-	DeleteVolume(name string) error
-}
-
-// DockerContainer provides high level interactions with Docker API for MESG.
-type DockerContainer struct {
+// Container starts and stops the MESG Service in Docker Container.
+type Container struct {
 	// client is a Docker client.
 	client client.CommonAPIClient
 
-	// namespace prefix.
-	nsprefix string
-
-	// sharedNetworkID is cache for an id network.
-	sharedNetworkID string
+	ipfsEndpoint   string
+	engineEndpoint string
+	engineName     string
+	engineNetwork  string
 }
 
-// New creates a new Container with given options.
-func New(nsprefix string) (*DockerContainer, error) {
+// New initializes the Container struct by connecting creating the Docker client.
+func New(ipfsEndpoint, engineName, engineAddress, engineNetwork string) (*Container, error) {
 	client, err := client.NewClientWithOpts(client.FromEnv)
 	if err != nil {
 		return nil, err
 	}
 	client.NegotiateAPIVersion(context.Background())
 
-	c := &DockerContainer{
-		client:   client,
-		nsprefix: nsprefix,
-	}
-
-	if err := c.isSwarmInit(); err != nil {
+	_, port, err := xnet.SplitHostPort(engineAddress)
+	if err != nil {
 		return nil, err
 	}
 
-	if err := c.createSharedNetwork(); err != nil {
-		return nil, err
-	}
-	return c, nil
+	return &Container{
+		client:         client,
+		ipfsEndpoint:   ipfsEndpoint,
+		engineEndpoint: net.JoinHostPort(engineName, strconv.Itoa(port)),
+		engineName:     engineName,
+		engineNetwork:  engineNetwork,
+	}, nil
 }
 
-// Build builds a docker image.
-func (c *DockerContainer) Build(path string) (tag string, err error) {
+// Build the imge of the container
+func (c *Container) Build(srv *service.Service) error {
+	// download and untar service context into path.
+	path, err := ioutil.TempDir("", "mesg")
+	if err != nil {
+		return err
+	}
+	defer os.RemoveAll(path)
+
+	resp, err := http.Get(c.ipfsEndpoint + srv.Source)
+	if err != nil {
+		return err
+	}
+	if resp.StatusCode != 200 {
+		return errors.New("service's source code is not reachable, status: " + resp.Status + ", url: " + c.ipfsEndpoint + srv.Source)
+	}
+	defer resp.Body.Close()
+
+	if err := archive.Untar(resp.Body, path, &archive.TarOptions{ChownOpts: &idtools.Identity{
+		UID: os.Geteuid(),
+		GID: os.Getegid()},
+	}); err != nil {
+		return err
+	}
+
 	excludeFiles, err := build.ReadDockerignore(path)
 	if err != nil {
-		return "", err
+		return err
 	}
 
 	tr, err := archive.TarWithOptions(path, &archive.TarOptions{
@@ -111,46 +132,302 @@ func (c *DockerContainer) Build(path string) (tag string, err error) {
 		ExcludePatterns: excludeFiles,
 	})
 	if err != nil {
-		return "", err
+		return err
 	}
 	defer tr.Close()
 
-	resp, err := c.client.ImageBuild(context.Background(), tr, types.ImageBuildOptions{
+	if _, err := c.client.ImageBuild(context.Background(), tr, types.ImageBuildOptions{
 		Remove:         true,
 		ForceRemove:    true,
 		SuppressOutput: true,
-	})
-	if err != nil {
-		return "", err
+		Tags:           []string{imageTag + srv.Hash.String()},
+	}); err != nil {
+		return err
 	}
-	defer resp.Body.Close()
-	return tagFromResponse(resp.Body)
+
+	return nil
 }
 
-// CreateNetwork creates a Docker Network with a namespace. Retruns network id and error.
-func (c *DockerContainer) CreateNetwork(namespace string) (string, error) {
-	namespace = c.namespace(namespace)
-	network, err := c.client.NetworkInspect(context.Background(), namespace, types.NetworkInspectOptions{})
+// Start starts the service.
+func (c *Container) Start(srv *service.Service, instanceHash, runnerHash, instanceEnvHash hash.Hash, instanceEnv []string, registerPayload []byte) (err error) {
+	runnerName := servicePrefix + runnerHash.String()
+
+	networkID, err := c.createNetwork(runnerName)
+	if err != nil {
+		return err
+	}
+	enginedNetworkID, err := c.enginedNetworkID()
+	if err != nil {
+		return err
+	}
+
+	specs := make([]swarm.ServiceSpec, 0)
+
+	// Create dependency container configs
+	for _, dep := range srv.Dependencies {
+		depName := runnerName + "_" + dep.Key
+		volumes := convertVolumes(srv, dep.Volumes, dep.Key)
+		volumesFrom, err := convertVolumesFrom(srv, dep.VolumesFrom)
+		if err != nil {
+			return err
+		}
+		stopGracePeriod := defaultStopGracePeriod
+		maxAttempts := defaultMaxAttempts
+		specs = append(specs, swarm.ServiceSpec{
+			Annotations: swarm.Annotations{
+				Name: depName,
+				Labels: map[string]string{
+					"mesg.engine":                c.engineName,
+					"mesg.service":               srv.Hash.String(),
+					"mesg.instance":              instanceHash.String(),
+					"mesg.runner":                runnerHash.String(),
+					"mesg.dependency":            dep.Key,
+					"com.docker.stack.namespace": depName,
+				},
+			},
+			TaskTemplate: swarm.TaskSpec{
+				ContainerSpec: &swarm.ContainerSpec{
+					Image: dep.Image,
+					Labels: map[string]string{
+						"com.docker.stack.namespace": depName,
+					},
+					Env:             dep.Env,
+					Args:            dep.Args,
+					Command:         strings.Fields(dep.Command),
+					Mounts:          append(volumes, volumesFrom...),
+					StopGracePeriod: &stopGracePeriod,
+				},
+				Networks: []swarm.NetworkAttachmentConfig{
+					{
+						Target:  networkID,
+						Aliases: []string{dep.Key},
+					},
+				},
+				RestartPolicy: &swarm.RestartPolicy{
+					Condition:   swarm.RestartPolicyConditionOnFailure,
+					MaxAttempts: &maxAttempts,
+				},
+			},
+			EndpointSpec: &swarm.EndpointSpec{
+				Ports: convertPorts(dep.Ports),
+			},
+		})
+	}
+
+	// Create configuration container config
+	volumes := convertVolumes(srv, srv.Configuration.Volumes, service.MainServiceKey)
+	volumesFrom, err := convertVolumesFrom(srv, srv.Configuration.VolumesFrom)
+	if err != nil {
+		return err
+	}
+	stopGracePeriod := defaultStopGracePeriod
+	maxAttempts := defaultMaxAttempts
+	specs = append(specs, swarm.ServiceSpec{
+		Annotations: swarm.Annotations{
+			Name: runnerName,
+			Labels: map[string]string{
+				"mesg.engine":                c.engineName,
+				"mesg.service":               srv.Hash.String(),
+				"mesg.instance":              instanceHash.String(),
+				"mesg.runner":                runnerHash.String(),
+				"mesg.dependency":            service.MainServiceKey,
+				"com.docker.stack.namespace": runnerName,
+			},
+		},
+		TaskTemplate: swarm.TaskSpec{
+			ContainerSpec: &swarm.ContainerSpec{
+				Image: imageTag + srv.Hash.String(),
+				Labels: map[string]string{
+					"com.docker.stack.namespace": runnerName,
+				},
+				Args:    srv.Configuration.Args,
+				Command: strings.Fields(srv.Configuration.Command),
+				Env: xos.EnvMergeSlices(instanceEnv, []string{
+					"MESG_SERVICE_HASH=" + srv.Hash.String(),
+					"MESG_INSTANCE_HASH=" + instanceHash.String(),
+					"MESG_RUNNER_HASH=" + runnerHash.String(),
+					"MESG_ENDPOINT=" + c.engineEndpoint,
+					"MESG_REGISTER_SIGNATURE=" + base64.StdEncoding.EncodeToString(registerPayload),
+					"MESG_ENV_HASH=" + instanceEnvHash.String(),
+				}),
+				Mounts:          append(volumes, volumesFrom...),
+				StopGracePeriod: &stopGracePeriod,
+			},
+			Networks: []swarm.NetworkAttachmentConfig{
+				{
+					Target:  networkID,
+					Aliases: []string{service.MainServiceKey},
+				},
+				{
+					Target: enginedNetworkID,
+				},
+			},
+			RestartPolicy: &swarm.RestartPolicy{
+				Condition:   swarm.RestartPolicyConditionOnFailure,
+				MaxAttempts: &maxAttempts,
+			},
+		},
+		EndpointSpec: &swarm.EndpointSpec{
+			Ports: convertPorts(srv.Configuration.Ports),
+		},
+	})
+
+	// Start
+	for _, spec := range specs {
+		if err := c.startService(spec); err != nil {
+			c.Stop(srv, runnerHash)
+			return err
+		}
+	}
+
+	return nil
+}
+
+// Stop stops an instance.
+func (c *Container) Stop(srv *service.Service, runnerHash hash.Hash) error {
+	var (
+		errs  xerrors.SyncErrors
+		name  = servicePrefix + runnerHash.String()
+		names = make([]string, 0)
+	)
+
+	for _, dep := range srv.Dependencies {
+		names = append(names, name+"_"+dep.Key)
+	}
+	names = append(names, name)
+
+	for _, name := range names {
+		if err := c.stopService(name); err != nil {
+			errs.Append(err)
+		}
+	}
+	if err := errs.ErrorOrNil(); err != nil {
+		return err
+	}
+
+	return c.deleteNetwork(name)
+}
+
+// deleteData deletes the data volumes of instance and its dependencies.
+// TODO: right now deleteData() is not compatible to work with multiple instances of same
+// service since extractVolumes() accepts service, not instance. same applies in the start
+// api as well. make it work with multiple instances.
+// func deleteData(cont container.Container, s *service.Service) error {
+// 	var (
+// 		wg      sync.WaitGroup
+// 		errs    xerrors.SyncErrors
+// 		volumes = make([]mount.Mount, 0)
+// 	)
+
+// 	for _, d := range s.Dependencies {
+// 		volumes = append(volumes, convertVolumes(s, d.Volumes, d.Key)...)
+// 	}
+// 	volumes = append(volumes, convertVolumes(s, s.Configuration.Volumes, service.MainServiceKey)...)
+
+// 	for _, volume := range volumes {
+// 		// TODO: is it actually necessary to remvoe in parallel? I worry that some volume will be deleted at the same time and create side effect
+// 		wg.Add(1)
+// 		go func(source string) {
+// 			defer wg.Done()
+// 			// if service is never started before, data volume won't be created and Docker Engine
+// 			// will return with the not found error. therefore, we can safely ignore it.
+// 			if err := cont.DeleteVolume(source); err != nil && !client.IsErrNotFound(err) {
+// 				errs.Append(err)
+// 			}
+// 		}(volume.Source)
+// 	}
+// 	wg.Wait()
+// 	return errs.ErrorOrNil()
+// }
+
+func convertPorts(dPorts []string) []swarm.PortConfig {
+	ports := make([]swarm.PortConfig, len(dPorts))
+	for i, p := range dPorts {
+		split := strings.Split(p, ":")
+		from, _ := strconv.ParseUint(split[0], 10, 64)
+		to := from
+		if len(split) > 1 {
+			to, _ = strconv.ParseUint(split[1], 10, 64)
+		}
+		ports[i] = swarm.PortConfig{
+			Protocol:      swarm.PortConfigProtocolTCP,
+			PublishMode:   swarm.PortConfigPublishModeIngress,
+			TargetPort:    uint32(to),
+			PublishedPort: uint32(from),
+		}
+	}
+	return ports
+}
+
+func convertVolumes(s *service.Service, dVolumes []string, key string) []mount.Mount {
+	volumes := make([]mount.Mount, 0)
+	for _, volume := range dVolumes {
+		volumes = append(volumes, mount.Mount{
+			Type:   mount.TypeVolume,
+			Source: volumeKey(s, key, volume),
+			Target: volume,
+		})
+	}
+	return volumes
+}
+
+func convertVolumesFrom(s *service.Service, dVolumesFrom []string) ([]mount.Mount, error) {
+	volumesFrom := make([]mount.Mount, 0)
+	for _, depName := range dVolumesFrom {
+		var depVolumes []string
+		if depName == service.MainServiceKey {
+			depVolumes = s.Configuration.Volumes
+		} else {
+			dep, err := s.GetDependency(depName)
+			if err != nil {
+				return nil, err
+			}
+			depVolumes = dep.Volumes
+		}
+		for _, volume := range depVolumes {
+			volumesFrom = append(volumesFrom, mount.Mount{
+				Type:   mount.TypeVolume,
+				Source: volumeKey(s, depName, volume),
+				Target: volume,
+			})
+		}
+	}
+	return volumesFrom, nil
+}
+
+// volumeKey creates a key for service's volume based on the sid to make sure that the volume
+// will stay the same for different versions of the service.
+func volumeKey(s *service.Service, dependency, volume string) string {
+	return hash.Dump([]string{
+		s.Hash.String(),
+		dependency,
+		volume,
+	}).String()
+}
+
+// createNetwork creates a Docker Network with a name. Retruns network id and error.
+func (c *Container) createNetwork(name string) (string, error) {
+	network, err := c.client.NetworkInspect(context.Background(), name, types.NetworkInspectOptions{})
 	if err != nil && !client.IsErrNotFound(err) {
 		return "", err
 	}
 	if network.ID != "" {
 		return network.ID, nil
 	}
-	response, err := c.client.NetworkCreate(context.Background(), namespace, types.NetworkCreate{
+	response, err := c.client.NetworkCreate(context.Background(), name, types.NetworkCreate{
 		CheckDuplicate: true,
 		Driver:         "overlay",
 		Labels: map[string]string{
-			"com.docker.stack.namespace": namespace,
+			"com.docker.stack.namespace": name,
 		},
 	})
 	return response.ID, err
 }
 
-// DeleteNetwork deletes a Docker Network associated with a namespace.
-func (c *DockerContainer) DeleteNetwork(namespace string) error {
+// deleteNetwork deletes a Docker Network.
+func (c *Container) deleteNetwork(name string) error {
 	for {
-		network, err := c.client.NetworkInspect(context.Background(), c.namespace(namespace), types.NetworkInspectOptions{})
+		network, err := c.client.NetworkInspect(context.Background(), name, types.NetworkInspectOptions{})
 		if client.IsErrNotFound(err) {
 			return nil
 		}
@@ -158,40 +435,38 @@ func (c *DockerContainer) DeleteNetwork(namespace string) error {
 			return err
 		}
 		c.client.NetworkRemove(context.Background(), network.ID)
-		time.Sleep(100 * time.Millisecond)
+		time.Sleep(pollingTime)
 	}
 }
 
-// SharedNetworkID returns the ID of the shared network.
-func (c *DockerContainer) SharedNetworkID() string {
-	return c.sharedNetworkID
+// enginedNetworkID retrieve the docker network id of the engine network.
+func (c *Container) enginedNetworkID() (string, error) {
+	network, err := c.client.NetworkInspect(context.Background(), c.engineNetwork, types.NetworkInspectOptions{})
+	return network.ID, err
 }
 
 // StartService starts a docker service.
-func (c *DockerContainer) StartService(options ServiceOptions) (string, error) {
-	if status, _ := c.serviceStatus(options.Namespace); status == RUNNING {
-		service, _, err := c.client.ServiceInspectWithRaw(context.Background(), c.namespace(options.Namespace), types.ServiceInspectOptions{})
-		return service.ID, err
+func (c *Container) startService(spec swarm.ServiceSpec) error {
+	if status, _ := c.serviceStatus(spec.Name); status == RUNNING {
+		_, _, err := c.client.ServiceInspectWithRaw(context.Background(), spec.Name, types.ServiceInspectOptions{})
+		return err
 	}
-
-	service := options.toSwarmServiceSpec(c)
-	response, err := c.client.ServiceCreate(context.Background(), service, types.ServiceCreateOptions{})
-	if err != nil {
-		return "", err
+	if _, err := c.client.ServiceCreate(context.Background(), spec, types.ServiceCreateOptions{}); err != nil {
+		return err
 	}
-	return response.ID, c.waitForStatus(options.Namespace, RUNNING)
+	return c.waitForStatus(spec.Name, RUNNING)
 }
 
 // StopService stops a docker service.
-func (c *DockerContainer) StopService(namespace string) error {
-	status, err := c.serviceStatus(namespace)
+func (c *Container) stopService(name string) error {
+	status, err := c.serviceStatus(name)
 	if err != nil {
 		return err
 	}
 	if status == STOPPED {
 		return nil
 	}
-	service, _, err := c.client.ServiceInspectWithRaw(context.Background(), c.namespace(namespace), types.ServiceInspectOptions{})
+	service, _, err := c.client.ServiceInspectWithRaw(context.Background(), name, types.ServiceInspectOptions{})
 	if err != nil && !client.IsErrNotFound(err) {
 		return err
 	}
@@ -201,53 +476,22 @@ func (c *DockerContainer) StopService(namespace string) error {
 		stopGracePeriod = *service.Spec.TaskTemplate.ContainerSpec.StopGracePeriod
 	}
 
-	err = c.client.ServiceRemove(context.Background(), c.namespace(namespace))
+	err = c.client.ServiceRemove(context.Background(), name)
 	if err != nil && !client.IsErrNotFound(err) {
 		return err
 	}
-	if err := c.deletePendingContainer(namespace, time.Now().Add(stopGracePeriod)); err != nil {
+	if err := c.deletePendingContainer(name, time.Now().Add(stopGracePeriod)); err != nil {
 		return err
 	}
-	return c.waitForStatus(namespace, STOPPED)
-}
-
-// DeleteVolume deletes a Docker Volume by name.
-func (c *DockerContainer) DeleteVolume(name string) error {
-	return c.client.VolumeRemove(context.Background(), name, false)
-}
-
-// Cleanup cleans all configuration like shared network of running services.
-func (c *DockerContainer) Cleanup() error {
-	// remove shared network
-	if err := c.client.NetworkRemove(context.Background(), c.nsprefix); err != nil {
-		return err
-	}
-	return nil
-}
-
-// namespace creates a new namespace with container prefix.
-func (c *DockerContainer) namespace(s string) string {
-	return c.nsprefix + "-" + s
-}
-
-// isSwarmInit returns true if docker is connected with any swarm.
-func (c *DockerContainer) isSwarmInit() error {
-	info, err := c.client.Info(context.Background())
-	if err != nil {
-		return err
-	}
-	if info.Swarm.NodeID == "" {
-		return errSwarmNotInit
-	}
-	return nil
+	return c.waitForStatus(name, STOPPED)
 }
 
 // findContainer returns a docker container.
-func (c *DockerContainer) findContainer(namespace string) (string, error) {
+func (c *Container) findContainer(name string) (string, error) {
 	containers, err := c.client.ContainerList(context.Background(), types.ContainerListOptions{
 		Filters: filters.NewArgs(filters.KeyValuePair{
 			Key:   "label",
-			Value: "com.docker.stack.namespace=" + c.namespace(namespace),
+			Value: "com.docker.stack.namespace=" + name,
 		}),
 		Limit: 1,
 	})
@@ -255,7 +499,7 @@ func (c *DockerContainer) findContainer(namespace string) (string, error) {
 		return "", err
 	}
 	if len(containers) == 0 {
-		return "", errdefs.NotFound(fmt.Errorf("container in namespace %s not found", namespace))
+		return "", errdefs.NotFound(fmt.Errorf("container in namespace %s not found", name))
 	}
 	return containers[0].ID, nil
 }
@@ -266,13 +510,13 @@ func (c *DockerContainer) findContainer(namespace string) (string, error) {
 //  - RUNNING: when the container is running in docker regardless of the status of the service.
 //  - STARTING: when the service is running but the container is not yet started.
 //  - STOPPED: when the container and the service is not running in docker.
-func (c *DockerContainer) serviceStatus(namespace string) (Status, error) {
-	container, err := c.containerExists(namespace)
+func (c *Container) serviceStatus(name string) (Status, error) {
+	container, err := c.containerExists(name)
 	if err != nil {
 		return UNKNOWN, err
 	}
 
-	service, err := c.serviceExists(namespace)
+	service, err := c.serviceExists(name)
 	if err != nil {
 		return UNKNOWN, err
 	}
@@ -287,9 +531,9 @@ func (c *DockerContainer) serviceStatus(namespace string) (Status, error) {
 	return UNKNOWN, nil
 }
 
-// containerExists checks if container with namespace can be found.
-func (c *DockerContainer) containerExists(namespace string) (bool, error) {
-	_, err := c.findContainer(namespace)
+// containerExists checks if container with name can be found.
+func (c *Container) containerExists(name string) (bool, error) {
+	_, err := c.findContainer(name)
 	if err != nil && !client.IsErrNotFound(err) {
 		return false, err
 	}
@@ -297,8 +541,8 @@ func (c *DockerContainer) containerExists(namespace string) (bool, error) {
 }
 
 // serviceExists checks if corresponding container for service namespace can be found.
-func (c *DockerContainer) serviceExists(namespace string) (bool, error) {
-	_, _, err := c.client.ServiceInspectWithRaw(context.Background(), c.namespace(namespace), types.ServiceInspectOptions{})
+func (c *Container) serviceExists(name string) (bool, error) {
+	_, _, err := c.client.ServiceInspectWithRaw(context.Background(), name, types.ServiceInspectOptions{})
 	if err != nil && !client.IsErrNotFound(err) {
 		return false, err
 	}
@@ -306,11 +550,11 @@ func (c *DockerContainer) serviceExists(namespace string) (bool, error) {
 }
 
 // tasksError returns the error of matching tasks.
-func (c *DockerContainer) tasksError(namespace string) ([]string, error) {
+func (c *Container) tasksError(name string) ([]string, error) {
 	tasks, err := c.client.TaskList(context.Background(), types.TaskListOptions{
 		Filters: filters.NewArgs(filters.KeyValuePair{
 			Key:   "label",
-			Value: "com.docker.stack.namespace=" + c.namespace(namespace),
+			Value: "com.docker.stack.namespace=" + name,
 		}),
 	})
 	if err != nil {
@@ -327,16 +571,16 @@ func (c *DockerContainer) tasksError(namespace string) ([]string, error) {
 }
 
 // waitForStatus waits for the container to have the provided status. Returns error as soon as possible.
-func (c *DockerContainer) waitForStatus(namespace string, status Status) error {
-	curstatus, err := c.serviceStatus(namespace)
+func (c *Container) waitForStatus(name string, status Status) error {
+	curstatus, err := c.serviceStatus(name)
 	if err != nil {
 		return err
 	}
 
 	for curstatus != status {
-		time.Sleep(100 * time.Millisecond)
+		time.Sleep(pollingTime)
 
-		tasksErrors, err := c.tasksError(namespace)
+		tasksErrors, err := c.tasksError(name)
 		if err != nil {
 			return err
 		}
@@ -344,7 +588,7 @@ func (c *DockerContainer) waitForStatus(namespace string, status Status) error {
 			return errors.New(strings.Join(tasksErrors, ", "))
 		}
 
-		curstatus, err = c.serviceStatus(namespace)
+		curstatus, err = c.serviceStatus(name)
 		if err != nil {
 			return err
 		}
@@ -353,40 +597,13 @@ func (c *DockerContainer) waitForStatus(namespace string, status Status) error {
 	return nil
 }
 
-func (c *DockerContainer) createSharedNetwork() error {
-	// check if already exists
-	network, err := c.client.NetworkInspect(context.Background(), c.nsprefix, types.NetworkInspectOptions{})
-	if network.ID != "" {
-		c.sharedNetworkID = network.ID
-		return nil
-	}
-	if err != nil && !client.IsErrNotFound(err) {
-		return err
-	}
-
-	// Create the new network needed to run containers.
-	resp, err := c.client.NetworkCreate(context.Background(), c.nsprefix, types.NetworkCreate{
-		CheckDuplicate: true,
-		Driver:         "overlay",
-		Labels: map[string]string{
-			"com.docker.stack.namespace": c.nsprefix,
-		},
-	})
-	if err != nil {
-		return err
-	}
-
-	c.sharedNetworkID = resp.ID
-	return nil
-}
-
-func (c *DockerContainer) deletePendingContainer(namespace string, maxGraceTime time.Time) error {
+func (c *Container) deletePendingContainer(name string, maxGraceTime time.Time) error {
 	var (
 		id  string
 		err error
 	)
-	for start := time.Now(); start.Before(maxGraceTime); time.Sleep(100 * time.Millisecond) {
-		id, err = c.findContainer(namespace)
+	for start := time.Now(); start.Before(maxGraceTime); time.Sleep(pollingTime) {
+		id, err = c.findContainer(name)
 		if client.IsErrNotFound(err) {
 			return nil
 		}
@@ -401,38 +618,4 @@ func (c *DockerContainer) deletePendingContainer(namespace string, maxGraceTime 
 	// See issue https://github.com/moby/moby/issues/32620
 	c.client.ContainerRemove(context.Background(), id, types.ContainerRemoveOptions{Force: true})
 	return nil
-}
-
-// tagFromResponse retrives image build tag from client.Build response.
-func tagFromResponse(r io.Reader) (string, error) {
-	last, err := lastResponseLine(r)
-	if err != nil {
-		return "", err
-	}
-
-	var res buildResponse
-	if err := json.Unmarshal(last, &res); err != nil {
-		return "", fmt.Errorf("could not parse container build response: %s", err)
-	}
-	if res.Error != "" {
-		return "", fmt.Errorf("image build failed: %s", res.Error)
-	}
-	if !strings.HasPrefix(res.Stream, "sha256:") {
-		return "", fmt.Errorf("container: image build api dosen't return container id")
-	}
-	return strings.TrimSpace(res.Stream), nil
-}
-
-// lastResponseLine returns the last log line from client.Build response.
-func lastResponseLine(r io.Reader) ([]byte, error) {
-	b, err := ioutil.ReadAll(r)
-	if err != nil {
-		return nil, err
-	}
-
-	lines := bytes.Split(bytes.TrimSpace(b), []byte{'\n'})
-	if l := len(lines); l == 0 || len(lines[l-1]) == 0 {
-		return nil, errors.New("container: image build api return empty response")
-	}
-	return lines[len(lines)-1], nil
 }

@@ -8,13 +8,14 @@ import (
 	"github.com/mesg-foundation/engine/execution"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/process"
-	pb "github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/mesg-foundation/engine/protobuf/types"
+	"github.com/mesg-foundation/engine/server/grpc/orchestrator"
 	processmodule "github.com/mesg-foundation/engine/x/process"
 	"github.com/stretchr/testify/require"
+	"google.golang.org/grpc"
 )
 
-func testOrchestratorRefPathNested(instanceHash hash.Hash) func(t *testing.T) {
+func testOrchestratorRefPathNested(runnerHash, instanceHash hash.Hash) func(t *testing.T) {
 	return func(t *testing.T) {
 		var (
 			processHash hash.Hash
@@ -23,7 +24,7 @@ func testOrchestratorRefPathNested(instanceHash hash.Hash) func(t *testing.T) {
 
 		t.Run("create process", func(t *testing.T) {
 			msg := processmodule.MsgCreate{
-				Owner: engineAddress,
+				Owner: cliAddress,
 				Name:  "nested-path-data",
 				Nodes: []*process.Process_Node{
 					{
@@ -31,7 +32,7 @@ func testOrchestratorRefPathNested(instanceHash hash.Hash) func(t *testing.T) {
 						Type: &process.Process_Node_Event_{
 							Event: &process.Process_Node_Event{
 								InstanceHash: instanceHash,
-								EventKey:     "test_event_complex",
+								EventKey:     "event_complex_trigger",
 							},
 						},
 					},
@@ -198,43 +199,44 @@ func testOrchestratorRefPathNested(instanceHash hash.Hash) func(t *testing.T) {
 			processHash, err = lcd.BroadcastMsg(msg)
 			require.NoError(t, err)
 		})
-		data := &types.Struct{
-			Fields: map[string]*types.Value{
-				"msg": {
-					Kind: &types.Value_StructValue{
-						StructValue: &types.Struct{
-							Fields: map[string]*types.Value{
-								"msg": {
-									Kind: &types.Value_StringValue{
-										StringValue: "complex",
-									},
-								},
-								"timestamp": {
-									Kind: &types.Value_NumberValue{
-										NumberValue: float64(time.Now().Unix()),
-									},
-								},
-								"array": {
-									Kind: &types.Value_ListValue{
-										ListValue: &types.ListValue{Values: []*types.Value{
-											{Kind: &types.Value_StringValue{StringValue: "first"}},
-											{Kind: &types.Value_StringValue{StringValue: "second"}},
-											{Kind: &types.Value_StringValue{StringValue: "third"}},
-										}},
+		t.Run("trigger process", func(t *testing.T) {
+			req := orchestrator.ExecutionCreateRequest{
+				Price:        "10000atto",
+				TaskKey:      "task_complex_trigger",
+				ExecutorHash: runnerHash,
+				Inputs: &types.Struct{
+					Fields: map[string]*types.Value{
+						"msg": {
+							Kind: &types.Value_StructValue{
+								StructValue: &types.Struct{
+									Fields: map[string]*types.Value{
+										"msg": {
+											Kind: &types.Value_StringValue{
+												StringValue: "complex",
+											},
+										},
+										"timestamp": {
+											Kind: &types.Value_NumberValue{
+												NumberValue: float64(time.Now().Unix()),
+											},
+										},
+										"array": {
+											Kind: &types.Value_ListValue{
+												ListValue: &types.ListValue{Values: []*types.Value{
+													{Kind: &types.Value_StringValue{StringValue: "first"}},
+													{Kind: &types.Value_StringValue{StringValue: "second"}},
+													{Kind: &types.Value_StringValue{StringValue: "third"}},
+												}},
+											},
+										},
 									},
 								},
 							},
 						},
 					},
 				},
-			},
-		}
-		t.Run("trigger process", func(t *testing.T) {
-			_, err := client.EventClient.Create(context.Background(), &pb.CreateEventRequest{
-				InstanceHash: instanceHash,
-				Key:          "test_event_complex",
-				Data:         data,
-			})
+			}
+			_, err := client.ExecutionClient.Create(context.Background(), &req, grpc.PerRPCCredentials(&signCred{req}))
 			require.NoError(t, err)
 		})
 		t.Run("first ref", func(t *testing.T) {
@@ -289,7 +291,7 @@ func testOrchestratorRefPathNested(instanceHash hash.Hash) func(t *testing.T) {
 		})
 		t.Run("delete process", func(t *testing.T) {
 			_, err := lcd.BroadcastMsg(processmodule.MsgDelete{
-				Owner: engineAddress,
+				Owner: cliAddress,
 				Hash:  processHash,
 			})
 			require.NoError(t, err)

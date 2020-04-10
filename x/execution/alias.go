@@ -29,6 +29,17 @@ var (
 	QueryList = types.QueryList
 
 	M = keeper.M
+
+	EventType                = types.EventType
+	AttributeKeyHash         = types.AttributeKeyHash
+	AttributeKeyAddress      = types.AttributeKeyAddress
+	AttributeKeyExecutor     = types.AttributeKeyExecutor
+	AttributeKeyProcess      = types.AttributeKeyProcess
+	AttributeKeyInstance     = types.AttributeKeyInstance
+	AttributeActionProposed  = types.AttributeActionProposed
+	AttributeActionCreated   = types.AttributeActionCreated
+	AttributeActionCompleted = types.AttributeActionCompleted
+	AttributeActionFailed    = types.AttributeActionFailed
 )
 
 // module types

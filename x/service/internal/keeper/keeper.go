@@ -68,6 +68,17 @@ func (k Keeper) Create(ctx sdk.Context, msg *types.MsgCreate) (*servicepb.Servic
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrJSONMarshal, err.Error())
 	}
 	store.Set(srv.Hash, value)
+
+	// emit event
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			types.EventType,
+			sdk.NewAttribute(sdk.AttributeKeyAction, types.AttributeActionCreated),
+			sdk.NewAttribute(types.AttributeKeyHash, srv.Hash.String()),
+			sdk.NewAttribute(types.AttributeKeyAddress, srv.Address.String()),
+		),
+	)
+
 	return srv, nil
 }
 
