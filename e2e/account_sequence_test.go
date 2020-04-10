@@ -16,7 +16,7 @@ func testAccountSequence(t *testing.T) {
 	)
 	t.Run("wrong msg", func(t *testing.T) {
 		_, err = lcd.BroadcastMsg(bank.NewMsgSend(
-			engineAddress,
+			cliAddress,
 			randomAddress,
 			sdk.NewCoins(sdk.NewInt64Coin("wrong", 1000)),
 		))
@@ -25,7 +25,7 @@ func testAccountSequence(t *testing.T) {
 	})
 	t.Run("good msg", func(t *testing.T) {
 		_, err = lcd.BroadcastMsg(bank.NewMsgSend(
-			engineAddress,
+			cliAddress,
 			randomAddress,
 			sdk.NewCoins(sdk.NewInt64Coin("atto", 1000)),
 		))
