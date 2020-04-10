@@ -46,8 +46,8 @@ func main() {
 	cosmos.CustomizeConfig(cfg)
 
 	rootCmd := &cobra.Command{
-		Use:   "mesg-cli",
-		Short: "Command line interface for interacting with appd",
+		Use:   version.ClientName,
+		Short: "Command line interface for interacting with " + version.Name,
 	}
 
 	// Add --chain-id to persistent flags and mark it required
