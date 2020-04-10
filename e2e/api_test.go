@@ -113,6 +113,7 @@ func TestAPI(t *testing.T) {
 	require.NoError(t, err)
 
 	// run tests
+	t.Run("account-sequence", testAccountSequence)
 	t.Run("service", testService)
 	t.Run("runner", testRunner)
 	t.Run("process", testProcess)

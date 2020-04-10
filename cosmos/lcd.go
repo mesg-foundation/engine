@@ -33,8 +33,9 @@ type LCD struct {
 	gasLimit     uint64
 
 	// local state
-	acc             *auth.BaseAccount
-	getAccountMutex sync.Mutex
+	acc            *auth.BaseAccount
+	accountMutex   sync.Mutex
+	broadcastMutex sync.Mutex
 }
 
 // NewLCD initializes a cosmos LCD client.
@@ -128,10 +129,22 @@ func (lcd *LCD) BroadcastMsg(msg sdk.Msg) ([]byte, error) {
 
 //BroadcastMsgs sign and broadcast a transaction from multiple messages.
 func (lcd *LCD) BroadcastMsgs(msgs []sdk.Msg) ([]byte, error) {
-	tx, err := lcd.createAndSignTx(msgs)
+	// Lock the getAccount + create and sign tx + broadcast
+	lcd.broadcastMutex.Lock()
+	defer lcd.broadcastMutex.Unlock()
+
+	acc, err := lcd.getAccount()
 	if err != nil {
 		return nil, err
 	}
+
+	// create and sign the tx
+	tx, err := lcd.createAndSignTx(msgs, acc)
+	if err != nil {
+		return nil, err
+	}
+
+	// broadcast the tx
 	req := authrest.BroadcastReq{
 		Tx:   tx,
 		Mode: "block", // TODO: should be changed to "sync" and wait for the tx event
@@ -141,8 +154,15 @@ func (lcd *LCD) BroadcastMsgs(msgs []sdk.Msg) ([]byte, error) {
 		return nil, err
 	}
 	if abci.CodeTypeOK != res.Code {
-		return nil, fmt.Errorf("transaction returned with invalid code %d: %s", res.Code, res)
+		return nil, fmt.Errorf("transaction returned with invalid code %d: %s", res.Code, res.RawLog)
 	}
+
+	// only increase sequence if no error during broadcast of tx
+	if err := lcd.setAccountSequence(acc.GetSequence() + 1); err != nil {
+		return nil, err
+	}
+
+	// decode result
 	result, err := hex.DecodeString(res.Data)
 	if err != nil {
 		return nil, err
@@ -150,9 +170,10 @@ func (lcd *LCD) BroadcastMsgs(msgs []sdk.Msg) ([]byte, error) {
 	return result, nil
 }
 
+// getAccount returns the local account.
 func (lcd *LCD) getAccount() (*auth.BaseAccount, error) {
-	lcd.getAccountMutex.Lock()
-	defer lcd.getAccountMutex.Unlock()
+	lcd.accountMutex.Lock()
+	defer lcd.accountMutex.Unlock()
 	if lcd.acc == nil {
 		accKb, err := lcd.kb.Get(lcd.accName)
 		if err != nil {
@@ -171,20 +192,22 @@ func (lcd *LCD) getAccount() (*auth.BaseAccount, error) {
 	return lcd.acc, nil
 }
 
-func (lcd *LCD) createAndSignTx(msgs []sdk.Msg) (authtypes.StdTx, error) {
-	// retrieve account
-	accR, err := lcd.getAccount()
-	if err != nil {
-		return authtypes.StdTx{}, err
+// setAccountSequence sets the sequence on the local account.
+func (lcd *LCD) setAccountSequence(seq uint64) error {
+	lcd.accountMutex.Lock()
+	defer lcd.accountMutex.Unlock()
+	if lcd.acc == nil {
+		return fmt.Errorf("lcd.acc should not be nil. use getAccount first")
 	}
-	sequence := accR.GetSequence()
-	accR.SetSequence(accR.GetSequence() + 1)
+	return lcd.acc.SetSequence(seq)
+}
 
+func (lcd *LCD) createAndSignTx(msgs []sdk.Msg, acc *auth.BaseAccount) (authtypes.StdTx, error) {
 	// Create TxBuilder
 	txBuilder := authtypes.NewTxBuilder(
 		authutils.GetTxEncoder(lcd.cdc),
-		accR.GetAccountNumber(),
-		sequence,
+		acc.GetAccountNumber(),
+		acc.GetSequence(),
 		lcd.gasLimit,
 		flags.DefaultGasAdjustment,
 		true,
