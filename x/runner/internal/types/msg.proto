@@ -19,7 +19,7 @@ message MsgCreate {
     (gogoproto.casttype) = "github.com/mesg-foundation/engine/hash.Hash"
   ];
 
-  // Environmental variables to start the runner with.
+  // Hash of the customized environmental variables (not the ones in the service configuration).
   bytes envHash = 3 [
     (gogoproto.moretags) = 'validate:"omitempty,hash"',
     (gogoproto.casttype) = "github.com/mesg-foundation/engine/hash.Hash"

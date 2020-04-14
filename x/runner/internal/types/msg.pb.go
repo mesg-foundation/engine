@@ -29,7 +29,7 @@ type MsgCreate struct {
 	Owner github_com_cosmos_cosmos_sdk_types.AccAddress `protobuf:"bytes,1,opt,name=owner,proto3,casttype=github.com/cosmos/cosmos-sdk/types.AccAddress" json:"owner,omitempty" validate:"required,accaddress"`
 	// Service's hash to start the runner with.
 	ServiceHash github_com_mesg_foundation_engine_hash.Hash `protobuf:"bytes,2,opt,name=serviceHash,proto3,casttype=github.com/mesg-foundation/engine/hash.Hash" json:"serviceHash,omitempty" validate:"required,hash"`
-	// Environmental variables to start the runner with.
+	// Hash of the customized environmental variables (not the ones in the service configuration).
 	EnvHash              github_com_mesg_foundation_engine_hash.Hash `protobuf:"bytes,3,opt,name=envHash,proto3,casttype=github.com/mesg-foundation/engine/hash.Hash" json:"envHash,omitempty" validate:"omitempty,hash"`
 	XXX_NoUnkeyedLiteral struct{}                                    `json:"-"`
 	XXX_unrecognized     []byte                                      `json:"-"`

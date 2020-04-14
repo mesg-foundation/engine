@@ -8,11 +8,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/types/rest"
 	"github.com/gorilla/mux"
-	"github.com/mesg-foundation/engine/ext/xos"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/instance"
 	"github.com/mesg-foundation/engine/runner"
-	"github.com/mesg-foundation/engine/service"
 	"github.com/mesg-foundation/engine/x/runner/internal/types"
 )
 
@@ -138,18 +136,7 @@ func queryHashHandlerFn(cliCtx context.CLIContext) http.HandlerFunc {
 			return
 		}
 
-		srvRes, _, err := cliCtx.Query("custom/service/get/" + req.ServiceHash.String())
-		if err != nil {
-			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
-			return
-		}
-		var srv service.Service
-		if err := cliCtx.Codec.UnmarshalJSON(srvRes, &srv); err != nil {
-			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
-			return
-		}
-
-		envHash := hash.Dump(xos.EnvMergeSlices(srv.Configuration.Env, req.Env))
+		envHash := hash.Dump(req.Env)
 		inst, err := instance.New(req.ServiceHash, envHash)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
