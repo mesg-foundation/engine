@@ -1,5 +1,48 @@
 # Changelog
 
+## [v0.21.0](https://github.com/mesg-foundation/engine/releases/tag/v0.21.0)
+
+#### Breaking Changes
+
+- ([#1737](https://github.com/mesg-foundation/engine/pull/1737)) Add support for any type of data to filter.
+- ([#1739](https://github.com/mesg-foundation/engine/pull/1739)) Add reference system to filter.
+- ([#1774](https://github.com/mesg-foundation/engine/pull/1774)) Remove deprecated gRPC API.
+- ([#1783](https://github.com/mesg-foundation/engine/pull/1783)) Calculate the instance env hash with only the customized env.
+
+#### Added
+
+- ([#1737](https://github.com/mesg-foundation/engine/pull/1737)) Add support for any type of data to filter.
+- ([#1739](https://github.com/mesg-foundation/engine/pull/1739)) Add reference system to filter.
+- ([#1749](https://github.com/mesg-foundation/engine/pull/1749)) Add more validation on resources.
+- ([#1758](https://github.com/mesg-foundation/engine/pull/1758)) Introduce a simple LCD client.
+- ([#1759](https://github.com/mesg-foundation/engine/pull/1759)) add 2 more linters and remove useless exclusion.
+- ([#1767](https://github.com/mesg-foundation/engine/pull/1767)) New Runner gRPC API.
+- ([#1768](https://github.com/mesg-foundation/engine/pull/1768)) Add lcd endpoints and commands exists to runner and process.
+- ([#1771](https://github.com/mesg-foundation/engine/pull/1771)) Add Orchestrator gRPC API.
+- ([#1780](https://github.com/mesg-foundation/engine/pull/1780)) Add info to cosmos version on build.
+
+#### Changed
+
+- ([#1751](https://github.com/mesg-foundation/engine/pull/1751)) Replace gRPC by LCD as much as possible from e2e tests.
+- ([#1754](https://github.com/mesg-foundation/engine/pull/1754)) Update lcd service hash endpoint to use a dedicated request structure.
+- ([#1755](https://github.com/mesg-foundation/engine/pull/1755)) Update lcd process hash endpoint to use a dedicated request structure.
+- ([#1756](https://github.com/mesg-foundation/engine/pull/1756)) Change gogoproto's customtype to casttype.
+- ([#1757](https://github.com/mesg-foundation/engine/pull/1757)) Replace runner gRPC by LCD in e2e tests.
+- ([#1761](https://github.com/mesg-foundation/engine/pull/1761)) Remove module suffix from lot of places.
+- ([#1769](https://github.com/mesg-foundation/engine/pull/1769)) Update cosmos events.
+- ([#1773](https://github.com/mesg-foundation/engine/pull/1773)) Use new event API in e2e tests.
+- ([#1775](https://github.com/mesg-foundation/engine/pull/1775)) Simplify container.
+- ([#1781](https://github.com/mesg-foundation/engine/pull/1781)) Switch back to default staking coins of cosmos.
+
+#### Fixed
+
+- ([#1746](https://github.com/mesg-foundation/engine/pull/1746)) Add "dive" validation to all repeated message in the proto files.
+- ([#1762](https://github.com/mesg-foundation/engine/pull/1762)) Fix account sequence desynchronisation when error.
+
+#### Dependencies
+
+- ([#1752](https://github.com/mesg-foundation/engine/pull/1752)) Update to cosmos-sdk v0.38.2 and tendermint v0.33.2.
+
 ## [v0.20.0](https://github.com/mesg-foundation/engine/releases/tag/v0.20.0)
 
 #### Added
