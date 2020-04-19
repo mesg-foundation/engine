@@ -11,8 +11,6 @@
 
 #### Added
 
-- ([#1737](https://github.com/mesg-foundation/engine/pull/1737)) Add support for any type of data to filter.
-- ([#1739](https://github.com/mesg-foundation/engine/pull/1739)) Add reference system to filter.
 - ([#1749](https://github.com/mesg-foundation/engine/pull/1749)) Add more validation on resources.
 - ([#1758](https://github.com/mesg-foundation/engine/pull/1758)) Introduce a simple LCD client.
 - ([#1759](https://github.com/mesg-foundation/engine/pull/1759)) add 2 more linters and remove useless exclusion.
