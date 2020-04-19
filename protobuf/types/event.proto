@@ -12,16 +12,14 @@ option (gogoproto.goproto_getters_all) = false;
 message Event {
   // Hash is a unique hash to identify event.
   bytes hash = 1 [
-    (gogoproto.moretags) = 'hash:"-"',
-    (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
-    (gogoproto.nullable) = false
+    (gogoproto.moretags) = 'hash:"-" validate:"required,hash"',
+    (gogoproto.casttype) = "github.com/mesg-foundation/engine/hash.Hash"
   ];
 
   // instanceHash is hash of instance that can proceed an execution.
   bytes instanceHash = 2 [
     (gogoproto.moretags) = 'hash:"name:2" validate:"required,hash"',
-    (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
-    (gogoproto.nullable) = false
+    (gogoproto.casttype) = "github.com/mesg-foundation/engine/hash.Hash"
   ];
 
   // key is the key of the event.

@@ -6,26 +6,23 @@ configuration:
     - BAR=2
     - REQUIRED
 tasks:
+  task_trigger:
+    inputs: &simpleInputs
+      msg:
+        type: String
+    outputs: &simpleOutputs
+      msg:
+        type: String
+      timestamp:
+        type: Number
   task1:
-    inputs:
-      msg:
-        type: String
-    outputs:
-      msg:
-        type: String
-      timestamp:
-        type: Number
+    inputs: *simpleInputs
+    outputs: *simpleOutputs
   task2:
-    inputs:
-      msg:
-        type: String
-    outputs:
-      msg:
-        type: String
-      timestamp:
-        type: Number
+    inputs: *simpleInputs
+    outputs: *simpleOutputs
   task_complex:
-    inputs:
+    inputs: &complexInputs
       msg:
         type: Object
         object:
@@ -35,7 +32,7 @@ tasks:
             type: String
             repeated: true
             optional: true
-    outputs:
+    outputs: &complexOutputs
       msg:
         type: Object
         object:
@@ -47,29 +44,12 @@ tasks:
             type: String
             repeated: true
             optional: true
+  task_complex_trigger:
+    inputs: *complexInputs
+    outputs: *complexOutputs
 events:
-  test_service_ready:
-  test_event:
-    data:
-      msg:
-        type: String
-      timestamp:
-        type: Number
-  test_event_complex:
-    data:
-      msg:
-        type: Object
-        object:
-          msg:
-            type: String
-          timestamp:
-            type: Number
-          array:
-            type: String
-            repeated: true
-  event_after_task:
-    data:
-      task_key:
-        type: String
-      timestamp:
-        type: Number
+  service_ready:
+  event_trigger:
+    data: *simpleOutputs
+  event_complex_trigger:
+    data: *complexOutputs

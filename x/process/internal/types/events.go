@@ -1,11 +1,12 @@
 package types
 
-//  module event types
+// module event types and attributes
 const (
-	EventTypeCreateProcess = "CreateProcess"
-	EventTypeDeleteProcess = "DeleteProcess"
+	EventType = "process"
 
-	AttributeHash = "hash"
+	AttributeKeyHash    = "hash"
+	AttributeKeyAddress = "address"
 
-	AttributeValueCategory = ModuleName
+	AttributeActionCreated = "created"
+	AttributeActionDeleted = "deleted"
 )

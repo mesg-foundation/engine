@@ -6,7 +6,7 @@ if [[ -z "$1" || -z "$2" || ( "$2" != "dev" && "$2" != "prod" ) ]]; then
   exit 1
 fi
 
-LDFLAGS="-s -w -X 'github.com/mesg-foundation/engine/version.Version=$1'"
+LDFLAGS="-s -w -X 'github.com/mesg-foundation/engine/version.Version=$1' -X 'github.com/cosmos/cosmos-sdk/version.Name=mesg' -X 'github.com/cosmos/cosmos-sdk/version.ServerName=mesg-daemon' -X 'github.com/cosmos/cosmos-sdk/version.ClientName=mesg-cli' -X 'github.com/cosmos/cosmos-sdk/version.Version=$1'"
 archs=(amd64 386)
 oss=(linux darwin)
 

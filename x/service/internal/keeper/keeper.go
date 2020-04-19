@@ -8,11 +8,8 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/mesg-foundation/engine/hash"
 	ownershippb "github.com/mesg-foundation/engine/ownership"
-	"github.com/mesg-foundation/engine/protobuf/api"
 	servicepb "github.com/mesg-foundation/engine/service"
-	"github.com/mesg-foundation/engine/service/validator"
 	"github.com/mesg-foundation/engine/x/service/internal/types"
-	"github.com/tendermint/tendermint/crypto"
 	"github.com/tendermint/tendermint/libs/log"
 )
 
@@ -39,24 +36,27 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 }
 
 // Create creates a new service.
-func (k Keeper) Create(ctx sdk.Context, msg *types.MsgCreateService) (*servicepb.Service, error) {
+func (k Keeper) Create(ctx sdk.Context, msg *types.MsgCreate) (*servicepb.Service, error) {
 	store := ctx.KVStore(k.storeKey)
 	// create service
-	srv := initializeService(msg.Request)
+	srv, err := servicepb.New(
+		msg.Sid,
+		msg.Name,
+		msg.Description,
+		msg.Configuration,
+		msg.Tasks,
+		msg.Events,
+		msg.Dependencies,
+		msg.Repository,
+		msg.Source,
+	)
+	if err != nil {
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, err.Error())
+	}
 
 	// check if service already exists.
 	if store.Has(srv.Hash) {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "service %q already exists", srv.Hash)
-	}
-
-	// TODO: the following test should be moved in New function
-	if srv.Sid == "" {
-		// make sure that sid doesn't have the same length with id.
-		srv.Sid = "_" + srv.Hash.String()
-	}
-
-	if err := validator.ValidateService(srv); err != nil {
-		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, err.Error())
 	}
 
 	if _, err := k.ownershipKeeper.Set(ctx, msg.Owner, srv.Hash, ownershippb.Ownership_Service, srv.Address); err != nil {
@@ -68,6 +68,17 @@ func (k Keeper) Create(ctx sdk.Context, msg *types.MsgCreateService) (*servicepb
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrJSONMarshal, err.Error())
 	}
 	store.Set(srv.Hash, value)
+
+	// emit event
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			types.EventType,
+			sdk.NewAttribute(sdk.AttributeKeyAction, types.AttributeActionCreated),
+			sdk.NewAttribute(types.AttributeKeyHash, srv.Hash.String()),
+			sdk.NewAttribute(types.AttributeKeyAddress, srv.Address.String()),
+		),
+	)
+
 	return srv, nil
 }
 
@@ -89,11 +100,6 @@ func (k Keeper) Exists(ctx sdk.Context, hash hash.Hash) (bool, error) {
 	return ctx.KVStore(k.storeKey).Has(hash), nil
 }
 
-// Hash returns the hash of a service request.
-func (k Keeper) Hash(_ sdk.Context, serviceRequest *api.CreateServiceRequest) hash.Hash {
-	return initializeService(serviceRequest).Hash
-}
-
 // List returns all services.
 func (k Keeper) List(ctx sdk.Context) ([]*servicepb.Service, error) {
 	var (
@@ -110,24 +116,4 @@ func (k Keeper) List(ctx sdk.Context) ([]*servicepb.Service, error) {
 	}
 	iter.Close()
 	return services, nil
-}
-
-func initializeService(req *api.CreateServiceRequest) *servicepb.Service {
-	// create service
-	srv := &servicepb.Service{
-		Sid:           req.Sid,
-		Name:          req.Name,
-		Description:   req.Description,
-		Configuration: req.Configuration,
-		Tasks:         req.Tasks,
-		Events:        req.Events,
-		Dependencies:  req.Dependencies,
-		Repository:    req.Repository,
-		Source:        req.Source,
-	}
-
-	// calculate and apply hash to service.
-	srv.Hash = hash.Dump(srv)
-	srv.Address = sdk.AccAddress(crypto.AddressHash(srv.Hash))
-	return srv
 }

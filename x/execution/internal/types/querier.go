@@ -1,6 +1,6 @@
 package types
 
 const (
-	QueryGetExecution  = "get"
-	QueryListExecution = "list"
+	QueryGet  = "get"
+	QueryList = "list"
 )

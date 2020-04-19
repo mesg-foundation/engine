@@ -25,12 +25,14 @@ var (
 
 	ModuleCdc = types.ModuleCdc
 
-	QueryGetService   = types.QueryGetService
-	QueryListService  = types.QueryListService
-	QueryHashService  = types.QueryHashService
-	QueryExistService = types.QueryExistService
+	QueryGet   = types.QueryGet
+	QueryList  = types.QueryList
+	QueryExist = types.QueryExist
 
-	NewMsgCreateService = types.NewMsgCreateService
+	EventType              = types.EventType
+	AttributeKeyHash       = types.AttributeKeyHash
+	AttributeKeyAddress    = types.AttributeKeyAddress
+	AttributeActionCreated = types.AttributeActionCreated
 )
 
 // module types
@@ -39,5 +41,5 @@ type (
 	GenesisState = types.GenesisState
 	Params       = types.Params
 
-	MsgCreateService = types.MsgCreateService
+	MsgCreate = types.MsgCreate
 )

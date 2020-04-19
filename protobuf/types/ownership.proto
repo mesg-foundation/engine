@@ -14,21 +14,20 @@ message Ownership {
 
   // Service's hash.
   bytes hash = 1 [
-    (gogoproto.moretags) = 'hash:"-" validate:"required"',
-    (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
-    (gogoproto.nullable) = false
+    (gogoproto.moretags) = 'hash:"-" validate:"required,hash"',
+    (gogoproto.casttype) = "github.com/mesg-foundation/engine/hash.Hash"
   ];
 
   // The owner of the resource.
+  // TODO: to transform to accAddress
   string owner = 2 [
     (gogoproto.moretags) = 'hash:"name:2" validate:"required"'
   ];
 
   // Resource's hash.
   bytes resourceHash = 3 [
-    (gogoproto.moretags) = 'hash:"name:3"',
-    (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
-    (gogoproto.nullable) = false
+    (gogoproto.moretags) = 'hash:"name:3" validate:"required,hash"',
+    (gogoproto.casttype) = "github.com/mesg-foundation/engine/hash.Hash"
   ];
 
   enum Resource {
@@ -39,11 +38,13 @@ message Ownership {
   }
 
   // Resource's type.
-  Resource resource = 4;
+  Resource resource = 4 [
+    (gogoproto.moretags) = 'validate:"required"'
+  ];
 
   // The address of the resource.
   bytes resourceAddress = 5 [
-    (gogoproto.moretags) = 'hash:"-" validate:"accaddress"',
+    (gogoproto.moretags) = 'hash:"-" validate:"required,accaddress"',
     (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"
   ];
 }

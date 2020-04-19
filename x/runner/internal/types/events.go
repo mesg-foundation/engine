@@ -1,11 +1,13 @@
 package types
 
-//  module event types
+// module event types and attributes
 const (
-	EventTypeCreateRunner = "CreateRunner"
-	EventTypeDeleteRunner = "DeleteRunner"
+	EventType = "runner"
 
-	AttributeHash = "hash"
+	AttributeKeyHash     = "hash"
+	AttributeKeyAddress  = "address"
+	AttributeKeyInstance = "instance"
 
-	AttributeValueCategory = ModuleName
+	AttributeActionCreated = "created"
+	AttributeActionDeleted = "deleted"
 )

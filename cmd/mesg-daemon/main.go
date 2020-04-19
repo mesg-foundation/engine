@@ -10,11 +10,11 @@ import (
 	"github.com/cosmos/cosmos-sdk/server"
 	"github.com/cosmos/cosmos-sdk/store"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/version"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	"github.com/mesg-foundation/engine/app"
-	"github.com/mesg-foundation/engine/config"
 	"github.com/mesg-foundation/engine/cosmos"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -32,23 +32,14 @@ var invCheckPeriod uint
 func main() {
 	cdc := app.MakeCodec()
 
-	// TODO: put back when more refactor is done
-	// config := sdk.GetConfig()
-	// config.SetBech32PrefixForAccount(sdk.Bech32PrefixAccAddr, sdk.Bech32PrefixAccPub)
-	// config.SetBech32PrefixForValidator(sdk.Bech32PrefixValAddr, sdk.Bech32PrefixValPub)
-	// config.SetBech32PrefixForConsensusNode(sdk.Bech32PrefixConsAddr, sdk.Bech32PrefixConsPub)
-	// config.Seal()
-	cfg, err := config.New()
-	if err != nil {
-		panic(err)
-	}
-	cosmos.CustomizeConfig(cfg)
+	// init the config of cosmos
+	cosmos.InitConfig()
 
 	ctx := server.NewDefaultContext()
 	cobra.EnableCommandSorting = false
 	rootCmd := &cobra.Command{
-		Use:               "mesg-daemon",
-		Short:             "app Daemon (server)",
+		Use:               version.ServerName,
+		Short:             "Engine Daemon (server)",
 		PersistentPreRunE: server.PersistentPreRunEFn(ctx),
 	}
 
@@ -72,8 +63,7 @@ func main() {
 	executor := cli.PrepareBaseCmd(rootCmd, "AU", app.DefaultNodeHome)
 	rootCmd.PersistentFlags().UintVar(&invCheckPeriod, flagInvCheckPeriod,
 		0, "Assert registered invariants every N blocks")
-	err = executor.Execute()
-	if err != nil {
+	if err := executor.Execute(); err != nil {
 		panic(err)
 	}
 }

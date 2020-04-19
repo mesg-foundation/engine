@@ -9,14 +9,14 @@ import (
 
 // Orchestrator manages the executions based on the definition of the processes
 type Orchestrator struct {
-	mc *cosmos.ModuleClient
-	ep *publisher.EventPublisher
+	rpc *cosmos.RPC
+	ep  *publisher.EventPublisher
 
-	eventStream     *event.Listener
-	executionStream <-chan *execution.Execution
+	eventStream *event.Listener
 
-	ErrC  chan error
-	stopC chan bool
+	executionStream chan *execution.Execution
+	ErrC            chan error
+	stopC           chan bool
 
 	execPrice string
 }

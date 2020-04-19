@@ -17,7 +17,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/bank"
 	bankcmd "github.com/cosmos/cosmos-sdk/x/bank/client/cli"
 	"github.com/mesg-foundation/engine/app"
-	"github.com/mesg-foundation/engine/config"
 	"github.com/mesg-foundation/engine/cosmos"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -32,22 +31,12 @@ func main() {
 	// Instantiate the codec for the command line application
 	cdc := app.MakeCodec()
 
-	// Read in the configuration file for the sdk
-	// TODO: change back when more refactor is done
-	// config := sdk.GetConfig()
-	// config.SetBech32PrefixForAccount(sdk.Bech32PrefixAccAddr, sdk.Bech32PrefixAccPub)
-	// config.SetBech32PrefixForValidator(sdk.Bech32PrefixValAddr, sdk.Bech32PrefixValPub)
-	// config.SetBech32PrefixForConsensusNode(sdk.Bech32PrefixConsAddr, sdk.Bech32PrefixConsPub)
-	// config.Seal()
-	cfg, err := config.New()
-	if err != nil {
-		panic(err)
-	}
-	cosmos.CustomizeConfig(cfg)
+	// init the config of cosmos
+	cosmos.InitConfig()
 
 	rootCmd := &cobra.Command{
-		Use:   "mesg-cli",
-		Short: "Command line interface for interacting with appd",
+		Use:   version.ClientName,
+		Short: "Command line interface for interacting with " + version.Name,
 	}
 
 	// Add --chain-id to persistent flags and mark it required
@@ -66,6 +55,8 @@ func main() {
 		lcd.ServeCommand(cdc, registerRoutes),
 		flags.LineBreak,
 		keys.Commands(),
+		signCommand(),
+		verifySignCommand(),
 		flags.LineBreak,
 		version.Cmd,
 		flags.NewCompletionCmd(rootCmd, true),
@@ -74,8 +65,7 @@ func main() {
 	// Add flags and prefix all env exposed with MESG
 	executor := cli.PrepareMainCmd(rootCmd, "MESG", app.DefaultCLIHome)
 
-	err = executor.Execute()
-	if err != nil {
+	if err := executor.Execute(); err != nil {
 		fmt.Printf("Failed executing CLI command: %s, exiting...\n", err)
 		os.Exit(1)
 	}

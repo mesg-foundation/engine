@@ -1,6 +1,7 @@
 syntax = "proto3";
 
 import "gogo/protobuf/gogoproto/gogo.proto";
+import "protobuf/types/struct.proto";
 
 package mesg.types;
 option go_package = "github.com/mesg-foundation/engine/process";
@@ -15,9 +16,8 @@ message Process {
     message Result {
       // Hash of the instance that triggers the process.
       bytes instanceHash = 2 [
-        (gogoproto.moretags) = 'hash:"name:2" validate:"required"',
-        (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
-        (gogoproto.nullable) = false
+        (gogoproto.moretags) = 'hash:"name:2" validate:"required,hash"',
+        (gogoproto.casttype) = "github.com/mesg-foundation/engine/hash.Hash"
       ];
 
       // Key of the task that triggers the process.
@@ -29,9 +29,8 @@ message Process {
     message Event {
       // Hash of the instance that triggers the process.
       bytes instanceHash = 2 [
-        (gogoproto.moretags) = 'hash:"name:2" validate:"required"',
-        (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
-        (gogoproto.nullable) = false
+        (gogoproto.moretags) = 'hash:"name:2" validate:"required,hash"',
+        (gogoproto.casttype) = "github.com/mesg-foundation/engine/hash.Hash"
       ];
 
       // Key of the event that triggers the process.
@@ -43,9 +42,8 @@ message Process {
     message Task {
       // Hash of the instance to execute.
       bytes instanceHash = 2 [
-        (gogoproto.moretags) = 'hash:"name:2" validate:"required"',
-        (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
-        (gogoproto.nullable) = false
+        (gogoproto.moretags) = 'hash:"name:2" validate:"required,hash"',
+        (gogoproto.casttype) = "github.com/mesg-foundation/engine/hash.Hash"
       ];
 
       // Task of the instance to execute.
@@ -71,32 +69,6 @@ message Process {
         message Map {
           map<string, Output> outputs = 1 [
             (gogoproto.moretags) = 'hash:"name:1" validate:"dive,required"'
-          ];
-        }
-
-        message Reference {
-          message Path {
-            oneof selector {
-              string key = 1 [
-                (gogoproto.moretags) = 'hash:"name:1" validate:"printascii"'
-              ];
-              uint64 index = 2 [
-                (gogoproto.moretags) = 'hash:"name:2"'
-              ];
-            }
-
-            // Path can be nil if on the leaf
-            Path path = 3 [
-              (gogoproto.moretags) = 'hash:"name:3"'
-            ];
-          }
-
-          string nodeKey = 1 [
-            (gogoproto.moretags) = 'hash:"name:1" validate:"required"'
-          ];
-
-          Path path = 2 [
-            (gogoproto.moretags) = 'hash:"name:2"'
           ];
         }
 
@@ -149,12 +121,22 @@ message Process {
 
           // Equal
           EQ = 1;
-        }
 
-        // Key to check.
-        string key = 1 [
-          (gogoproto.moretags) = 'hash:"name:1" validate:"required,printascii"'
-        ];
+          // Greater than
+          GT = 2;
+
+          // Greater or equal than
+          GTE = 3;
+
+          // Lesser than
+          LT = 4;
+
+          // Lesser or equal than
+          LTE = 5;
+
+          // CONTAINS
+          CONTAINS = 6;
+        }
 
         // Type of condition to apply.
         Predicate predicate = 2 [
@@ -162,15 +144,47 @@ message Process {
         ];
 
         // Value of the filter.
-        string value = 3 [
-          (gogoproto.moretags) = 'hash:"name:3"'
+        mesg.protobuf.Value value = 4 [
+          (gogoproto.moretags) = 'hash:"name:4" validate:"required"'
+        ];
+
+        // Input defined as reference.
+        Reference ref = 5 [
+          (gogoproto.moretags) = 'hash:"name:5" validate:"required"'
         ];
       }
 
       // List of condition to apply for this filter
       repeated Condition conditions = 2 [
-        (gogoproto.moretags) = 'hash:"name:2"',
+        (gogoproto.moretags) = 'hash:"name:2" validate:"dive"',
         (gogoproto.nullable) = false
+      ];
+    }
+
+    message Reference {
+      message Path {
+        oneof selector {
+          string key = 1 [
+            (gogoproto.moretags) = 'hash:"name:1" validate:"printascii"'
+          ];
+          uint64 index = 2 [
+            (gogoproto.moretags) = 'hash:"name:2"'
+          ];
+        }
+
+        // Path can be nil if on the leaf
+        Path path = 3 [
+          (gogoproto.moretags) = 'hash:"name:3"'
+        ];
+      }
+
+      string nodeKey = 1 [
+        (gogoproto.moretags) = 'hash:"name:1" validate:"required"'
+      ];
+
+      // Path can be nil if referencing the whole node's output
+      Path path = 2 [
+        (gogoproto.moretags) = 'hash:"name:2"'
       ];
     }
 
@@ -217,14 +231,13 @@ message Process {
 
   // Process's hash
   bytes hash = 1 [
-    (gogoproto.moretags) = 'hash:"-" validate:"required"',
-    (gogoproto.customtype) = "github.com/mesg-foundation/engine/hash.Hash",
-    (gogoproto.nullable) = false
+    (gogoproto.moretags) = 'hash:"-" validate:"required,hash"',
+    (gogoproto.casttype) = "github.com/mesg-foundation/engine/hash.Hash"
   ];
 
   // Process's name
   string name = 2 [
-    (gogoproto.moretags) = 'hash:"name:2" validate:"required"'
+    (gogoproto.moretags) = 'hash:"name:2" validate:"required,printascii"'
   ];
 
   // Nodes with information related to the execution to trigger.
@@ -239,7 +252,7 @@ message Process {
 
   // The address of the process.
   bytes address = 6 [
-    (gogoproto.moretags) = 'hash:"-"',
+    (gogoproto.moretags) = 'hash:"-" validate:"required,accaddress"',
     (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"
   ];
 }

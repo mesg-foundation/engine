@@ -23,10 +23,16 @@ var (
 	DefaultGenesisState = types.DefaultGenesisState
 	ValidateGenesis     = types.ValidateGenesis
 
-	ModuleCdc           = types.ModuleCdc
-	QueryListOwnerships = types.QueryListOwnerships
+	ModuleCdc = types.ModuleCdc
+	QueryList = types.QueryList
 
-	NewMsgWithdrawCoins = types.NewMsgWithdrawCoins
+	EventType                   = types.EventType
+	AttributeKeyHash            = types.AttributeKeyHash
+	AttributeKeyResourceHash    = types.AttributeKeyResourceHash
+	AttributeKeyResourceType    = types.AttributeKeyResourceType
+	AttributeKeyResourceAddress = types.AttributeKeyResourceAddress
+	AttributeActionCreated      = types.AttributeActionCreated
+	AttributeActionDeleted      = types.AttributeActionDeleted
 )
 
 // module types
@@ -35,5 +41,5 @@ type (
 	GenesisState = types.GenesisState
 	Params       = types.Params
 
-	MsgWithdrawCoins = types.MsgWithdrawCoins
+	MsgWithdraw = types.MsgWithdraw
 )

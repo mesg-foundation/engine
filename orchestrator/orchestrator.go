@@ -6,21 +6,26 @@ import (
 	"fmt"
 	"math/rand"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/mesg-foundation/engine/cosmos"
 	"github.com/mesg-foundation/engine/event"
 	"github.com/mesg-foundation/engine/event/publisher"
 	"github.com/mesg-foundation/engine/execution"
+	"github.com/mesg-foundation/engine/ext/xstrings"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/process"
-	"github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/mesg-foundation/engine/protobuf/types"
+	"github.com/mesg-foundation/engine/runner"
+	executionmodule "github.com/mesg-foundation/engine/x/execution"
+	processmodule "github.com/mesg-foundation/engine/x/process"
+	runnermodule "github.com/mesg-foundation/engine/x/runner"
 	"github.com/sirupsen/logrus"
 )
 
 // New creates a new Process instance
-func New(mc *cosmos.ModuleClient, ep *publisher.EventPublisher, execPrice string) *Orchestrator {
+func New(rpc *cosmos.RPC, ep *publisher.EventPublisher, execPrice string) *Orchestrator {
 	return &Orchestrator{
-		mc:        mc,
+		rpc:       rpc,
 		ep:        ep,
 		ErrC:      make(chan error),
 		stopC:     make(chan bool),
@@ -38,16 +43,10 @@ func (s *Orchestrator) Start() error {
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-
-	executionStream, errC, err := s.mc.StreamExecution(ctx, &api.StreamExecutionRequest{
-		Filter: &api.StreamExecutionRequest_Filter{
-			Statuses: []execution.Status{execution.Status_Completed},
-		},
-	})
-	if err != nil {
+	if err := s.startExecutionStream(ctx); err != nil {
 		return err
 	}
-	s.executionStream = executionStream
+
 	for {
 		select {
 		case event := <-s.eventStream.C:
@@ -55,8 +54,6 @@ func (s *Orchestrator) Start() error {
 		case execution := <-s.executionStream:
 			go s.execute(s.resultFilter(execution), execution, nil, execution.Outputs)
 			go s.execute(s.dependencyFilter(execution), execution, nil, execution.Outputs)
-		case err := <-errC:
-			s.ErrC <- err
 		case <-s.stopC:
 			return nil
 		}
@@ -66,6 +63,7 @@ func (s *Orchestrator) Start() error {
 // Stop stops the orchestrator engine
 func (s *Orchestrator) Stop() {
 	s.stopC <- true
+	s.eventStream.Close()
 }
 
 func (s *Orchestrator) eventFilter(event *event.Event) func(wf *process.Process, node *process.Process_Node) (bool, error) {
@@ -113,8 +111,9 @@ func (s *Orchestrator) findNodes(wf *process.Process, filter func(wf *process.Pr
 }
 
 func (s *Orchestrator) execute(filter func(wf *process.Process, node *process.Process_Node) (bool, error), exec *execution.Execution, event *event.Event, data *types.Struct) {
-	processes, err := s.mc.ListProcess()
-	if err != nil {
+	var processes []*process.Process
+	route := fmt.Sprintf("custom/%s/%s", processmodule.QuerierRoute, processmodule.QueryList)
+	if err := s.rpc.QueryJSON(route, nil, &processes); err != nil {
 		s.ErrC <- err
 		return
 	}
@@ -142,7 +141,7 @@ func (s *Orchestrator) executeNode(wf *process.Process, n *process.Process_Node,
 			return err
 		}
 	} else if filter := n.GetFilter(); filter != nil {
-		if !filter.Match(data) {
+		if !s.filterMatch(filter, wf, n.Key, exec, data) {
 			return nil
 		}
 	}
@@ -161,6 +160,26 @@ func (s *Orchestrator) executeNode(wf *process.Process, n *process.Process_Node,
 	return nil
 }
 
+// filterMatch returns true if the data match the current list of filters.
+func (s *Orchestrator) filterMatch(f *process.Process_Node_Filter, wf *process.Process, nodeKey string, exec *execution.Execution, data *types.Struct) bool {
+	for _, condition := range f.Conditions {
+		resolvedData, err := s.resolveRef(wf, exec, nodeKey, data, condition.Ref)
+		if err != nil {
+			s.ErrC <- err
+			return false
+		}
+		match, err := condition.Match(resolvedData)
+		if err != nil {
+			s.ErrC <- err
+		}
+		if !match {
+			return false
+		}
+	}
+	return true
+}
+
+// processMap constructs the Struct that the map indicates how to construct.
 func (s *Orchestrator) processMap(nodeKey string, outputs map[string]*process.Process_Node_Map_Output, wf *process.Process, exec *execution.Execution, data *types.Struct) (*types.Struct, error) {
 	result := &types.Struct{
 		Fields: make(map[string]*types.Value),
@@ -175,6 +194,7 @@ func (s *Orchestrator) processMap(nodeKey string, outputs map[string]*process.Pr
 	return result, nil
 }
 
+// outputToValue returns a specific value from an output.
 func (s *Orchestrator) outputToValue(nodeKey string, output *process.Process_Node_Map_Output, wf *process.Process, exec *execution.Execution, data *types.Struct) (*types.Value, error) {
 	switch v := output.GetValue().(type) {
 	case *process.Process_Node_Map_Output_Null_:
@@ -209,45 +229,58 @@ func (s *Orchestrator) outputToValue(nodeKey string, output *process.Process_Nod
 			},
 		}, nil
 	case *process.Process_Node_Map_Output_Ref:
-		node, err := wf.FindNode(v.Ref.NodeKey)
-		if err != nil {
-			return nil, err
-		}
-		if node.GetTask() != nil {
-			return s.resolveInput(wf.Hash, exec, v.Ref.NodeKey, v.Ref.Path)
-		}
-		// check that the parent nodeKey == ref.NodeKey
-		// this ensures that we can use directly the data of the previous node
-		refToParent := false
-		for _, parent := range wf.ParentKeys(nodeKey) {
-			if parent == v.Ref.NodeKey {
-				refToParent = true
-				break
-			}
-		}
-		if !refToParent {
-			return nil, fmt.Errorf("ref can only reference a parent node for non task nodes")
-		}
-		return resolveRef(data, v.Ref.Path)
+		return s.resolveRef(wf, exec, nodeKey, data, v.Ref)
 	default:
 		return nil, errors.New("unknown output")
 	}
 }
 
-func (s *Orchestrator) resolveInput(wfHash hash.Hash, exec *execution.Execution, nodeKey string, path *process.Process_Node_Map_Output_Reference_Path) (*types.Value, error) {
+// resolveRef returns a specific value from a reference.
+func (s *Orchestrator) resolveRef(wf *process.Process, exec *execution.Execution, nodeKey string, data *types.Struct, ref *process.Process_Node_Reference) (*types.Value, error) {
+	refNode, err := wf.FindNode(ref.NodeKey)
+	if err != nil {
+		return nil, err
+	}
+	// if referenced node is a task, get its output
+	if refNode.GetTask() != nil {
+		return s.resolveInput(wf.Hash, exec, ref.NodeKey, ref.Path)
+	}
+	// check that the parent nodeKey == ref.NodeKey
+	// this ensures that we can use directly the data of the previous node
+	refToParent := false
+	for _, parent := range wf.ParentKeys(nodeKey) {
+		if parent == ref.NodeKey {
+			refToParent = true
+			break
+		}
+	}
+	if !refToParent {
+		return nil, fmt.Errorf("ref can only reference a parent node for non task nodes")
+	}
+	return ref.Path.Resolve(data)
+}
+
+// resolveInput returns a specific value from a reference path.
+func (s *Orchestrator) resolveInput(wfHash hash.Hash, exec *execution.Execution, refNodeKey string, path *process.Process_Node_Reference_Path) (*types.Value, error) {
+	// the wfHash condition only works for Task node, not for Result
 	if !wfHash.Equal(exec.ProcessHash) {
 		return nil, fmt.Errorf("reference's nodeKey not found")
 	}
-	if exec.NodeKey != nodeKey {
-		parent, err := s.mc.GetExecution(exec.ParentHash)
-		if err != nil {
-			return nil, err
-		}
-		return s.resolveInput(wfHash, parent, nodeKey, path)
+	// we reach the right execution, return it
+	// but only works for Task as the execution related to the Result is not created by this process
+	if exec.NodeKey == refNodeKey {
+		return path.Resolve(exec.Outputs)
 	}
-	return resolveRef(exec.Outputs, path)
+	// get parentExec and do a recursive call
+	var parentExec *execution.Execution
+	route := fmt.Sprintf("custom/%s/%s/%s", executionmodule.QuerierRoute, executionmodule.QueryGet, exec.ParentHash)
+	if err := s.rpc.QueryJSON(route, nil, &parentExec); err != nil {
+		return nil, err
+	}
+	return s.resolveInput(wfHash, parentExec, refNodeKey, path)
 }
 
+// processTask create the request to execute the task.
 func (s *Orchestrator) processTask(nodeKey string, task *process.Process_Node_Task, wf *process.Process, exec *execution.Execution, event *event.Event, data *types.Struct) error {
 	var eventHash, execHash hash.Hash
 	if event != nil {
@@ -256,17 +289,29 @@ func (s *Orchestrator) processTask(nodeKey string, task *process.Process_Node_Ta
 	if exec != nil {
 		execHash = exec.Hash
 	}
-	executors, err := s.mc.ListRunner(&cosmos.FilterRunner{
-		InstanceHash: task.InstanceHash,
-	})
-	if err != nil {
+	var runners []*runner.Runner
+	route := fmt.Sprintf("custom/%s/%s", runnermodule.QuerierRoute, runnermodule.QueryList)
+	if err := s.rpc.QueryJSON(route, nil, &runners); err != nil {
 		return err
+	}
+	executors := make([]*runner.Runner, 0)
+	for _, run := range runners {
+		if run.InstanceHash.Equal(task.InstanceHash) {
+			executors = append(executors, run)
+		}
 	}
 	if len(executors) == 0 {
 		return fmt.Errorf("no runner is running instance %q", task.InstanceHash)
 	}
 	executor := executors[rand.Intn(len(executors))]
-	_, err = s.mc.CreateExecution(&api.CreateExecutionRequest{
+
+	// create execution
+	acc, err := s.rpc.GetAccount()
+	if err != nil {
+		return err
+	}
+	msg := executionmodule.MsgCreate{
+		Signer:       acc.GetAddress(),
 		ProcessHash:  wf.Hash,
 		EventHash:    eventHash,
 		ParentHash:   execHash,
@@ -276,54 +321,63 @@ func (s *Orchestrator) processTask(nodeKey string, task *process.Process_Node_Ta
 		ExecutorHash: executor.Hash,
 		Price:        s.execPrice,
 		Tags:         nil,
-	})
-	return err
+	}
+	if _, err := s.rpc.BuildAndBroadcastMsg(msg); err != nil {
+		return err
+	}
+	return nil
 }
 
-func resolveRef(data *types.Struct, path *process.Process_Node_Map_Output_Reference_Path) (*types.Value, error) {
-	if path == nil {
-		return &types.Value{Kind: &types.Value_StructValue{StructValue: data}}, nil
+// startExecutionStream returns execution that matches given hash.
+func (s *Orchestrator) startExecutionStream(ctx context.Context) error {
+	subscriber := xstrings.RandASCIILetters(8)
+	query := fmt.Sprintf("%s.%s EXISTS AND %s.%s='%s'",
+		executionmodule.EventType, executionmodule.AttributeKeyHash,
+		executionmodule.EventType, sdk.AttributeKeyAction, executionmodule.AttributeActionCompleted,
+	)
+	eventStream, err := s.rpc.Subscribe(ctx, subscriber, query, 0)
+	if err != nil {
+		return err
 	}
 
-	var v *types.Value
-	key, ok := path.Selector.(*process.Process_Node_Map_Output_Reference_Path_Key)
-	if !ok {
-		return nil, fmt.Errorf("orchestrator: first selector in the path must be a key")
-	}
-
-	v, ok = data.Fields[key.Key]
-	if !ok {
-		return nil, fmt.Errorf("orchestrator: key %s not found", key.Key)
-	}
-
-	for p := path.Path; p != nil; p = p.Path {
-		switch s := p.Selector.(type) {
-		case *process.Process_Node_Map_Output_Reference_Path_Key:
-			str, ok := v.GetKind().(*types.Value_StructValue)
-			if !ok {
-				return nil, fmt.Errorf("orchestrator: can't get key from non-struct value")
+	s.executionStream = make(chan *execution.Execution)
+	go func() {
+	loop:
+		for {
+			select {
+			case event := <-eventStream:
+				// get the index of the action=completed attributes
+				attrKeyActionCreated := fmt.Sprintf("%s.%s", executionmodule.EventType, sdk.AttributeKeyAction)
+				attrIndexes := make([]int, 0)
+				for index, attr := range event.Events[attrKeyActionCreated] {
+					if attr == executionmodule.AttributeActionCompleted {
+						attrIndexes = append(attrIndexes, index)
+					}
+				}
+				// iterate only on the index of attribute hash where action=completed
+				attrKeyHash := fmt.Sprintf("%s.%s", executionmodule.EventType, executionmodule.AttributeKeyHash)
+				for _, index := range attrIndexes {
+					attr := event.Events[attrKeyHash][index]
+					hash, err := hash.Decode(attr)
+					if err != nil {
+						s.ErrC <- err
+						continue
+					}
+					var exec *execution.Execution
+					route := fmt.Sprintf("custom/%s/%s/%s", executionmodule.QuerierRoute, executionmodule.QueryGet, hash)
+					if err := s.rpc.QueryJSON(route, nil, &exec); err != nil {
+						s.ErrC <- err
+						continue
+					}
+					s.executionStream <- exec
+				}
+			case <-ctx.Done():
+				break loop
 			}
-			if str.StructValue.GetFields() == nil {
-				return nil, fmt.Errorf("orchestrator: can't get key from nil-struct")
-			}
-			v, ok = str.StructValue.Fields[s.Key]
-			if !ok {
-				return nil, fmt.Errorf("orchestrator: key %s not found", s.Key)
-			}
-		case *process.Process_Node_Map_Output_Reference_Path_Index:
-			list, ok := v.GetKind().(*types.Value_ListValue)
-			if !ok {
-				return nil, fmt.Errorf("orchestrator: can't get index from non-list value")
-			}
-
-			if len(list.ListValue.GetValues()) <= int(s.Index) {
-				return nil, fmt.Errorf("orchestrator: index %d out of range", s.Index)
-			}
-			v = list.ListValue.Values[s.Index]
-		default:
-			return nil, fmt.Errorf("orchestrator: unknown selector type %T", v)
 		}
-	}
-
-	return v, nil
+		if err := s.rpc.Unsubscribe(context.Background(), subscriber, query); err != nil {
+			s.ErrC <- err
+		}
+	}()
+	return nil
 }

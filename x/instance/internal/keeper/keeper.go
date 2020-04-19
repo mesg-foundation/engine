@@ -8,7 +8,6 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/instance"
-	"github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/mesg-foundation/engine/x/instance/internal/types"
 	"github.com/tendermint/tendermint/libs/log"
 )
@@ -37,11 +36,10 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 func (k Keeper) FetchOrCreate(ctx sdk.Context, serviceHash hash.Hash, envHash hash.Hash) (*instance.Instance, error) {
 	store := ctx.KVStore(k.storeKey)
 
-	inst := &instance.Instance{
-		ServiceHash: serviceHash,
-		EnvHash:     envHash,
+	inst, err := instance.New(serviceHash, envHash)
+	if err != nil {
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, err.Error())
 	}
-	inst.Hash = hash.Dump(inst)
 
 	if !store.Has(inst.Hash) {
 		value, err := k.cdc.MarshalBinaryLengthPrefixed(inst)
@@ -49,6 +47,14 @@ func (k Keeper) FetchOrCreate(ctx sdk.Context, serviceHash hash.Hash, envHash ha
 			return nil, sdkerrors.Wrapf(sdkerrors.ErrJSONMarshal, err.Error())
 		}
 		store.Set(inst.Hash, value)
+
+		// emit event
+		ctx.EventManager().EmitEvent(sdk.NewEvent(
+			types.EventType,
+			sdk.NewAttribute(sdk.AttributeKeyAction, types.AttributeActionCreated),
+			sdk.NewAttribute(types.AttributeKeyHash, inst.Hash.String()),
+			sdk.NewAttribute(types.AttributeKeyService, inst.ServiceHash.String()),
+		))
 	}
 
 	return inst, nil
@@ -69,7 +75,7 @@ func (k Keeper) Get(ctx sdk.Context, instanceHash hash.Hash) (*instance.Instance
 }
 
 // List returns instances from the keeper.
-func (k Keeper) List(ctx sdk.Context, f *api.ListInstanceRequest_Filter) ([]*instance.Instance, error) {
+func (k Keeper) List(ctx sdk.Context) ([]*instance.Instance, error) {
 	store := ctx.KVStore(k.storeKey)
 	iter := store.Iterator(nil, nil)
 	var items []*instance.Instance
@@ -79,9 +85,7 @@ func (k Keeper) List(ctx sdk.Context, f *api.ListInstanceRequest_Filter) ([]*ins
 		if err := k.cdc.UnmarshalBinaryLengthPrefixed(iter.Value(), &item); err != nil {
 			return nil, sdkerrors.Wrapf(sdkerrors.ErrJSONUnmarshal, err.Error())
 		}
-		if f == nil || f.ServiceHash.IsZero() || item.ServiceHash.Equal(f.ServiceHash) {
-			items = append(items, item)
-		}
+		items = append(items, item)
 		iter.Next()
 	}
 	iter.Close()

@@ -8,25 +8,31 @@ import (
 	"github.com/mesg-foundation/engine/execution"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/process"
-	pb "github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/mesg-foundation/engine/protobuf/types"
+	"github.com/mesg-foundation/engine/server/grpc/orchestrator"
+	processmodule "github.com/mesg-foundation/engine/x/process"
 	"github.com/stretchr/testify/require"
+	"google.golang.org/grpc"
 )
 
-func testOrchestratorMapConst(executionStream pb.Execution_StreamClient, instanceHash hash.Hash) func(t *testing.T) {
+func testOrchestratorMapConst(runnerHash, instanceHash hash.Hash) func(t *testing.T) {
 	return func(t *testing.T) {
-		var processHash hash.Hash
+		var (
+			processHash hash.Hash
+			err         error
+		)
 
 		t.Run("create process", func(t *testing.T) {
-			respProc, err := client.ProcessClient.Create(context.Background(), &pb.CreateProcessRequest{
-				Name: "map-const",
+			msg := processmodule.MsgCreate{
+				Owner: cliAddress,
+				Name:  "map-const",
 				Nodes: []*process.Process_Node{
 					{
 						Key: "n0",
 						Type: &process.Process_Node_Event_{
 							Event: &process.Process_Node_Event{
 								InstanceHash: instanceHash,
-								EventKey:     "test_event",
+								EventKey:     "event_trigger",
 							},
 						},
 					},
@@ -58,15 +64,16 @@ func testOrchestratorMapConst(executionStream pb.Execution_StreamClient, instanc
 					{Src: "n0", Dst: "n1"},
 					{Src: "n1", Dst: "n2"},
 				},
-			})
+			}
+			processHash, err = lcd.BroadcastMsg(msg)
 			require.NoError(t, err)
-			processHash = respProc.Hash
 		})
 		t.Run("trigger process", func(t *testing.T) {
-			_, err := client.EventClient.Create(context.Background(), &pb.CreateEventRequest{
-				InstanceHash: instanceHash,
-				Key:          "test_event",
-				Data: &types.Struct{
+			req := orchestrator.ExecutionCreateRequest{
+				Price:        "10000atto",
+				TaskKey:      "task_trigger",
+				ExecutorHash: runnerHash,
+				Inputs: &types.Struct{
 					Fields: map[string]*types.Value{
 						"msg": {
 							Kind: &types.Value_StringValue{
@@ -80,11 +87,12 @@ func testOrchestratorMapConst(executionStream pb.Execution_StreamClient, instanc
 						},
 					},
 				},
-			})
+			}
+			_, err := client.ExecutionClient.Create(context.Background(), &req, grpc.PerRPCCredentials(&signCred{req}))
 			require.NoError(t, err)
 		})
 		t.Run("check in progress execution", func(t *testing.T) {
-			exec, err := executionStream.Recv()
+			exec, err := pollExecutionOfProcess(processHash, execution.Status_InProgress, "n2")
 			require.NoError(t, err)
 			require.Equal(t, "task1", exec.TaskKey)
 			require.Equal(t, "n2", exec.NodeKey)
@@ -93,7 +101,7 @@ func testOrchestratorMapConst(executionStream pb.Execution_StreamClient, instanc
 			require.Equal(t, "itsAConstant", exec.Inputs.Fields["msg"].GetStringValue())
 		})
 		t.Run("check completed execution", func(t *testing.T) {
-			exec, err := executionStream.Recv()
+			exec, err := pollExecutionOfProcess(processHash, execution.Status_Completed, "n2")
 			require.NoError(t, err)
 			require.Equal(t, "task1", exec.TaskKey)
 			require.Equal(t, "n2", exec.NodeKey)
@@ -103,7 +111,10 @@ func testOrchestratorMapConst(executionStream pb.Execution_StreamClient, instanc
 			require.NotEmpty(t, exec.Outputs.Fields["timestamp"].GetNumberValue())
 		})
 		t.Run("delete process", func(t *testing.T) {
-			_, err := client.ProcessClient.Delete(context.Background(), &pb.DeleteProcessRequest{Hash: processHash})
+			_, err := lcd.BroadcastMsg(processmodule.MsgDelete{
+				Owner: cliAddress,
+				Hash:  processHash,
+			})
 			require.NoError(t, err)
 		})
 	}

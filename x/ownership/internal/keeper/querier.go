@@ -11,15 +11,15 @@ import (
 func NewQuerier(k Keeper) sdk.Querier {
 	return func(ctx sdk.Context, path []string, req abci.RequestQuery) ([]byte, error) {
 		switch path[0] {
-		case types.QueryListOwnerships:
-			return listOwnerships(ctx, k)
+		case types.QueryList:
+			return list(ctx, k)
 		default:
 			return nil, sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, "unknown ownership query endpoint")
 		}
 	}
 }
 
-func listOwnerships(ctx sdk.Context, k Keeper) ([]byte, error) {
+func list(ctx sdk.Context, k Keeper) ([]byte, error) {
 	ownerships, err := k.List(ctx)
 	if err != nil {
 		return nil, err

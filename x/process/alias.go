@@ -25,11 +25,15 @@ var (
 
 	ModuleCdc = types.ModuleCdc
 
-	QueryGetProcess    = types.QueryGetProcess
-	QueryListProcesses = types.QueryListProcesses
+	QueryGet   = types.QueryGet
+	QueryList  = types.QueryList
+	QueryExist = types.QueryExist
 
-	NewMsgCreateProcess = types.NewMsgCreateProcess
-	NewMsgDeleteProcess = types.NewMsgDeleteProcess
+	EventType              = types.EventType
+	AttributeKeyHash       = types.AttributeKeyHash
+	AttributeKeyAddress    = types.AttributeKeyAddress
+	AttributeActionCreated = types.AttributeActionCreated
+	AttributeActionDeleted = types.AttributeActionDeleted
 )
 
 // module types
@@ -38,6 +42,6 @@ type (
 	GenesisState = types.GenesisState
 	Params       = types.Params
 
-	MsgCreateProcess = types.MsgCreateProcess
-	MsgDeleteProcess = types.MsgDeleteProcess
+	MsgCreate = types.MsgCreate
+	MsgDelete = types.MsgDelete
 )

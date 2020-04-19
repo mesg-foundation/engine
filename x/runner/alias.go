@@ -25,11 +25,16 @@ var (
 
 	ModuleCdc = types.ModuleCdc
 
-	QueryGetRunner   = types.QueryGetRunner
-	QueryListRunners = types.QueryListRunners
+	QueryGet   = types.QueryGet
+	QueryList  = types.QueryList
+	QueryExist = types.QueryExist
 
-	NewMsgCreateRunner = types.NewMsgCreateRunner
-	NewMsgDeleteRunner = types.NewMsgDeleteRunner
+	EventType              = types.EventType
+	AttributeKeyHash       = types.AttributeKeyHash
+	AttributeKeyAddress    = types.AttributeKeyAddress
+	AttributeKeyInstance   = types.AttributeKeyInstance
+	AttributeActionCreated = types.AttributeActionCreated
+	AttributeActionDeleted = types.AttributeActionDeleted
 )
 
 // module types
@@ -38,6 +43,6 @@ type (
 	GenesisState = types.GenesisState
 	Params       = types.Params
 
-	MsgCreateRunner = types.MsgCreateRunner
-	MsgDeleteRunner = types.MsgDeleteRunner
+	MsgCreate = types.MsgCreate
+	MsgDelete = types.MsgDelete
 )

@@ -1,18 +1,21 @@
 package xvalidator
 
 import (
+	"fmt"
 	"reflect"
 	"regexp"
 	"strconv"
 	"strings"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/go-bip39"
 	"github.com/go-playground/locales/en"
 	ut "github.com/go-playground/universal-translator"
+	validator "github.com/go-playground/validator/v10"
+	en_translations "github.com/go-playground/validator/v10/translations/en"
+	"github.com/mesg-foundation/engine/ext/xerrors"
 	"github.com/mesg-foundation/engine/ext/xnet"
 	"github.com/mesg-foundation/engine/hash"
-	validator "gopkg.in/go-playground/validator.v9"
-	en_translations "gopkg.in/go-playground/validator.v9/translations/en"
 )
 
 const (
@@ -23,11 +26,20 @@ const (
 	envSeparator  = "="
 )
 
-// Default global value to used from package level.
-var Validate, Translator = New()
+// Struct validates a structure using go-playground/validator and more validation fields.
+func Struct(s interface{}) error {
+	var errs xerrors.Errors
+	val, trans := New("")
+	if err := val.Struct(s); err != nil {
+		for _, e := range err.(validator.ValidationErrors) {
+			errs = append(errs, fmt.Errorf("%s", e.Translate(trans)))
+		}
+	}
+	return errs.ErrorOrNil()
+}
 
-// NewWithPrefix returns a new instance of 'validate' with more validation fields prefixed with 'prefix'.
-func NewWithPrefix(prefix string) (*validator.Validate, ut.Translator) {
+// New returns a new instance of 'validate' with more validation fields prefixed with 'prefix'.
+func New(prefix string) (*validator.Validate, ut.Translator) {
 	en := en.New()
 	uni := ut.New(en, en)
 	trans, _ := uni.GetTranslator("en")
@@ -43,7 +55,7 @@ func NewWithPrefix(prefix string) (*validator.Validate, ut.Translator) {
 
 	validate.RegisterValidation("portmap", IsPortMapping)
 	validate.RegisterTranslation("portmap", trans, func(ut ut.Translator) error {
-		return ut.Add("portmap", "{0} must be a valid port mapping. eg: 80 or 80:80", false)
+		return ut.Add("portmap", "{0} must be a valid port mapping (eg: 80 or 80:80)", false)
 	}, func(ut ut.Translator, fe validator.FieldError) string {
 		t, _ := ut.T(fe.Tag(), fe.Field(), prefix)
 		return t
@@ -51,15 +63,15 @@ func NewWithPrefix(prefix string) (*validator.Validate, ut.Translator) {
 
 	validate.RegisterValidation("domain", IsDomainName)
 	validate.RegisterTranslation("domain", trans, func(ut ut.Translator) error {
-		return ut.Add("domain", "{0} must respect domain-style notation. eg: author.name", false)
+		return ut.Add("domain", "{0} must respect domain-style notation (eg: author.name)", false)
 	}, func(ut ut.Translator, fe validator.FieldError) string {
-		t, _ := ut.T(fe.Tag(), fe.Field())
+		t, _ := ut.T(fe.Tag(), fe.Field(), prefix)
 		return t
 	})
 
 	validate.RegisterValidation("hash", IsHash)
 	validate.RegisterTranslation("hash", trans, func(ut ut.Translator) error {
-		return ut.Add("hash", "{0} must be a valid hash in hex format", false)
+		return ut.Add("hash", "{0} must be a valid hash", false)
 	}, func(ut ut.Translator, fe validator.FieldError) string {
 		t, _ := ut.T(fe.Tag(), fe.Field(), prefix)
 		return t
@@ -67,7 +79,7 @@ func NewWithPrefix(prefix string) (*validator.Validate, ut.Translator) {
 
 	validate.RegisterValidation("accaddress", IsAccAddress)
 	validate.RegisterTranslation("accaddress", trans, func(ut ut.Translator) error {
-		return ut.Add("address", "{0} must be a valid address", false)
+		return ut.Add("accaddress", "{0} must be a valid address", false)
 	}, func(ut ut.Translator, fe validator.FieldError) string {
 		t, _ := ut.T(fe.Tag(), fe.Field(), prefix)
 		return t
@@ -81,13 +93,48 @@ func NewWithPrefix(prefix string) (*validator.Validate, ut.Translator) {
 		return t
 	})
 
+	validate.RegisterValidation("coin", IsCoin)
+	validate.RegisterTranslation("coin", trans, func(ut ut.Translator) error {
+		return ut.Add("coin", "{0} must be a valid coin", false)
+	}, func(ut ut.Translator, fe validator.FieldError) string {
+		t, _ := ut.T(fe.Tag(), fe.Field(), prefix)
+		return t
+	})
+
+	validate.RegisterValidation("coinsPositiveZero", IsCoinsPositiveOrZero)
+	validate.RegisterTranslation("coinsPositiveZero", trans, func(ut ut.Translator) error {
+		return ut.Add("coinsPositiveZero", "{0} must be positive or zero coins", false)
+	}, func(ut ut.Translator, fe validator.FieldError) string {
+		t, _ := ut.T(fe.Tag(), fe.Field(), prefix)
+		return t
+	})
+
+	validate.RegisterValidation("deccoins", IsDecCoins)
+	validate.RegisterTranslation("deccoins", trans, func(ut ut.Translator) error {
+		return ut.Add("deccoins", "{0} must be a valid deccoins", false)
+	}, func(ut ut.Translator, fe validator.FieldError) string {
+		t, _ := ut.T(fe.Tag(), fe.Field(), prefix)
+		return t
+	})
+
+	validate.RegisterValidation("mnemonic", IsMnemonic)
+	validate.RegisterTranslation("mnemonic", trans, func(ut ut.Translator) error {
+		return ut.Add("mnemonic", "{0} must be a valid mnemonic", false)
+	}, func(ut ut.Translator, fe validator.FieldError) string {
+		t, _ := ut.T(fe.Tag(), fe.Field(), prefix)
+		return t
+	})
+
+	validate.RegisterValidation("bech32accpubkey", IsBech32AccPubKey)
+	validate.RegisterTranslation("bech32accpubkey", trans, func(ut ut.Translator) error {
+		return ut.Add("bech32accpubkey", "{0} must be a valid bech32accpubkey", false)
+	}, func(ut ut.Translator, fe validator.FieldError) string {
+		t, _ := ut.T(fe.Tag(), fe.Field(), prefix)
+		return t
+	})
+
 	en_translations.RegisterDefaultTranslations(validate, trans)
 	return validate, trans
-}
-
-// New returns a new instance of 'validate' with more validation fields.
-func New() (*validator.Validate, ut.Translator) {
-	return NewWithPrefix("")
 }
 
 // IsHash validates if given field is valid hash.
@@ -112,7 +159,7 @@ func IsHash(fl validator.FieldLevel) bool {
 func IsAccAddress(fl validator.FieldLevel) bool {
 	switch v := fl.Field(); v.Kind() {
 	case reflect.String:
-		_, err := sdk.AccAddressFromBech32(fl.Field().String())
+		_, err := sdk.AccAddressFromBech32(v.String())
 		return err == nil
 	case reflect.Slice:
 		if v.Type().Elem().Kind() != reflect.Uint8 {
@@ -128,6 +175,38 @@ func IsAccAddress(fl validator.FieldLevel) bool {
 func IsCoins(fl validator.FieldLevel) bool {
 	_, err := sdk.ParseCoins(fl.Field().String())
 	return err == nil
+}
+
+// IsCoin validates if given field is valid cosmos coins.
+func IsCoin(fl validator.FieldLevel) bool {
+	_, err := sdk.ParseCoin(fl.Field().String())
+	return err == nil
+}
+
+// IsDecCoins validates if given field is valid cosmos coins.
+func IsDecCoins(fl validator.FieldLevel) bool {
+	_, err := sdk.ParseDecCoins(fl.Field().String())
+	return err == nil
+}
+
+// IsMnemonic validates if given field is valid cosmos coins.
+func IsMnemonic(fl validator.FieldLevel) bool {
+	return bip39.IsMnemonicValid(fl.Field().String())
+}
+
+// IsBech32AccPubKey validates if given field is valid cosmos coins.
+func IsBech32AccPubKey(fl validator.FieldLevel) bool {
+	_, err := sdk.GetPubKeyFromBech32(sdk.Bech32PubKeyTypeAccPub, fl.Field().String())
+	return err == nil
+}
+
+// IsCoinsPositiveOrZero validates if given field is valid cosmos positive or zero coins.
+func IsCoinsPositiveOrZero(fl validator.FieldLevel) bool {
+	coins, err := sdk.ParseCoins(fl.Field().String())
+	if err != nil {
+		return false
+	}
+	return coins.IsAllPositive() || coins.IsZero()
 }
 
 // IsDomainName validates if given field is valid domain name.

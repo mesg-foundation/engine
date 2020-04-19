@@ -7,13 +7,22 @@ import (
 	"path/filepath"
 	"time"
 
-	sdkcosmos "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/go-bip39"
+	"github.com/mesg-foundation/engine/ext/xvalidator"
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/sirupsen/logrus"
 	tmconfig "github.com/tendermint/tendermint/config"
-	"gopkg.in/go-playground/validator.v9"
 	"gopkg.in/yaml.v2"
+)
+
+const (
+	// CosmosBech32MainPrefix defines the main Bech32 prefix.
+	CosmosBech32MainPrefix = "mesgtest"
+
+	// CosmosCoinType is the mesg registered coin type from https://github.com/satoshilabs/slips/blob/master/slip-0044.md.
+	CosmosCoinType = uint32(470)
+
+	// FullFundraiserPath is the parts of the BIP44 HD path that are fixed by what we used during the fundraiser.
+	FullFundraiserPath = "44'/470'/0'/0/0"
 )
 
 const (
@@ -30,6 +39,9 @@ type Config struct {
 	IpfsEndpoint string `validate:"required"`
 
 	DefaultExecutionPrice string `validate:"required"`
+
+	// AuthorizedPubKeys are the bech32 public key of the accounts that are authorized to call the gRPC Admin API.
+	AuthorizedPubKeys []string `validate:"dive,required,bech32accpubkey" yaml:"authorized_pubkeys"`
 
 	Server struct {
 		Address string `validate:"required"`
@@ -50,28 +62,12 @@ type Config struct {
 		RelativePath string `validate:"required"`
 
 		// Minimum gas prices for transactions.
-		MinGasPrices string `validate:"required"`
-
-		// Token name to use in the staking module.
-		StakeTokenDenom string `validate:"required"`
-
-		// Bech32MainPrefix defines the main Bech32 prefix.
-		Bech32MainPrefix string `validate:"required"`
-
-		// CoinType is the mesg registered coin type from https://github.com/satoshilabs/slips/blob/master/slip-0044.md.
-		CoinType uint32 `validate:"required"`
-
-		// BIP44Prefix is the parts of the BIP44 HD path that are fixed by what we used during the fundraiser.
-		FullFundraiserPath string `validate:"required"`
-
-		// Power reduction between the staking token and the voting power on tendermint.
-		PowerReduction int64 `validate:"required"`
+		MinGasPrices string `validate:"required,deccoins"`
 	}
 
 	DevGenesis struct {
-		ChainID                 string `validate:"required"`
-		InitialBalances         string `validate:"required"`
-		ValidatorDelegationCoin string `validate:"required"`
+		ChainID         string `validate:"required"`
+		InitialBalances string `validate:"required,coins"`
 	}
 
 	Account struct {
@@ -79,7 +75,7 @@ type Config struct {
 		Password string `validate:"required"`
 		Number   uint32
 		Index    uint32
-		Mnemonic string
+		Mnemonic string `validate:"omitempty,mnemonic"`
 	}
 }
 
@@ -107,6 +103,7 @@ func defaultConfig() (*Config, error) {
 	c.Tendermint.RelativePath = "tendermint"
 	c.Tendermint.Config = tmconfig.DefaultConfig()
 	c.Tendermint.Config.RPC.ListenAddress = "tcp://0.0.0.0:26657"
+	c.Tendermint.Config.RPC.MaxSubscriptionsPerClient = 100
 	c.Tendermint.Config.P2P.AddrBookStrict = false
 	c.Tendermint.Config.P2P.AllowDuplicateIP = true
 	c.Tendermint.Config.Consensus.TimeoutCommit = 5 * time.Second
@@ -116,15 +113,9 @@ func defaultConfig() (*Config, error) {
 
 	c.Cosmos.RelativePath = "cosmos"
 	c.Cosmos.MinGasPrices = "1.0atto"
-	c.Cosmos.StakeTokenDenom = "atto"
-	c.Cosmos.Bech32MainPrefix = "mesgtest"
-	c.Cosmos.CoinType = 470
-	c.Cosmos.FullFundraiserPath = "44'/470'/0'/0/0" // TODO: is it really useful?
-	c.Cosmos.PowerReduction = 18
 
 	c.DevGenesis.ChainID = "mesg-dev-chain"
-	c.DevGenesis.InitialBalances = "250000000000000000000000000atto"       // 250 000 000 * 10^18
-	c.DevGenesis.ValidatorDelegationCoin = "1000000000000000000000000atto" // 1 000 000 * 10^18
+	c.DevGenesis.InitialBalances = "250000000000000000000000000atto,100000000stake" // 250 000 000 * 10^18 atto + 100,000,000 stake
 
 	c.Account.Name = "engine"
 	c.Account.Password = "pass"
@@ -196,20 +187,8 @@ func (c *Config) validate() error {
 	if _, err := logrus.ParseLevel(c.Log.Level); err != nil {
 		return fmt.Errorf("config log.level error: %w", err)
 	}
-	if c.Account.Mnemonic != "" && !bip39.IsMnemonicValid(c.Account.Mnemonic) {
-		return fmt.Errorf("config account.mnemonic error: mnemonic is not valid")
-	}
 	if err := c.Tendermint.Config.ValidateBasic(); err != nil {
 		return fmt.Errorf("config tendermint error: %w", err)
 	}
-	if _, err := sdkcosmos.ParseDecCoins(c.Cosmos.MinGasPrices); err != nil {
-		return fmt.Errorf("config cosmos.mingasprices error: %w", err)
-	}
-	if _, err := sdkcosmos.ParseCoins(c.DevGenesis.InitialBalances); err != nil {
-		return fmt.Errorf("config devgenesis.initialbalances error: %w", err)
-	}
-	if _, err := sdkcosmos.ParseCoin(c.DevGenesis.ValidatorDelegationCoin); err != nil {
-		return fmt.Errorf("config devgenesis.validatordelegationcoin error: %w", err)
-	}
-	return validator.New().Struct(c)
+	return xvalidator.Struct(c)
 }

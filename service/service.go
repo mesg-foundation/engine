@@ -3,8 +3,39 @@ package service
 import (
 	"fmt"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/protobuf/types"
+	"github.com/tendermint/tendermint/crypto"
 )
+
+// New initializes a new Service.
+func New(sid, name, description string, configuration Service_Configuration, tasks []*Service_Task, events []*Service_Event, dependencies []*Service_Dependency, repository, source string) (*Service, error) {
+	// create service
+	srv := &Service{
+		Sid:           sid,
+		Name:          name,
+		Description:   description,
+		Configuration: configuration,
+		Tasks:         tasks,
+		Events:        events,
+		Dependencies:  dependencies,
+		Repository:    repository,
+		Source:        source,
+	}
+
+	// calculate and apply hash to service.
+	srv.Hash = hash.Dump(srv)
+	srv.Address = sdk.AccAddress(crypto.AddressHash(srv.Hash))
+
+	// set a sid if this one is empty (yes, after hash calculation..)
+	if srv.Sid == "" {
+		// make sure that sid doesn't have the same length with id.
+		srv.Sid = "_" + srv.Hash.String()
+	}
+
+	return srv, srv.Validate()
+}
 
 // MainServiceKey is key for main service.
 const MainServiceKey = "service"

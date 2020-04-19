@@ -15,14 +15,16 @@ func registerQueryRoutes(cliCtx context.CLIContext, r *mux.Router) {
 		"/instance/get/{hash}",
 		queryGetHandlerFn(cliCtx),
 	).Methods(http.MethodGet)
+
 	r.HandleFunc(
 		"/instance/list",
 		queryListHandlerFn(cliCtx),
 	).Methods(http.MethodGet)
+
 	r.HandleFunc(
 		"/instance/parameters",
 		queryParametersHandlerFn(cliCtx),
-	).Methods("GET")
+	).Methods(http.MethodGet)
 }
 
 func queryGetHandlerFn(cliCtx context.CLIContext) http.HandlerFunc {
@@ -34,7 +36,7 @@ func queryGetHandlerFn(cliCtx context.CLIContext) http.HandlerFunc {
 			return
 		}
 
-		route := fmt.Sprintf("custom/%s/%s/%s", types.QuerierRoute, types.QueryGetInstance, vars["hash"])
+		route := fmt.Sprintf("custom/%s/%s/%s", types.QuerierRoute, types.QueryGet, vars["hash"])
 
 		res, height, err := cliCtx.QueryWithData(route, nil)
 		if err != nil {
@@ -54,7 +56,7 @@ func queryListHandlerFn(cliCtx context.CLIContext) http.HandlerFunc {
 			return
 		}
 
-		route := fmt.Sprintf("custom/%s/%s", types.QuerierRoute, types.QueryListInstances)
+		route := fmt.Sprintf("custom/%s/%s", types.QuerierRoute, types.QueryList)
 
 		res, height, err := cliCtx.QueryWithData(route, nil)
 		if err != nil {

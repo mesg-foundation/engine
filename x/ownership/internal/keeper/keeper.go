@@ -57,7 +57,7 @@ func (k *Keeper) List(ctx sdk.Context) ([]*ownership.Ownership, error) {
 // Set creates a new ownership.
 func (k Keeper) Set(ctx sdk.Context, owner sdk.AccAddress, resourceHash hash.Hash, resource ownership.Ownership_Resource, resourceAddress sdk.AccAddress) (*ownership.Ownership, error) {
 	store := ctx.KVStore(k.storeKey)
-	own, err := k.getOwnership(store, resourceHash)
+	own, err := k.get(store, resourceHash)
 	if err != nil {
 		return nil, err
 	}
@@ -65,27 +65,36 @@ func (k Keeper) Set(ctx sdk.Context, owner sdk.AccAddress, resourceHash hash.Has
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, "resource %s:%q already has an owner", resource, resourceHash)
 	}
 
-	// TODO: should be moved to a new function
-	own = &ownership.Ownership{
-		Owner:           owner.String(),
-		Resource:        resource,
-		ResourceHash:    resourceHash,
-		ResourceAddress: resourceAddress,
+	own, err = ownership.New(owner.String(), resource, resourceHash, resourceAddress)
+	if err != nil {
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, err.Error())
 	}
-	own.Hash = hash.Dump(own)
 
 	data, err := k.cdc.MarshalBinaryLengthPrefixed(own)
 	if err != nil {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrJSONMarshal, err.Error())
 	}
 	store.Set(own.Hash, data)
+
+	// emit event
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			types.EventType,
+			sdk.NewAttribute(sdk.AttributeKeyAction, types.AttributeActionCreated),
+			sdk.NewAttribute(types.AttributeKeyHash, own.Hash.String()),
+			sdk.NewAttribute(types.AttributeKeyResourceHash, own.ResourceHash.String()),
+			sdk.NewAttribute(types.AttributeKeyResourceType, own.Resource.String()),
+			sdk.NewAttribute(types.AttributeKeyResourceAddress, own.ResourceAddress.String()),
+		),
+	)
+
 	return own, nil
 }
 
 // Delete deletes an ownership.
 func (k Keeper) Delete(ctx sdk.Context, owner sdk.AccAddress, resourceHash hash.Hash) error {
 	store := ctx.KVStore(k.storeKey)
-	own, err := k.getOwnership(store, resourceHash)
+	own, err := k.get(store, resourceHash)
 	if err != nil {
 		return err
 	}
@@ -106,27 +115,44 @@ func (k Keeper) Delete(ctx sdk.Context, owner sdk.AccAddress, resourceHash hash.
 
 	// remove ownership
 	store.Delete(own.Hash)
+
+	// emit event
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			types.EventType,
+			sdk.NewAttribute(sdk.AttributeKeyAction, types.AttributeActionDeleted),
+			sdk.NewAttribute(types.AttributeKeyHash, own.Hash.String()),
+			sdk.NewAttribute(types.AttributeKeyResourceHash, own.ResourceHash.String()),
+			sdk.NewAttribute(types.AttributeKeyResourceType, own.Resource.String()),
+			sdk.NewAttribute(types.AttributeKeyResourceAddress, own.ResourceAddress.String()),
+		),
+	)
+
 	return nil
 }
 
-// WithdrawCoins try to withdraw coins to owner rom specific resource.
-func (k Keeper) WithdrawCoins(ctx sdk.Context, msg types.MsgWithdrawCoins) error {
+// Withdraw try to withdraw coins to owner rom specific resource.
+func (k Keeper) Withdraw(ctx sdk.Context, msg types.MsgWithdraw) error {
 	store := ctx.KVStore(k.storeKey)
-	own, err := k.getOwnership(store, msg.Hash)
+	amount, err := sdk.ParseCoins(msg.Amount)
+	if err != nil {
+		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, err.Error())
+	}
+	own, err := k.get(store, msg.ResourceHash)
 	if err != nil {
 		return err
 	}
 	if own == nil {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "resource %q does not have any ownership", msg.Hash)
+		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "resource %q does not have any ownership", msg.ResourceHash)
 	}
 	if own.Owner != msg.Owner.String() {
-		return sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, "resource %q is not owned by you", msg.Hash)
+		return sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, "resource %q is not owned by you", msg.ResourceHash)
 	}
-	return k.bankKeeper.SendCoins(ctx, own.ResourceAddress, msg.Owner, msg.Amount)
+	return k.bankKeeper.SendCoins(ctx, own.ResourceAddress, msg.Owner, amount)
 }
 
-// getOwnership returns the ownership of a given resource.
-func (k Keeper) getOwnership(store sdk.KVStore, resourceHash hash.Hash) (*ownership.Ownership, error) {
+// get returns the ownership of a given resource.
+func (k Keeper) get(store sdk.KVStore, resourceHash hash.Hash) (*ownership.Ownership, error) {
 	iter := store.Iterator(nil, nil)
 	var own *ownership.Ownership
 	for iter.Valid() {

@@ -4,13 +4,14 @@ import (
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/mesg-foundation/engine/ext/xvalidator"
 	"github.com/mesg-foundation/engine/hash"
+	"github.com/mesg-foundation/engine/protobuf/types"
 	"github.com/tendermint/tendermint/crypto"
-	validator "gopkg.in/go-playground/validator.v9"
 )
 
 // New returns a new process and validate it.
-func New(name string, nodes []*Process_Node, edges []*Process_Edge) *Process {
+func New(name string, nodes []*Process_Node, edges []*Process_Edge) (*Process, error) {
 	p := &Process{
 		Name:  name,
 		Nodes: nodes,
@@ -18,12 +19,12 @@ func New(name string, nodes []*Process_Node, edges []*Process_Edge) *Process {
 	}
 	p.Hash = hash.Dump(p)
 	p.Address = sdk.AccAddress(crypto.AddressHash(p.Hash))
-	return p
+	return p, p.Validate()
 }
 
 // Validate returns an error if the process is invalid for whatever reason
 func (w *Process) Validate() error {
-	if err := validator.New().Struct(w); err != nil {
+	if err := xvalidator.Struct(w); err != nil {
 		return err
 	}
 	if err := w.validate(); err != nil {
@@ -33,13 +34,28 @@ func (w *Process) Validate() error {
 		return err
 	}
 	for _, node := range w.Nodes {
-		mapNode := node.GetMap()
-		if mapNode != nil {
-			for _, output := range mapNode.Outputs {
+		switch n := node.GetType().(type) {
+		case *Process_Node_Map_:
+			for _, output := range n.Map.Outputs {
 				if ref := output.GetRef(); ref != nil {
 					if _, err := w.FindNode(ref.NodeKey); err != nil {
 						return err
 					}
+				}
+			}
+		case *Process_Node_Filter_:
+			for _, condition := range n.Filter.Conditions {
+				switch condition.Predicate {
+				case Process_Node_Filter_Condition_GT,
+					Process_Node_Filter_Condition_GTE,
+					Process_Node_Filter_Condition_LT,
+					Process_Node_Filter_Condition_LTE:
+					if _, ok := condition.Value.Kind.(*types.Value_NumberValue); !ok {
+						return fmt.Errorf("filter with condition GT, GTE, LT or LTE only works with value of type Number")
+					}
+				}
+				if _, err := w.FindNode(condition.Ref.NodeKey); err != nil {
+					return err
 				}
 			}
 		}

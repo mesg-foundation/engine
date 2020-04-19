@@ -9,25 +9,31 @@ import (
 	"github.com/mesg-foundation/engine/execution"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/process"
-	pb "github.com/mesg-foundation/engine/protobuf/api"
 	"github.com/mesg-foundation/engine/protobuf/types"
+	"github.com/mesg-foundation/engine/server/grpc/orchestrator"
+	processmodule "github.com/mesg-foundation/engine/x/process"
 	"github.com/stretchr/testify/require"
+	"google.golang.org/grpc"
 )
 
-func testOrchestratorFilter(executionStream pb.Execution_StreamClient, instanceHash hash.Hash) func(t *testing.T) {
+func testOrchestratorFilter(runnerHash, instanceHash hash.Hash) func(t *testing.T) {
 	return func(t *testing.T) {
-		var processHash hash.Hash
+		var (
+			processHash hash.Hash
+			err         error
+		)
 
 		t.Run("create process", func(t *testing.T) {
-			respProc, err := client.ProcessClient.Create(context.Background(), &pb.CreateProcessRequest{
-				Name: "filter",
+			msg := processmodule.MsgCreate{
+				Owner: cliAddress,
+				Name:  "filter",
 				Nodes: []*process.Process_Node{
 					{
 						Key: "n0",
 						Type: &process.Process_Node_Event_{
 							Event: &process.Process_Node_Event{
 								InstanceHash: instanceHash,
-								EventKey:     "test_event",
+								EventKey:     "event_trigger",
 							},
 						},
 					},
@@ -37,9 +43,36 @@ func testOrchestratorFilter(executionStream pb.Execution_StreamClient, instanceH
 							Filter: &process.Process_Node_Filter{
 								Conditions: []process.Process_Node_Filter_Condition{
 									{
-										Key:       "msg",
+										Ref: &process.Process_Node_Reference{
+											NodeKey: "n0",
+											Path: &process.Process_Node_Reference_Path{
+												Selector: &process.Process_Node_Reference_Path_Key{
+													Key: "msg",
+												},
+											},
+										},
 										Predicate: process.Process_Node_Filter_Condition_EQ,
-										Value:     "shouldMatch",
+										Value: &types.Value{
+											Kind: &types.Value_StringValue{
+												StringValue: "shouldMatch",
+											},
+										},
+									},
+									{
+										Ref: &process.Process_Node_Reference{
+											NodeKey: "n0",
+											Path: &process.Process_Node_Reference_Path{
+												Selector: &process.Process_Node_Reference_Path_Key{
+													Key: "timestamp",
+												},
+											},
+										},
+										Predicate: process.Process_Node_Filter_Condition_GT,
+										Value: &types.Value{
+											Kind: &types.Value_NumberValue{
+												NumberValue: 10,
+											},
+										},
 									},
 								},
 							},
@@ -59,16 +92,17 @@ func testOrchestratorFilter(executionStream pb.Execution_StreamClient, instanceH
 					{Src: "n0", Dst: "n1"},
 					{Src: "n1", Dst: "n2"},
 				},
-			})
+			}
+			processHash, err = lcd.BroadcastMsg(msg)
 			require.NoError(t, err)
-			processHash = respProc.Hash
 		})
 		t.Run("pass filter", func(t *testing.T) {
 			t.Run("trigger process", func(t *testing.T) {
-				_, err := client.EventClient.Create(context.Background(), &pb.CreateEventRequest{
-					InstanceHash: instanceHash,
-					Key:          "test_event",
-					Data: &types.Struct{
+				req := orchestrator.ExecutionCreateRequest{
+					Price:        "10000atto",
+					TaskKey:      "task_trigger",
+					ExecutorHash: runnerHash,
+					Inputs: &types.Struct{
 						Fields: map[string]*types.Value{
 							"msg": {
 								Kind: &types.Value_StringValue{
@@ -82,11 +116,12 @@ func testOrchestratorFilter(executionStream pb.Execution_StreamClient, instanceH
 							},
 						},
 					},
-				})
+				}
+				_, err := client.ExecutionClient.Create(context.Background(), &req, grpc.PerRPCCredentials(&signCred{req}))
 				require.NoError(t, err)
 			})
 			t.Run("check in progress execution", func(t *testing.T) {
-				exec, err := executionStream.Recv()
+				exec, err := pollExecutionOfProcess(processHash, execution.Status_InProgress, "n2")
 				require.NoError(t, err)
 				require.Equal(t, "task1", exec.TaskKey)
 				require.Equal(t, "n2", exec.NodeKey)
@@ -95,7 +130,7 @@ func testOrchestratorFilter(executionStream pb.Execution_StreamClient, instanceH
 				require.Equal(t, "shouldMatch", exec.Inputs.Fields["msg"].GetStringValue())
 			})
 			t.Run("check completed execution", func(t *testing.T) {
-				exec, err := executionStream.Recv()
+				exec, err := pollExecutionOfProcess(processHash, execution.Status_Completed, "n2")
 				require.NoError(t, err)
 				require.Equal(t, "task1", exec.TaskKey)
 				require.Equal(t, "n2", exec.NodeKey)
@@ -107,14 +142,15 @@ func testOrchestratorFilter(executionStream pb.Execution_StreamClient, instanceH
 		})
 		t.Run("stop at filter", func(t *testing.T) {
 			t.Run("trigger process", func(t *testing.T) {
-				_, err := client.EventClient.Create(context.Background(), &pb.CreateEventRequest{
-					InstanceHash: instanceHash,
-					Key:          "test_event",
-					Data: &types.Struct{
+				req := orchestrator.ExecutionCreateRequest{
+					Price:        "10000atto",
+					TaskKey:      "task_trigger",
+					ExecutorHash: runnerHash,
+					Inputs: &types.Struct{
 						Fields: map[string]*types.Value{
 							"msg": {
 								Kind: &types.Value_StringValue{
-									StringValue: "shouldNOTMatch",
+									StringValue: "shouldNotMatch",
 								},
 							},
 							"timestamp": {
@@ -124,28 +160,20 @@ func testOrchestratorFilter(executionStream pb.Execution_StreamClient, instanceH
 							},
 						},
 					},
-				})
+				}
+				_, err := client.ExecutionClient.Create(context.Background(), &req, grpc.PerRPCCredentials(&signCred{req}))
 				require.NoError(t, err)
 			})
-			t.Run("wait 2 sec to check execution is not created", func(t *testing.T) {
-				recvC := make(chan error)
-				go func() {
-					// FIXME: this go routine is never garbage and the Recv may cause side effect if the stream is use later
-					exec, err := executionStream.Recv()
-					fmt.Println("received execution but should not", exec)
-					recvC <- err
-				}()
-				select {
-				case <-time.After(2 * time.Second):
-					return
-				case err := <-recvC:
-					require.NoError(t, err)
-					t.Fatal("should not received any execution")
-				}
+			t.Run("wait timeout to check execution is not created", func(t *testing.T) {
+				_, err := pollExecutionOfProcess(processHash, execution.Status_InProgress, "n2")
+				require.EqualError(t, err, fmt.Sprintf("pollExecutionOfProcess timeout with process hash %q and status %q and nodeKey %q", processHash, execution.Status_InProgress, "n2"))
 			})
 		})
 		t.Run("delete process", func(t *testing.T) {
-			_, err := client.ProcessClient.Delete(context.Background(), &pb.DeleteProcessRequest{Hash: processHash})
+			_, err := lcd.BroadcastMsg(processmodule.MsgDelete{
+				Owner: cliAddress,
+				Hash:  processHash,
+			})
 			require.NoError(t, err)
 		})
 	}

@@ -1,0 +1,43 @@
+syntax = "proto3";
+
+import "gogo/protobuf/gogoproto/gogo.proto";
+
+package mesg.runner.types;
+option go_package = "github.com/mesg-foundation/engine/x/runner/internal/types";
+
+// The message to create a Runner.
+message MsgCreate {
+  // The Runner's owner.
+  bytes owner = 1 [
+    (gogoproto.moretags) = 'validate:"required,accaddress"',
+    (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"
+  ];
+
+  // Service's hash to start the runner with.
+  bytes serviceHash = 2 [
+    (gogoproto.moretags) = 'validate:"required,hash"',
+    (gogoproto.casttype) = "github.com/mesg-foundation/engine/hash.Hash"
+  ];
+
+  // Hash of the customized environmental variables (not the ones in the service configuration).
+  bytes envHash = 3 [
+    (gogoproto.moretags) = 'validate:"omitempty,hash"',
+    (gogoproto.casttype) = "github.com/mesg-foundation/engine/hash.Hash"
+  ];
+
+}
+
+// The message to delete a Runner.
+message MsgDelete {
+  // The Runner's owner.
+  bytes owner = 1 [
+    (gogoproto.moretags) = 'validate:"required,accaddress"',
+    (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"
+  ];
+
+  // Runner's hash
+  bytes hash = 2 [
+    (gogoproto.moretags) = 'validate:"required,hash"',
+    (gogoproto.casttype) = "github.com/mesg-foundation/engine/hash.Hash"
+  ];
+}

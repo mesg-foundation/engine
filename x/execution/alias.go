@@ -25,13 +25,21 @@ var (
 
 	ModuleCdc = types.ModuleCdc
 
-	QueryGetExecution  = types.QueryGetExecution
-	QueryListExecution = types.QueryListExecution
-
-	NewMsgCreateExecution = types.NewMsgCreateExecution
-	NewMsgUpdateExecution = types.NewMsgUpdateExecution
+	QueryGet  = types.QueryGet
+	QueryList = types.QueryList
 
 	M = keeper.M
+
+	EventType                = types.EventType
+	AttributeKeyHash         = types.AttributeKeyHash
+	AttributeKeyAddress      = types.AttributeKeyAddress
+	AttributeKeyExecutor     = types.AttributeKeyExecutor
+	AttributeKeyProcess      = types.AttributeKeyProcess
+	AttributeKeyInstance     = types.AttributeKeyInstance
+	AttributeActionProposed  = types.AttributeActionProposed
+	AttributeActionCreated   = types.AttributeActionCreated
+	AttributeActionCompleted = types.AttributeActionCompleted
+	AttributeActionFailed    = types.AttributeActionFailed
 )
 
 // module types
@@ -40,6 +48,8 @@ type (
 	GenesisState = types.GenesisState
 	Params       = types.Params
 
-	MsgCreateExecution = types.MsgCreateExecution
-	MsgUpdateExecution = types.MsgUpdateExecution
+	MsgCreate        = types.MsgCreate
+	MsgUpdate        = types.MsgUpdate
+	MsgUpdateOutputs = types.MsgUpdate_Outputs
+	MsgUpdateError   = types.MsgUpdate_Error
 )

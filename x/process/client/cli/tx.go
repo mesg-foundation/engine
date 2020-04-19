@@ -21,16 +21,16 @@ func GetTxCmd(cdc *codec.Codec) *cobra.Command {
 	}
 
 	processTxCmd.AddCommand(flags.PostCommands(
-		GetCmdCreateProcess(cdc),
-		GetCmdDeleteProcess(cdc),
+		GetCmdCreate(cdc),
+		GetCmdDelete(cdc),
 	)...)
 
 	return processTxCmd
 }
 
-func GetCmdCreateProcess(cdc *codec.Codec) *cobra.Command {
+func GetCmdCreate(cdc *codec.Codec) *cobra.Command {
 	return &cobra.Command{
-		Use:   "createProcess [serviceHash] [key=val]...",
+		Use:   "create [serviceHash] [key=val]...",
 		Short: "Creates a new process",
 		Args:  cobra.MinimumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -40,9 +40,9 @@ func GetCmdCreateProcess(cdc *codec.Codec) *cobra.Command {
 	}
 }
 
-func GetCmdDeleteProcess(cdc *codec.Codec) *cobra.Command {
+func GetCmdDelete(cdc *codec.Codec) *cobra.Command {
 	return &cobra.Command{
-		Use:   "createProcess [serviceHash] [key=val]...",
+		Use:   "create [serviceHash] [key=val]...",
 		Short: "Creates a new process",
 		Args:  cobra.MinimumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {

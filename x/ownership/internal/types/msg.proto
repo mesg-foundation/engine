@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+import "gogo/protobuf/gogoproto/gogo.proto";
+
+package mesg.ownership.types;
+option go_package = "github.com/mesg-foundation/engine/x/ownership/internal/types";
+
+// The message to withdraw coins from an ownership.
+message MsgWithdraw {
+  // The ownership's owner.
+  bytes owner = 1 [
+    (gogoproto.moretags) = 'validate:"required,accaddress"',
+    (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"
+  ];
+
+  // Hash of the resource to withdraw from.
+  bytes resourceHash = 2 [
+    (gogoproto.moretags) = 'validate:"required,hash"',
+    (gogoproto.casttype) = "github.com/mesg-foundation/engine/hash.Hash"
+  ];
+
+  // amount to withdraw
+  string amount = 3 [
+    (gogoproto.moretags) = 'validate:"required,coinsPositiveZero"'
+  ];
+}

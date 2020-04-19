@@ -3,6 +3,7 @@ package grpc
 import (
 	"context"
 	"net"
+	"sync"
 	"time"
 
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
@@ -11,9 +12,8 @@ import (
 	"github.com/mesg-foundation/engine/cosmos"
 	"github.com/mesg-foundation/engine/event/publisher"
 	"github.com/mesg-foundation/engine/ext/xvalidator"
-	protobuf_api "github.com/mesg-foundation/engine/protobuf/api"
-	"github.com/mesg-foundation/engine/runner/builder"
-	"github.com/mesg-foundation/engine/server/grpc/api"
+	"github.com/mesg-foundation/engine/server/grpc/orchestrator"
+	"github.com/mesg-foundation/engine/server/grpc/runner"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/keepalive"
@@ -22,20 +22,18 @@ import (
 
 // Server contains the server config.
 type Server struct {
-	instance  *grpc.Server
-	mc        *cosmos.ModuleClient
-	ep        *publisher.EventPublisher
-	b         *builder.Builder
-	execPrice string
+	instance          *grpc.Server
+	rpc               *cosmos.RPC
+	ep                *publisher.EventPublisher
+	authorizedPubKeys []string
 }
 
 // New returns a new gRPC server.
-func New(mc *cosmos.ModuleClient, ep *publisher.EventPublisher, b *builder.Builder, execPrice string) *Server {
+func New(rpc *cosmos.RPC, ep *publisher.EventPublisher, authorizedPubKeys []string) *Server {
 	return &Server{
-		mc:        mc,
-		ep:        ep,
-		b:         b,
-		execPrice: execPrice,
+		rpc:               rpc,
+		ep:                ep,
+		authorizedPubKeys: authorizedPubKeys,
 	}
 }
 
@@ -63,7 +61,9 @@ func (s *Server) Serve(address string) error {
 			validateInterceptor,
 		)),
 	)
-	s.register()
+	if err := s.register(); err != nil {
+		return err
+	}
 	grpc_prometheus.Register(s.instance)
 	logrus.WithField("module", "grpc").Info("server listens on ", ln.Addr())
 	return s.instance.Serve(ln)
@@ -74,22 +74,29 @@ func (s *Server) Close() {
 	s.instance.GracefulStop()
 }
 
+// TODO: could use github.com/grpc-ecosystem/go-grpc-middleware@v1.2.0/validator/validator.go for validating any request with a `Validate() error` function.
 func validateInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
-	if err := xvalidator.Validate.Struct(req); err != nil {
+	if err := xvalidator.Struct(req); err != nil {
 		return nil, err
 	}
 	return handler(ctx, req)
 }
 
 // register all server
-func (s *Server) register() {
-	protobuf_api.RegisterEventServer(s.instance, api.NewEventServer(s.ep))
-	protobuf_api.RegisterExecutionServer(s.instance, api.NewExecutionServer(s.mc, s.execPrice))
-	protobuf_api.RegisterInstanceServer(s.instance, api.NewInstanceServer(s.mc))
-	protobuf_api.RegisterServiceServer(s.instance, api.NewServiceServer(s.mc))
-	protobuf_api.RegisterProcessServer(s.instance, api.NewProcessServer(s.mc))
-	protobuf_api.RegisterOwnershipServer(s.instance, api.NewOwnershipServer(s.mc))
-	protobuf_api.RegisterRunnerServer(s.instance, api.NewRunnerServer(s.mc, s.b))
+func (s *Server) register() error {
+	tokenToRunnerHash := &sync.Map{}
+
+	runner.RegisterRunnerServer(s.instance, runner.NewServer(s.rpc, s.ep, tokenToRunnerHash))
+
+	authorizer, err := orchestrator.NewAuthorizer(s.rpc.Codec(), s.authorizedPubKeys)
+	if err != nil {
+		return err
+	}
+	orchestrator.RegisterEventServer(s.instance, orchestrator.NewEventServer(s.ep, authorizer))
+	orchestrator.RegisterExecutionServer(s.instance, orchestrator.NewExecutionServer(s.rpc, authorizer))
+	orchestrator.RegisterRunnerServer(s.instance, orchestrator.NewRunnerServer(s.rpc, tokenToRunnerHash, authorizer))
 
 	reflection.Register(s.instance)
+
+	return nil
 }

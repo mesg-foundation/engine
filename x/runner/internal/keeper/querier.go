@@ -12,17 +12,19 @@ import (
 func NewQuerier(k Keeper) sdk.Querier {
 	return func(ctx sdk.Context, path []string, req abci.RequestQuery) ([]byte, error) {
 		switch path[0] {
-		case types.QueryGetRunner:
-			return getRunner(ctx, path[1:], k)
-		case types.QueryListRunners:
-			return listRunner(ctx, k)
+		case types.QueryGet:
+			return get(ctx, path[1:], k)
+		case types.QueryList:
+			return list(ctx, k)
+		case types.QueryExist:
+			return exist(ctx, k, path[1:])
 		default:
 			return nil, sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, "unknown runner query endpoint")
 		}
 	}
 }
 
-func getRunner(ctx sdk.Context, path []string, k Keeper) ([]byte, error) {
+func get(ctx sdk.Context, path []string, k Keeper) ([]byte, error) {
 	if len(path) == 0 {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "missing hash")
 	}
@@ -43,13 +45,34 @@ func getRunner(ctx sdk.Context, path []string, k Keeper) ([]byte, error) {
 	return res, nil
 }
 
-func listRunner(ctx sdk.Context, k Keeper) ([]byte, error) {
+func list(ctx sdk.Context, k Keeper) ([]byte, error) {
 	instances, err := k.List(ctx)
 	if err != nil {
 		return nil, err
 	}
 
 	res, err := types.ModuleCdc.MarshalJSON(instances)
+	if err != nil {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONMarshal, err.Error())
+	}
+	return res, nil
+}
+
+func exist(ctx sdk.Context, k Keeper, path []string) ([]byte, error) {
+	if len(path) == 0 {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "missing hash")
+	}
+	hash, err := hash.Decode(path[0])
+	if err != nil {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, err.Error())
+	}
+
+	exists, err := k.Exists(ctx, hash)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := types.ModuleCdc.MarshalJSON(exists)
 	if err != nil {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONMarshal, err.Error())
 	}

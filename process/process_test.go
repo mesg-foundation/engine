@@ -3,8 +3,11 @@ package process
 import (
 	"testing"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/mesg-foundation/engine/hash"
+	"github.com/mesg-foundation/engine/protobuf/types"
 	"github.com/stretchr/testify/assert"
+	"github.com/tendermint/tendermint/crypto"
 )
 
 func TestValidateProcess(t *testing.T) {
@@ -46,10 +49,12 @@ func TestValidateProcess(t *testing.T) {
 		err   string
 	}{
 		{w: &Process{
-			Hash: hash.Int(1),
-			Name: "invalid-struct",
+			Address: sdk.AccAddress(crypto.AddressHash([]byte("address"))),
+			Hash:    hash.Int(1),
+			Name:    "invalid-struct",
 		}, err: "should contain exactly one trigger"},
 		{w: &Process{
+			Address: sdk.AccAddress(crypto.AddressHash([]byte("address"))),
 			Nodes: []*Process_Node{
 				{
 					Type: &Process_Node_Result_{&Process_Node_Result{InstanceHash: hash.Int(1)}},
@@ -57,31 +62,35 @@ func TestValidateProcess(t *testing.T) {
 			},
 			Hash: hash.Int(1),
 			Name: "missing-key",
-		}, err: "Error:Field validation for 'TaskKey' failed on the 'required' tag"},
+		}, err: "Key is a required field. TaskKey is a required field"},
 		{w: &Process{
-			Hash:  hash.Int(1),
-			Name:  "edge-src-missing-node",
-			Nodes: nodes,
-			Edges: append(edges, &Process_Edge{Src: "-", Dst: "nodeKey2"}),
+			Address: sdk.AccAddress(crypto.AddressHash([]byte("address"))),
+			Hash:    hash.Int(1),
+			Name:    "edge-src-missing-node",
+			Nodes:   nodes,
+			Edges:   append(edges, &Process_Edge{Src: "-", Dst: "nodeKey2"}),
 		}, err: "node \"-\" not found"},
 		{w: &Process{
-			Hash:  hash.Int(1),
-			Name:  "edge-dst-missing-node",
-			Nodes: nodes,
-			Edges: append(edges, &Process_Edge{Src: "nodeKey1", Dst: "-"}),
+			Address: sdk.AccAddress(crypto.AddressHash([]byte("address"))),
+			Hash:    hash.Int(1),
+			Name:    "edge-dst-missing-node",
+			Nodes:   nodes,
+			Edges:   append(edges, &Process_Edge{Src: "nodeKey1", Dst: "-"}),
 		}, err: "node \"-\" not found"},
 		{w: &Process{
-			Hash:  hash.Int(1),
-			Name:  "cyclic-graph",
-			Nodes: nodes,
+			Address: sdk.AccAddress(crypto.AddressHash([]byte("address"))),
+			Hash:    hash.Int(1),
+			Name:    "cyclic-graph",
+			Nodes:   nodes,
 			Edges: append(edges,
 				&Process_Edge{Src: "nodeKey1", Dst: "nodeKey2"},
 				&Process_Edge{Src: "nodeKey2", Dst: "nodeKey1"},
 			),
 		}, err: "process should not contain any cycles"},
 		{w: &Process{
-			Hash: hash.Int(1),
-			Name: "non-connected-graph",
+			Address: sdk.AccAddress(crypto.AddressHash([]byte("address"))),
+			Hash:    hash.Int(1),
+			Name:    "non-connected-graph",
 			Nodes: append(nodes, &Process_Node{
 				Key: "nodeKey3",
 				Type: &Process_Node_Task_{&Process_Node_Task{
@@ -101,8 +110,9 @@ func TestValidateProcess(t *testing.T) {
 			),
 		}, err: "process should be a connected graph"},
 		{w: &Process{
-			Hash: hash.Int(1),
-			Name: "multiple-parent-graph",
+			Address: sdk.AccAddress(crypto.AddressHash([]byte("address"))),
+			Hash:    hash.Int(1),
+			Name:    "multiple-parent-graph",
 			Nodes: append(nodes, &Process_Node{
 				Key: "nodeKey3",
 				Type: &Process_Node_Task_{&Process_Node_Task{
@@ -124,8 +134,9 @@ func TestValidateProcess(t *testing.T) {
 			),
 		}, err: "process should contain nodes with one parent maximum"},
 		{w: &Process{
-			Hash: hash.Int(1),
-			Name: "multiple-parent-graph",
+			Address: sdk.AccAddress(crypto.AddressHash([]byte("address"))),
+			Hash:    hash.Int(1),
+			Name:    "multiple-parent-graph",
 			Nodes: append(nodes, &Process_Node{
 				Key: "nodeKey3",
 				Type: &Process_Node_Task_{&Process_Node_Task{
@@ -167,15 +178,16 @@ func TestValidateProcess(t *testing.T) {
 			),
 		}, valid: true},
 		{w: &Process{
-			Hash: hash.Int(1),
-			Name: "inputs-with-invalid-node",
+			Address: sdk.AccAddress(crypto.AddressHash([]byte("address"))),
+			Hash:    hash.Int(1),
+			Name:    "inputs-with-invalid-node",
 			Nodes: append(nodes, &Process_Node{
 				Key: "mapping",
 				Type: &Process_Node_Map_{&Process_Node_Map{
 					Outputs: map[string]*Process_Node_Map_Output{
 						"key": {
 							Value: &Process_Node_Map_Output_Ref{
-								Ref: &Process_Node_Map_Output_Reference{NodeKey: "invalid"},
+								Ref: &Process_Node_Reference{NodeKey: "invalid"},
 							},
 						},
 					},
@@ -183,15 +195,16 @@ func TestValidateProcess(t *testing.T) {
 			}),
 		}, err: "node \"invalid\" not found"},
 		{w: &Process{
-			Hash: hash.Int(1),
-			Name: "inputs-with-valid-ref",
+			Address: sdk.AccAddress(crypto.AddressHash([]byte("address"))),
+			Hash:    hash.Int(1),
+			Name:    "inputs-with-valid-ref",
 			Nodes: append(nodes, &Process_Node{
 				Key: "mapping",
 				Type: &Process_Node_Map_{&Process_Node_Map{
 					Outputs: map[string]*Process_Node_Map_Output{
 						"key": {
 							Value: &Process_Node_Map_Output_Ref{
-								Ref: &Process_Node_Map_Output_Reference{NodeKey: "nodeKey1"},
+								Ref: &Process_Node_Reference{NodeKey: "nodeKey1"},
 							},
 						},
 					},
@@ -202,13 +215,39 @@ func TestValidateProcess(t *testing.T) {
 				&Process_Edge{Src: "mapping", Dst: "nodeKey2"},
 			),
 		}, valid: true},
+		{w: &Process{
+			Address: sdk.AccAddress(crypto.AddressHash([]byte("address"))),
+			Hash:    hash.Int(1),
+			Name:    "filter-gte-invalid-value-type",
+			Nodes: append(nodes, &Process_Node{
+				Key: "filter",
+				Type: &Process_Node_Filter_{&Process_Node_Filter{
+					Conditions: []Process_Node_Filter_Condition{
+						{
+							Ref: &Process_Node_Reference{
+								NodeKey: "hello",
+								Path: &Process_Node_Reference_Path{
+									Selector: &Process_Node_Reference_Path_Key{
+										Key: "foo",
+									},
+								},
+							},
+							Predicate: Process_Node_Filter_Condition_GT,
+							Value: &types.Value{
+								Kind: &types.Value_StringValue{StringValue: "bar"},
+							},
+						},
+					},
+				}},
+			}),
+		}, err: "filter with condition GT, GTE, LT or LTE only works with value of type Number"},
 	}
 	for _, test := range tests {
 		err := test.w.Validate()
 		if test.valid {
 			assert.Nil(t, err, test.w.Name)
 		} else {
-			assert.Contains(t, test.w.Validate().Error(), test.err, test.w.Name)
+			assert.Contains(t, err.Error(), test.err, test.w.Name)
 		}
 	}
 }

@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+import "gogo/protobuf/gogoproto/gogo.proto";
+import "protobuf/types/event.proto";
+
+package mesg.grpc.orchestrator;
+option go_package = "github.com/mesg-foundation/engine/service/grpc/orchestrator";
+
+// This is the Event API to interact with the Orchestrator.
+// This API requires all requests to be signed for authentication. The signature should be passed in the request's metadata using the key `mesg_request_signature` and base64 encoded.
+service Event {
+  // Stream returns a stream of events that satisfy criteria specified.
+  rpc Stream(EventStreamRequest) returns (stream types.Event) {}
+}
+
+// Stream returns a stream of events that satisfy specified filter.
+message EventStreamRequest {
+  // Filter contains filtering criteria.
+  message Filter {
+    // hash to filter events.
+    bytes hash = 1 [
+      (gogoproto.moretags) = 'validate:"omitempty,hash"',
+      (gogoproto.casttype) = "github.com/mesg-foundation/engine/hash.Hash"
+    ];
+
+    // instance's hash to filter events.
+    bytes instanceHash = 2 [
+      (gogoproto.moretags) = 'validate:"omitempty,hash"',
+      (gogoproto.casttype) = "github.com/mesg-foundation/engine/hash.Hash"
+    ];
+
+    // key is the key of the event.
+    string key = 3 [
+      (gogoproto.moretags) = 'validate:"printascii"'
+    ];
+  }
+
+  // Filter used to filter a stream of events.
+  Filter filter = 1;
+}

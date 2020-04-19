@@ -15,6 +15,7 @@ func registerQueryRoutes(cliCtx context.CLIContext, r *mux.Router) {
 		"/ownership/list",
 		queryListHandlerFn(cliCtx),
 	).Methods(http.MethodGet)
+
 	r.HandleFunc(
 		"/ownership/parameters",
 		queryParamsHandlerFn(cliCtx),
@@ -28,7 +29,7 @@ func queryListHandlerFn(cliCtx context.CLIContext) http.HandlerFunc {
 			return
 		}
 
-		route := fmt.Sprintf("custom/%s/%s", types.QuerierRoute, types.QueryListOwnerships)
+		route := fmt.Sprintf("custom/%s/%s", types.QuerierRoute, types.QueryList)
 		res, height, err := cliCtx.QueryWithData(route, nil)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
