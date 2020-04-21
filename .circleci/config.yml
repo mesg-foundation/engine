@@ -158,25 +158,6 @@ workflows:
           requires:
             - "test_e2e"
 
-  test_prod:
-    jobs:
-      - "test":
-          filters:
-            tags:
-              ignore: /.*/
-            branches:
-              only: master
-      - "lint":
-          filters:
-            tags:
-              ignore: /.*/
-            branches:
-              only: master
-      - "test_e2e":
-          requires:
-            - "test"
-            - "lint"
-
   release_prod:
     jobs:
       - "lint":
