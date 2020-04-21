@@ -1,5 +1,11 @@
 # Changelog
 
+## [v0.22.0](https://github.com/mesg-foundation/engine/releases/tag/v0.22.0)
+
+#### Breaking Changes
+
+- ([#1785](https://github.com/mesg-foundation/engine/pull/1785)) Replace bech32 prefix from "mesgtest" to "mesg".
+
 ## [v0.21.0](https://github.com/mesg-foundation/engine/releases/tag/v0.21.0)
 
 #### Breaking Changes
