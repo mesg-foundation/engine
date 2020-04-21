@@ -1,5 +1,11 @@
 # Changelog
 
+## [v0.22.0](https://github.com/mesg-foundation/engine/releases/tag/v0.22.0)
+
+#### Breaking Changes
+
+- ([#1785](https://github.com/mesg-foundation/engine/pull/1785)) Replace bech32 prefix from "mesgtest" to "mesg".
+
 ## [v0.21.0](https://github.com/mesg-foundation/engine/releases/tag/v0.21.0)
 
 #### Breaking Changes
@@ -11,8 +17,6 @@
 
 #### Added
 
-- ([#1737](https://github.com/mesg-foundation/engine/pull/1737)) Add support for any type of data to filter.
-- ([#1739](https://github.com/mesg-foundation/engine/pull/1739)) Add reference system to filter.
 - ([#1749](https://github.com/mesg-foundation/engine/pull/1749)) Add more validation on resources.
 - ([#1758](https://github.com/mesg-foundation/engine/pull/1758)) Introduce a simple LCD client.
 - ([#1759](https://github.com/mesg-foundation/engine/pull/1759)) add 2 more linters and remove useless exclusion.
