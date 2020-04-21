@@ -16,7 +16,7 @@ import (
 
 const (
 	// CosmosBech32MainPrefix defines the main Bech32 prefix.
-	CosmosBech32MainPrefix = "mesgtest"
+	CosmosBech32MainPrefix = "mesg"
 
 	// CosmosCoinType is the mesg registered coin type from https://github.com/satoshilabs/slips/blob/master/slip-0044.md.
 	CosmosCoinType = uint32(470)
