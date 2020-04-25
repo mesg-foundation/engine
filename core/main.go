@@ -208,6 +208,7 @@ func main() {
 	cosmosclient.RegisterRoutes(cliCtx, mux)
 	authrest.RegisterTxRoutes(cliCtx, mux)
 	app.ModuleBasics.RegisterRESTRoutes(cliCtx, mux)
+	cosmos.RegisterEstimateGasRoute(cliCtx, mux)
 	go func() {
 		if err := rpcserver.StartHTTPServer(lcdServer, mux, tendermintLogger, cfgLcd); err != nil {
 			logrus.WithField("module", "main").Warnln(err) // not a fatal because closing the connection return an error here
