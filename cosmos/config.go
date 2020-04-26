@@ -31,3 +31,6 @@ func InitConfig() {
 	cfg.SetCoinType(config.CosmosCoinType)
 	cfg.Seal()
 }
+
+// GasAdjustment is a multiplier to make sure transactions have enough gas when gas are estimated.
+const GasAdjustment = 1.5
