@@ -11,21 +11,21 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth/client/utils"
 )
 
-// RegisterEstimateGasRoute regiters the route on the router.
-func RegisterEstimateGasRoute(cliCtx context.CLIContext, r *mux.Router) {
-	r.HandleFunc("/txs/simulate", EstimateGasRequestHandlerFn(cliCtx)).Methods("POST")
+// RegisterSimulateRoute registers the route on the router.
+func RegisterSimulateRoute(cliCtx context.CLIContext, r *mux.Router) {
+	r.HandleFunc("/txs/simulate", SimulateRequestHandlerFn(cliCtx)).Methods("POST")
 }
 
-// EstimateGasReq defines the properties of a send request's body.
-type EstimateGasReq struct {
+// SimulateReq defines the properties of a send request's body.
+type SimulateReq struct {
 	BaseReq rest.BaseReq `json:"base_req" yaml:"base_req"`
 	Msgs    []sdk.Msg    `json:"msgs" yaml:"msgs"`
 }
 
-// EstimateGasRequestHandlerFn - http request handler to estimate gas.
-func EstimateGasRequestHandlerFn(cliCtx context.CLIContext) http.HandlerFunc {
+// SimulateRequestHandlerFn - http request handler to simulate msgs.
+func SimulateRequestHandlerFn(cliCtx context.CLIContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var req EstimateGasReq
+		var req SimulateReq
 		if !rest.ReadRESTReq(w, r, cliCtx.Codec, &req) {
 			return
 		}
