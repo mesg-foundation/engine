@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"strconv"
 	"sync"
 
 	"github.com/cosmos/cosmos-sdk/client/flags"
@@ -207,7 +208,7 @@ func (lcd *LCD) createAndSignTx(msgs []sdk.Msg, acc *auth.BaseAccount) (authtype
 		acc.GetAccountNumber(),
 		acc.GetSequence(),
 		flags.DefaultGasLimit,
-		flags.DefaultGasAdjustment,
+		GasAdjustment,
 		true,
 		lcd.chainID,
 		"",
@@ -217,9 +218,22 @@ func (lcd *LCD) createAndSignTx(msgs []sdk.Msg, acc *auth.BaseAccount) (authtype
 
 	// calculate gas
 	if txBuilder.SimulateAndExecute() {
+		gasAdjustment := strconv.FormatFloat(txBuilder.GasAdjustment(), 'f', -1, 64)
+		fmt.Println("gasAdjustment", gasAdjustment)
 		req := SimulateReq{
-			BaseReq: rest.NewBaseReq(acc.Address.String(), "", lcd.chainID, "", "1.5", acc.GetAccountNumber(), acc.GetSequence(), nil, nil, true),
-			Msgs:    msgs,
+			BaseReq: rest.NewBaseReq(
+				acc.Address.String(),
+				"",
+				lcd.chainID,
+				"",
+				gasAdjustment,
+				acc.GetAccountNumber(),
+				acc.GetSequence(),
+				nil,
+				nil,
+				true,
+			),
+			Msgs: msgs,
 		}
 		var res rest.GasEstimateResponse
 		if err := lcd.PostBare("txs/simulate", req, &res); err != nil {
