@@ -208,7 +208,7 @@ func (c *RPC) createAndSignTx(msgs []sdktypes.Msg, acc authExported.Account) (te
 		acc.GetAccountNumber(),
 		acc.GetSequence(),
 		flags.DefaultGasLimit,
-		flags.DefaultGasAdjustment,
+		GasAdjustment,
 		true,
 		c.chainID,
 		"",
