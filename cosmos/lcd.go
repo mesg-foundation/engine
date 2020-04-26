@@ -30,7 +30,6 @@ type LCD struct {
 	accName      string
 	accPassword  string
 	minGasPrices sdktypes.DecCoins
-	gasLimit     uint64
 
 	// local state
 	acc            *auth.BaseAccount
@@ -39,7 +38,7 @@ type LCD struct {
 }
 
 // NewLCD initializes a cosmos LCD client.
-func NewLCD(endpoint string, cdc *codec.Codec, kb keys.Keybase, chainID, accName, accPassword, minGasPrices string, gasLimit uint64) (*LCD, error) {
+func NewLCD(endpoint string, cdc *codec.Codec, kb keys.Keybase, chainID, accName, accPassword, minGasPrices string) (*LCD, error) {
 	minGasPricesDecoded, err := sdktypes.ParseDecCoins(minGasPrices)
 	if err != nil {
 		return nil, err
@@ -52,7 +51,6 @@ func NewLCD(endpoint string, cdc *codec.Codec, kb keys.Keybase, chainID, accName
 		accName:      accName,
 		accPassword:  accPassword,
 		minGasPrices: minGasPricesDecoded,
-		gasLimit:     gasLimit,
 	}, nil
 }
 
@@ -208,7 +206,7 @@ func (lcd *LCD) createAndSignTx(msgs []sdk.Msg, acc *auth.BaseAccount) (authtype
 		authutils.GetTxEncoder(lcd.cdc),
 		acc.GetAccountNumber(),
 		acc.GetSequence(),
-		lcd.gasLimit,
+		flags.DefaultGasLimit,
 		flags.DefaultGasAdjustment,
 		true,
 		lcd.chainID,
@@ -216,6 +214,19 @@ func (lcd *LCD) createAndSignTx(msgs []sdk.Msg, acc *auth.BaseAccount) (authtype
 		nil,
 		lcd.minGasPrices,
 	).WithKeybase(lcd.kb)
+
+	// calculate gas
+	if txBuilder.SimulateAndExecute() {
+		req := SimulateReq{
+			BaseReq: rest.NewBaseReq(acc.Address.String(), "", lcd.chainID, "", "1.5", acc.GetAccountNumber(), acc.GetSequence(), nil, nil, true),
+			Msgs:    msgs,
+		}
+		var res rest.GasEstimateResponse
+		if err := lcd.PostBare("txs/simulate", req, &res); err != nil {
+			return authtypes.StdTx{}, err
+		}
+		txBuilder = txBuilder.WithGas(res.GasEstimate)
+	}
 
 	// create StdSignMsg
 	stdSignMsg, err := txBuilder.BuildSignMsg(msgs)
