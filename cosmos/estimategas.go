@@ -13,7 +13,7 @@ import (
 
 // RegisterEstimateGasRoute regiters the route on the router.
 func RegisterEstimateGasRoute(cliCtx context.CLIContext, r *mux.Router) {
-	r.HandleFunc("/txs/estimategas", EstimateGasRequestHandlerFn(cliCtx)).Methods("POST")
+	r.HandleFunc("/txs/simulate", EstimateGasRequestHandlerFn(cliCtx)).Methods("POST")
 }
 
 // EstimateGasReq defines the properties of a send request's body.
