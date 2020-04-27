@@ -93,7 +93,7 @@ func TestAPI(t *testing.T) {
 	require.NoError(t, err)
 
 	// init container
-	cont, err = container.New(cfg.IpfsEndpoint, cfg.Name, cfg.Server.Address, cfg.Name)
+	cont, err = container.New(cfg.Name, cfg.Server.Address, cfg.Name)
 	require.NoError(t, err)
 
 	// init gRPC client
