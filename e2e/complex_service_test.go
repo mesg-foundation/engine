@@ -53,7 +53,7 @@ func testComplexService(t *testing.T) {
 	})
 
 	t.Run("build service image", func(t *testing.T) {
-		require.NoError(t, cont.Build(testServiceComplexStruct))
+		require.NoError(t, cont.Build(testServiceComplexStruct.Hash, "./testdata/test-complex-service"))
 	})
 
 	t.Run("create msg, sign it and inject into env", func(t *testing.T) {

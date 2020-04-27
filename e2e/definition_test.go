@@ -36,7 +36,7 @@ var testComplexCreateServiceMsg = &servicemodule.MsgCreate{
 		{Key: "resolve_dependence_ok"},
 		{Key: "resolve_dependence_error"},
 	},
-	Source: "QmQbobdv3tg1UdPiHBGaqbQF2mjGHPBBNAK4M9hoFA3NVU",
+	Source: "NOT_NEEDED",
 }
 
 var testCreateServiceMsg = &servicemodule.MsgCreate{
@@ -232,5 +232,5 @@ var testCreateServiceMsg = &servicemodule.MsgCreate{
 			},
 		},
 	},
-	Source: "QmXiBMy2rguhPn5hCmHh8rw1jjpq6YcekiUcvh91htVndM",
+	Source: "NOT_NEEDED",
 }
