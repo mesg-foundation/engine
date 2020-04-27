@@ -219,7 +219,6 @@ func (lcd *LCD) createAndSignTx(msgs []sdk.Msg, acc *auth.BaseAccount) (authtype
 	// calculate gas
 	if txBuilder.SimulateAndExecute() {
 		gasAdjustment := strconv.FormatFloat(txBuilder.GasAdjustment(), 'f', -1, 64)
-		fmt.Println("gasAdjustment", gasAdjustment)
 		req := SimulateReq{
 			BaseReq: rest.NewBaseReq(
 				acc.Address.String(),
