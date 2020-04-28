@@ -41,7 +41,7 @@ func testRunner(t *testing.T) {
 	})
 
 	t.Run("build service image", func(t *testing.T) {
-		require.NoError(t, cont.Build(testServiceStruct))
+		require.NoError(t, cont.Build(testServiceStruct.Hash, "./testdata/test-service"))
 	})
 
 	t.Run("create msg, sign it and inject into env", func(t *testing.T) {

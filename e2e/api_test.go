@@ -9,7 +9,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/crypto/keys"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/bank"
@@ -47,9 +46,8 @@ var (
 
 const (
 	lcdEndpoint        = "http://127.0.0.1:1317/"
-	pollingInterval    = 500 * time.Millisecond     // half a block
-	pollingTimeout     = 10 * time.Second           // 10 blocks
-	gasLimit           = flags.DefaultGasLimit * 10 // x10 so the biggest txs have enough gas
+	pollingInterval    = 500 * time.Millisecond // half a block
+	pollingTimeout     = 10 * time.Second       // 10 blocks
 	cliAccountMnemonic = "large fork soccer lab answer enlist robust vacant narrow please inmate primary father must add hub shy couch rail video tool marine pill give"
 	cliAccountName     = "cli"
 	cliAccountPassword = "pass"
@@ -89,13 +87,13 @@ func TestAPI(t *testing.T) {
 	cliAddress = cliAcc.GetAddress()
 
 	// init LCD with engine account and make a transfer to cli account
-	lcdEngine, err = cosmos.NewLCD(lcdEndpoint, cdc, kb, cfg.DevGenesis.ChainID, cfg.Account.Name, cfg.Account.Password, cfg.Cosmos.MinGasPrices, gasLimit)
+	lcdEngine, err = cosmos.NewLCD(lcdEndpoint, cdc, kb, cfg.DevGenesis.ChainID, cfg.Account.Name, cfg.Account.Password, cfg.Cosmos.MinGasPrices)
 	require.NoError(t, err)
 	_, err = lcdEngine.BroadcastMsg(bank.NewMsgSend(engineAddress, cliAddress, cliInitialBalance))
 	require.NoError(t, err)
 
 	// init container
-	cont, err = container.New(cfg.IpfsEndpoint, cfg.Name, cfg.Server.Address, cfg.Name)
+	cont, err = container.New(cfg.Name, cfg.Server.Address, cfg.Name)
 	require.NoError(t, err)
 
 	// init gRPC client
@@ -109,7 +107,7 @@ func TestAPI(t *testing.T) {
 	}
 
 	// init LCD
-	lcd, err = cosmos.NewLCD(lcdEndpoint, cdc, kb, cfg.DevGenesis.ChainID, cliAccountName, cliAccountPassword, cfg.Cosmos.MinGasPrices, gasLimit)
+	lcd, err = cosmos.NewLCD(lcdEndpoint, cdc, kb, cfg.DevGenesis.ChainID, cliAccountName, cliAccountPassword, cfg.Cosmos.MinGasPrices)
 	require.NoError(t, err)
 
 	// run tests

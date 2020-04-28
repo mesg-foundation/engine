@@ -36,8 +36,6 @@ type Config struct {
 	Name string `validate:"required" yaml:"-"`
 	Path string `validate:"required" yaml:"-"`
 
-	IpfsEndpoint string `validate:"required"`
-
 	DefaultExecutionPrice string `validate:"required"`
 
 	// AuthorizedPubKeys are the bech32 public key of the accounts that are authorized to call the gRPC Admin API.
@@ -90,8 +88,6 @@ func defaultConfig() (*Config, error) {
 
 	c.Name = "engine"
 	c.Path = filepath.Join(home, ".mesg")
-
-	c.IpfsEndpoint = "http://ipfs.app.mesg.com:8080/ipfs/"
 
 	c.DefaultExecutionPrice = "10000atto" // /x/execution/internal/types/params.go#DefaultMinPrice
 

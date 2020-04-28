@@ -136,6 +136,7 @@ func registerRoutes(rs *lcd.RestServer) {
 	client.RegisterRoutes(rs.CliCtx, rs.Mux)
 	authrest.RegisterTxRoutes(rs.CliCtx, rs.Mux)
 	app.ModuleBasics.RegisterRESTRoutes(rs.CliCtx, rs.Mux)
+	cosmos.RegisterSimulateRoute(rs.CliCtx, rs.Mux)
 }
 
 func initConfig(cmd *cobra.Command) error {

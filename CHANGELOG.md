@@ -1,5 +1,19 @@
 # Changelog
 
+## [v0.23.0](https://github.com/mesg-foundation/engine/releases/tag/v0.23.0)
+
+#### Added
+
+- ([#1795](https://github.com/mesg-foundation/engine/pull/1795)) Add lcd endpoint to estimate the gas of a transaction.
+
+#### Fixed
+
+- ([#1797](https://github.com/mesg-foundation/engine/pull/1797)) Fix 2 issues with instance.
+
+#### Removed
+
+- ([#1796](https://github.com/mesg-foundation/engine/pull/1796)) Remove ipfs endpoint from config.
+
 ## [v0.22.0](https://github.com/mesg-foundation/engine/releases/tag/v0.22.0)
 
 #### Breaking Changes

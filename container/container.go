@@ -69,14 +69,13 @@ type Container struct {
 	// client is a Docker client.
 	client client.CommonAPIClient
 
-	ipfsEndpoint   string
 	engineEndpoint string
 	engineName     string
 	engineNetwork  string
 }
 
 // New initializes the Container struct by connecting creating the Docker client.
-func New(ipfsEndpoint, engineName, engineAddress, engineNetwork string) (*Container, error) {
+func New(engineName, engineAddress, engineNetwork string) (*Container, error) {
 	client, err := client.NewClientWithOpts(client.FromEnv)
 	if err != nil {
 		return nil, err
@@ -90,28 +89,27 @@ func New(ipfsEndpoint, engineName, engineAddress, engineNetwork string) (*Contai
 
 	return &Container{
 		client:         client,
-		ipfsEndpoint:   ipfsEndpoint,
 		engineEndpoint: net.JoinHostPort(engineName, strconv.Itoa(port)),
 		engineName:     engineName,
 		engineNetwork:  engineNetwork,
 	}, nil
 }
 
-// Build the imge of the container
-func (c *Container) Build(srv *service.Service) error {
+// Download downloads the tarball of the source of a service from a HTTP url.
+// Don't forget to remove the downloaded service.
+func (c *Container) Download(url string) (string, error) {
 	// download and untar service context into path.
 	path, err := ioutil.TempDir("", "mesg")
 	if err != nil {
-		return err
+		return "", err
 	}
-	defer os.RemoveAll(path)
 
-	resp, err := http.Get(c.ipfsEndpoint + srv.Source)
+	resp, err := http.Get(url)
 	if err != nil {
-		return err
+		return "", err
 	}
 	if resp.StatusCode != 200 {
-		return errors.New("service's source code is not reachable, status: " + resp.Status + ", url: " + c.ipfsEndpoint + srv.Source)
+		return "", errors.New("service's source code is not reachable, status: " + resp.Status + ", url: " + url)
 	}
 	defer resp.Body.Close()
 
@@ -119,9 +117,14 @@ func (c *Container) Build(srv *service.Service) error {
 		UID: os.Geteuid(),
 		GID: os.Getegid()},
 	}); err != nil {
-		return err
+		return "", err
 	}
 
+	return path, nil
+}
+
+// Build the imge of the container
+func (c *Container) Build(srvHash hash.Hash, path string) error {
 	excludeFiles, err := build.ReadDockerignore(path)
 	if err != nil {
 		return err
@@ -140,7 +143,7 @@ func (c *Container) Build(srv *service.Service) error {
 		Remove:         true,
 		ForceRemove:    true,
 		SuppressOutput: true,
-		Tags:           []string{imageTag + srv.Hash.String()},
+		Tags:           []string{imageTag + srvHash.String()},
 	}); err != nil {
 		return err
 	}
