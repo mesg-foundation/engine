@@ -9,7 +9,7 @@ RUN apt-get update -y && \
     rm -rf /var/lib/apt/lists/*
 
 # protobuf(protoc) version.
-ARG protobuf=3.9.1
+ARG protobuf=3.11.4
 ARG gogoprotobuf=1.3.1
 
 # install protobuf(protoc).
