@@ -91,6 +91,7 @@ function start_engine {
     --publish $MESG_TENDERMINT_RPC_PORT:26657 \
     --publish $MESG_PROMETHEUS_RPC_PORT:26660 \
     --publish $MESG_COSMOS_RPC_PORT:1317 \
+    --stop-grace-period 1m \
     mesg/engine:local
 }
 
