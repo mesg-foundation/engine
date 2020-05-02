@@ -43,7 +43,7 @@ require (
 	github.com/prometheus/client_golang v1.5.0
 	github.com/pseudomuto/protoc-gen-doc v1.3.1
 	github.com/rcrowley/go-metrics v0.0.0-20190706150252-9beb055b7962 // indirect
-	github.com/sirupsen/logrus v1.4.2
+	github.com/sirupsen/logrus v1.5.0
 	github.com/spf13/afero v1.2.2 // indirect
 	github.com/spf13/cobra v0.0.6
 	github.com/spf13/viper v1.6.2
