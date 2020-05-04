@@ -1,6 +1,6 @@
 # MESG Engine
 
-[Website](https://mesg.com/) - [Docs](https://docs.mesg.com/) - [Forum](https://forum.mesg.com/) - [Chat](https://discordapp.com/invite/SaZ5HcE) - [Blog](https://medium.com/mesg)
+[Website](https://mesg.com/) - [Docs](https://docs.mesg.com/) - [Forum](https://forum.mesg.com/) - [Chat](https://discordapp.com/invite/SaZ5HcE) - [Blog](https://blog.mesg.com/)
 
 
 [![GoDoc](https://godoc.org/github.com/mesg-foundation/engine?status.svg)](https://godoc.org/github.com/mesg-foundation/engine)
@@ -25,8 +25,6 @@ To help us build and maintain MESG Engine, refer to the [Contribute](#contribute
 - [Quick Start Guide](#quick-start-guide)
 - [Services](#services)
 - [Architecture](#architecture)
-- [Marketplace](#marketplace)
-- [Roadmap](#roadmap)
 - [Community](#community)
 - [Contribute](#contribute)
 
@@ -39,7 +37,7 @@ This step-by-step guide will show you how to create an application that gets the
 
 # Services
 
-Services are build and shared on the [Marketplace](https://marketplace.mesg.com/). They are small and reusable pieces of code that, when grouped together, allow developers to build incredible applications with ease.
+Services are small and reusable pieces of code that, when grouped together, allow developers to build incredible applications with ease.
 
 You can develop a service for absolutely anything you want, as long as it can run inside Docker. Check the [documentation to create your own services](https://docs.mesg.com/guide/service/what-is-a-service.html).
 
@@ -72,15 +70,11 @@ For more info on how to create your events, visit the [Emit an Event](https://do
 
 [![MESG Architecture](https://cdn.rawgit.com/mesg-foundation/core/dev/schema1.svg)](https://docs.mesg.com)
 
-# Marketplace
-
-We have a common place to post all community-developed Services and Applications. Check out the [Marketplace](https://marketplace.mesg.com).
-
 # Community
 
 You can find us and other MESG users on the [forum](https://forum.mesg.com). Feel free to check existing posts and help other users of MESG.
 
-Also, be sure to check out the [blog](https://medium.com/mesg) to stay up-to-date with our articles.
+Also, be sure to check out the [blog](https://blog.mesg.com/) to stay up-to-date with our articles.
 
 # Contribute
 
@@ -88,4 +82,4 @@ Contributions are more than welcome. For more details on how to contribute, plea
 
 If you have any questions, please reach out to us directly on [Discord](https://discordapp.com/invite/5tVTHJC).
 
-[![](https://sourcerer.io/fame/NicolasMahe/mesg-foundation/engine/images/0)](https://sourcerer.io/fame/NicolasMahe/mesg-foundation/engine/links/0)[![](https://sourcerer.io/fame/NicolasMahe/mesg-foundation/engine/images/1)](https://sourcerer.io/fame/NicolasMahe/mesg-foundation/engine/links/1)[![](https://sourcerer.io/fame/NicolasMahe/mesg-foundation/engine/images/2)](https://sourcerer.io/fame/NicolasMahe/mesg-foundation/engine/links/2)[![](https://sourcerer.io/fame/NicolasMahe/mesg-foundation/engine/images/3)](https://sourcerer.io/fame/NicolasMahe/mesg-foundation/engine/links/3)[![](https://sourcerer.io/fame/NicolasMahe/mesg-foundation/engine/images/4)](https://sourcerer.io/fame/NicolasMahe/mesg-foundation/engine/links/4)[![](https://sourcerer.io/fame/NicolasMahe/mesg-foundation/engine/images/5)](https://sourcerer.io/fame/NicolasMahe/mesg-foundation/engine/links/5)[![](https://sourcerer.io/fame/NicolasMahe/mesg-foundation/engine/images/6)](https://sourcerer.io/fame/NicolasMahe/mesg-foundation/engine/links/6)[![](https://sourcerer.io/fame/NicolasMahe/mesg-foundation/engine/images/7)](https://sourcerer.io/fame/NicolasMahe/mesg-foundation/engine/links/7)
+
