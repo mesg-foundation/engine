@@ -1,4 +1,4 @@
-.PHONY: all build build-cmd-cosmos changelog check-version clean clean-build clean-docker dep dev dev-mon dev-start dev-stop docker-build docker-dev docker-publish docker-publish-dev docker-tools genesis lint protobuf test publish-cmds
+.PHONY: all build build-cmd-cosmos changelog check-version clean clean-build clean-docker dep dev dev-mon dev-start dev-stop docker-build docker-dev docker-publish docker-publish-dev docker-tools genesis lint protobuf test publish-cmds build-docker-cli
 
 MAJOR_VERSION := $(shell echo $(version) | cut -d . -f 1)
 MINOR_VERSION := $(shell echo $(version) | cut -d . -f 1-2)
@@ -60,6 +60,9 @@ publish-cmds: check-version dep
 build-cmd: dep
 	go build -mod=readonly -o ./bin/mesg-cli ./cmd/mesg-cli/
 	go build -mod=readonly -o ./bin/mesg-daemon ./cmd/mesg-daemon/
+
+build-docker-cli: check-version
+	docker build -t mesg/engine:cli -f ./Dockerfile.cli --build-arg version=$(version) .
 
 e2e: docker-dev
 	./scripts/run-e2e.sh
