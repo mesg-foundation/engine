@@ -24,12 +24,12 @@ import (
 // RPC is a tendermint rpc client with helper functions.
 type RPC struct {
 	rpcclient.Client
-	cdc          *codec.Codec
-	kb           keys.Keybase
-	chainID      string
-	accName      string
-	accPassword  string
-	minGasPrices sdktypes.DecCoins
+	cdc         *codec.Codec
+	kb          keys.Keybase
+	chainID     string
+	accName     string
+	accPassword string
+	gasPrices   sdktypes.DecCoins
 
 	// Local state
 	acc            authExported.Account
@@ -38,19 +38,19 @@ type RPC struct {
 }
 
 // NewRPC returns a rpc tendermint client.
-func NewRPC(client rpcclient.Client, cdc *codec.Codec, kb keys.Keybase, chainID, accName, accPassword, minGasPrices string) (*RPC, error) {
-	minGasPricesDecoded, err := sdktypes.ParseDecCoins(minGasPrices)
+func NewRPC(client rpcclient.Client, cdc *codec.Codec, kb keys.Keybase, chainID, accName, accPassword, gasPrices string) (*RPC, error) {
+	gasPricesDecoded, err := sdktypes.ParseDecCoins(gasPrices)
 	if err != nil {
 		return nil, err
 	}
 	return &RPC{
-		Client:       client,
-		cdc:          cdc,
-		kb:           kb,
-		chainID:      chainID,
-		accName:      accName,
-		accPassword:  accPassword,
-		minGasPrices: minGasPricesDecoded,
+		Client:      client,
+		cdc:         cdc,
+		kb:          kb,
+		chainID:     chainID,
+		accName:     accName,
+		accPassword: accPassword,
+		gasPrices:   gasPricesDecoded,
 	}, nil
 }
 
@@ -213,7 +213,7 @@ func (c *RPC) createAndSignTx(msgs []sdktypes.Msg, acc authExported.Account) (te
 		c.chainID,
 		"",
 		nil,
-		c.minGasPrices,
+		c.gasPrices,
 	).WithKeybase(c.kb)
 
 	// calculate gas
