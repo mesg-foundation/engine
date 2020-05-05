@@ -37,10 +37,10 @@ func startOrchestratorCmd(cdc *codec.Codec) *cobra.Command {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
 
 			if viper.GetString(flagMnemonic) == "" {
-				return fmt.Errorf("flags --mnemonic is required")
+				return fmt.Errorf("mnemonic is required. use flag --mnemonic or config file")
 			}
 			if cliCtx.ChainID == "" {
-				return fmt.Errorf("flag --chain-id is required")
+				return fmt.Errorf("chain-id is required. use flag --chain-id or config file")
 			}
 
 			logger := log.NewTMLogger(log.NewSyncWriter(os.Stdout)).With("module", "orchestrator")
