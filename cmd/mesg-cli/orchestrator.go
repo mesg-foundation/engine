@@ -18,6 +18,11 @@ import (
 	"github.com/tendermint/tendermint/libs/log"
 )
 
+const (
+	accName = "orchestrator"
+	accPass = "password"
+)
+
 func orchestratorCmd(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "orchestrator",
@@ -62,13 +67,13 @@ func startOrchestratorCmd(cdc *codec.Codec) *cobra.Command {
 			}()
 
 			kb := cosmos.NewInMemoryKeybase()
-			if _, err := kb.CreateAccount("orchestrator", viper.GetString(flagMnemonic), "", "password", keys.CreateHDPath(0, 0).String(), cosmos.DefaultAlgo); err != nil {
+			if _, err := kb.CreateAccount(accName, viper.GetString(flagMnemonic), "", accPass, keys.CreateHDPath(viper.GetUint32(flagAccNumber), viper.GetUint32(flagAccIndex)).String(), cosmos.DefaultAlgo); err != nil {
 				fmt.Println("keybase error")
 				return err
 			}
 
 			// create rpc client
-			rpc, err := cosmos.NewRPC(client, cdc, kb, cliCtx.ChainID, "orchestrator", "password", viper.GetString(flagGasPrices))
+			rpc, err := cosmos.NewRPC(client, cdc, kb, cliCtx.ChainID, accName, accPass, viper.GetString(flagGasPrices))
 			if err != nil {
 				return err
 			}
@@ -120,6 +125,8 @@ func startOrchestratorCmd(cdc *codec.Codec) *cobra.Command {
 	cmd.Flags().String(flagMnemonic, "", "The account's mnemonic that will be used to sign transactions")
 	cmd.Flags().String(flagGasPrices, "1.0atto", "The gas price to sign tx")
 	cmd.Flags().String(flagExecPrice, "10000atto", "The execution price to create execution")
+	cmd.Flags().String(flagAccNumber, "0", "The account number of the hd path to use to derive the mnemonic")
+	cmd.Flags().String(flagAccIndex, "0", "The account index of the hd path to use to derive the mnemonic")
 	return cmd
 }
 
@@ -129,4 +136,6 @@ const (
 	flagMnemonic          = "mnemonic"
 	flagGasPrices         = "gas-prices"
 	flagExecPrice         = "exec-price"
+	flagAccNumber         = "acc-number"
+	flagAccIndex          = "acc-index"
 )
