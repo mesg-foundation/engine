@@ -11,7 +11,6 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/crypto/keys"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/x/bank"
 	"github.com/mesg-foundation/engine/app"
 	"github.com/mesg-foundation/engine/config"
 	"github.com/mesg-foundation/engine/container"
@@ -41,14 +40,14 @@ var (
 	lcd                   *cosmos.LCD
 	lcdEngine             *cosmos.LCD
 	cliAddress            sdk.AccAddress
-	cliInitialBalance, _  = sdk.ParseCoins("100000000000000000000000000atto")
 )
 
 const (
 	lcdEndpoint        = "http://127.0.0.1:1317/"
 	pollingInterval    = 500 * time.Millisecond // half a block
 	pollingTimeout     = 10 * time.Second       // 10 blocks
-	cliAccountMnemonic = "large fork soccer lab answer enlist robust vacant narrow please inmate primary father must add hub shy couch rail video tool marine pill give"
+	engineMnemonic     = "neutral false together tattoo matrix stamp poem mouse chair chair grain pledge mandate layer shiver embark struggle vicious antenna total faith genre valley mandate"
+	cliAccountMnemonic = "spike raccoon obscure program raw large unaware dragon hamster round artist case fall wage sample velvet robust legend identify innocent film coral picture organ"
 	cliAccountName     = "cli"
 	cliAccountPassword = "pass"
 )
@@ -77,7 +76,7 @@ func TestAPI(t *testing.T) {
 	kb, err = cosmos.NewKeybase(filepath.Join(cfg.Path, cfg.Cosmos.RelativePath))
 	require.NoError(t, err)
 	// init engine account
-	engineAcc, err := kb.CreateAccount(cfg.Account.Name, cfg.Account.Mnemonic, "", cfg.Account.Password, keys.CreateHDPath(cfg.Account.Number, cfg.Account.Index).String(), cosmos.DefaultAlgo)
+	engineAcc, err := kb.CreateAccount(cfg.Account.Name, engineMnemonic, "", cfg.Account.Password, keys.CreateHDPath(cfg.Account.Number, cfg.Account.Index).String(), cosmos.DefaultAlgo)
 	require.NoError(t, err)
 	engineAddress = engineAcc.GetAddress()
 
@@ -88,8 +87,6 @@ func TestAPI(t *testing.T) {
 
 	// init LCD with engine account and make a transfer to cli account
 	lcdEngine, err = cosmos.NewLCD(lcdEndpoint, cdc, kb, cfg.DevGenesis.ChainID, cfg.Account.Name, cfg.Account.Password, cfg.Cosmos.MinGasPrices)
-	require.NoError(t, err)
-	_, err = lcdEngine.BroadcastMsg(bank.NewMsgSend(engineAddress, cliAddress, cliInitialBalance))
 	require.NoError(t, err)
 
 	// init container

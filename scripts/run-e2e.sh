@@ -2,23 +2,33 @@
 
 set -e
 
-export MESG_PATH="$(pwd)"/e2e.test/mesg
-
-# first run non existing test to detect compilation error quickly
+echo "run non existing test to detect compilation error quickly"
 go test -mod=readonly -v -count=1 ./e2e/... -run=__NONE__
 
 function onexit {
-  set +e
-  ./scripts/dev.sh stop
-  rm -rf "${MESG_PATH}"
+  docker service rm engine
+  docker wait $(docker ps -f label=com.docker.swarm.service.name=engine -q) 2> /dev/null
+
+  docker network remove engine
 }
 
 trap onexit EXIT
 
-rm -rf "${MESG_PATH}"
-mkdir -p "${MESG_PATH}"
-cp "$(pwd)"/e2e/testdata/e2e.config.yml "${MESG_PATH}"/config.yml
+if [[ -z $(docker network list -f name="engine" -q) ]]; then
+  docker network create --driver overlay engine
+fi
+docker service create \
+  --name engine \
+  -p 1317:1317 \
+  -p 50052:50052 \
+  -p 26657:26657 \
+  --network engine \
+  --label com.docker.stack.namespace=engine \
+  mesg/engine:cli-dev
 
-./scripts/dev.sh -q
+echo "waiting to give some time to the container to start and run"
+sleep 10 &
+wait $!
 
+echo "starting tests"
 go test -failfast -mod=readonly -v -count=1 ./e2e/...

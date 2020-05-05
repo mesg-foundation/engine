@@ -67,7 +67,7 @@ build-docker-cli: check-version
 build-docker-cli-dev: build-docker-cli
 	docker build -t mesg/engine:cli-dev -f ./Dockerfile.cli.dev --build-arg from=mesg/engine:cli .
 
-e2e: docker-dev
+e2e: build-docker-cli-dev
 	./scripts/run-e2e.sh
 
 test: dep
