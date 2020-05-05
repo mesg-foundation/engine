@@ -38,6 +38,14 @@ func NewKeybase(dir string) (*Keybase, error) {
 	}, nil
 }
 
+// NewInMemoryKeybase initializes a in memory keybase.
+func NewInMemoryKeybase() *Keybase {
+	return &Keybase{
+		kb:            clientkey.NewInMemoryKeyBase(),
+		privKeysCache: make(map[[sha256.Size]byte]crypto.PrivKey),
+	}
+}
+
 // NewMnemonic returns a new mnemonic phrase.
 func (kb *Keybase) NewMnemonic() (string, error) {
 	// read entropy seed straight from crypto.Rand and convert to mnemonic

@@ -1,6 +1,14 @@
 package xstrings
 
-import "math/rand"
+import (
+	"math/rand"
+
+	"github.com/mesg-foundation/engine/ext/xrand"
+)
+
+func init() {
+	xrand.SeedInit()
+}
 
 // SliceContains returns true if slice a contains e element, false otherwise.
 func SliceContains(a []string, e string) bool {

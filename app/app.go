@@ -40,8 +40,8 @@ var (
 	// DefaultCLIHome is the default home directories for the application CLI
 	DefaultCLIHome = os.ExpandEnv("$HOME/.mesg-cli")
 
-	// DefaultNodeHome sets the folder where the applcation data and configuration will be stored
-	DefaultNodeHome = os.ExpandEnv("$HOME/.mesg/tendermint")
+	// DefaultNodeHome sets the folder where the application data and configuration will be stored
+	DefaultNodeHome = os.ExpandEnv("$HOME/.mesg-node")
 
 	// ModuleBasics The module BasicManager is in charge of setting up basic,
 	// non-dependant module elements, such as codec registration

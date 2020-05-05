@@ -11,6 +11,7 @@ import (
 	"github.com/mesg-foundation/engine/event"
 	"github.com/mesg-foundation/engine/event/publisher"
 	"github.com/mesg-foundation/engine/execution"
+	"github.com/mesg-foundation/engine/ext/xrand"
 	"github.com/mesg-foundation/engine/ext/xstrings"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/process"
@@ -21,6 +22,10 @@ import (
 	runnermodule "github.com/mesg-foundation/engine/x/runner"
 	"github.com/sirupsen/logrus"
 )
+
+func init() {
+	xrand.SeedInit()
+}
 
 // New creates a new Process instance
 func New(rpc *cosmos.RPC, ep *publisher.EventPublisher, execPrice string) *Orchestrator {
