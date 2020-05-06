@@ -109,11 +109,6 @@ func startOrchestratorCmd(cdc *codec.Codec) *cobra.Command {
 					panic(err)
 				}
 			}()
-			go func() {
-				for err := range orch.ErrC {
-					logger.Error(err.Error())
-				}
-			}()
 
 			<-xsignal.WaitForInterrupt()
 

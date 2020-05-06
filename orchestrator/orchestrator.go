@@ -35,7 +35,6 @@ type Orchestrator struct {
 	eventStream *event.Listener
 
 	executionStream chan *execution.Execution
-	ErrC            chan error
 	stopC           chan bool
 
 	execPrice string
@@ -46,7 +45,6 @@ func New(rpc *cosmos.RPC, ep *publisher.EventPublisher, execPrice string) *Orche
 	return &Orchestrator{
 		rpc:       rpc,
 		ep:        ep,
-		ErrC:      make(chan error),
 		stopC:     make(chan bool),
 		execPrice: execPrice,
 	}
@@ -123,7 +121,7 @@ func (s *Orchestrator) findNodes(wf *process.Process, filter func(wf *process.Pr
 	return wf.FindNodes(func(n *process.Process_Node) bool {
 		res, err := filter(wf, n)
 		if err != nil {
-			s.ErrC <- err
+			logrus.WithField("module", "orchestrator").Error(err)
 		}
 		return res
 	})
@@ -133,13 +131,13 @@ func (s *Orchestrator) execute(filter func(wf *process.Process, node *process.Pr
 	var processes []*process.Process
 	route := fmt.Sprintf("custom/%s/%s", processmodule.QuerierRoute, processmodule.QueryList)
 	if err := s.rpc.QueryJSON(route, nil, &processes); err != nil {
-		s.ErrC <- err
+		logrus.WithField("module", "orchestrator").Error(err)
 		return
 	}
 	for _, wf := range processes {
 		for _, node := range s.findNodes(wf, filter) {
 			if err := s.executeNode(wf, node, exec, event, data); err != nil {
-				s.ErrC <- err
+				logrus.WithField("module", "orchestrator").Error(err)
 			}
 		}
 	}
@@ -168,12 +166,12 @@ func (s *Orchestrator) executeNode(wf *process.Process, n *process.Process_Node,
 		children, err := wf.FindNode(childrenID)
 		if err != nil {
 			// does not return an error to continue to process other tasks if needed
-			s.ErrC <- err
+			logrus.WithField("module", "orchestrator").Error(err)
 			continue
 		}
 		if err := s.executeNode(wf, children, exec, event, data); err != nil {
 			// does not return an error to continue to process other tasks if needed
-			s.ErrC <- err
+			logrus.WithField("module", "orchestrator").Error(err)
 		}
 	}
 	return nil
@@ -184,12 +182,12 @@ func (s *Orchestrator) filterMatch(f *process.Process_Node_Filter, wf *process.P
 	for _, condition := range f.Conditions {
 		resolvedData, err := s.resolveRef(wf, exec, nodeKey, data, condition.Ref)
 		if err != nil {
-			s.ErrC <- err
+			logrus.WithField("module", "orchestrator").Error(err)
 			return false
 		}
 		match, err := condition.Match(resolvedData)
 		if err != nil {
-			s.ErrC <- err
+			logrus.WithField("module", "orchestrator").Error(err)
 		}
 		if !match {
 			return false
@@ -379,13 +377,13 @@ func (s *Orchestrator) startExecutionStream(ctx context.Context) error {
 					attr := event.Events[attrKeyHash][index]
 					hash, err := hash.Decode(attr)
 					if err != nil {
-						s.ErrC <- err
+						logrus.WithField("module", "orchestrator").Error(err)
 						continue
 					}
 					var exec *execution.Execution
 					route := fmt.Sprintf("custom/%s/%s/%s", executionmodule.QuerierRoute, executionmodule.QueryGet, hash)
 					if err := s.rpc.QueryJSON(route, nil, &exec); err != nil {
-						s.ErrC <- err
+						logrus.WithField("module", "orchestrator").Error(err)
 						continue
 					}
 					s.executionStream <- exec
@@ -395,7 +393,7 @@ func (s *Orchestrator) startExecutionStream(ctx context.Context) error {
 			}
 		}
 		if err := s.rpc.Unsubscribe(context.Background(), subscriber, query); err != nil {
-			s.ErrC <- err
+			logrus.WithField("module", "orchestrator").Error(err)
 		}
 	}()
 	return nil

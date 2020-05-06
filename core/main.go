@@ -181,11 +181,6 @@ func main() {
 			logrus.WithField("module", "main").Fatalln(err)
 		}
 	}()
-	go func() {
-		for err := range orch.ErrC {
-			logrus.WithField("module", "orchestrator").Warn(err)
-		}
-	}()
 
 	logrus.WithField("module", "main").Info("starting lcd server")
 	cfgLcd := rpcserver.DefaultConfig()
