@@ -112,10 +112,10 @@ func testOrchestratorProcessBalanceWithdraw(runnerHash, instanceHash hash.Hash) 
 		t.Run("check coins on process after 1 execution", func(t *testing.T) {
 			var coins sdk.Coins
 			require.NoError(t, lcd.Get("bank/balances/"+procAddress.String(), &coins))
-			require.True(t, coins.IsEqual(processInitialBalance.Sub(minExecutionPrice)), coins)
+			require.True(t, coins.IsEqual(processInitialBalance.Sub(executionPrice)), coins)
 		})
 		t.Run("withdraw from process", func(t *testing.T) {
-			coins := minExecutionPrice
+			coins := executionPrice
 			msg := ownership.MsgWithdraw{
 				Owner:        cliAddress,
 				Amount:       coins.String(),
@@ -125,7 +125,7 @@ func testOrchestratorProcessBalanceWithdraw(runnerHash, instanceHash hash.Hash) 
 			require.NoError(t, err)
 
 			require.NoError(t, lcd.Get("bank/balances/"+procAddress.String(), &coins))
-			require.True(t, coins.IsEqual(processInitialBalance.Sub(minExecutionPrice).Sub(minExecutionPrice)), coins)
+			require.True(t, coins.IsEqual(processInitialBalance.Sub(executionPrice).Sub(executionPrice)), coins)
 		})
 		t.Run("delete process", func(t *testing.T) {
 			_, err := lcd.BroadcastMsg(processmodule.MsgDelete{
