@@ -27,6 +27,20 @@ func init() {
 	xrand.SeedInit()
 }
 
+// Orchestrator manages the executions based on the definition of the processes
+type Orchestrator struct {
+	rpc *cosmos.RPC
+	ep  *publisher.EventPublisher
+
+	eventStream *event.Listener
+
+	executionStream chan *execution.Execution
+	ErrC            chan error
+	stopC           chan bool
+
+	execPrice string
+}
+
 // New creates a new Process instance
 func New(rpc *cosmos.RPC, ep *publisher.EventPublisher, execPrice string) *Orchestrator {
 	return &Orchestrator{
