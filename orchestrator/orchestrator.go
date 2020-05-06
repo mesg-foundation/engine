@@ -2,7 +2,6 @@ package orchestrator
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"math/rand"
 
@@ -121,7 +120,7 @@ func (s *Orchestrator) findNodes(wf *process.Process, filter func(wf *process.Pr
 	return wf.FindNodes(func(n *process.Process_Node) bool {
 		res, err := filter(wf, n)
 		if err != nil {
-			logrus.WithField("module", "orchestrator").Error(err)
+			logNode(wf, n, nil, nil).WithError(err).Error(err)
 		}
 		return res
 	})
@@ -131,63 +130,77 @@ func (s *Orchestrator) execute(filter func(wf *process.Process, node *process.Pr
 	var processes []*process.Process
 	route := fmt.Sprintf("custom/%s/%s", processmodule.QuerierRoute, processmodule.QueryList)
 	if err := s.rpc.QueryJSON(route, nil, &processes); err != nil {
-		logrus.WithField("module", "orchestrator").Error(err)
+		log().WithError(err).Error(err)
 		return
 	}
 	for _, wf := range processes {
 		for _, node := range s.findNodes(wf, filter) {
 			if err := s.executeNode(wf, node, exec, event, data); err != nil {
-				logrus.WithField("module", "orchestrator").Error(err)
+				logNode(wf, node, exec, event).WithError(err).Error(err)
 			}
 		}
 	}
 }
 
 func (s *Orchestrator) executeNode(wf *process.Process, n *process.Process_Node, exec *execution.Execution, event *event.Event, data *types.Struct) error {
-	logrus.WithField("module", "orchestrator").
-		WithField("node.key", n.Key).
-		WithField("type", fmt.Sprintf("%T", n)).Debug("process process")
-	if task := n.GetTask(); task != nil {
+	// Process the node
+	switch x := n.Type.(type) {
+	case *process.Process_Node_Task_:
 		// This returns directly because a task cannot process its children.
 		// Children will be processed only when the execution is done and the dependencies are resolved
-		return s.processTask(n.Key, task, wf, exec, event, data)
-	} else if m := n.GetMap(); m != nil {
-		var err error
-		data, err = s.processMap(n.Key, m.Outputs, wf, exec, data)
+		newExecHash, err := s.processTask(n, x.Task, wf, exec, event, data)
 		if err != nil {
 			return err
 		}
-	} else if filter := n.GetFilter(); filter != nil {
-		if !s.filterMatch(filter, wf, n.Key, exec, data) {
-			return nil
+		logNode(wf, n, exec, event).WithField("execution", newExecHash).Info("execution created")
+		return nil // stop workflow execution
+	case *process.Process_Node_Map_:
+		var err error
+		data, err = s.processMap(n.Key, x.Map.Outputs, wf, exec, data)
+		if err != nil {
+			return err
 		}
+		logNode(wf, n, exec, event).Info("map executed")
+	case *process.Process_Node_Filter_:
+		if !s.filterMatch(x.Filter, wf, n, exec, data) {
+			logNode(wf, n, exec, event).Info("filter is not matching")
+			return nil // stop workflow execution
+		}
+		logNode(wf, n, exec, event).Info("filter is matching")
+	case *process.Process_Node_Result_, *process.Process_Node_Event_:
+		logNode(wf, n, exec, event).Info("triggering process")
+	default:
+		return fmt.Errorf("unknown node type %q", n.TypeString())
 	}
+
+	// Process the children
 	for _, childrenID := range wf.ChildrenKeys(n.Key) {
 		children, err := wf.FindNode(childrenID)
 		if err != nil {
 			// does not return an error to continue to process other tasks if needed
-			logrus.WithField("module", "orchestrator").Error(err)
+			logNode(wf, n, exec, event).WithError(err).Error(err)
 			continue
 		}
 		if err := s.executeNode(wf, children, exec, event, data); err != nil {
 			// does not return an error to continue to process other tasks if needed
-			logrus.WithField("module", "orchestrator").Error(err)
+			logNode(wf, n, exec, event).WithError(err).Error(err)
 		}
 	}
+
 	return nil
 }
 
 // filterMatch returns true if the data match the current list of filters.
-func (s *Orchestrator) filterMatch(f *process.Process_Node_Filter, wf *process.Process, nodeKey string, exec *execution.Execution, data *types.Struct) bool {
+func (s *Orchestrator) filterMatch(f *process.Process_Node_Filter, wf *process.Process, n *process.Process_Node, exec *execution.Execution, data *types.Struct) bool {
 	for _, condition := range f.Conditions {
-		resolvedData, err := s.resolveRef(wf, exec, nodeKey, data, condition.Ref)
+		resolvedData, err := s.resolveRef(wf, exec, n.Key, data, condition.Ref)
 		if err != nil {
-			logrus.WithField("module", "orchestrator").Error(err)
+			logNode(wf, n, exec, nil).WithError(err).Error(err)
 			return false
 		}
 		match, err := condition.Match(resolvedData)
 		if err != nil {
-			logrus.WithField("module", "orchestrator").Error(err)
+			logNode(wf, n, exec, nil).WithError(err).Error(err)
 		}
 		if !match {
 			return false
@@ -248,7 +261,7 @@ func (s *Orchestrator) outputToValue(nodeKey string, output *process.Process_Nod
 	case *process.Process_Node_Map_Output_Ref:
 		return s.resolveRef(wf, exec, nodeKey, data, v.Ref)
 	default:
-		return nil, errors.New("unknown output")
+		return nil, fmt.Errorf("unknown output")
 	}
 }
 
@@ -298,7 +311,7 @@ func (s *Orchestrator) resolveInput(wfHash hash.Hash, exec *execution.Execution,
 }
 
 // processTask create the request to execute the task.
-func (s *Orchestrator) processTask(nodeKey string, task *process.Process_Node_Task, wf *process.Process, exec *execution.Execution, event *event.Event, data *types.Struct) error {
+func (s *Orchestrator) processTask(node *process.Process_Node, task *process.Process_Node_Task, wf *process.Process, exec *execution.Execution, event *event.Event, data *types.Struct) (hash.Hash, error) {
 	var eventHash, execHash hash.Hash
 	if event != nil {
 		eventHash = event.Hash
@@ -309,7 +322,7 @@ func (s *Orchestrator) processTask(nodeKey string, task *process.Process_Node_Ta
 	var runners []*runner.Runner
 	route := fmt.Sprintf("custom/%s/%s", runnermodule.QuerierRoute, runnermodule.QueryList)
 	if err := s.rpc.QueryJSON(route, nil, &runners); err != nil {
-		return err
+		return nil, err
 	}
 	executors := make([]*runner.Runner, 0)
 	for _, run := range runners {
@@ -318,31 +331,32 @@ func (s *Orchestrator) processTask(nodeKey string, task *process.Process_Node_Ta
 		}
 	}
 	if len(executors) == 0 {
-		return fmt.Errorf("no runner is running instance %q", task.InstanceHash)
+		return nil, fmt.Errorf("no runner is running instance %q", task.InstanceHash)
 	}
 	executor := executors[rand.Intn(len(executors))]
 
 	// create execution
 	acc, err := s.rpc.GetAccount()
 	if err != nil {
-		return err
+		return nil, err
 	}
 	msg := executionmodule.MsgCreate{
 		Signer:       acc.GetAddress(),
 		ProcessHash:  wf.Hash,
 		EventHash:    eventHash,
 		ParentHash:   execHash,
-		NodeKey:      nodeKey,
+		NodeKey:      node.Key,
 		TaskKey:      task.TaskKey,
 		Inputs:       data,
 		ExecutorHash: executor.Hash,
 		Price:        s.execPrice,
 		Tags:         nil,
 	}
-	if _, err := s.rpc.BuildAndBroadcastMsg(msg); err != nil {
-		return err
+	res, err := s.rpc.BuildAndBroadcastMsg(msg)
+	if err != nil {
+		return nil, err
 	}
-	return nil
+	return hash.DecodeFromBytes(res.Data)
 }
 
 // startExecutionStream returns execution that matches given hash.
@@ -377,13 +391,13 @@ func (s *Orchestrator) startExecutionStream(ctx context.Context) error {
 					attr := event.Events[attrKeyHash][index]
 					hash, err := hash.Decode(attr)
 					if err != nil {
-						logrus.WithField("module", "orchestrator").Error(err)
+						log().WithError(err).Error(err)
 						continue
 					}
 					var exec *execution.Execution
 					route := fmt.Sprintf("custom/%s/%s/%s", executionmodule.QuerierRoute, executionmodule.QueryGet, hash)
 					if err := s.rpc.QueryJSON(route, nil, &exec); err != nil {
-						logrus.WithField("module", "orchestrator").Error(err)
+						log().WithError(err).Error(err)
 						continue
 					}
 					s.executionStream <- exec
@@ -393,8 +407,26 @@ func (s *Orchestrator) startExecutionStream(ctx context.Context) error {
 			}
 		}
 		if err := s.rpc.Unsubscribe(context.Background(), subscriber, query); err != nil {
-			logrus.WithField("module", "orchestrator").Error(err)
+			log().WithError(err).Error(err)
 		}
 	}()
 	return nil
+}
+
+func log() *logrus.Entry {
+	return logrus.WithField("module", "orchestrator")
+}
+
+func logNode(proc *process.Process, node *process.Process_Node, parentExec *execution.Execution, event *event.Event) *logrus.Entry {
+	entry := log().
+		WithField("process", proc.Hash).
+		WithField("nodeKey", node.Key).
+		WithField("nodeType", node.TypeString())
+	if event != nil {
+		entry = entry.WithField("event", event.Hash)
+	}
+	if parentExec != nil {
+		entry = entry.WithField("parentExec", parentExec.Hash)
+	}
+	return entry
 }
