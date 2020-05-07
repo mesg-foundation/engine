@@ -8,6 +8,7 @@ import (
 	"github.com/mesg-foundation/engine/execution"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/process"
+	"github.com/mesg-foundation/engine/protobuf/acknowledgement"
 	"github.com/mesg-foundation/engine/protobuf/types"
 	"github.com/mesg-foundation/engine/server/grpc/orchestrator"
 	processmodule "github.com/mesg-foundation/engine/x/process"
@@ -20,6 +21,8 @@ func testOrchestratorRefGrandParentTask(runnerHash, instanceHash hash.Hash) func
 		var (
 			processHash hash.Hash
 			err         error
+			execHash    hash.Hash
+			logs        orchestrator.Orchestrator_LogsClient
 		)
 		t.Run("create process", func(t *testing.T) {
 			msg := processmodule.MsgCreate{
@@ -109,6 +112,14 @@ func testOrchestratorRefGrandParentTask(runnerHash, instanceHash hash.Hash) func
 			processHash, err = lcd.BroadcastMsg(msg)
 			require.NoError(t, err)
 		})
+		t.Run("init logs stream", func(t *testing.T) {
+			req := orchestrator.OrchestratorLogsRequest{
+				ProcessHashes: []hash.Hash{processHash},
+			}
+			logs, err = client.OrchestratorClient.Logs(context.Background(), &req, grpc.PerRPCCredentials(&signCred{req}))
+			require.NoError(t, err)
+			acknowledgement.WaitForStreamToBeReady(logs)
+		})
 		t.Run("trigger process", func(t *testing.T) {
 			req := orchestrator.ExecutionCreateRequest{
 				Price:        "10000atto",
@@ -132,6 +143,23 @@ func testOrchestratorRefGrandParentTask(runnerHash, instanceHash hash.Hash) func
 			_, err := client.ExecutionClient.Create(context.Background(), &req, grpc.PerRPCCredentials(&signCred{req}))
 			require.NoError(t, err)
 		})
+		t.Run("check process is triggered", func(t *testing.T) {
+			log, err := logs.Recv()
+			require.NoError(t, err)
+			require.True(t, processHash.Equal(log.ProcessHash))
+			require.Equal(t, "n0", log.NodeKey)
+			require.Equal(t, process.NodeTypeEvent, log.NodeType)
+			require.False(t, log.EventHash.IsZero())
+		})
+		t.Run("check process creates first execution", func(t *testing.T) {
+			log, err := logs.Recv()
+			require.NoError(t, err)
+			require.True(t, processHash.Equal(log.ProcessHash))
+			require.Equal(t, "n1", log.NodeKey)
+			require.Equal(t, process.NodeTypeTask, log.NodeType)
+			require.False(t, log.CreatedExecHash.IsZero())
+			execHash = log.CreatedExecHash
+		})
 		t.Run("check first task", func(t *testing.T) {
 			t.Run("check in progress execution", func(t *testing.T) {
 				exec, err := pollExecutionOfProcess(processHash, execution.Status_InProgress, "n1")
@@ -139,6 +167,7 @@ func testOrchestratorRefGrandParentTask(runnerHash, instanceHash hash.Hash) func
 				require.Equal(t, "n1", exec.NodeKey)
 				require.Equal(t, "task1", exec.TaskKey)
 				require.True(t, processHash.Equal(exec.ProcessHash))
+				require.True(t, execHash.Equal(exec.Hash))
 				require.Equal(t, execution.Status_InProgress, exec.Status)
 				require.Equal(t, "foo_event", exec.Inputs.Fields["msg"].GetStringValue())
 			})
@@ -148,10 +177,28 @@ func testOrchestratorRefGrandParentTask(runnerHash, instanceHash hash.Hash) func
 				require.Equal(t, "n1", exec.NodeKey)
 				require.Equal(t, "task1", exec.TaskKey)
 				require.True(t, processHash.Equal(exec.ProcessHash))
+				require.True(t, execHash.Equal(exec.Hash))
 				require.Equal(t, execution.Status_Completed, exec.Status)
 				require.Equal(t, "foo_event", exec.Outputs.Fields["msg"].GetStringValue())
 				require.NotEmpty(t, exec.Outputs.Fields["timestamp"].GetNumberValue())
 			})
+		})
+		t.Run("check process executes map", func(t *testing.T) {
+			log, err := logs.Recv()
+			require.NoError(t, err)
+			require.True(t, processHash.Equal(log.ProcessHash))
+			require.Equal(t, "n2", log.NodeKey)
+			require.Equal(t, process.NodeTypeMap, log.NodeType)
+		})
+		t.Run("check process creates second execution", func(t *testing.T) {
+			log, err := logs.Recv()
+			require.NoError(t, err)
+			require.True(t, processHash.Equal(log.ProcessHash))
+			require.Equal(t, "n3", log.NodeKey)
+			require.Equal(t, process.NodeTypeTask, log.NodeType)
+			require.False(t, log.ParentHash.IsZero())
+			require.False(t, log.CreatedExecHash.IsZero())
+			execHash = log.CreatedExecHash
 		})
 		t.Run("check second task", func(t *testing.T) {
 			t.Run("check in progress execution", func(t *testing.T) {
@@ -160,6 +207,7 @@ func testOrchestratorRefGrandParentTask(runnerHash, instanceHash hash.Hash) func
 				require.Equal(t, "n3", exec.NodeKey)
 				require.Equal(t, "task1", exec.TaskKey)
 				require.True(t, processHash.Equal(exec.ProcessHash))
+				require.True(t, execHash.Equal(exec.Hash))
 				require.Equal(t, execution.Status_InProgress, exec.Status)
 				require.Equal(t, "itsAConstant", exec.Inputs.Fields["msg"].GetStringValue())
 			})
@@ -169,10 +217,28 @@ func testOrchestratorRefGrandParentTask(runnerHash, instanceHash hash.Hash) func
 				require.Equal(t, "n3", exec.NodeKey)
 				require.Equal(t, "task1", exec.TaskKey)
 				require.True(t, processHash.Equal(exec.ProcessHash))
+				require.True(t, execHash.Equal(exec.Hash))
 				require.Equal(t, execution.Status_Completed, exec.Status)
 				require.Equal(t, "itsAConstant", exec.Outputs.Fields["msg"].GetStringValue())
 				require.NotEmpty(t, exec.Outputs.Fields["timestamp"].GetNumberValue())
 			})
+		})
+		t.Run("check process executes map", func(t *testing.T) {
+			log, err := logs.Recv()
+			require.NoError(t, err)
+			require.True(t, processHash.Equal(log.ProcessHash))
+			require.Equal(t, "n4", log.NodeKey)
+			require.Equal(t, process.NodeTypeMap, log.NodeType)
+		})
+		t.Run("check process creates second execution", func(t *testing.T) {
+			log, err := logs.Recv()
+			require.NoError(t, err)
+			require.True(t, processHash.Equal(log.ProcessHash))
+			require.Equal(t, "n5", log.NodeKey)
+			require.Equal(t, process.NodeTypeTask, log.NodeType)
+			require.False(t, log.ParentHash.IsZero())
+			require.False(t, log.CreatedExecHash.IsZero())
+			execHash = log.CreatedExecHash
 		})
 		t.Run("check third task", func(t *testing.T) {
 			t.Run("check in progress execution", func(t *testing.T) {
@@ -181,6 +247,7 @@ func testOrchestratorRefGrandParentTask(runnerHash, instanceHash hash.Hash) func
 				require.Equal(t, "n5", exec.NodeKey)
 				require.Equal(t, "task1", exec.TaskKey)
 				require.True(t, processHash.Equal(exec.ProcessHash))
+				require.True(t, execHash.Equal(exec.Hash))
 				require.Equal(t, execution.Status_InProgress, exec.Status)
 				require.Equal(t, "foo_event", exec.Inputs.Fields["msg"].GetStringValue())
 			})
@@ -190,6 +257,7 @@ func testOrchestratorRefGrandParentTask(runnerHash, instanceHash hash.Hash) func
 				require.Equal(t, "n5", exec.NodeKey)
 				require.Equal(t, "task1", exec.TaskKey)
 				require.True(t, processHash.Equal(exec.ProcessHash))
+				require.True(t, execHash.Equal(exec.Hash))
 				require.Equal(t, execution.Status_Completed, exec.Status)
 				require.Equal(t, "foo_event", exec.Outputs.Fields["msg"].GetStringValue())
 				require.NotEmpty(t, exec.Outputs.Fields["timestamp"].GetNumberValue())

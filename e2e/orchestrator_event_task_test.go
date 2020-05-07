@@ -8,6 +8,7 @@ import (
 	"github.com/mesg-foundation/engine/execution"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/process"
+	"github.com/mesg-foundation/engine/protobuf/acknowledgement"
 	"github.com/mesg-foundation/engine/protobuf/types"
 	"github.com/mesg-foundation/engine/server/grpc/orchestrator"
 	processmodule "github.com/mesg-foundation/engine/x/process"
@@ -20,6 +21,8 @@ func testOrchestratorEventTask(runnerHash hash.Hash, instanceHash hash.Hash) fun
 		var (
 			processHash hash.Hash
 			err         error
+			execHash    hash.Hash
+			logs        orchestrator.Orchestrator_LogsClient
 		)
 
 		t.Run("create process", func(t *testing.T) {
@@ -53,6 +56,14 @@ func testOrchestratorEventTask(runnerHash hash.Hash, instanceHash hash.Hash) fun
 			processHash, err = lcd.BroadcastMsg(msg)
 			require.NoError(t, err)
 		})
+		t.Run("init logs stream", func(t *testing.T) {
+			req := orchestrator.OrchestratorLogsRequest{
+				ProcessHashes: []hash.Hash{processHash},
+			}
+			logs, err = client.OrchestratorClient.Logs(context.Background(), &req, grpc.PerRPCCredentials(&signCred{req}))
+			require.NoError(t, err)
+			acknowledgement.WaitForStreamToBeReady(logs)
+		})
 		t.Run("trigger process", func(t *testing.T) {
 			req := orchestrator.ExecutionCreateRequest{
 				Price:        "10000atto",
@@ -76,12 +87,30 @@ func testOrchestratorEventTask(runnerHash hash.Hash, instanceHash hash.Hash) fun
 			_, err := client.ExecutionClient.Create(context.Background(), &req, grpc.PerRPCCredentials(&signCred{req}))
 			require.NoError(t, err)
 		})
+		t.Run("check process is triggered", func(t *testing.T) {
+			log, err := logs.Recv()
+			require.NoError(t, err)
+			require.True(t, processHash.Equal(log.ProcessHash))
+			require.Equal(t, "n0", log.NodeKey)
+			require.Equal(t, process.NodeTypeEvent, log.NodeType)
+			require.False(t, log.EventHash.IsZero())
+		})
+		t.Run("check process creates execution", func(t *testing.T) {
+			log, err := logs.Recv()
+			require.NoError(t, err)
+			require.True(t, processHash.Equal(log.ProcessHash))
+			require.Equal(t, "n1", log.NodeKey)
+			require.Equal(t, process.NodeTypeTask, log.NodeType)
+			require.False(t, log.CreatedExecHash.IsZero())
+			execHash = log.CreatedExecHash
+		})
 		t.Run("check in progress execution", func(t *testing.T) {
 			exec, err := pollExecutionOfProcess(processHash, execution.Status_InProgress, "n1")
 			require.NoError(t, err)
 			require.Equal(t, "task1", exec.TaskKey)
 			require.Equal(t, "n1", exec.NodeKey)
 			require.True(t, processHash.Equal(exec.ProcessHash))
+			require.True(t, execHash.Equal(exec.Hash))
 			require.Equal(t, execution.Status_InProgress, exec.Status)
 			require.Equal(t, "foo_1", exec.Inputs.Fields["msg"].GetStringValue())
 		})
@@ -91,6 +120,7 @@ func testOrchestratorEventTask(runnerHash hash.Hash, instanceHash hash.Hash) fun
 			require.Equal(t, "task1", exec.TaskKey)
 			require.Equal(t, "n1", exec.NodeKey)
 			require.True(t, processHash.Equal(exec.ProcessHash))
+			require.True(t, execHash.Equal(exec.Hash))
 			require.Equal(t, execution.Status_Completed, exec.Status)
 			require.Equal(t, "foo_1", exec.Outputs.Fields["msg"].GetStringValue())
 			require.NotEmpty(t, exec.Outputs.Fields["timestamp"].GetNumberValue())

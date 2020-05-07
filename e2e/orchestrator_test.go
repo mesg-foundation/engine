@@ -6,6 +6,7 @@ import (
 
 func testOrchestrator(t *testing.T) {
 	// running orchestrator tests
+	t.Run("logs", testOrchestratorLogs(testRunnerHash, testInstanceHash))
 	t.Run("process balance and withdraw", testOrchestratorProcessBalanceWithdraw(testRunnerHash, testInstanceHash))
 	t.Run("event task", testOrchestratorEventTask(testRunnerHash, testInstanceHash))
 	t.Run("result task", testOrchestratorResultTask(testRunnerHash, testInstanceHash))
