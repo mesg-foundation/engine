@@ -16,7 +16,7 @@ type Logger struct {
 // NewLogger creates a new logger for the given topics
 func (s *Orchestrator) NewLogger(topics ...string) *Logger {
 	return &Logger{
-		Logs:   make(chan *Log, 0),
+		Logs:   make(chan *Log),
 		ps:     s.logs,
 		topics: topics,
 		sub:    s.logs.Sub(topics...),

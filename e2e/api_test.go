@@ -113,16 +113,16 @@ func TestAPI(t *testing.T) {
 	require.NoError(t, err)
 
 	// run tests
-	// t.Run("account-sequence", testAccountSequence)
+	t.Run("account-sequence", testAccountSequence)
 	t.Run("service", testService)
 	t.Run("runner", testRunner)
-	// t.Run("process", testProcess)
-	// t.Run("instance", testInstance)
-	// t.Run("event", testEvent)
-	// t.Run("execution", testExecution)
+	t.Run("process", testProcess)
+	t.Run("instance", testInstance)
+	t.Run("event", testEvent)
+	t.Run("execution", testExecution)
 	t.Run("orchestrator", testOrchestrator)
 	t.Run("runner/delete", testDeleteRunner)
-	// t.Run("complex-service", testComplexService)
+	t.Run("complex-service", testComplexService)
 }
 
 func pollExecution(executionHash hash.Hash, status execution.Status) (*execution.Execution, error) {
