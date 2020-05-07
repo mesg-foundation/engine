@@ -81,21 +81,6 @@ func startOrchestratorCmd(cdc *codec.Codec) *cobra.Command {
 			// init event publisher
 			ep := publisher.New(rpc)
 
-			// init gRPC server.
-			logger.Info("starting grpc server")
-			server := grpc.New(rpc, ep, viper.GetStringSlice(flagAuthorizedPubKeys))
-			defer func() {
-				logger.Info("stopping grpc server")
-				server.Close()
-			}()
-
-			go func() {
-				if err := server.Serve(viper.GetString(flagGrpcAddr)); err != nil {
-					logger.Error(err.Error())
-					panic(err)
-				}
-			}()
-
 			// orchestrator
 			logger.Info("starting orchestrator")
 			orch := orchestrator.New(rpc, ep, viper.GetString(flagExecPrice))
@@ -105,6 +90,20 @@ func startOrchestratorCmd(cdc *codec.Codec) *cobra.Command {
 			}()
 			go func() {
 				if err := orch.Start(); err != nil {
+					logger.Error(err.Error())
+					panic(err)
+				}
+			}()
+
+			// init gRPC server.
+			logger.Info("starting grpc server")
+			server := grpc.New(rpc, ep, orch, viper.GetStringSlice(flagAuthorizedPubKeys))
+			defer func() {
+				logger.Info("stopping grpc server")
+				server.Close()
+			}()
+			go func() {
+				if err := server.Serve(viper.GetString(flagGrpcAddr)); err != nil {
 					logger.Error(err.Error())
 					panic(err)
 				}

@@ -12,6 +12,7 @@ protoc --gogo_out=paths=source_relative,plugins=grpc:. server/grpc/runner/runner
 protoc --gogo_out=paths=source_relative,plugins=grpc:. server/grpc/orchestrator/execution.proto
 protoc --gogo_out=paths=source_relative,plugins=grpc:. server/grpc/orchestrator/runner.proto
 protoc --gogo_out=paths=source_relative,plugins=grpc:. server/grpc/orchestrator/event.proto
+protoc --gogo_out=paths=source_relative,plugins=grpc:. server/grpc/orchestrator/orchestrator.proto
 
 TYPES_PATH=protobuf/types
 

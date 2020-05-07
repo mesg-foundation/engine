@@ -1,0 +1,49 @@
+syntax = "proto3";
+
+import "gogo/protobuf/gogoproto/gogo.proto";
+
+package mesg.grpc.orchestrator;
+option go_package = "github.com/mesg-foundation/engine/service/grpc/orchestrator";
+
+// This is the Orchestrator API to interact with the Orchestrator.
+// This API requires all requests to be signed for authentication. The signature should be passed in the request's metadata using the key `mesg_request_signature` and base64 encoded.
+service Orchestrator {
+  // Logs returns a stream of events that satisfy criteria specified.
+  rpc Logs(OrchestratorLogsRequest) returns (stream OrchestratorLogsResponse) {}
+}
+
+// Logs returns a stream of events that satisfy specified filter.
+message OrchestratorLogsRequest {
+  // process hashes to listen the log from. If empty, logs from all processes will be returned.
+  repeated bytes processHashes = 1 [
+    (gogoproto.moretags) = 'validate:"dive,required,hash"',
+    (gogoproto.casttype) = "github.com/mesg-foundation/engine/hash.Hash"
+  ];
+}
+
+// OrchestratorLogsResponse is the message send on the Logs stream.
+message OrchestratorLogsResponse {
+  bytes processHash = 1 [
+    (gogoproto.casttype) = "github.com/mesg-foundation/engine/hash.Hash"
+  ];
+
+  string nodeKey = 2;
+
+  string nodeType = 3;
+  
+  bytes eventHash = 4 [
+    (gogoproto.casttype) = "github.com/mesg-foundation/engine/hash.Hash"
+  ];
+
+  bytes parentHash = 5 [
+    (gogoproto.casttype) = "github.com/mesg-foundation/engine/hash.Hash"
+  ];
+
+  string msg = 6;
+
+  string error = 7;
+
+  bytes createdExecHash = 8 [
+    (gogoproto.casttype) = "github.com/mesg-foundation/engine/hash.Hash"
+  ];
+}

@@ -156,20 +156,7 @@ func main() {
 		logrus.WithField("module", "main").Fatalln(err)
 	}
 
-	// init gRPC server.
-	server := grpc.New(rpc, ep, cfg.AuthorizedPubKeys)
-	logrus.WithField("module", "main").Infof("starting MESG Engine version %s", version.Version)
-	defer func() {
-		logrus.WithField("module", "main").Info("stopping grpc server")
-		server.Close()
-	}()
-
-	go func() {
-		if err := server.Serve(cfg.Server.Address); err != nil {
-			logrus.WithField("module", "main").Fatalln(err)
-		}
-	}()
-
+	// init orchestrator
 	logrus.WithField("module", "main").Info("starting process engine")
 	orch := orchestrator.New(rpc, ep, cfg.DefaultExecutionPrice)
 	defer func() {
@@ -182,6 +169,21 @@ func main() {
 		}
 	}()
 
+	// init gRPC server.
+	server := grpc.New(rpc, ep, orch, cfg.AuthorizedPubKeys)
+	logrus.WithField("module", "main").Infof("starting MESG Engine version %s", version.Version)
+	defer func() {
+		logrus.WithField("module", "main").Info("stopping grpc server")
+		server.Close()
+	}()
+
+	go func() {
+		if err := server.Serve(cfg.Server.Address); err != nil {
+			logrus.WithField("module", "main").Fatalln(err)
+		}
+	}()
+
+	// init lcd
 	logrus.WithField("module", "main").Info("starting lcd server")
 	cfgLcd := rpcserver.DefaultConfig()
 	lcdServer, err := rpcserver.Listen("tcp://[::]:1317", cfgLcd)

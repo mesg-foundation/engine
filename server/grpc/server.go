@@ -12,6 +12,7 @@ import (
 	"github.com/mesg-foundation/engine/cosmos"
 	"github.com/mesg-foundation/engine/event/publisher"
 	"github.com/mesg-foundation/engine/ext/xvalidator"
+	orch "github.com/mesg-foundation/engine/orchestrator"
 	"github.com/mesg-foundation/engine/server/grpc/orchestrator"
 	"github.com/mesg-foundation/engine/server/grpc/runner"
 	"github.com/sirupsen/logrus"
@@ -25,14 +26,16 @@ type Server struct {
 	instance          *grpc.Server
 	rpc               *cosmos.RPC
 	ep                *publisher.EventPublisher
+	orch              *orch.Orchestrator
 	authorizedPubKeys []string
 }
 
 // New returns a new gRPC server.
-func New(rpc *cosmos.RPC, ep *publisher.EventPublisher, authorizedPubKeys []string) *Server {
+func New(rpc *cosmos.RPC, ep *publisher.EventPublisher, orch *orch.Orchestrator, authorizedPubKeys []string) *Server {
 	return &Server{
 		rpc:               rpc,
 		ep:                ep,
+		orch:              orch,
 		authorizedPubKeys: authorizedPubKeys,
 	}
 }
@@ -95,6 +98,7 @@ func (s *Server) register() error {
 	orchestrator.RegisterEventServer(s.instance, orchestrator.NewEventServer(s.ep, authorizer))
 	orchestrator.RegisterExecutionServer(s.instance, orchestrator.NewExecutionServer(s.rpc, authorizer))
 	orchestrator.RegisterRunnerServer(s.instance, orchestrator.NewRunnerServer(s.rpc, tokenToRunnerHash, authorizer))
+	orchestrator.RegisterOrchestratorServer(s.instance, orchestrator.NewOrchestratorServer(s.orch, authorizer))
 
 	reflection.Register(s.instance)
 

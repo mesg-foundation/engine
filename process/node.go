@@ -1,19 +1,29 @@
 package process
 
+// NodeType are the string constant corresponding to each type of node.
+const (
+	NodeTypeUnknown = "unknown"
+	NodeTypeResult  = "result"
+	NodeTypeEvent   = "event"
+	NodeTypeTask    = "task"
+	NodeTypeMap     = "map"
+	NodeTypeFilter  = "filter"
+)
+
 // TypeString returns the type of the node in string
 func (node *Process_Node) TypeString() string {
 	switch node.Type.(type) {
 	case *Process_Node_Result_:
-		return "result"
+		return NodeTypeResult
 	case *Process_Node_Event_:
-		return "event"
+		return NodeTypeEvent
 	case *Process_Node_Task_:
-		return "task"
+		return NodeTypeTask
 	case *Process_Node_Map_:
-		return "map"
+		return NodeTypeMap
 	case *Process_Node_Filter_:
-		return "filter"
+		return NodeTypeFilter
 	default:
-		return "unknown"
+		return NodeTypeUnknown
 	}
 }
