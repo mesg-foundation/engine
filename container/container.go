@@ -181,6 +181,16 @@ func (c *Container) Start(srv *service.Service, instanceHash, runnerHash, instan
 		containerConfig.Cmd = append(containerConfig.Cmd, dep.Args...)
 
 		// create container, attach network, start it
+		if _, _, err := c.client.ImageInspectWithRaw(context.Background(), dep.Image); err != nil {
+			r, err := c.client.ImagePull(context.Background(), dep.Image, types.ImagePullOptions{})
+			if err != nil {
+				return err
+			}
+			// wait for docker to download the image
+			if _, err := ioutil.ReadAll(r); err != nil {
+				return err
+			}
+		}
 		if _, err := c.client.ContainerCreate(context.Background(), containerConfig, hostConfig, nil, depName); err != nil {
 			return err
 		}
