@@ -13,9 +13,6 @@ import (
 )
 
 const (
-	// DefaultAlgo for create account.
-	DefaultAlgo = keys.Secp256k1
-
 	mnemonicEntropySize = 256
 )
 

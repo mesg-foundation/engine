@@ -32,7 +32,6 @@ require (
 	github.com/huandu/xstrings v1.2.0 // indirect
 	github.com/imdario/mergo v0.3.7 // indirect
 	github.com/konsorten/go-windows-terminal-sequences v1.0.2 // indirect
-	github.com/mitchellh/go-homedir v1.1.0
 	github.com/morikuni/aec v1.0.0 // indirect
 	github.com/mr-tron/base58 v1.1.3
 	github.com/mwitkow/go-proto-validators v0.0.0-20190212092829-1f388280e944 // indirect
@@ -57,7 +56,6 @@ require (
 	golang.org/x/net v0.0.0-20200301022130-244492dfa37a // indirect
 	golang.org/x/sys v0.0.0-20200420163511-1957bb5e6d1f // indirect
 	google.golang.org/grpc v1.29.1
-	gopkg.in/yaml.v2 v2.2.8
 	gotest.tools v2.2.0+incompatible // indirect
 )
 
