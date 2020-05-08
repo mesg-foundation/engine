@@ -20,7 +20,7 @@ import (
 	executionmodule "github.com/mesg-foundation/engine/x/execution"
 	processmodule "github.com/mesg-foundation/engine/x/process"
 	runnermodule "github.com/mesg-foundation/engine/x/runner"
-	"github.com/sirupsen/logrus"
+	tmlog "github.com/tendermint/tendermint/libs/log"
 )
 
 func init() {
@@ -34,16 +34,14 @@ const (
 
 // Orchestrator manages the executions based on the definition of the processes
 type Orchestrator struct {
-	rpc *cosmos.RPC
-	ep  *publisher.EventPublisher
-
-	eventStream *event.Listener
-
+	rpc             *cosmos.RPC
+	ep              *publisher.EventPublisher
+	eventStream     *event.Listener
 	executionStream chan *execution.Execution
 	stopC           chan bool
 	logs            *pubsub.PubSub
-
-	execPrice string
+	logger          tmlog.Logger
+	execPrice       string
 }
 
 // Log is representing a Log from the Orchestrator
@@ -59,12 +57,13 @@ type Log struct {
 }
 
 // New creates a new Process instance
-func New(rpc *cosmos.RPC, ep *publisher.EventPublisher, execPrice string) *Orchestrator {
+func New(rpc *cosmos.RPC, ep *publisher.EventPublisher, logger tmlog.Logger, execPrice string) *Orchestrator {
 	return &Orchestrator{
 		rpc:       rpc,
 		ep:        ep,
 		stopC:     make(chan bool),
 		logs:      pubsub.New(0),
+		logger:    logger.With("module", "orchestrator"),
 		execPrice: execPrice,
 	}
 }
@@ -151,7 +150,7 @@ func (s *Orchestrator) execute(filter func(wf *process.Process, node *process.Pr
 	var processes []*process.Process
 	route := fmt.Sprintf("custom/%s/%s", processmodule.QuerierRoute, processmodule.QueryList)
 	if err := s.rpc.QueryJSON(route, nil, &processes); err != nil {
-		log().Error(err)
+		s.logger.Error(err.Error(), err)
 		return
 	}
 	for _, wf := range processes {
@@ -412,13 +411,13 @@ func (s *Orchestrator) startExecutionStream(ctx context.Context) error {
 					attr := event.Events[attrKeyHash][index]
 					hash, err := hash.Decode(attr)
 					if err != nil {
-						log().Error(err)
+						s.logger.Error(err.Error(), err)
 						continue
 					}
 					var exec *execution.Execution
 					route := fmt.Sprintf("custom/%s/%s/%s", executionmodule.QuerierRoute, executionmodule.QueryGet, hash)
 					if err := s.rpc.QueryJSON(route, nil, &exec); err != nil {
-						log().Error(err)
+						s.logger.Error(err.Error(), err)
 						continue
 					}
 					s.executionStream <- exec
@@ -428,7 +427,7 @@ func (s *Orchestrator) startExecutionStream(ctx context.Context) error {
 			}
 		}
 		if err := s.rpc.Unsubscribe(context.Background(), subscriber, query); err != nil {
-			log().Error(err)
+			s.logger.Error(err.Error(), err)
 		}
 	}()
 	return nil
@@ -449,7 +448,7 @@ func (s *Orchestrator) log(proc *process.Process, node *process.Process_Node, pa
 	if parentExec != nil {
 		log.ParentHash = parentExec.Hash
 	}
-	convertLogToLogrus(log).Info(msg)
+	s.logger.Info("Orchestrator "+msg, log.keyvals()...)
 	go s.logs.Pub(log, proc.Hash.String())
 	go s.logs.Pub(log, AllLogTopic)
 }
@@ -469,28 +468,25 @@ func (s *Orchestrator) logError(proc *process.Process, node *process.Process_Nod
 	if parentExec != nil {
 		log.ParentHash = parentExec.Hash
 	}
-	convertLogToLogrus(log).Error(err.Error())
+	s.logger.Error("Orchestrator error: "+err.Error(), log.keyvals()...)
 	go s.logs.Pub(log, proc.Hash.String())
 	go s.logs.Pub(log, AllLogTopic)
 }
 
-func log() *logrus.Entry {
-	return logrus.WithField("module", "orchestrator")
-}
-
-func convertLogToLogrus(l *Log) *logrus.Entry {
-	entry := log().
-		WithField("process", l.ProcessHash.String()).
-		WithField("nodeKey", l.NodeKey).
-		WithField("nodeType", l.NodeType)
+func (l *Log) keyvals() []interface{} {
+	keyvals := []interface{}{
+		"processHash", l.ProcessHash.String(),
+		"nodeKey", l.NodeKey,
+		"nodeType", l.NodeType,
+	}
 	if !l.EventHash.IsZero() {
-		entry = entry.WithField("event", l.EventHash.String())
+		keyvals = append(keyvals, "event", l.EventHash.String())
 	}
 	if !l.ParentHash.IsZero() {
-		entry = entry.WithField("parentExec", l.ParentHash.String())
+		keyvals = append(keyvals, "parentExec", l.ParentHash.String())
 	}
 	if !l.CreatedExecHash.IsZero() {
-		entry = entry.WithField("createdExec", l.CreatedExecHash.String())
+		keyvals = append(keyvals, "createdExec", l.CreatedExecHash.String())
 	}
-	return entry
+	return keyvals
 }

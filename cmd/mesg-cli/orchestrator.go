@@ -48,19 +48,19 @@ func startOrchestratorCmd(cdc *codec.Codec) *cobra.Command {
 				return fmt.Errorf("chain-id is required. use flag --chain-id or config file")
 			}
 
-			logger := log.NewTMLogger(log.NewSyncWriter(os.Stdout)).With("module", "orchestrator")
+			logger := log.NewTMLogger(log.NewSyncWriter(os.Stdout))
 			client, err := cliCtx.GetNode()
 			if err != nil {
 				return err
 			}
 
 			// init rpc client
-			logger.Info("starting rpc client")
+			logger.Info("Starting rpc client")
 			if err := client.Start(); err != nil {
 				return err
 			}
 			defer func() {
-				logger.Info("stopping rpc client")
+				logger.Info("Stopping rpc client")
 				if err := client.Stop(); err != nil {
 					logger.Error(err.Error())
 				}
@@ -82,10 +82,10 @@ func startOrchestratorCmd(cdc *codec.Codec) *cobra.Command {
 			ep := publisher.New(rpc)
 
 			// orchestrator
-			logger.Info("starting orchestrator")
-			orch := orchestrator.New(rpc, ep, viper.GetString(flagExecPrice))
+			logger.Info("Starting orchestrator")
+			orch := orchestrator.New(rpc, ep, logger, viper.GetString(flagExecPrice))
 			defer func() {
-				logger.Info("stopping orchestrator")
+				logger.Info("Stopping orchestrator")
 				orch.Stop()
 			}()
 			go func() {
@@ -96,10 +96,10 @@ func startOrchestratorCmd(cdc *codec.Codec) *cobra.Command {
 			}()
 
 			// init gRPC server.
-			logger.Info("starting grpc server")
-			server := grpc.New(rpc, ep, orch, viper.GetStringSlice(flagAuthorizedPubKeys))
+			logger.Info("Starting gRPC server")
+			server := grpc.New(rpc, ep, orch, logger, viper.GetStringSlice(flagAuthorizedPubKeys))
 			defer func() {
-				logger.Info("stopping grpc server")
+				logger.Info("Stopping gRPC server")
 				server.Close()
 			}()
 			go func() {
