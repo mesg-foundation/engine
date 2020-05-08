@@ -23,26 +23,34 @@ message OrchestratorLogsRequest {
 
 // OrchestratorLogsResponse is the message send on the Logs stream.
 message OrchestratorLogsResponse {
+  // Hash of the process
   bytes processHash = 1 [
     (gogoproto.casttype) = "github.com/mesg-foundation/engine/hash.Hash"
   ];
 
+  // Key of the node being executed.
   string nodeKey = 2;
-
+  
+  // Type of the node being executed.
   string nodeType = 3;
   
+  // Hash of the event that trigger this node. Can be empty.
   bytes eventHash = 4 [
     (gogoproto.casttype) = "github.com/mesg-foundation/engine/hash.Hash"
   ];
 
+  // Hash of the parent execution that trigger this node. Can be empty.
   bytes parentHash = 5 [
     (gogoproto.casttype) = "github.com/mesg-foundation/engine/hash.Hash"
   ];
 
+  // Message of this log. Can be empty if error is set.
   string msg = 6;
 
+  // Error message that occurred.
   string error = 7;
 
+  // Hash of the execution created by this process. Can be empty.
   bytes createdExecHash = 8 [
     (gogoproto.casttype) = "github.com/mesg-foundation/engine/hash.Hash"
   ];

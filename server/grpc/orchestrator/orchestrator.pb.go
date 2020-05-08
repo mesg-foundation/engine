@@ -68,13 +68,21 @@ func (m *OrchestratorLogsRequest) GetProcessHashes() []github_com_mesg_foundatio
 
 // OrchestratorLogsResponse is the message send on the Logs stream.
 type OrchestratorLogsResponse struct {
-	ProcessHash          github_com_mesg_foundation_engine_hash.Hash `protobuf:"bytes,1,opt,name=processHash,proto3,casttype=github.com/mesg-foundation/engine/hash.Hash" json:"processHash,omitempty"`
-	NodeKey              string                                      `protobuf:"bytes,2,opt,name=nodeKey,proto3" json:"nodeKey,omitempty"`
-	NodeType             string                                      `protobuf:"bytes,3,opt,name=nodeType,proto3" json:"nodeType,omitempty"`
-	EventHash            github_com_mesg_foundation_engine_hash.Hash `protobuf:"bytes,4,opt,name=eventHash,proto3,casttype=github.com/mesg-foundation/engine/hash.Hash" json:"eventHash,omitempty"`
-	ParentHash           github_com_mesg_foundation_engine_hash.Hash `protobuf:"bytes,5,opt,name=parentHash,proto3,casttype=github.com/mesg-foundation/engine/hash.Hash" json:"parentHash,omitempty"`
-	Msg                  string                                      `protobuf:"bytes,6,opt,name=msg,proto3" json:"msg,omitempty"`
-	Error                string                                      `protobuf:"bytes,7,opt,name=error,proto3" json:"error,omitempty"`
+	// Hash of the process
+	ProcessHash github_com_mesg_foundation_engine_hash.Hash `protobuf:"bytes,1,opt,name=processHash,proto3,casttype=github.com/mesg-foundation/engine/hash.Hash" json:"processHash,omitempty"`
+	// Key of the node being executed.
+	NodeKey string `protobuf:"bytes,2,opt,name=nodeKey,proto3" json:"nodeKey,omitempty"`
+	// Type of the node being executed.
+	NodeType string `protobuf:"bytes,3,opt,name=nodeType,proto3" json:"nodeType,omitempty"`
+	// Hash of the event that trigger this node. Can be empty.
+	EventHash github_com_mesg_foundation_engine_hash.Hash `protobuf:"bytes,4,opt,name=eventHash,proto3,casttype=github.com/mesg-foundation/engine/hash.Hash" json:"eventHash,omitempty"`
+	// Hash of the parent execution that trigger this node. Can be empty.
+	ParentHash github_com_mesg_foundation_engine_hash.Hash `protobuf:"bytes,5,opt,name=parentHash,proto3,casttype=github.com/mesg-foundation/engine/hash.Hash" json:"parentHash,omitempty"`
+	// Message of this log. Can be empty if error is set.
+	Msg string `protobuf:"bytes,6,opt,name=msg,proto3" json:"msg,omitempty"`
+	// Error message that occurred.
+	Error string `protobuf:"bytes,7,opt,name=error,proto3" json:"error,omitempty"`
+	// Hash of the execution created by this process. Can be empty.
 	CreatedExecHash      github_com_mesg_foundation_engine_hash.Hash `protobuf:"bytes,8,opt,name=createdExecHash,proto3,casttype=github.com/mesg-foundation/engine/hash.Hash" json:"createdExecHash,omitempty"`
 	XXX_NoUnkeyedLiteral struct{}                                    `json:"-"`
 	XXX_unrecognized     []byte                                      `json:"-"`
