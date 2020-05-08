@@ -27,8 +27,14 @@ docker service create \
   mesg/engine:cli-dev
 
 echo "waiting to give some time to the container to start and run"
-sleep 10 &
-wait $!
+while true; do
+  printf '.'
+  block=$(curl --silent http://localhost:1317/node_info | jq .node_info.protocol_version.block)
+  if [[ -n $block ]]; then
+    break
+  fi
+  sleep 1
+done
 
 echo "starting tests"
 go test -failfast -mod=readonly -v -count=1 ./e2e/...
