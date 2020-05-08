@@ -37,9 +37,15 @@ docker service create \
   --label com.docker.stack.namespace=$ENGINE_NAME \
   mesg/engine:$1-dev
 
-echo "waiting rpc server to start"
-sleep 10 &
-wait $!
+echo "waiting lcd server to start"
+while true; do
+  printf '.'
+  block=$(curl --silent http://localhost:1317/node_info | jq .node_info.protocol_version.block)
+  if [[ -n $block ]]; then
+    break
+  fi
+  sleep 1
+done
 
 echo "starting tests"
 go test -failfast -mod=readonly -v -count=1 ./e2e/...
