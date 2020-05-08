@@ -448,9 +448,9 @@ func (s *Orchestrator) log(proc *process.Process, node *process.Process_Node, pa
 	if parentExec != nil {
 		log.ParentHash = parentExec.Hash
 	}
-	s.logger.Info("Orchestrator "+msg, log.keyvals()...)
 	go s.logs.Pub(log, proc.Hash.String())
 	go s.logs.Pub(log, AllLogTopic)
+	s.logger.Info("Orchestrator "+msg, log.keyvals()...)
 }
 
 func (s *Orchestrator) logError(proc *process.Process, node *process.Process_Node, parentExec *execution.Execution, event *event.Event, err error) {
@@ -468,9 +468,9 @@ func (s *Orchestrator) logError(proc *process.Process, node *process.Process_Nod
 	if parentExec != nil {
 		log.ParentHash = parentExec.Hash
 	}
-	s.logger.Error("Orchestrator error: "+err.Error(), log.keyvals()...)
 	go s.logs.Pub(log, proc.Hash.String())
 	go s.logs.Pub(log, AllLogTopic)
+	s.logger.Error("Orchestrator error: "+err.Error(), log.keyvals()...)
 }
 
 func (l *Log) keyvals() []interface{} {

@@ -70,7 +70,7 @@ func (s *Server) Serve(address string) error {
 		return err
 	}
 	grpc_prometheus.Register(s.instance)
-	s.logger.Info("Server listens on ", ln.Addr())
+	s.logger.Info("Server listens on " + ln.Addr().String())
 	return s.instance.Serve(ln)
 }
 
