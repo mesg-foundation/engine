@@ -2,7 +2,6 @@ Dockerfile
 
 # build
 /bin
-!/bin/engine
 
 # repo files
 README.md

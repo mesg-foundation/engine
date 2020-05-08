@@ -7,7 +7,7 @@ run_on_machine: &run_on_machine
 
 run_on_docker: &run_on_docker
   docker:
-    - image: circleci/golang:1.13.0
+    - image: circleci/golang:1.13.10
 
 go_path: &go_path /tmp/go/path
 
@@ -65,12 +65,12 @@ jobs:
           name: "Install Go"
           command: |
             sudo rm -rf /usr/local/go
-            curl -sSL "https://dl.google.com/go/go1.13.linux-amd64.tar.gz" | sudo tar -xz -C /usr/local/
+            curl -sSL "https://dl.google.com/go/go1.13.10.linux-amd64.tar.gz" | sudo tar -xz -C /usr/local/
             echo "export PATH=$PATH:/usr/local/go/bin" >> $BASH_ENV
       - run: docker swarm init
       - <<: *restore_go_cache
       - <<: *restore_go_path
-      - run: make e2e version=`echo $CIRCLE_SHA1 | cut -c1-7`
+      - run: make e2e
       - <<: *save_go_path
       - <<: *save_go_cache
 
@@ -79,33 +79,33 @@ jobs:
       - image: golangci/golangci-lint:v1.21
     steps:
       - checkout
-      - run: make lint
+      - run: golangci-lint
 
-  "publish_docker_dev":
+  "publish_docker_unstable":
     <<: *run_on_machine
     steps:
       - checkout
       - run: docker login -u $DOCKER_USER -p $DOCKER_PASS
-      - run: make docker-publish-dev version=`echo $CIRCLE_SHA1 | cut -c1-7`
+      - run: make publish-docker-unstable version=`echo $CIRCLE_SHA1 | cut -c1-7`
 
   "publish_docker_prod":
     <<: *run_on_machine
     steps:
       - checkout
       - run: docker login -u $DOCKER_USER -p $DOCKER_PASS
-      - run: make docker-publish version=$CIRCLE_TAG
+      - run: make publish-docker-prod version=$CIRCLE_TAG
 
-  "release_cli_dev":
+  "release_cli_unstable":
     <<: *run_on_docker
     steps:
       - checkout
-      - run: make publish-cmds version="dev build `echo $CIRCLE_SHA1 | cut -c1-7`" release-type=dev
+      - run: make publish version="`echo $CIRCLE_SHA1 | cut -c1-7`" release-type=unstable
 
   "release_cli_prod":
     <<: *run_on_docker
     steps:
       - checkout
-      - run: make publish-cmds version=$CIRCLE_TAG release-type=prod
+      - run: make publish version=$CIRCLE_TAG release-type=prod
 
 workflows:
   version: 2
@@ -133,7 +133,7 @@ workflows:
             - "test"
             - "lint"
 
-  release_dev:
+  release_unstable:
     jobs:
       - "lint":
           filters:
@@ -151,10 +151,10 @@ workflows:
           requires:
             - "test"
             - "lint"
-      - "publish_docker_dev":
+      - "publish_docker_unstable":
           requires:
             - "test_e2e"
-      - "release_cli_dev":
+      - "release_cli_unstable":
           requires:
             - "test_e2e"
 
