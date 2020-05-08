@@ -15,7 +15,7 @@ require (
 	github.com/docker/cli v0.0.0-20191011045415-5d85cdacd257
 	github.com/docker/distribution v2.7.1+incompatible // indirect
 	github.com/docker/docker v1.4.2-0.20191006173954-0abbb9e4ebf1
-	github.com/docker/go-connections v0.4.0 // indirect
+	github.com/docker/go-connections v0.4.0
 	github.com/docker/go-units v0.4.0 // indirect
 	github.com/go-bindata/go-bindata v0.0.0-20181025070752-41975c0ccc30
 	github.com/go-kit/kit v0.10.0
