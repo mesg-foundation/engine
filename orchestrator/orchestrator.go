@@ -477,7 +477,7 @@ func (s *Orchestrator) log(proc *process.Process, node *process.Process_Node, st
 		TimeConsumed: time.Now().Sub(start).Nanoseconds(),
 		Type:         logType,
 	}
-	go s.logsPubSub.Pub(log, log.ProcessHash.String())
-	go s.logsPubSub.Pub(log, anyActionTopic)
+	s.logsPubSub.Pub(log, log.ProcessHash.String())
+	s.logsPubSub.Pub(log, anyActionTopic)
 	s.logger.Info(logType.message(), append(log.keyvals(), logType.keyvals()...)...)
 }
