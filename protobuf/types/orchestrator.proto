@@ -1,0 +1,63 @@
+syntax = "proto3";
+
+import "gogo/protobuf/gogoproto/gogo.proto";
+
+package mesg.types;
+option go_package = "github.com/mesg-foundation/engine/orchestrator";
+
+// OrchestratorLog is the structure that represent a specific action done by the orchestrator.
+message OrchestratorLog {
+
+  message TypeErrorOccurred {
+    string error = 1;
+  }
+
+  message TypeExecutionCreated {
+    // Hash of the execution created by this process. Can be empty.
+    bytes executionHash = 6 [
+      (gogoproto.casttype) = "github.com/mesg-foundation/engine/hash.Hash"
+    ];
+  }
+
+  message TypeMapExecuted {}
+
+  message TypeFilterMatched {}
+
+  message TypeFilterDidNotMatched {}
+
+  message TypeTriggeredByResult {
+    bytes executionHash = 1 [
+      (gogoproto.casttype) = "github.com/mesg-foundation/engine/hash.Hash"
+    ];
+  }
+
+  message TypeTriggeredByEvent {
+    bytes eventHash = 1 [
+      (gogoproto.casttype) = "github.com/mesg-foundation/engine/hash.Hash"
+    ];
+  }
+
+  // Hash of the process
+  bytes processHash = 1 [
+    (gogoproto.casttype) = "github.com/mesg-foundation/engine/hash.Hash"
+  ];
+
+  // Key of the node being executed.
+  string nodeKey = 2;
+  
+  // Type of the node being executed.
+  string nodeType = 3;
+
+  // Time used in nanoseconds by the orchestrator to execute this action.
+  int64 timeConsumed = 4;
+
+  oneof type {
+    TypeExecutionCreated    executionCreated = 5;
+    TypeMapExecuted         mapExecuted = 6;
+    TypeFilterMatched       filterMatched = 7;
+    TypeFilterDidNotMatched filterDidNotMatched = 8;
+    TypeTriggeredByResult   triggeredByResult = 9;
+    TypeTriggeredByEvent    triggeredByEvent = 10;
+    TypeErrorOccurred       errorOccurred = 11;
+  }
+}

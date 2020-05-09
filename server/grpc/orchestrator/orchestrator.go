@@ -30,12 +30,9 @@ func (s *orchestratorServer) Logs(req *OrchestratorLogsRequest, stream Orchestra
 	for _, h := range req.ProcessHashes {
 		topics = append(topics, h.String())
 	}
-	if len(topics) == 0 {
-		topics = append(topics, orchestrator.AllLogTopic)
-	}
-	logger := s.orch.NewLogger(topics...)
-	go logger.Listen()
-	defer logger.Close()
+	listener := s.orch.NewLogsListener(topics...)
+	go listener.Listen()
+	defer listener.Close()
 
 	// send header to notify client that the stream is ready.
 	if err := acknowledgement.SetStreamReady(stream); err != nil {
@@ -44,7 +41,7 @@ func (s *orchestratorServer) Logs(req *OrchestratorLogsRequest, stream Orchestra
 
 	for {
 		select {
-		case log := <-logger.Logs:
+		case log := <-listener.Logs:
 			if err := stream.Send(log); err != nil {
 				return err
 			}

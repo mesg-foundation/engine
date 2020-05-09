@@ -1,7 +1,7 @@
 syntax = "proto3";
 
 import "gogo/protobuf/gogoproto/gogo.proto";
-import "protobuf/types/orchestrator_log.proto";
+import "protobuf/types/orchestrator.proto";
 
 package mesg.grpc.orchestrator;
 option go_package = "github.com/mesg-foundation/engine/service/grpc/orchestrator";
@@ -9,7 +9,7 @@ option go_package = "github.com/mesg-foundation/engine/service/grpc/orchestrator
 // This is the Orchestrator API to interact with the Orchestrator.
 // This API requires all requests to be signed for authentication. The signature should be passed in the request's metadata using the key `mesg_request_signature` and base64 encoded.
 service Orchestrator {
-  // Logs returns a stream of events that satisfy criteria specified.
+  // Logs returns a stream of orchestrator action that satisfy criteria specified.
   rpc Logs(OrchestratorLogsRequest) returns (stream types.OrchestratorLog) {}
 }
 

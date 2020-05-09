@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"math/rand"
+	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cskr/pubsub"
@@ -27,11 +28,6 @@ func init() {
 	xrand.SeedInit()
 }
 
-const (
-	// AllLogTopic is the default topic where all logs are published to.
-	AllLogTopic = "*"
-)
-
 // Orchestrator manages the executions based on the definition of the processes
 type Orchestrator struct {
 	rpc             *cosmos.RPC
@@ -39,7 +35,7 @@ type Orchestrator struct {
 	eventStream     *event.Listener
 	executionStream chan *execution.Execution
 	stopC           chan bool
-	logs            *pubsub.PubSub
+	logsPubSub      *pubsub.PubSub
 	logger          tmlog.Logger
 	execPrice       string
 }
@@ -47,12 +43,12 @@ type Orchestrator struct {
 // New creates a new Process instance
 func New(rpc *cosmos.RPC, ep *publisher.EventPublisher, logger tmlog.Logger, execPrice string) *Orchestrator {
 	return &Orchestrator{
-		rpc:       rpc,
-		ep:        ep,
-		stopC:     make(chan bool),
-		logs:      pubsub.New(0),
-		logger:    logger.With("module", "orchestrator"),
-		execPrice: execPrice,
+		rpc:        rpc,
+		ep:         ep,
+		stopC:      make(chan bool),
+		logsPubSub: pubsub.New(0),
+		logger:     logger.With("module", "orchestrator"),
+		execPrice:  execPrice,
 	}
 }
 
@@ -87,7 +83,7 @@ func (s *Orchestrator) Start() error {
 func (s *Orchestrator) Stop() {
 	s.stopC <- true
 	s.eventStream.Close()
-	s.logs.Shutdown()
+	s.logsPubSub.Shutdown()
 }
 
 func (s *Orchestrator) eventFilter(event *event.Event) func(wf *process.Process, node *process.Process_Node) (bool, error) {
@@ -126,15 +122,24 @@ func (s *Orchestrator) dependencyFilter(exec *execution.Execution) func(wf *proc
 
 func (s *Orchestrator) findNodes(wf *process.Process, filter func(wf *process.Process, n *process.Process_Node) (bool, error)) []*process.Process_Node {
 	return wf.FindNodes(func(n *process.Process_Node) bool {
+		start := time.Now()
 		res, err := filter(wf, n)
 		if err != nil {
-			s.logError(err, wf, n, nil, nil)
+			s.log(wf, n, start, &OrchestratorLog_ErrorOccurred{
+				ErrorOccurred: &OrchestratorLog_TypeErrorOccurred{
+					Error: err.Error(),
+				},
+			})
 		}
 		return res
 	})
 }
 
 func (s *Orchestrator) execute(filter func(wf *process.Process, node *process.Process_Node) (bool, error), exec *execution.Execution, event *event.Event, data *types.Struct) {
+	// TODO: this function must be optimized.
+	// it currently fetches ALL processes for every execution events emitted.
+	// a local copy of the processes should be kept locally and updated automatically using a general lock to prevent read on non-up-to-date version.
+	start := time.Now()
 	var processes []*process.Process
 	route := fmt.Sprintf("custom/%s/%s", processmodule.QuerierRoute, processmodule.QueryList)
 	if err := s.rpc.QueryJSON(route, nil, &processes); err != nil {
@@ -143,14 +148,20 @@ func (s *Orchestrator) execute(filter func(wf *process.Process, node *process.Pr
 	}
 	for _, wf := range processes {
 		for _, node := range s.findNodes(wf, filter) {
+			// TODO: The following should be in a new go routine, no?
 			if err := s.executeNode(wf, node, exec, event, data); err != nil {
-				s.logError(err, wf, node, exec, event)
+				s.log(wf, node, start, &OrchestratorLog_ErrorOccurred{
+					ErrorOccurred: &OrchestratorLog_TypeErrorOccurred{
+						Error: err.Error(),
+					},
+				})
 			}
 		}
 	}
 }
 
 func (s *Orchestrator) executeNode(wf *process.Process, n *process.Process_Node, exec *execution.Execution, event *event.Event, data *types.Struct) error {
+	start := time.Now()
 	// Process the node
 	switch x := n.Type.(type) {
 	case *process.Process_Node_Task_:
@@ -160,7 +171,11 @@ func (s *Orchestrator) executeNode(wf *process.Process, n *process.Process_Node,
 		if err != nil {
 			return err
 		}
-		s.logInfo("execution created", wf, n, exec, event, newExecHash)
+		s.log(wf, n, start, &OrchestratorLog_ExecutionCreated{
+			ExecutionCreated: &OrchestratorLog_TypeExecutionCreated{
+				ExecutionHash: newExecHash,
+			},
+		})
 		return nil // stop workflow execution
 	case *process.Process_Node_Map_:
 		var err error
@@ -168,15 +183,31 @@ func (s *Orchestrator) executeNode(wf *process.Process, n *process.Process_Node,
 		if err != nil {
 			return err
 		}
-		s.logInfo("map executed", wf, n, exec, event, nil)
+		s.log(wf, n, start, &OrchestratorLog_MapExecuted{
+			MapExecuted: &OrchestratorLog_TypeMapExecuted{},
+		})
 	case *process.Process_Node_Filter_:
 		if !s.filterMatch(x.Filter, wf, n, exec, data) {
-			s.logInfo("filter is not matching", wf, n, exec, event, nil)
+			s.log(wf, n, start, &OrchestratorLog_FilterDidNotMatched{
+				FilterDidNotMatched: &OrchestratorLog_TypeFilterDidNotMatched{},
+			})
 			return nil // stop workflow execution
 		}
-		s.logInfo("filter is matching", wf, n, exec, event, nil)
-	case *process.Process_Node_Result_, *process.Process_Node_Event_:
-		s.logInfo("triggering process", wf, n, exec, event, nil)
+		s.log(wf, n, start, &OrchestratorLog_FilterMatched{
+			FilterMatched: &OrchestratorLog_TypeFilterMatched{},
+		})
+	case *process.Process_Node_Result_:
+		s.log(wf, n, start, &OrchestratorLog_TriggeredByResult{
+			TriggeredByResult: &OrchestratorLog_TypeTriggeredByResult{
+				ExecutionHash: exec.Hash,
+			},
+		})
+	case *process.Process_Node_Event_:
+		s.log(wf, n, start, &OrchestratorLog_TriggeredByEvent{
+			TriggeredByEvent: &OrchestratorLog_TypeTriggeredByEvent{
+				EventHash: event.Hash,
+			},
+		})
 	default:
 		return fmt.Errorf("unknown node type %q", n.TypeString())
 	}
@@ -186,12 +217,20 @@ func (s *Orchestrator) executeNode(wf *process.Process, n *process.Process_Node,
 		children, err := wf.FindNode(childrenID)
 		if err != nil {
 			// does not return an error to continue to process other tasks if needed
-			s.logError(err, wf, n, exec, event)
+			s.log(wf, n, start, &OrchestratorLog_ErrorOccurred{
+				ErrorOccurred: &OrchestratorLog_TypeErrorOccurred{
+					Error: err.Error(),
+				},
+			})
 			continue
 		}
 		if err := s.executeNode(wf, children, exec, event, data); err != nil {
 			// does not return an error to continue to process other tasks if needed
-			s.logError(err, wf, n, exec, event)
+			s.log(wf, n, start, &OrchestratorLog_ErrorOccurred{
+				ErrorOccurred: &OrchestratorLog_TypeErrorOccurred{
+					Error: err.Error(),
+				},
+			})
 		}
 	}
 
@@ -200,15 +239,24 @@ func (s *Orchestrator) executeNode(wf *process.Process, n *process.Process_Node,
 
 // filterMatch returns true if the data match the current list of filters.
 func (s *Orchestrator) filterMatch(f *process.Process_Node_Filter, wf *process.Process, n *process.Process_Node, exec *execution.Execution, data *types.Struct) bool {
+	start := time.Now()
 	for _, condition := range f.Conditions {
 		resolvedData, err := s.resolveRef(wf, exec, n.Key, data, condition.Ref)
 		if err != nil {
-			s.logError(err, wf, n, exec, nil)
+			s.log(wf, n, start, &OrchestratorLog_ErrorOccurred{
+				ErrorOccurred: &OrchestratorLog_TypeErrorOccurred{
+					Error: err.Error(),
+				},
+			})
 			return false
 		}
 		match, err := condition.Match(resolvedData)
 		if err != nil {
-			s.logError(err, wf, n, exec, nil)
+			s.log(wf, n, start, &OrchestratorLog_ErrorOccurred{
+				ErrorOccurred: &OrchestratorLog_TypeErrorOccurred{
+					Error: err.Error(),
+				},
+			})
 		}
 		if !match {
 			return false
@@ -421,74 +469,15 @@ func (s *Orchestrator) startExecutionStream(ctx context.Context) error {
 	return nil
 }
 
-func (s *Orchestrator) logDebug(msg string, proc *process.Process, node *process.Process_Node, parentExec *execution.Execution, event *event.Event, newExecHash hash.Hash) {
-	s.publishLog(newLog(OrchestratorLog_Debug, msg, newLogData(proc, node, parentExec, event, newExecHash)))
-}
-
-func (s *Orchestrator) logInfo(msg string, proc *process.Process, node *process.Process_Node, parentExec *execution.Execution, event *event.Event, newExecHash hash.Hash) {
-	s.publishLog(newLog(OrchestratorLog_Info, msg, newLogData(proc, node, parentExec, event, newExecHash)))
-}
-
-func (s *Orchestrator) logError(err error, proc *process.Process, node *process.Process_Node, parentExec *execution.Execution, event *event.Event) {
-	s.publishLog(newLog(OrchestratorLog_Error, err.Error(), newLogData(proc, node, parentExec, event, nil)))
-}
-
-func (s *Orchestrator) publishLog(log *OrchestratorLog) {
-	if log.Data != nil && !log.Data.ProcessHash.IsZero() {
-		go s.logs.Pub(log, log.Data.ProcessHash.String())
+func (s *Orchestrator) log(proc *process.Process, node *process.Process_Node, start time.Time, logType orchestratorLogType) {
+	log := &OrchestratorLog{
+		ProcessHash:  proc.Hash,
+		NodeKey:      node.Key,
+		NodeType:     node.TypeString(),
+		TimeConsumed: time.Now().Sub(start).Nanoseconds(),
+		Type:         logType,
 	}
-	go s.logs.Pub(log, AllLogTopic)
-
-	switch log.Severity {
-	case OrchestratorLog_Debug:
-		s.logger.Debug(log.Message, log.Data.keyvals()...)
-	case OrchestratorLog_Error:
-		s.logger.Error(log.Message, log.Data.keyvals()...)
-	case OrchestratorLog_Info, OrchestratorLog_Unknown:
-		s.logger.Info(log.Message, log.Data.keyvals()...)
-	}
-}
-
-func newLog(severity OrchestratorLog_Severity, msg string, data *OrchestratorLog_Data) *OrchestratorLog {
-	return &OrchestratorLog{
-		Severity: severity,
-		Message:  msg,
-		Data:     data,
-	}
-}
-
-func newLogData(proc *process.Process, node *process.Process_Node, parentExec *execution.Execution, event *event.Event, newExecHash hash.Hash) *OrchestratorLog_Data {
-	data := &OrchestratorLog_Data{
-		ProcessHash: proc.Hash,
-		NodeKey:     node.Key,
-		NodeType:    node.TypeString(),
-	}
-	if event != nil {
-		data.EventHash = event.Hash
-	}
-	if parentExec != nil {
-		data.ParentHash = parentExec.Hash
-	}
-	if newExecHash != nil {
-		data.ExecutionHash = newExecHash
-	}
-	return data
-}
-
-func (l *OrchestratorLog_Data) keyvals() []interface{} {
-	keyvals := []interface{}{
-		"processHash", l.ProcessHash.String(),
-		"nodeKey", l.NodeKey,
-		"nodeType", l.NodeType,
-	}
-	if !l.EventHash.IsZero() {
-		keyvals = append(keyvals, "eventHash", l.EventHash.String())
-	}
-	if !l.ParentHash.IsZero() {
-		keyvals = append(keyvals, "parentHash", l.ParentHash.String())
-	}
-	if !l.ExecutionHash.IsZero() {
-		keyvals = append(keyvals, "executionHash", l.ExecutionHash.String())
-	}
-	return keyvals
+	go s.logsPubSub.Pub(log, log.ProcessHash.String())
+	go s.logsPubSub.Pub(log, anyActionTopic)
+	s.logger.Info(logType.message(), append(log.keyvals(), logType.keyvals()...)...)
 }

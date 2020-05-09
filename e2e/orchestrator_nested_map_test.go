@@ -132,26 +132,26 @@ func testOrchestratorNestedMap(runnerHash, instanceHash hash.Hash) func(t *testi
 		t.Run("check process is triggered", func(t *testing.T) {
 			log, err := logs.Recv()
 			require.NoError(t, err)
-			require.True(t, processHash.Equal(log.Data.ProcessHash))
-			require.Equal(t, "n0", log.Data.NodeKey)
-			require.Equal(t, process.NodeTypeEvent, log.Data.NodeType)
-			require.False(t, log.Data.EventHash.IsZero())
+			require.True(t, processHash.Equal(log.ProcessHash))
+			require.Equal(t, "n0", log.NodeKey)
+			require.Equal(t, process.NodeTypeEvent, log.NodeType)
+			require.False(t, log.GetTriggeredByEvent().EventHash.IsZero())
 		})
 		t.Run("check process executes map", func(t *testing.T) {
 			log, err := logs.Recv()
 			require.NoError(t, err)
-			require.True(t, processHash.Equal(log.Data.ProcessHash))
-			require.Equal(t, "n1", log.Data.NodeKey)
-			require.Equal(t, process.NodeTypeMap, log.Data.NodeType)
+			require.True(t, processHash.Equal(log.ProcessHash))
+			require.Equal(t, "n1", log.NodeKey)
+			require.Equal(t, process.NodeTypeMap, log.NodeType)
 		})
 		t.Run("check process creates execution", func(t *testing.T) {
 			log, err := logs.Recv()
 			require.NoError(t, err)
-			require.True(t, processHash.Equal(log.Data.ProcessHash))
-			require.Equal(t, "n2", log.Data.NodeKey)
-			require.Equal(t, process.NodeTypeTask, log.Data.NodeType)
-			require.False(t, log.Data.ExecutionHash.IsZero())
-			execHash = log.Data.ExecutionHash
+			require.True(t, processHash.Equal(log.ProcessHash))
+			require.Equal(t, "n2", log.NodeKey)
+			require.Equal(t, process.NodeTypeTask, log.NodeType)
+			require.False(t, log.GetExecutionCreated().ExecutionHash.IsZero())
+			execHash = log.GetExecutionCreated().ExecutionHash
 		})
 		t.Run("first task", func(t *testing.T) {
 			t.Run("check in progress execution", func(t *testing.T) {
