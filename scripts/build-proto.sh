@@ -16,13 +16,15 @@ protoc --gogo_out=paths=source_relative,plugins=grpc:. server/grpc/orchestrator/
 
 TYPES_PATH=protobuf/types
 
-# generate type
+# # generate type
 for file in "${TYPES_PATH}"/{event,execution,instance,service,process,ownership,runner}.proto
 do
   file=$(basename ${file})
   dir="${file%.*}"
   protoc --gogo_out=paths=source_relative:"${dir}" --proto_path . --proto_path "${TYPES_PATH}" "${file}"
 done
+
+protoc --gogo_out=paths=source_relative:"orchestrator" --proto_path . --proto_path "${TYPES_PATH}" "orchestrator_log.proto"
 
 # generate google type
 protoc --gogo_out=paths=source_relative:. protobuf/types/struct.proto

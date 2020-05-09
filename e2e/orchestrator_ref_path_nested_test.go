@@ -271,8 +271,8 @@ func testOrchestratorRefPathNested(runnerHash, instanceHash hash.Hash) func(t *t
 			require.True(t, processHash.Equal(log.ProcessHash))
 			require.Equal(t, "n2", log.NodeKey)
 			require.Equal(t, process.NodeTypeTask, log.NodeType)
-			require.False(t, log.CreatedExecHash.IsZero())
-			execHash = log.CreatedExecHash
+			require.False(t, log.ExecutionHash.IsZero())
+			execHash = log.ExecutionHash
 		})
 		t.Run("first ref", func(t *testing.T) {
 			t.Run("check in progress execution", func(t *testing.T) {
@@ -319,8 +319,8 @@ func testOrchestratorRefPathNested(runnerHash, instanceHash hash.Hash) func(t *t
 			require.Equal(t, "n4", log.NodeKey)
 			require.Equal(t, process.NodeTypeTask, log.NodeType)
 			require.False(t, log.ParentHash.IsZero())
-			require.False(t, log.CreatedExecHash.IsZero())
-			execHash = log.CreatedExecHash
+			require.False(t, log.ExecutionHash.IsZero())
+			execHash = log.ExecutionHash
 		})
 		t.Run("second ref", func(t *testing.T) {
 			t.Run("check in progress execution", func(t *testing.T) {

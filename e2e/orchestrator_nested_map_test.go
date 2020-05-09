@@ -150,8 +150,8 @@ func testOrchestratorNestedMap(runnerHash, instanceHash hash.Hash) func(t *testi
 			require.True(t, processHash.Equal(log.ProcessHash))
 			require.Equal(t, "n2", log.NodeKey)
 			require.Equal(t, process.NodeTypeTask, log.NodeType)
-			require.False(t, log.CreatedExecHash.IsZero())
-			execHash = log.CreatedExecHash
+			require.False(t, log.ExecutionHash.IsZero())
+			execHash = log.ExecutionHash
 		})
 		t.Run("first task", func(t *testing.T) {
 			t.Run("check in progress execution", func(t *testing.T) {

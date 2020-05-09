@@ -101,8 +101,8 @@ func testOrchestratorEventTask(runnerHash hash.Hash, instanceHash hash.Hash) fun
 			require.True(t, processHash.Equal(log.ProcessHash))
 			require.Equal(t, "n1", log.NodeKey)
 			require.Equal(t, process.NodeTypeTask, log.NodeType)
-			require.False(t, log.CreatedExecHash.IsZero())
-			execHash = log.CreatedExecHash
+			require.False(t, log.ExecutionHash.IsZero())
+			execHash = log.ExecutionHash
 		})
 		t.Run("check in progress execution", func(t *testing.T) {
 			exec, err := pollExecutionOfProcess(processHash, execution.Status_InProgress, "n1")

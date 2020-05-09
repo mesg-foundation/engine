@@ -157,8 +157,8 @@ func testOrchestratorRefGrandParentTask(runnerHash, instanceHash hash.Hash) func
 			require.True(t, processHash.Equal(log.ProcessHash))
 			require.Equal(t, "n1", log.NodeKey)
 			require.Equal(t, process.NodeTypeTask, log.NodeType)
-			require.False(t, log.CreatedExecHash.IsZero())
-			execHash = log.CreatedExecHash
+			require.False(t, log.ExecutionHash.IsZero())
+			execHash = log.ExecutionHash
 		})
 		t.Run("check first task", func(t *testing.T) {
 			t.Run("check in progress execution", func(t *testing.T) {
@@ -197,8 +197,8 @@ func testOrchestratorRefGrandParentTask(runnerHash, instanceHash hash.Hash) func
 			require.Equal(t, "n3", log.NodeKey)
 			require.Equal(t, process.NodeTypeTask, log.NodeType)
 			require.False(t, log.ParentHash.IsZero())
-			require.False(t, log.CreatedExecHash.IsZero())
-			execHash = log.CreatedExecHash
+			require.False(t, log.ExecutionHash.IsZero())
+			execHash = log.ExecutionHash
 		})
 		t.Run("check second task", func(t *testing.T) {
 			t.Run("check in progress execution", func(t *testing.T) {
@@ -237,8 +237,8 @@ func testOrchestratorRefGrandParentTask(runnerHash, instanceHash hash.Hash) func
 			require.Equal(t, "n5", log.NodeKey)
 			require.Equal(t, process.NodeTypeTask, log.NodeType)
 			require.False(t, log.ParentHash.IsZero())
-			require.False(t, log.CreatedExecHash.IsZero())
-			execHash = log.CreatedExecHash
+			require.False(t, log.ExecutionHash.IsZero())
+			execHash = log.ExecutionHash
 		})
 		t.Run("check third task", func(t *testing.T) {
 			t.Run("check in progress execution", func(t *testing.T) {

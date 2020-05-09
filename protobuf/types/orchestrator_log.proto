@@ -1,0 +1,41 @@
+syntax = "proto3";
+
+import "gogo/protobuf/gogoproto/gogo.proto";
+
+package mesg.types;
+option go_package = "github.com/mesg-foundation/engine/orchestrator";
+
+// OrchestratorLogsResponse is the message send on the Logs stream.
+message OrchestratorLog {
+  // Hash of the process
+  bytes processHash = 1 [
+    (gogoproto.casttype) = "github.com/mesg-foundation/engine/hash.Hash"
+  ];
+
+  // Key of the node being executed.
+  string nodeKey = 2;
+  
+  // Type of the node being executed.
+  string nodeType = 3;
+  
+  // Hash of the event that trigger this node. Can be empty.
+  bytes eventHash = 4 [
+    (gogoproto.casttype) = "github.com/mesg-foundation/engine/hash.Hash"
+  ];
+
+  // Hash of the parent execution that trigger this node. Can be empty.
+  bytes parentHash = 5 [
+    (gogoproto.casttype) = "github.com/mesg-foundation/engine/hash.Hash"
+  ];
+
+  // Message of this log. Can be empty if error is set.
+  string message = 6;
+
+  // Error message that occurred.
+  string error = 7;
+
+  // Hash of the execution created by this process. Can be empty.
+  bytes executionHash = 8 [
+    (gogoproto.casttype) = "github.com/mesg-foundation/engine/hash.Hash"
+  ];
+}

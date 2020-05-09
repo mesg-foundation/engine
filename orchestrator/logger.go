@@ -6,7 +6,7 @@ import (
 
 // Logger provides functionalities to listen to the orchestrator's logs
 type Logger struct {
-	Logs chan *Log
+	Logs chan *OrchestratorLog
 
 	ps     *pubsub.PubSub
 	topics []string
@@ -16,7 +16,7 @@ type Logger struct {
 // NewLogger creates a new logger for the given topics
 func (s *Orchestrator) NewLogger(topics ...string) *Logger {
 	return &Logger{
-		Logs:   make(chan *Log),
+		Logs:   make(chan *OrchestratorLog),
 		ps:     s.logs,
 		topics: topics,
 		sub:    s.logs.Sub(topics...),
@@ -34,7 +34,7 @@ func (l *Logger) Close() {
 // Listen listens events that match filter
 func (l *Logger) Listen() {
 	for v := range l.sub {
-		if log, ok := v.(*Log); ok {
+		if log, ok := v.(*OrchestratorLog); ok {
 			l.Logs <- log
 		}
 	}

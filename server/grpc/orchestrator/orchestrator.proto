@@ -1,6 +1,7 @@
 syntax = "proto3";
 
 import "gogo/protobuf/gogoproto/gogo.proto";
+import "protobuf/types/orchestrator_log.proto";
 
 package mesg.grpc.orchestrator;
 option go_package = "github.com/mesg-foundation/engine/service/grpc/orchestrator";
@@ -9,49 +10,14 @@ option go_package = "github.com/mesg-foundation/engine/service/grpc/orchestrator
 // This API requires all requests to be signed for authentication. The signature should be passed in the request's metadata using the key `mesg_request_signature` and base64 encoded.
 service Orchestrator {
   // Logs returns a stream of events that satisfy criteria specified.
-  rpc Logs(OrchestratorLogsRequest) returns (stream OrchestratorLogsResponse) {}
+  rpc Logs(OrchestratorLogsRequest) returns (stream types.OrchestratorLog) {}
 }
 
 // Logs returns a stream of events that satisfy specified filter.
 message OrchestratorLogsRequest {
-  // process hashes to listen the log from. If empty, logs from all processes will be returned.
+  // process hashes to listen the log from. If empty, logs from any process will be returned.
   repeated bytes processHashes = 1 [
     (gogoproto.moretags) = 'validate:"dive,required,hash"',
-    (gogoproto.casttype) = "github.com/mesg-foundation/engine/hash.Hash"
-  ];
-}
-
-// OrchestratorLogsResponse is the message send on the Logs stream.
-message OrchestratorLogsResponse {
-  // Hash of the process
-  bytes processHash = 1 [
-    (gogoproto.casttype) = "github.com/mesg-foundation/engine/hash.Hash"
-  ];
-
-  // Key of the node being executed.
-  string nodeKey = 2;
-  
-  // Type of the node being executed.
-  string nodeType = 3;
-  
-  // Hash of the event that trigger this node. Can be empty.
-  bytes eventHash = 4 [
-    (gogoproto.casttype) = "github.com/mesg-foundation/engine/hash.Hash"
-  ];
-
-  // Hash of the parent execution that trigger this node. Can be empty.
-  bytes parentHash = 5 [
-    (gogoproto.casttype) = "github.com/mesg-foundation/engine/hash.Hash"
-  ];
-
-  // Message of this log. Can be empty if error is set.
-  string msg = 6;
-
-  // Error message that occurred.
-  string error = 7;
-
-  // Hash of the execution created by this process. Can be empty.
-  bytes createdExecHash = 8 [
     (gogoproto.casttype) = "github.com/mesg-foundation/engine/hash.Hash"
   ];
 }

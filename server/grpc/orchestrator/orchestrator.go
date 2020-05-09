@@ -45,16 +45,7 @@ func (s *orchestratorServer) Logs(req *OrchestratorLogsRequest, stream Orchestra
 	for {
 		select {
 		case log := <-logger.Logs:
-			if err := stream.Send(&OrchestratorLogsResponse{
-				ProcessHash:     log.ProcessHash,
-				NodeKey:         log.NodeKey,
-				NodeType:        log.NodeType,
-				EventHash:       log.EventHash,
-				ParentHash:      log.ParentHash,
-				Msg:             log.Msg,
-				Error:           log.Error,
-				CreatedExecHash: log.CreatedExecHash,
-			}); err != nil {
+			if err := stream.Send(log); err != nil {
 				return err
 			}
 		case <-stream.Context().Done():

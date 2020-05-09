@@ -44,18 +44,6 @@ type Orchestrator struct {
 	execPrice       string
 }
 
-// Log is representing a Log from the Orchestrator
-type Log struct {
-	ProcessHash     hash.Hash
-	NodeKey         string
-	NodeType        string
-	EventHash       hash.Hash
-	ParentHash      hash.Hash
-	Msg             string
-	Error           string
-	CreatedExecHash hash.Hash
-}
-
 // New creates a new Process instance
 func New(rpc *cosmos.RPC, ep *publisher.EventPublisher, logger tmlog.Logger, execPrice string) *Orchestrator {
 	return &Orchestrator{
@@ -434,13 +422,13 @@ func (s *Orchestrator) startExecutionStream(ctx context.Context) error {
 }
 
 func (s *Orchestrator) log(proc *process.Process, node *process.Process_Node, parentExec *execution.Execution, event *event.Event, newExecHash hash.Hash, msg string) {
-	log := &Log{
-		ProcessHash:     proc.Hash,
-		NodeKey:         node.Key,
-		NodeType:        node.TypeString(),
-		Msg:             msg,
-		Error:           "",
-		CreatedExecHash: newExecHash,
+	log := &OrchestratorLog{
+		ProcessHash:   proc.Hash,
+		NodeKey:       node.Key,
+		NodeType:      node.TypeString(),
+		Message:       msg,
+		Error:         "",
+		ExecutionHash: newExecHash,
 	}
 	if event != nil {
 		log.EventHash = event.Hash
@@ -454,13 +442,13 @@ func (s *Orchestrator) log(proc *process.Process, node *process.Process_Node, pa
 }
 
 func (s *Orchestrator) logError(proc *process.Process, node *process.Process_Node, parentExec *execution.Execution, event *event.Event, err error) {
-	log := &Log{
-		ProcessHash:     proc.Hash,
-		NodeKey:         node.Key,
-		NodeType:        node.TypeString(),
-		Msg:             "",
-		Error:           err.Error(),
-		CreatedExecHash: nil,
+	log := &OrchestratorLog{
+		ProcessHash:   proc.Hash,
+		NodeKey:       node.Key,
+		NodeType:      node.TypeString(),
+		Message:       "",
+		Error:         err.Error(),
+		ExecutionHash: nil,
 	}
 	if event != nil {
 		log.EventHash = event.Hash
@@ -473,20 +461,20 @@ func (s *Orchestrator) logError(proc *process.Process, node *process.Process_Nod
 	s.logger.Error("Orchestrator error: "+err.Error(), log.keyvals()...)
 }
 
-func (l *Log) keyvals() []interface{} {
+func (l *OrchestratorLog) keyvals() []interface{} {
 	keyvals := []interface{}{
 		"processHash", l.ProcessHash.String(),
 		"nodeKey", l.NodeKey,
 		"nodeType", l.NodeType,
 	}
 	if !l.EventHash.IsZero() {
-		keyvals = append(keyvals, "event", l.EventHash.String())
+		keyvals = append(keyvals, "eventHash", l.EventHash.String())
 	}
 	if !l.ParentHash.IsZero() {
-		keyvals = append(keyvals, "parentExec", l.ParentHash.String())
+		keyvals = append(keyvals, "parentHash", l.ParentHash.String())
 	}
-	if !l.CreatedExecHash.IsZero() {
-		keyvals = append(keyvals, "createdExec", l.CreatedExecHash.String())
+	if !l.ExecutionHash.IsZero() {
+		keyvals = append(keyvals, "executionHash", l.ExecutionHash.String())
 	}
 	return keyvals
 }
