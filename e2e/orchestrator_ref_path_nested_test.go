@@ -253,26 +253,26 @@ func testOrchestratorRefPathNested(runnerHash, instanceHash hash.Hash) func(t *t
 		t.Run("check process is triggered", func(t *testing.T) {
 			log, err := logs.Recv()
 			require.NoError(t, err)
-			require.True(t, processHash.Equal(log.ProcessHash))
-			require.Equal(t, "n0", log.NodeKey)
-			require.Equal(t, process.NodeTypeEvent, log.NodeType)
-			require.False(t, log.EventHash.IsZero())
+			require.True(t, processHash.Equal(log.Data.ProcessHash))
+			require.Equal(t, "n0", log.Data.NodeKey)
+			require.Equal(t, process.NodeTypeEvent, log.Data.NodeType)
+			require.False(t, log.Data.EventHash.IsZero())
 		})
 		t.Run("check process executes first map", func(t *testing.T) {
 			log, err := logs.Recv()
 			require.NoError(t, err)
-			require.True(t, processHash.Equal(log.ProcessHash))
-			require.Equal(t, "n1", log.NodeKey)
-			require.Equal(t, process.NodeTypeMap, log.NodeType)
+			require.True(t, processHash.Equal(log.Data.ProcessHash))
+			require.Equal(t, "n1", log.Data.NodeKey)
+			require.Equal(t, process.NodeTypeMap, log.Data.NodeType)
 		})
 		t.Run("check process creates first task", func(t *testing.T) {
 			log, err := logs.Recv()
 			require.NoError(t, err)
-			require.True(t, processHash.Equal(log.ProcessHash))
-			require.Equal(t, "n2", log.NodeKey)
-			require.Equal(t, process.NodeTypeTask, log.NodeType)
-			require.False(t, log.ExecutionHash.IsZero())
-			execHash = log.ExecutionHash
+			require.True(t, processHash.Equal(log.Data.ProcessHash))
+			require.Equal(t, "n2", log.Data.NodeKey)
+			require.Equal(t, process.NodeTypeTask, log.Data.NodeType)
+			require.False(t, log.Data.ExecutionHash.IsZero())
+			execHash = log.Data.ExecutionHash
 		})
 		t.Run("first ref", func(t *testing.T) {
 			t.Run("check in progress execution", func(t *testing.T) {
@@ -308,19 +308,19 @@ func testOrchestratorRefPathNested(runnerHash, instanceHash hash.Hash) func(t *t
 		t.Run("check process executes second map", func(t *testing.T) {
 			log, err := logs.Recv()
 			require.NoError(t, err)
-			require.True(t, processHash.Equal(log.ProcessHash))
-			require.Equal(t, "n3", log.NodeKey)
-			require.Equal(t, process.NodeTypeMap, log.NodeType)
+			require.True(t, processHash.Equal(log.Data.ProcessHash))
+			require.Equal(t, "n3", log.Data.NodeKey)
+			require.Equal(t, process.NodeTypeMap, log.Data.NodeType)
 		})
 		t.Run("check process creates second task", func(t *testing.T) {
 			log, err := logs.Recv()
 			require.NoError(t, err)
-			require.True(t, processHash.Equal(log.ProcessHash))
-			require.Equal(t, "n4", log.NodeKey)
-			require.Equal(t, process.NodeTypeTask, log.NodeType)
-			require.False(t, log.ParentHash.IsZero())
-			require.False(t, log.ExecutionHash.IsZero())
-			execHash = log.ExecutionHash
+			require.True(t, processHash.Equal(log.Data.ProcessHash))
+			require.Equal(t, "n4", log.Data.NodeKey)
+			require.Equal(t, process.NodeTypeTask, log.Data.NodeType)
+			require.False(t, log.Data.ParentHash.IsZero())
+			require.False(t, log.Data.ExecutionHash.IsZero())
+			execHash = log.Data.ExecutionHash
 		})
 		t.Run("second ref", func(t *testing.T) {
 			t.Run("check in progress execution", func(t *testing.T) {

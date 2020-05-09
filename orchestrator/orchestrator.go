@@ -128,7 +128,7 @@ func (s *Orchestrator) findNodes(wf *process.Process, filter func(wf *process.Pr
 	return wf.FindNodes(func(n *process.Process_Node) bool {
 		res, err := filter(wf, n)
 		if err != nil {
-			s.logError(wf, n, nil, nil, err)
+			s.logError(err, wf, n, nil, nil)
 		}
 		return res
 	})
@@ -144,7 +144,7 @@ func (s *Orchestrator) execute(filter func(wf *process.Process, node *process.Pr
 	for _, wf := range processes {
 		for _, node := range s.findNodes(wf, filter) {
 			if err := s.executeNode(wf, node, exec, event, data); err != nil {
-				s.logError(wf, node, exec, event, err)
+				s.logError(err, wf, node, exec, event)
 			}
 		}
 	}
@@ -160,7 +160,7 @@ func (s *Orchestrator) executeNode(wf *process.Process, n *process.Process_Node,
 		if err != nil {
 			return err
 		}
-		s.log(wf, n, exec, event, newExecHash, "execution created")
+		s.logInfo("execution created", wf, n, exec, event, newExecHash)
 		return nil // stop workflow execution
 	case *process.Process_Node_Map_:
 		var err error
@@ -168,15 +168,15 @@ func (s *Orchestrator) executeNode(wf *process.Process, n *process.Process_Node,
 		if err != nil {
 			return err
 		}
-		s.log(wf, n, exec, event, nil, "map executed")
+		s.logInfo("map executed", wf, n, exec, event, nil)
 	case *process.Process_Node_Filter_:
 		if !s.filterMatch(x.Filter, wf, n, exec, data) {
-			s.log(wf, n, exec, event, nil, "filter is not matching")
+			s.logInfo("filter is not matching", wf, n, exec, event, nil)
 			return nil // stop workflow execution
 		}
-		s.log(wf, n, exec, event, nil, "filter is matching")
+		s.logInfo("filter is matching", wf, n, exec, event, nil)
 	case *process.Process_Node_Result_, *process.Process_Node_Event_:
-		s.log(wf, n, exec, event, nil, "triggering process")
+		s.logInfo("triggering process", wf, n, exec, event, nil)
 	default:
 		return fmt.Errorf("unknown node type %q", n.TypeString())
 	}
@@ -186,12 +186,12 @@ func (s *Orchestrator) executeNode(wf *process.Process, n *process.Process_Node,
 		children, err := wf.FindNode(childrenID)
 		if err != nil {
 			// does not return an error to continue to process other tasks if needed
-			s.logError(wf, n, exec, event, err)
+			s.logError(err, wf, n, exec, event)
 			continue
 		}
 		if err := s.executeNode(wf, children, exec, event, data); err != nil {
 			// does not return an error to continue to process other tasks if needed
-			s.logError(wf, n, exec, event, err)
+			s.logError(err, wf, n, exec, event)
 		}
 	}
 
@@ -203,12 +203,12 @@ func (s *Orchestrator) filterMatch(f *process.Process_Node_Filter, wf *process.P
 	for _, condition := range f.Conditions {
 		resolvedData, err := s.resolveRef(wf, exec, n.Key, data, condition.Ref)
 		if err != nil {
-			s.logError(wf, n, exec, nil, err)
+			s.logError(err, wf, n, exec, nil)
 			return false
 		}
 		match, err := condition.Match(resolvedData)
 		if err != nil {
-			s.logError(wf, n, exec, nil, err)
+			s.logError(err, wf, n, exec, nil)
 		}
 		if !match {
 			return false
@@ -421,47 +421,61 @@ func (s *Orchestrator) startExecutionStream(ctx context.Context) error {
 	return nil
 }
 
-func (s *Orchestrator) log(proc *process.Process, node *process.Process_Node, parentExec *execution.Execution, event *event.Event, newExecHash hash.Hash, msg string) {
-	log := &OrchestratorLog{
-		ProcessHash:   proc.Hash,
-		NodeKey:       node.Key,
-		NodeType:      node.TypeString(),
-		Message:       msg,
-		Error:         "",
-		ExecutionHash: newExecHash,
-	}
-	if event != nil {
-		log.EventHash = event.Hash
-	}
-	if parentExec != nil {
-		log.ParentHash = parentExec.Hash
-	}
-	go s.logs.Pub(log, proc.Hash.String())
-	go s.logs.Pub(log, AllLogTopic)
-	s.logger.Info("Orchestrator "+msg, log.keyvals()...)
+func (s *Orchestrator) logDebug(msg string, proc *process.Process, node *process.Process_Node, parentExec *execution.Execution, event *event.Event, newExecHash hash.Hash) {
+	s.publishLog(newLog(OrchestratorLog_Debug, msg, newLogData(proc, node, parentExec, event, newExecHash)))
 }
 
-func (s *Orchestrator) logError(proc *process.Process, node *process.Process_Node, parentExec *execution.Execution, event *event.Event, err error) {
-	log := &OrchestratorLog{
-		ProcessHash:   proc.Hash,
-		NodeKey:       node.Key,
-		NodeType:      node.TypeString(),
-		Message:       "",
-		Error:         err.Error(),
-		ExecutionHash: nil,
-	}
-	if event != nil {
-		log.EventHash = event.Hash
-	}
-	if parentExec != nil {
-		log.ParentHash = parentExec.Hash
-	}
-	go s.logs.Pub(log, proc.Hash.String())
-	go s.logs.Pub(log, AllLogTopic)
-	s.logger.Error("Orchestrator error: "+err.Error(), log.keyvals()...)
+func (s *Orchestrator) logInfo(msg string, proc *process.Process, node *process.Process_Node, parentExec *execution.Execution, event *event.Event, newExecHash hash.Hash) {
+	s.publishLog(newLog(OrchestratorLog_Info, msg, newLogData(proc, node, parentExec, event, newExecHash)))
 }
 
-func (l *OrchestratorLog) keyvals() []interface{} {
+func (s *Orchestrator) logError(err error, proc *process.Process, node *process.Process_Node, parentExec *execution.Execution, event *event.Event) {
+	s.publishLog(newLog(OrchestratorLog_Error, err.Error(), newLogData(proc, node, parentExec, event, nil)))
+}
+
+func (s *Orchestrator) publishLog(log *OrchestratorLog) {
+	if log.Data != nil && !log.Data.ProcessHash.IsZero() {
+		go s.logs.Pub(log, log.Data.ProcessHash.String())
+	}
+	go s.logs.Pub(log, AllLogTopic)
+
+	switch log.Severity {
+	case OrchestratorLog_Debug:
+		s.logger.Debug(log.Message, log.Data.keyvals()...)
+	case OrchestratorLog_Error:
+		s.logger.Error(log.Message, log.Data.keyvals()...)
+	case OrchestratorLog_Info, OrchestratorLog_Unknown:
+		s.logger.Info(log.Message, log.Data.keyvals()...)
+	}
+}
+
+func newLog(severity OrchestratorLog_Severity, msg string, data *OrchestratorLog_Data) *OrchestratorLog {
+	return &OrchestratorLog{
+		Severity: severity,
+		Message:  msg,
+		Data:     data,
+	}
+}
+
+func newLogData(proc *process.Process, node *process.Process_Node, parentExec *execution.Execution, event *event.Event, newExecHash hash.Hash) *OrchestratorLog_Data {
+	data := &OrchestratorLog_Data{
+		ProcessHash: proc.Hash,
+		NodeKey:     node.Key,
+		NodeType:    node.TypeString(),
+	}
+	if event != nil {
+		data.EventHash = event.Hash
+	}
+	if parentExec != nil {
+		data.ParentHash = parentExec.Hash
+	}
+	if newExecHash != nil {
+		data.ExecutionHash = newExecHash
+	}
+	return data
+}
+
+func (l *OrchestratorLog_Data) keyvals() []interface{} {
 	keyvals := []interface{}{
 		"processHash", l.ProcessHash.String(),
 		"nodeKey", l.NodeKey,
