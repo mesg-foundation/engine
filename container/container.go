@@ -28,11 +28,11 @@ import (
 )
 
 const (
-	// defaultStopGracePeriod is the timeout value between stopping a container and killing it.
-	defaultStopGracePeriod = 10 * time.Second
+	// DefaultStopGracePeriod is the default timeout value between stopping a container and killing it.
+	DefaultStopGracePeriod = 10 * time.Second
 
-	// Number of time to restart the container if it crashes.
-	defaultMaximumRetryCount = 3
+	// DefaultMaximumRetryCount is the default number of time to restart the container if it crashes.
+	DefaultMaximumRetryCount = 3
 
 	servicePrefix = "mesg_srv_"
 	imageTag      = "mesg:"
@@ -40,16 +40,16 @@ const (
 
 // Container starts and stops the MESG Service in Docker Container.
 type Container struct {
-	// client is a Docker client.
-	client client.CommonAPIClient
-
-	engineEndpoint string
-	engineName     string
-	engineNetwork  string
+	client            client.CommonAPIClient
+	engineEndpoint    string
+	engineName        string
+	engineNetwork     string
+	stopGracePeriod   time.Duration
+	maximumRetryCount int
 }
 
 // New initializes the Container struct by connecting creating the Docker client.
-func New(engineName, engineAddress, engineNetwork string) (*Container, error) {
+func New(engineName, engineAddress, engineNetwork string, maximumRetryCount int, stopGracePeriod time.Duration) (*Container, error) {
 	client, err := client.NewClientWithOpts(client.FromEnv)
 	if err != nil {
 		return nil, err
@@ -62,10 +62,12 @@ func New(engineName, engineAddress, engineNetwork string) (*Container, error) {
 	}
 
 	return &Container{
-		client:         client,
-		engineEndpoint: net.JoinHostPort(engineName, strconv.Itoa(port)),
-		engineName:     engineName,
-		engineNetwork:  engineNetwork,
+		client:            client,
+		engineEndpoint:    net.JoinHostPort(engineName, strconv.Itoa(port)),
+		engineName:        engineName,
+		engineNetwork:     engineNetwork,
+		stopGracePeriod:   stopGracePeriod,
+		maximumRetryCount: maximumRetryCount,
 	}, nil
 }
 
@@ -172,7 +174,7 @@ func (c *Container) Start(srv *service.Service, instanceHash, runnerHash, instan
 			Mounts:       append(volumes, volumesFrom...),
 			RestartPolicy: containertypes.RestartPolicy{
 				Name:              "on-failure",
-				MaximumRetryCount: defaultMaximumRetryCount,
+				MaximumRetryCount: c.maximumRetryCount,
 			},
 		}
 		if dep.Command != "" {
@@ -238,7 +240,7 @@ func (c *Container) Start(srv *service.Service, instanceHash, runnerHash, instan
 		Mounts:       append(volumes, volumesFrom...),
 		RestartPolicy: containertypes.RestartPolicy{
 			Name:              "on-failure",
-			MaximumRetryCount: defaultMaximumRetryCount,
+			MaximumRetryCount: c.maximumRetryCount,
 		},
 	}
 	if srv.Configuration.Command != "" {
@@ -280,7 +282,7 @@ func (c *Container) Stop(srv *service.Service, runnerHash hash.Hash) error {
 	names = append(names, name)
 
 	for _, name := range names {
-		stopGracePeriod := defaultStopGracePeriod
+		stopGracePeriod := c.stopGracePeriod
 		if err := c.client.ContainerStop(context.Background(), name, &stopGracePeriod); err != nil {
 			errs.Append(err)
 		}
