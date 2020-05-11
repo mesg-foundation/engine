@@ -143,7 +143,7 @@ func (s *Orchestrator) execute(filter func(wf *process.Process, node *process.Pr
 }
 
 func (s *Orchestrator) executeNode(wf *process.Process, n *process.Process_Node, exec *execution.Execution, event *event.Event, data *types.Struct) error {
-	logData := keyvals(wf, n, exec, event, data)
+	log := s.logger.With(keyvals(wf, n, exec, event, data)...)
 	// Process the node
 	switch x := n.Type.(type) {
 	case *process.Process_Node_Task_:
@@ -153,7 +153,7 @@ func (s *Orchestrator) executeNode(wf *process.Process, n *process.Process_Node,
 		if err != nil {
 			return err
 		}
-		s.logger.With(logData...).With("createdExecHash", createdExecHash.String()).Info("execution created")
+		log.With("createdExecHash", createdExecHash.String()).Info("execution created")
 		return nil // stop workflow execution
 	case *process.Process_Node_Map_:
 		var err error
@@ -161,38 +161,32 @@ func (s *Orchestrator) executeNode(wf *process.Process, n *process.Process_Node,
 		if err != nil {
 			return err
 		}
-		log := s.logger.With(logData...)
 		if result, err := json.Marshal(data); err == nil {
 			log = log.With("output", string(result))
 		}
-		log.Info("map executed")
 	case *process.Process_Node_Filter_:
-		log := s.logger.With(logData...)
 		if result, err := json.Marshal(x.Filter); err == nil {
 			log = log.With("filter", string(result))
 		}
 		if !s.filterMatch(x.Filter, wf, n, exec, data) {
-			log.Info("filter is not matching")
+			log.Info("filter does not match data")
 			return nil // stop workflow execution
 		}
-		log.Info("filter is matching")
-	case *process.Process_Node_Result_, *process.Process_Node_Event_:
-		s.logger.With(logData...).Info("triggering process")
-	default:
-		return fmt.Errorf("unknown node type %q", n.TypeString())
 	}
 
 	// Process the children
 	for _, childrenID := range wf.ChildrenKeys(n.Key) {
+		log = log.With("to", childrenID)
 		children, err := wf.FindNode(childrenID)
 		if err != nil {
 			// does not return an error to continue to process other tasks if needed
-			s.logger.With(logData...).Error(err.Error())
+			log.Error(err.Error())
 			continue
 		}
+		log.Info("executed process transition")
 		if err := s.executeNode(wf, children, exec, event, data); err != nil {
 			// does not return an error to continue to process other tasks if needed
-			s.logger.With(logData...).Error(err.Error())
+			s.logger.With(keyvals(wf, children, exec, event, data)...).Error(err.Error())
 
 		}
 	}
@@ -202,16 +196,16 @@ func (s *Orchestrator) executeNode(wf *process.Process, n *process.Process_Node,
 
 // filterMatch returns true if the data match the current list of filters.
 func (s *Orchestrator) filterMatch(f *process.Process_Node_Filter, wf *process.Process, n *process.Process_Node, exec *execution.Execution, data *types.Struct) bool {
-	logData := keyvals(wf, n, exec, nil, data)
+	log := s.logger.With(keyvals(wf, n, exec, nil, data)...)
 	for _, condition := range f.Conditions {
 		resolvedData, err := s.resolveRef(wf, exec, n.Key, data, condition.Ref)
 		if err != nil {
-			s.logger.With(logData...).Error(err.Error())
+			log.Error(err.Error())
 			return false
 		}
 		match, err := condition.Match(resolvedData)
 		if err != nil {
-			s.logger.With(logData...).Error(err.Error())
+			log.Error(err.Error())
 		}
 		if !match {
 			return false
@@ -431,8 +425,8 @@ func keyvals(proc *process.Process, node *process.Process_Node, parentExec *exec
 	}
 	if node != nil {
 		keyvals = append(keyvals,
-			"nodeKey", node.Key,
-			"nodeType", node.TypeString(),
+			"from", node.Key,
+			"type", node.TypeString(),
 		)
 	}
 	if event != nil {
@@ -443,7 +437,7 @@ func keyvals(proc *process.Process, node *process.Process_Node, parentExec *exec
 	}
 	if data != nil {
 		if result, err := json.Marshal(data); err == nil {
-			keyvals = append(keyvals, "data", string(result))
+			keyvals = append(keyvals, "input", string(result))
 		}
 	}
 	return keyvals
