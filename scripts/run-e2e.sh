@@ -16,25 +16,24 @@ echo "run non existing test to detect compilation error quickly"
 go test -mod=readonly -v -count=1 ./e2e/... -run=__NONE__
 
 function onexit {
-  docker service rm $ENGINE_NAME
-  docker wait $(docker ps -f label=com.docker.swarm.service.name=$ENGINE_NAME -q) 2> /dev/null
-
+  docker stop $ENGINE_NAME
   docker network remove $NETWORK_NAME
 }
 
 trap onexit EXIT
 
 if [[ -z $(docker network list -f name="$NETWORK_NAME" -q) ]]; then
-  docker network create --driver overlay $NETWORK_NAME
+  docker network create $NETWORK_NAME
 fi
 
-docker service create \
+docker run \
+  -d \
+  --rm \
   --name $ENGINE_NAME \
   -p 1317:1317 \
   -p 50052:50052 \
   -p 26657:26657 \
   --network $NETWORK_NAME \
-  --label com.docker.stack.namespace=$ENGINE_NAME \
   mesg/engine:$1-dev
 
 echo "waiting lcd server to start"

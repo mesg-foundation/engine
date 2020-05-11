@@ -92,7 +92,7 @@ func TestAPI(t *testing.T) {
 	require.NoError(t, err)
 
 	// init container
-	cont, err = container.New(orchestratorName, orchestratorEndpoint, orchestratorNetwork)
+	cont, err = container.New(orchestratorName, orchestratorEndpoint, orchestratorNetwork, 0, 5*time.Second)
 	require.NoError(t, err)
 
 	// init orchestrator gRPC client
