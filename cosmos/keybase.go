@@ -13,9 +13,6 @@ import (
 )
 
 const (
-	// DefaultAlgo for create account.
-	DefaultAlgo = keys.Secp256k1
-
 	mnemonicEntropySize = 256
 )
 
@@ -36,6 +33,14 @@ func NewKeybase(dir string) (*Keybase, error) {
 		kb:            kb,
 		privKeysCache: make(map[[sha256.Size]byte]crypto.PrivKey),
 	}, nil
+}
+
+// NewInMemoryKeybase initializes a in memory keybase.
+func NewInMemoryKeybase() *Keybase {
+	return &Keybase{
+		kb:            clientkey.NewInMemoryKeyBase(),
+		privKeysCache: make(map[[sha256.Size]byte]crypto.PrivKey),
+	}
 }
 
 // NewMnemonic returns a new mnemonic phrase.

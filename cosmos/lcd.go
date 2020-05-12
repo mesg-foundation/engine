@@ -24,13 +24,13 @@ import (
 
 // LCD is a simple cosmos LCD client.
 type LCD struct {
-	endpoint     string
-	cdc          *codec.Codec
-	kb           keys.Keybase
-	chainID      string
-	accName      string
-	accPassword  string
-	minGasPrices sdktypes.DecCoins
+	endpoint    string
+	cdc         *codec.Codec
+	kb          keys.Keybase
+	chainID     string
+	accName     string
+	accPassword string
+	gasPrices   sdktypes.DecCoins
 
 	// local state
 	acc            *auth.BaseAccount
@@ -39,19 +39,19 @@ type LCD struct {
 }
 
 // NewLCD initializes a cosmos LCD client.
-func NewLCD(endpoint string, cdc *codec.Codec, kb keys.Keybase, chainID, accName, accPassword, minGasPrices string) (*LCD, error) {
-	minGasPricesDecoded, err := sdktypes.ParseDecCoins(minGasPrices)
+func NewLCD(endpoint string, cdc *codec.Codec, kb keys.Keybase, chainID, accName, accPassword, gasPrices string) (*LCD, error) {
+	gasPricesDecoded, err := sdktypes.ParseDecCoins(gasPrices)
 	if err != nil {
 		return nil, err
 	}
 	return &LCD{
-		endpoint:     endpoint,
-		cdc:          cdc,
-		kb:           kb,
-		chainID:      chainID,
-		accName:      accName,
-		accPassword:  accPassword,
-		minGasPrices: minGasPricesDecoded,
+		endpoint:    endpoint,
+		cdc:         cdc,
+		kb:          kb,
+		chainID:     chainID,
+		accName:     accName,
+		accPassword: accPassword,
+		gasPrices:   gasPricesDecoded,
 	}, nil
 }
 
@@ -213,7 +213,7 @@ func (lcd *LCD) createAndSignTx(msgs []sdk.Msg, acc *auth.BaseAccount) (authtype
 		lcd.chainID,
 		"",
 		nil,
-		lcd.minGasPrices,
+		lcd.gasPrices,
 	).WithKeybase(lcd.kb)
 
 	// calculate gas

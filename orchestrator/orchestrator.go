@@ -2,7 +2,7 @@ package orchestrator
 
 import (
 	"context"
-	"errors"
+	"encoding/json"
 	"fmt"
 	"math/rand"
 
@@ -11,6 +11,7 @@ import (
 	"github.com/mesg-foundation/engine/event"
 	"github.com/mesg-foundation/engine/event/publisher"
 	"github.com/mesg-foundation/engine/execution"
+	"github.com/mesg-foundation/engine/ext/xrand"
 	"github.com/mesg-foundation/engine/ext/xstrings"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/process"
@@ -19,16 +20,31 @@ import (
 	executionmodule "github.com/mesg-foundation/engine/x/execution"
 	processmodule "github.com/mesg-foundation/engine/x/process"
 	runnermodule "github.com/mesg-foundation/engine/x/runner"
-	"github.com/sirupsen/logrus"
+	tmlog "github.com/tendermint/tendermint/libs/log"
 )
 
+func init() {
+	xrand.SeedInit()
+}
+
+// Orchestrator manages the executions based on the definition of the processes
+type Orchestrator struct {
+	rpc             *cosmos.RPC
+	ep              *publisher.EventPublisher
+	eventStream     *event.Listener
+	executionStream chan *execution.Execution
+	stopC           chan bool
+	logger          tmlog.Logger
+	execPrice       string
+}
+
 // New creates a new Process instance
-func New(rpc *cosmos.RPC, ep *publisher.EventPublisher, execPrice string) *Orchestrator {
+func New(rpc *cosmos.RPC, ep *publisher.EventPublisher, logger tmlog.Logger, execPrice string) *Orchestrator {
 	return &Orchestrator{
 		rpc:       rpc,
 		ep:        ep,
-		ErrC:      make(chan error),
 		stopC:     make(chan bool),
+		logger:    logger.With("module", "orchestrator"),
 		execPrice: execPrice,
 	}
 }
@@ -104,7 +120,7 @@ func (s *Orchestrator) findNodes(wf *process.Process, filter func(wf *process.Pr
 	return wf.FindNodes(func(n *process.Process_Node) bool {
 		res, err := filter(wf, n)
 		if err != nil {
-			s.ErrC <- err
+			s.logger.With(keyvals(wf, n, nil, nil, nil)...).Error(err.Error())
 		}
 		return res
 	})
@@ -114,63 +130,82 @@ func (s *Orchestrator) execute(filter func(wf *process.Process, node *process.Pr
 	var processes []*process.Process
 	route := fmt.Sprintf("custom/%s/%s", processmodule.QuerierRoute, processmodule.QueryList)
 	if err := s.rpc.QueryJSON(route, nil, &processes); err != nil {
-		s.ErrC <- err
+		s.logger.Error(err.Error())
 		return
 	}
 	for _, wf := range processes {
 		for _, node := range s.findNodes(wf, filter) {
 			if err := s.executeNode(wf, node, exec, event, data); err != nil {
-				s.ErrC <- err
+				s.logger.With(keyvals(wf, node, exec, event, data)...).Error(err.Error())
 			}
 		}
 	}
 }
 
 func (s *Orchestrator) executeNode(wf *process.Process, n *process.Process_Node, exec *execution.Execution, event *event.Event, data *types.Struct) error {
-	logrus.WithField("module", "orchestrator").
-		WithField("node.key", n.Key).
-		WithField("type", fmt.Sprintf("%T", n)).Debug("process process")
-	if task := n.GetTask(); task != nil {
+	log := s.logger.With(keyvals(wf, n, exec, event, data)...)
+	// Process the node
+	switch x := n.Type.(type) {
+	case *process.Process_Node_Task_:
 		// This returns directly because a task cannot process its children.
 		// Children will be processed only when the execution is done and the dependencies are resolved
-		return s.processTask(n.Key, task, wf, exec, event, data)
-	} else if m := n.GetMap(); m != nil {
-		var err error
-		data, err = s.processMap(n.Key, m.Outputs, wf, exec, data)
+		createdExecHash, err := s.processTask(n, x.Task, wf, exec, event, data)
 		if err != nil {
 			return err
 		}
-	} else if filter := n.GetFilter(); filter != nil {
-		if !s.filterMatch(filter, wf, n.Key, exec, data) {
-			return nil
+		log.With("createdExecHash", createdExecHash.String()).Info("execution created")
+		return nil // stop workflow execution
+	case *process.Process_Node_Map_:
+		var err error
+		data, err = s.processMap(n.Key, x.Map.Outputs, wf, exec, data)
+		if err != nil {
+			return err
+		}
+		if result, err := json.Marshal(data); err == nil {
+			log = log.With("output", string(result))
+		}
+	case *process.Process_Node_Filter_:
+		if result, err := json.Marshal(x.Filter); err == nil {
+			log = log.With("filter", string(result))
+		}
+		if !s.filterMatch(x.Filter, wf, n, exec, data) {
+			log.Info("filter does not match data")
+			return nil // stop workflow execution
 		}
 	}
+
+	// Process the children
 	for _, childrenID := range wf.ChildrenKeys(n.Key) {
+		log = log.With("to", childrenID)
 		children, err := wf.FindNode(childrenID)
 		if err != nil {
 			// does not return an error to continue to process other tasks if needed
-			s.ErrC <- err
+			log.Error(err.Error())
 			continue
 		}
+		log.Info("executed process transition")
 		if err := s.executeNode(wf, children, exec, event, data); err != nil {
 			// does not return an error to continue to process other tasks if needed
-			s.ErrC <- err
+			s.logger.With(keyvals(wf, children, exec, event, data)...).Error(err.Error())
+
 		}
 	}
+
 	return nil
 }
 
 // filterMatch returns true if the data match the current list of filters.
-func (s *Orchestrator) filterMatch(f *process.Process_Node_Filter, wf *process.Process, nodeKey string, exec *execution.Execution, data *types.Struct) bool {
+func (s *Orchestrator) filterMatch(f *process.Process_Node_Filter, wf *process.Process, n *process.Process_Node, exec *execution.Execution, data *types.Struct) bool {
+	log := s.logger.With(keyvals(wf, n, exec, nil, data)...)
 	for _, condition := range f.Conditions {
-		resolvedData, err := s.resolveRef(wf, exec, nodeKey, data, condition.Ref)
+		resolvedData, err := s.resolveRef(wf, exec, n.Key, data, condition.Ref)
 		if err != nil {
-			s.ErrC <- err
+			log.Error(err.Error())
 			return false
 		}
 		match, err := condition.Match(resolvedData)
 		if err != nil {
-			s.ErrC <- err
+			log.Error(err.Error())
 		}
 		if !match {
 			return false
@@ -231,7 +266,7 @@ func (s *Orchestrator) outputToValue(nodeKey string, output *process.Process_Nod
 	case *process.Process_Node_Map_Output_Ref:
 		return s.resolveRef(wf, exec, nodeKey, data, v.Ref)
 	default:
-		return nil, errors.New("unknown output")
+		return nil, fmt.Errorf("unknown output")
 	}
 }
 
@@ -281,7 +316,7 @@ func (s *Orchestrator) resolveInput(wfHash hash.Hash, exec *execution.Execution,
 }
 
 // processTask create the request to execute the task.
-func (s *Orchestrator) processTask(nodeKey string, task *process.Process_Node_Task, wf *process.Process, exec *execution.Execution, event *event.Event, data *types.Struct) error {
+func (s *Orchestrator) processTask(node *process.Process_Node, task *process.Process_Node_Task, wf *process.Process, exec *execution.Execution, event *event.Event, data *types.Struct) (hash.Hash, error) {
 	var eventHash, execHash hash.Hash
 	if event != nil {
 		eventHash = event.Hash
@@ -292,7 +327,7 @@ func (s *Orchestrator) processTask(nodeKey string, task *process.Process_Node_Ta
 	var runners []*runner.Runner
 	route := fmt.Sprintf("custom/%s/%s", runnermodule.QuerierRoute, runnermodule.QueryList)
 	if err := s.rpc.QueryJSON(route, nil, &runners); err != nil {
-		return err
+		return nil, err
 	}
 	executors := make([]*runner.Runner, 0)
 	for _, run := range runners {
@@ -301,31 +336,32 @@ func (s *Orchestrator) processTask(nodeKey string, task *process.Process_Node_Ta
 		}
 	}
 	if len(executors) == 0 {
-		return fmt.Errorf("no runner is running instance %q", task.InstanceHash)
+		return nil, fmt.Errorf("no runner is running instance %q", task.InstanceHash)
 	}
 	executor := executors[rand.Intn(len(executors))]
 
 	// create execution
 	acc, err := s.rpc.GetAccount()
 	if err != nil {
-		return err
+		return nil, err
 	}
 	msg := executionmodule.MsgCreate{
 		Signer:       acc.GetAddress(),
 		ProcessHash:  wf.Hash,
 		EventHash:    eventHash,
 		ParentHash:   execHash,
-		NodeKey:      nodeKey,
+		NodeKey:      node.Key,
 		TaskKey:      task.TaskKey,
 		Inputs:       data,
 		ExecutorHash: executor.Hash,
 		Price:        s.execPrice,
 		Tags:         nil,
 	}
-	if _, err := s.rpc.BuildAndBroadcastMsg(msg); err != nil {
-		return err
+	res, err := s.rpc.BuildAndBroadcastMsg(msg)
+	if err != nil {
+		return nil, err
 	}
-	return nil
+	return hash.DecodeFromBytes(res.Data)
 }
 
 // startExecutionStream returns execution that matches given hash.
@@ -360,13 +396,13 @@ func (s *Orchestrator) startExecutionStream(ctx context.Context) error {
 					attr := event.Events[attrKeyHash][index]
 					hash, err := hash.Decode(attr)
 					if err != nil {
-						s.ErrC <- err
+						s.logger.Error(err.Error())
 						continue
 					}
 					var exec *execution.Execution
 					route := fmt.Sprintf("custom/%s/%s/%s", executionmodule.QuerierRoute, executionmodule.QueryGet, hash)
 					if err := s.rpc.QueryJSON(route, nil, &exec); err != nil {
-						s.ErrC <- err
+						s.logger.Error(err.Error())
 						continue
 					}
 					s.executionStream <- exec
@@ -376,8 +412,33 @@ func (s *Orchestrator) startExecutionStream(ctx context.Context) error {
 			}
 		}
 		if err := s.rpc.Unsubscribe(context.Background(), subscriber, query); err != nil {
-			s.ErrC <- err
+			s.logger.Error(err.Error())
 		}
 	}()
 	return nil
+}
+
+func keyvals(proc *process.Process, node *process.Process_Node, parentExec *execution.Execution, event *event.Event, data *types.Struct) []interface{} {
+	keyvals := []interface{}{}
+	if proc != nil {
+		keyvals = append(keyvals, "processHash", proc.Hash.String())
+	}
+	if node != nil {
+		keyvals = append(keyvals,
+			"from", node.Key,
+			"type", node.TypeString(),
+		)
+	}
+	if event != nil {
+		keyvals = append(keyvals, "eventHash", event.Hash.String())
+	}
+	if parentExec != nil {
+		keyvals = append(keyvals, "parentHash", parentExec.Hash.String())
+	}
+	if data != nil {
+		if result, err := json.Marshal(data); err == nil {
+			keyvals = append(keyvals, "input", string(result))
+		}
+	}
+	return keyvals
 }

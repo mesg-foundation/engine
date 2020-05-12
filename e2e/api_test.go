@@ -4,16 +4,12 @@ import (
 	"context"
 	"encoding/base64"
 	"fmt"
-	"os"
-	"path/filepath"
 	"testing"
 	"time"
 
 	"github.com/cosmos/cosmos-sdk/crypto/keys"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/x/bank"
 	"github.com/mesg-foundation/engine/app"
-	"github.com/mesg-foundation/engine/config"
 	"github.com/mesg-foundation/engine/container"
 	"github.com/mesg-foundation/engine/cosmos"
 	"github.com/mesg-foundation/engine/execution"
@@ -29,28 +25,42 @@ type apiclient struct {
 	RunnerClient    orchestrator.RunnerClient
 }
 
-var (
-	minExecutionPrice     sdk.Coins
-	client                *apiclient
-	cdc                   = app.MakeCodec()
-	processInitialBalance = sdk.NewCoins(sdk.NewInt64Coin("atto", 10000000))
-	kb                    *cosmos.Keybase
-	cfg                   *config.Config
-	engineAddress         sdk.AccAddress
-	cont                  *container.Container
-	lcd                   *cosmos.LCD
-	lcdEngine             *cosmos.LCD
-	cliAddress            sdk.AccAddress
-	cliInitialBalance, _  = sdk.ParseCoins("100000000000000000000000000atto")
-)
-
 const (
-	lcdEndpoint        = "http://127.0.0.1:1317/"
-	pollingInterval    = 500 * time.Millisecond // half a block
-	pollingTimeout     = 10 * time.Second       // 10 blocks
-	cliAccountMnemonic = "large fork soccer lab answer enlist robust vacant narrow please inmate primary father must add hub shy couch rail video tool marine pill give"
+	chainID         = "mesg-dev-chain"
+	gasPrices       = "1.0atto"
+	pollingInterval = 500 * time.Millisecond // half a block
+	pollingTimeout  = 10 * time.Second       // 10 blocks
+
+	lcdEndpoint          = "http://127.0.0.1:1317/"
+	orchestratorEndpoint = "localhost:50052"
+	orchestratorName     = "engine"
+	orchestratorNetwork  = "engine"
+
+	engineMnemonic        = "neutral false together tattoo matrix stamp poem mouse chair chair grain pledge mandate layer shiver embark struggle vicious antenna total faith genre valley mandate"
+	engineAccountName     = "engine"
+	engineAccountPassword = "pass"
+	engineAccountNumber   = uint32(0)
+	engineAccountIndex    = uint32(0)
+
+	cliAccountMnemonic = "spike raccoon obscure program raw large unaware dragon hamster round artist case fall wage sample velvet robust legend identify innocent film coral picture organ"
 	cliAccountName     = "cli"
 	cliAccountPassword = "pass"
+	cliAccountNumber   = uint32(0)
+	cliAccountIndex    = uint32(0)
+)
+
+var (
+	executionPrice        = sdk.NewCoins(sdk.NewInt64Coin("atto", 10000)) // /x/execution/internal/types/params.go#DefaultMinPrice
+	processInitialBalance = sdk.NewCoins(sdk.NewInt64Coin("atto", 10000000))
+
+	cdc           = app.MakeCodec()
+	client        *apiclient
+	kb            *cosmos.Keybase
+	engineAddress sdk.AccAddress
+	cont          *container.Container
+	lcd           *cosmos.LCD
+	lcdEngine     *cosmos.LCD
+	cliAddress    sdk.AccAddress
 )
 
 func TestAPI(t *testing.T) {
@@ -63,41 +73,30 @@ func TestAPI(t *testing.T) {
 
 	// init config
 	var err error
-	cfg, err = config.New()
-	require.NoError(t, err)
-	minExecutionPrice, err = sdk.ParseCoins(cfg.DefaultExecutionPrice)
-	require.NoError(t, err)
-
-	// change and recreate cosmos relative path because CI dir permissions
-	cfg.Cosmos.RelativePath = "e2e.cosmos"
-	err = os.MkdirAll(filepath.Join(cfg.Path, cfg.Cosmos.RelativePath), os.FileMode(0755))
-	require.NoError(t, err)
 
 	// init keybase with engine account and cli account
-	kb, err = cosmos.NewKeybase(filepath.Join(cfg.Path, cfg.Cosmos.RelativePath))
-	require.NoError(t, err)
+	kb = cosmos.NewInMemoryKeybase()
+
 	// init engine account
-	engineAcc, err := kb.CreateAccount(cfg.Account.Name, cfg.Account.Mnemonic, "", cfg.Account.Password, keys.CreateHDPath(cfg.Account.Number, cfg.Account.Index).String(), cosmos.DefaultAlgo)
+	engineAcc, err := kb.CreateAccount(engineAccountName, engineMnemonic, "", engineAccountPassword, keys.CreateHDPath(engineAccountNumber, engineAccountIndex).String(), cosmos.DefaultAlgo)
 	require.NoError(t, err)
 	engineAddress = engineAcc.GetAddress()
 
 	// init cli account
-	cliAcc, err := kb.CreateAccount(cliAccountName, cliAccountMnemonic, "", cliAccountPassword, keys.CreateHDPath(cfg.Account.Number, cfg.Account.Index).String(), cosmos.DefaultAlgo)
+	cliAcc, err := kb.CreateAccount(cliAccountName, cliAccountMnemonic, "", cliAccountPassword, keys.CreateHDPath(cliAccountNumber, cliAccountIndex).String(), cosmos.DefaultAlgo)
 	require.NoError(t, err)
 	cliAddress = cliAcc.GetAddress()
 
 	// init LCD with engine account and make a transfer to cli account
-	lcdEngine, err = cosmos.NewLCD(lcdEndpoint, cdc, kb, cfg.DevGenesis.ChainID, cfg.Account.Name, cfg.Account.Password, cfg.Cosmos.MinGasPrices)
-	require.NoError(t, err)
-	_, err = lcdEngine.BroadcastMsg(bank.NewMsgSend(engineAddress, cliAddress, cliInitialBalance))
+	lcdEngine, err = cosmos.NewLCD(lcdEndpoint, cdc, kb, chainID, engineAccountName, engineAccountPassword, gasPrices)
 	require.NoError(t, err)
 
 	// init container
-	cont, err = container.New(cfg.Name, cfg.Server.Address, cfg.Name)
+	cont, err = container.New(orchestratorName, orchestratorEndpoint, orchestratorNetwork, 0, 5*time.Second)
 	require.NoError(t, err)
 
-	// init gRPC client
-	conn, err := grpc.DialContext(context.Background(), "localhost:50052", grpc.WithInsecure())
+	// init orchestrator gRPC client
+	conn, err := grpc.DialContext(context.Background(), orchestratorEndpoint, grpc.WithInsecure())
 	require.NoError(t, err)
 
 	client = &apiclient{
@@ -107,7 +106,7 @@ func TestAPI(t *testing.T) {
 	}
 
 	// init LCD
-	lcd, err = cosmos.NewLCD(lcdEndpoint, cdc, kb, cfg.DevGenesis.ChainID, cliAccountName, cliAccountPassword, cfg.Cosmos.MinGasPrices)
+	lcd, err = cosmos.NewLCD(lcdEndpoint, cdc, kb, chainID, cliAccountName, cliAccountPassword, gasPrices)
 	require.NoError(t, err)
 
 	// run tests

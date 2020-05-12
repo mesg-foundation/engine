@@ -1,0 +1,12 @@
+moniker = "developer"
+[rpc]
+laddr = "tcp://0.0.0.0:26657"
+max_subscriptions_per_client = 100
+[consensus]
+timeout_commit = "1s"
+[p2p]
+addr_book_strict = false
+[instrumentation]
+prometheus = true
+[tx_index]
+index_all_keys = true

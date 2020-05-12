@@ -7,14 +7,14 @@ import (
 	"time"
 
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
-	grpc_logrus "github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus"
+	grpc_kit "github.com/grpc-ecosystem/go-grpc-middleware/logging/kit"
 	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
 	"github.com/mesg-foundation/engine/cosmos"
 	"github.com/mesg-foundation/engine/event/publisher"
 	"github.com/mesg-foundation/engine/ext/xvalidator"
 	"github.com/mesg-foundation/engine/server/grpc/orchestrator"
 	"github.com/mesg-foundation/engine/server/grpc/runner"
-	"github.com/sirupsen/logrus"
+	tmlog "github.com/tendermint/tendermint/libs/log"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/keepalive"
 	"google.golang.org/grpc/reflection"
@@ -25,14 +25,16 @@ type Server struct {
 	instance          *grpc.Server
 	rpc               *cosmos.RPC
 	ep                *publisher.EventPublisher
+	logger            tmlog.Logger
 	authorizedPubKeys []string
 }
 
 // New returns a new gRPC server.
-func New(rpc *cosmos.RPC, ep *publisher.EventPublisher, authorizedPubKeys []string) *Server {
+func New(rpc *cosmos.RPC, ep *publisher.EventPublisher, logger tmlog.Logger, authorizedPubKeys []string) *Server {
 	return &Server{
 		rpc:               rpc,
 		ep:                ep,
+		logger:            logger.With("module", "grpc"),
 		authorizedPubKeys: authorizedPubKeys,
 	}
 }
@@ -52,11 +54,11 @@ func (s *Server) Serve(address string) error {
 	s.instance = grpc.NewServer(
 		keepaliveOpt,
 		grpc.StreamInterceptor(grpc_middleware.ChainStreamServer(
-			grpc_logrus.StreamServerInterceptor(logrus.StandardLogger().WithField("module", "grpc")),
+			grpc_kit.StreamServerInterceptor(newTmLogger(s.logger, "Served gRPC stream")),
 			grpc_prometheus.StreamServerInterceptor,
 		)),
 		grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
-			grpc_logrus.UnaryServerInterceptor(logrus.StandardLogger().WithField("module", "grpc")),
+			grpc_kit.UnaryServerInterceptor(newTmLogger(s.logger, "Served gRPC response")),
 			grpc_prometheus.UnaryServerInterceptor,
 			validateInterceptor,
 		)),
@@ -65,7 +67,7 @@ func (s *Server) Serve(address string) error {
 		return err
 	}
 	grpc_prometheus.Register(s.instance)
-	logrus.WithField("module", "grpc").Info("server listens on ", ln.Addr())
+	s.logger.Info("Server listens on " + ln.Addr().String())
 	return s.instance.Serve(ln)
 }
 

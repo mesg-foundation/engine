@@ -69,9 +69,10 @@ func testRunner(t *testing.T) {
 			require.NoError(t, cont.Start(testServiceStruct, testInstanceHash, testRunnerHash, testInstanceEnvHash, testInstanceEnv, registerPayloadSignature))
 		})
 
-		// wait for service to be ready
-		_, err = stream.Recv()
-		require.NoError(t, err)
+		t.Run("wait", func(t *testing.T) {
+			_, err = stream.Recv()
+			require.NoError(t, err)
+		})
 	})
 
 	t.Run("get", func(t *testing.T) {

@@ -3,6 +3,7 @@ package cli
 import (
 	"bufio"
 	"fmt"
+	"strings"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/context"
@@ -20,7 +21,7 @@ import (
 func GetTxCmd(cdc *codec.Codec) *cobra.Command {
 	ownershipTxCmd := &cobra.Command{
 		Use:                        types.ModuleName,
-		Short:                      fmt.Sprintf("%s transactions subcommands", types.ModuleName),
+		Short:                      fmt.Sprintf("%s transactions subcommands", strings.Title(types.ModuleName)),
 		DisableFlagParsing:         true,
 		SuggestionsMinimumDistance: 2,
 		RunE:                       client.ValidateCmd,
@@ -35,8 +36,8 @@ func GetTxCmd(cdc *codec.Codec) *cobra.Command {
 // GetCmdWithdraw is the CLI command for sending a Withdraw transaction
 func GetCmdWithdraw(cdc *codec.Codec) *cobra.Command {
 	return &cobra.Command{
-		Use:   "withdraw-coins [resource] [amount]",
-		Short: "withdraw amount from resource address",
+		Use:   "withdraw-coins [resourceHash] [amount]",
+		Short: "withdraw coins from a resource",
 		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			inBuf := bufio.NewReader(cmd.InOrStdin())
@@ -44,17 +45,17 @@ func GetCmdWithdraw(cdc *codec.Codec) *cobra.Command {
 
 			txBldr := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
 
-			h, err := hash.Decode(args[0])
+			resourceHash, err := hash.Decode(args[0])
 			if err != nil {
 				return err
 			}
 
 			msg := types.MsgWithdraw{
 				Owner:        cliCtx.GetFromAddress(),
-				ResourceHash: h,
+				ResourceHash: resourceHash,
 				Amount:       args[1],
 			}
-			if err = msg.ValidateBasic(); err != nil {
+			if err := msg.ValidateBasic(); err != nil {
 				return err
 			}
 

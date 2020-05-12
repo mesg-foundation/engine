@@ -1,8 +1,0 @@
-authorized_pubkeys:
-  - mesgpub1addwnpepqg0ujk8vcwq86z8466rznfvfz5rk992wsy0qtczfedgsy3x90mrzkcd5srf
-account:
-  mnemonic: glimpse upon body vast economy give taxi yellow rabbit come click ranch chronic hammer sport near rotate charge lumber chicken cloud base thing forum
-tendermint:
-  config:
-    consensus:
-      timeoutcommit: 1s

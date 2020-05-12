@@ -2,7 +2,6 @@ Dockerfile
 
 # build
 /bin
-!/bin/engine
 
 # repo files
 README.md
@@ -11,7 +10,6 @@ CONTRIBUTING.md
 schema1.svg
 .github
 
-/scripts
 /examples
 
 # test & debug files
