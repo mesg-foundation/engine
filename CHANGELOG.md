@@ -1,5 +1,39 @@
 # Changelog
 
+## [v0.24.0](https://github.com/mesg-foundation/engine/releases/tag/v0.24.0)
+
+#### Breaking Changes
+
+- ([#1810](https://github.com/mesg-foundation/engine/pull/1810)) Switch to CLI based Engine.
+
+#### Added
+
+- ([#1798](https://github.com/mesg-foundation/engine/pull/1798)) Add tx commands for service, process, execution and runner modules.
+- ([#1801](https://github.com/mesg-foundation/engine/pull/1801)) Add orchestrator command to CLI.
+- ([#1806](https://github.com/mesg-foundation/engine/pull/1806)) Create pre-configured dev docker image.
+- ([#1808](https://github.com/mesg-foundation/engine/pull/1808)) Add cli dockerfile.
+- ([#1812](https://github.com/mesg-foundation/engine/pull/1812)) Add logs to orchestrator.
+
+#### Changed
+
+- ([#1802](https://github.com/mesg-foundation/engine/pull/1802)) Rename in cosmos lcd and rpc clients minGasPrices by simply gasPrices.
+- ([#1803](https://github.com/mesg-foundation/engine/pull/1803)) Update readme.
+- ([#1817](https://github.com/mesg-foundation/engine/pull/1817)) Use docker container in e2e tests.
+
+#### Fixed
+
+- ([#1760](https://github.com/mesg-foundation/engine/pull/1760)) Set grace period to 1m in dev script.
+- ([#1809](https://github.com/mesg-foundation/engine/pull/1809)) Fix runner e2e that block the tests on error.
+
+#### Dependencies
+
+- ([#1745](https://github.com/mesg-foundation/engine/pull/1745)) Bump github.com/sirupsen/logrus from 1.4.2 to 1.5.0.
+- ([#1777](https://github.com/mesg-foundation/engine/pull/1777)) Bump github.com/spf13/viper from 1.6.2 to 1.6.3.
+- ([#1782](https://github.com/mesg-foundation/engine/pull/1782)) Bump github.com/golang/protobuf from 1.3.4 to 1.4.0.
+- ([#1794](https://github.com/mesg-foundation/engine/pull/1794)) Bump google.golang.org/grpc from 1.28.0 to 1.29.1.
+- ([#1800](https://github.com/mesg-foundation/engine/pull/1800)) Bump github.com/prometheus/client_golang from 1.5.0 to 1.6.0.
+- ([#1811](https://github.com/mesg-foundation/engine/pull/1811)) Revert golang/protobuf to v1.3.5 and prometheus/client_golang to v1.5.1.
+
 ## [v0.23.0](https://github.com/mesg-foundation/engine/releases/tag/v0.23.0)
 
 #### Added
