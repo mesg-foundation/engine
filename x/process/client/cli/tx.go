@@ -39,7 +39,7 @@ func GetTxCmd(cdc *codec.Codec) *cobra.Command {
 func GetCmdCreate(cdc *codec.Codec) *cobra.Command {
 	return &cobra.Command{
 		Use:   "create [definition]",
-		Short: "Creates a new process",
+		Short: "Create a new process from its definition",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			inBuf := bufio.NewReader(cmd.InOrStdin())
@@ -69,7 +69,7 @@ func GetCmdCreate(cdc *codec.Codec) *cobra.Command {
 func GetCmdDelete(cdc *codec.Codec) *cobra.Command {
 	return &cobra.Command{
 		Use:   "delete [processHash]",
-		Short: "Deletes a process",
+		Short: "Delete a process",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			inBuf := bufio.NewReader(cmd.InOrStdin())

@@ -37,7 +37,7 @@ func GetTxCmd(cdc *codec.Codec) *cobra.Command {
 func GetCmdCreate(cdc *codec.Codec) *cobra.Command {
 	return &cobra.Command{
 		Use:   "create [definition]",
-		Short: "Creates a new execution",
+		Short: "Create a new execution",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			inBuf := bufio.NewReader(cmd.InOrStdin())
@@ -67,7 +67,7 @@ func GetCmdCreate(cdc *codec.Codec) *cobra.Command {
 func GetCmdUpdate(cdc *codec.Codec) *cobra.Command {
 	return &cobra.Command{
 		Use:   "update [definition]",
-		Short: "Updates an execution",
+		Short: "Update an execution",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			inBuf := bufio.NewReader(cmd.InOrStdin())
