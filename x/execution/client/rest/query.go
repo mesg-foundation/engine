@@ -132,6 +132,9 @@ func queryListHandlerFn(cliCtx context.CLIContext) http.HandlerFunc {
 		sort.Sort(sort.Reverse(execution.ByBlockHeight(execs)))
 
 		start, end := client.Paginate(len(execs), page, limit, limit)
+		w.Header().Set("X-Page", fmt.Sprintf("%d", page))
+		w.Header().Set("X-Limit", fmt.Sprintf("%d", limit))
+		w.Header().Set("X-Total-Count", fmt.Sprintf("%d", len(execs)))
 		if start < 0 || end < 0 {
 			execs = []*execution.Execution{}
 		} else {
