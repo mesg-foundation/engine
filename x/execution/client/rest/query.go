@@ -109,6 +109,10 @@ func queryListHandlerFn(cliCtx context.CLIContext) http.HandlerFunc {
 			filter.Status = execution.Status(status)
 		}
 
+		if param := r.FormValue("nodeKey"); param != "" {
+			filter.NodeKey = param
+		}
+
 		data, err := cliCtx.Codec.MarshalJSON(filter)
 		if err != nil {
 			return
