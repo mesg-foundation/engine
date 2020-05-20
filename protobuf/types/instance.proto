@@ -21,7 +21,7 @@ message Instance {
   ];
 
   bytes envHash = 3 [
-    (gogoproto.moretags) = 'hash:"name:3" validate:"omitempty,hash"',
+    (gogoproto.moretags) = 'hash:"name:3" validate:"required,hash"',
     (gogoproto.casttype) = "github.com/mesg-foundation/engine/hash.Hash"
   ];
 }
