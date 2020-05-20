@@ -37,7 +37,7 @@ func GetTxCmd(cdc *codec.Codec) *cobra.Command {
 func GetCmdCreate(cdc *codec.Codec) *cobra.Command {
 	return &cobra.Command{
 		Use:   "create [definition]",
-		Short: "create a service from its definition",
+		Short: "Create a service from its definition",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			inBuf := bufio.NewReader(cmd.InOrStdin())
