@@ -14,17 +14,15 @@ import (
 
 // Keeper of the instance store
 type Keeper struct {
-	storeKey      sdk.StoreKey
-	cdc           *codec.Codec
-	serviceKeeper types.ServiceKeeper
+	storeKey sdk.StoreKey
+	cdc      *codec.Codec
 }
 
 // NewKeeper creates a instance keeper
-func NewKeeper(cdc *codec.Codec, key sdk.StoreKey, serviceKeeper types.ServiceKeeper) Keeper {
+func NewKeeper(cdc *codec.Codec, key sdk.StoreKey) Keeper {
 	keeper := Keeper{
-		storeKey:      key,
-		cdc:           cdc,
-		serviceKeeper: serviceKeeper,
+		storeKey: key,
+		cdc:      cdc,
 	}
 	return keeper
 }
@@ -36,16 +34,13 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 
 // FetchOrCreate creates a new instance if needed.
 func (k Keeper) FetchOrCreate(ctx sdk.Context, serviceHash hash.Hash, envHash hash.Hash) (*instance.Instance, error) {
-	if _, err := k.serviceKeeper.Get(ctx, serviceHash); err != nil {
-		return nil, err
-	}
+	store := ctx.KVStore(k.storeKey)
 
 	inst, err := instance.New(serviceHash, envHash)
 	if err != nil {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, err.Error())
 	}
 
-	store := ctx.KVStore(k.storeKey)
 	if !store.Has(inst.Hash) {
 		value, err := k.cdc.MarshalBinaryLengthPrefixed(inst)
 		if err != nil {
