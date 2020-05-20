@@ -38,18 +38,19 @@ func main() {
 	// init the config of cosmos
 	cosmos.InitConfig()
 
-	logger := log.NewTMJSONLogger(log.NewSyncWriter(os.Stdout))
 	ctx := server.NewContext(
 		cfg.DefaultConfig(),
-		logger,
+		log.NewTMJSONLogger(log.NewSyncWriter(os.Stdout)),
 	)
 	cobra.EnableCommandSorting = false
 	rootCmd := &cobra.Command{
 		Use:   version.ServerName,
 		Short: "Engine Daemon (server)",
 		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
-			err := server.PersistentPreRunEFn(ctx)(cmd, args)
-			logger, err = tmflags.ParseLogLevel(ctx.Config.LogLevel, logger, cfg.DefaultLogLevel())
+			if err := server.PersistentPreRunEFn(ctx)(cmd, args); err != nil {
+				return err
+			}
+			logger, err := tmflags.ParseLogLevel(ctx.Config.LogLevel, ctx.Logger, cfg.DefaultLogLevel())
 			if err != nil {
 				return err
 			}
@@ -58,7 +59,7 @@ func main() {
 			}
 			logger = logger.With("module", "main")
 			ctx.Logger = logger
-			return err
+			return nil
 		},
 	}
 
