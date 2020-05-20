@@ -7,11 +7,10 @@ import (
 
 // const aliases
 const (
-	ModuleName        = types.ModuleName
-	RouterKey         = types.RouterKey
-	StoreKey          = types.StoreKey
-	DefaultParamspace = types.DefaultParamspace
-	QuerierRoute      = types.QuerierRoute
+	ModuleName   = types.ModuleName
+	RouterKey    = types.RouterKey
+	StoreKey     = types.StoreKey
+	QuerierRoute = types.QuerierRoute
 )
 
 // functions and variable aliases
@@ -41,7 +40,6 @@ var (
 type (
 	Keeper       = keeper.Keeper
 	GenesisState = types.GenesisState
-	Params       = types.Params
 
 	MsgCreate = types.MsgCreate
 	MsgDelete = types.MsgDelete
