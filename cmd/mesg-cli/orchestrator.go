@@ -48,7 +48,7 @@ func startOrchestratorCmd(cdc *codec.Codec) *cobra.Command {
 				return fmt.Errorf("chain-id is required. use flag --chain-id or config file")
 			}
 
-			logger := log.NewTMLogger(log.NewSyncWriter(os.Stdout))
+			logger := log.NewTMJSONLogger(log.NewSyncWriter(os.Stdout))
 			client, err := cliCtx.GetNode()
 			if err != nil {
 				return err

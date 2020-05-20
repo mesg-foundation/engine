@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"io"
+	"os"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client/debug"
@@ -19,7 +20,9 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	abci "github.com/tendermint/tendermint/abci/types"
+	cfg "github.com/tendermint/tendermint/config"
 	"github.com/tendermint/tendermint/libs/cli"
+	tmflags "github.com/tendermint/tendermint/libs/cli/flags"
 	"github.com/tendermint/tendermint/libs/log"
 	tmtypes "github.com/tendermint/tendermint/types"
 	dbm "github.com/tendermint/tm-db"
@@ -35,12 +38,28 @@ func main() {
 	// init the config of cosmos
 	cosmos.InitConfig()
 
-	ctx := server.NewDefaultContext()
+	logger := log.NewTMJSONLogger(log.NewSyncWriter(os.Stdout))
+	ctx := server.NewContext(
+		cfg.DefaultConfig(),
+		logger,
+	)
 	cobra.EnableCommandSorting = false
 	rootCmd := &cobra.Command{
-		Use:               version.ServerName,
-		Short:             "Engine Daemon (server)",
-		PersistentPreRunE: server.PersistentPreRunEFn(ctx),
+		Use:   version.ServerName,
+		Short: "Engine Daemon (server)",
+		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+			err := server.PersistentPreRunEFn(ctx)(cmd, args)
+			logger, err = tmflags.ParseLogLevel(ctx.Config.LogLevel, logger, cfg.DefaultLogLevel())
+			if err != nil {
+				return err
+			}
+			if viper.GetBool(cli.TraceFlag) {
+				logger = log.NewTracingLogger(logger)
+			}
+			logger = logger.With("module", "main")
+			ctx.Logger = logger
+			return err
+		},
 	}
 
 	rootCmd.AddCommand(genutilcli.InitCmd(ctx, cdc, app.ModuleBasics, app.DefaultNodeHome))
