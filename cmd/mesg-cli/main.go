@@ -2,26 +2,33 @@ package main
 
 import (
 	"fmt"
+	"net"
 	"os"
 	"path"
+	"time"
 
 	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/keys"
-	"github.com/cosmos/cosmos-sdk/client/lcd"
 	"github.com/cosmos/cosmos-sdk/client/rpc"
+	"github.com/cosmos/cosmos-sdk/codec"
+	"github.com/cosmos/cosmos-sdk/server"
 	"github.com/cosmos/cosmos-sdk/version"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	authcmd "github.com/cosmos/cosmos-sdk/x/auth/client/cli"
 	authrest "github.com/cosmos/cosmos-sdk/x/auth/client/rest"
 	"github.com/cosmos/cosmos-sdk/x/bank"
 	bankcmd "github.com/cosmos/cosmos-sdk/x/bank/client/cli"
+	"github.com/gorilla/mux"
 	"github.com/mesg-foundation/engine/app"
 	"github.com/mesg-foundation/engine/cosmos"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"github.com/tendermint/go-amino"
 	"github.com/tendermint/tendermint/libs/cli"
+	"github.com/tendermint/tendermint/libs/log"
+	rpcserver "github.com/tendermint/tendermint/rpc/lib/server"
 )
 
 func main() {
@@ -54,7 +61,7 @@ func main() {
 		flags.LineBreak,
 		orchestratorCmd(cdc),
 		flags.LineBreak,
-		lcd.ServeCommand(cdc, registerRoutes),
+		ServeCommand(cdc),
 		flags.LineBreak,
 		keys.Commands(),
 		signCommand(),
@@ -71,6 +78,49 @@ func main() {
 		fmt.Printf("Failed executing CLI command: %s, exiting...\n", err)
 		os.Exit(1)
 	}
+}
+
+// ServeCommand creates and starts the LCD server
+func ServeCommand(cdc *codec.Codec) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "rest-server",
+		Short: "Start LCD (light-client daemon), a local REST server",
+		RunE: func(cmd *cobra.Command, args []string) (err error) {
+			r := mux.NewRouter()
+			cliCtx := context.NewCLIContext().WithCodec(cdc)
+			logger := log.NewTMJSONLogger(log.NewSyncWriter(os.Stdout)).With("module", "rest-server")
+			var listener net.Listener
+			server.TrapSignal(func() {
+				err := listener.Close()
+				logger.Error("error closing listener", "err", err)
+			})
+
+			client.RegisterRoutes(cliCtx, r)
+			authrest.RegisterTxRoutes(cliCtx, r)
+			app.ModuleBasics.RegisterRESTRoutes(cliCtx, r)
+			cosmos.RegisterSimulateRoute(cliCtx, r)
+
+			cfg := rpcserver.DefaultConfig()
+			cfg.MaxOpenConnections = viper.GetInt(flags.FlagMaxOpenConnections)
+			cfg.ReadTimeout = time.Duration(uint(viper.GetInt(flags.FlagRPCReadTimeout))) * time.Second
+			cfg.WriteTimeout = time.Duration(uint(viper.GetInt(flags.FlagRPCWriteTimeout))) * time.Second
+
+			listener, err = rpcserver.Listen(viper.GetString(flags.FlagListenAddr), cfg)
+			if err != nil {
+				return
+			}
+			logger.Info(
+				fmt.Sprintf(
+					"Starting application REST service (chain-id: %q)...",
+					viper.GetString(flags.FlagChainID),
+				),
+			)
+
+			return rpcserver.StartHTTPServer(listener, r, logger, cfg)
+		},
+	}
+
+	return flags.RegisterRestServerFlags(cmd)
 }
 
 func queryCmd(cdc *amino.Codec) *cobra.Command {
@@ -129,16 +179,6 @@ func txCmd(cdc *amino.Codec) *cobra.Command {
 	txCmd.RemoveCommand(cmdsToRemove...)
 
 	return txCmd
-}
-
-// registerRoutes registers the routes from the different modules for the LCD.
-// NOTE: details on the routes added for each module are in the module documentation
-// NOTE: If making updates here you also need to update the test helper in client/lcd/test_helper.go
-func registerRoutes(rs *lcd.RestServer) {
-	client.RegisterRoutes(rs.CliCtx, rs.Mux)
-	authrest.RegisterTxRoutes(rs.CliCtx, rs.Mux)
-	app.ModuleBasics.RegisterRESTRoutes(rs.CliCtx, rs.Mux)
-	cosmos.RegisterSimulateRoute(rs.CliCtx, rs.Mux)
 }
 
 func initConfig(cmd *cobra.Command) error {
