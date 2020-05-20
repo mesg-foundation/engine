@@ -84,4 +84,6 @@ changelog:
 
 clean: 
 	- rm -rf bin
-	- docker image rm $(docker images | grep 'mesg')
+	- docker volume rm engine
+	- docker image rm $(shell docker images -q mesg/engine)
+	- docker image rm $(shell docker images -q mesg/tools)
