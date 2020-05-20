@@ -348,7 +348,7 @@ func (k *Keeper) Get(ctx sdk.Context, hash hash.Hash) (*executionpb.Execution, e
 }
 
 // List returns all executions.
-func (k *Keeper) List(ctx sdk.Context) ([]*executionpb.Execution, error) {
+func (k *Keeper) List(ctx sdk.Context, filter types.ListFilter) ([]*executionpb.Execution, error) {
 	var (
 		execs []*executionpb.Execution
 		iter  = ctx.KVStore(k.storeKey).Iterator(nil, nil)
@@ -359,7 +359,9 @@ func (k *Keeper) List(ctx sdk.Context) ([]*executionpb.Execution, error) {
 		if err := k.cdc.UnmarshalBinaryLengthPrefixed(value, &exec); err != nil {
 			return nil, sdkerrors.Wrapf(sdkerrors.ErrJSONUnmarshal, err.Error())
 		}
-		execs = append(execs, exec)
+		if filter.Match(exec) {
+			execs = append(execs, exec)
+		}
 		iter.Next()
 	}
 	iter.Close()

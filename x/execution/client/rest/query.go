@@ -4,12 +4,14 @@ import (
 	"fmt"
 	"net/http"
 	"sort"
+	"strconv"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/types/rest"
 	"github.com/gorilla/mux"
 	"github.com/mesg-foundation/engine/execution"
+	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/x/execution/internal/types"
 )
 
@@ -67,7 +69,62 @@ func queryListHandlerFn(cliCtx context.CLIContext) http.HandlerFunc {
 
 		route := fmt.Sprintf("custom/%s/%s", types.QuerierRoute, types.QueryList)
 
-		res, height, err := cliCtx.QueryWithData(route, nil)
+		filter := types.ListFilter{}
+		if param := r.FormValue("parentHash"); param != "" {
+			h, err := hash.Decode(param)
+			if err != nil {
+				rest.WriteErrorResponse(w, http.StatusBadRequest, "error on parameter parentHash: "+err.Error())
+				return
+			}
+			filter.ParentHash = h
+		}
+
+		if param := r.FormValue("eventHash"); param != "" {
+			h, err := hash.Decode(param)
+			if err != nil {
+				rest.WriteErrorResponse(w, http.StatusBadRequest, "error on parameter eventHash: "+err.Error())
+				return
+			}
+			filter.EventHash = h
+		}
+
+		if param := r.FormValue("instanceHash"); param != "" {
+			h, err := hash.Decode(param)
+			if err != nil {
+				rest.WriteErrorResponse(w, http.StatusBadRequest, "error on parameter instanceHash: "+err.Error())
+				return
+			}
+			filter.InstanceHash = h
+		}
+
+		if param := r.FormValue("processHash"); param != "" {
+			h, err := hash.Decode(param)
+			if err != nil {
+				rest.WriteErrorResponse(w, http.StatusBadRequest, "error on parameter processHash: "+err.Error())
+				return
+			}
+			filter.ProcessHash = h
+		}
+
+		if param := r.FormValue("status"); param != "" {
+			status, ok := execution.Status_value[param]
+			if !ok {
+				rest.WriteErrorResponse(w, http.StatusBadRequest, "error on parameter status: value is invalid")
+				return
+			}
+			filter.Status = execution.Status(status)
+		}
+
+		if param := r.FormValue("nodeKey"); param != "" {
+			filter.NodeKey = param
+		}
+
+		data, err := cliCtx.Codec.MarshalJSON(filter)
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
+			return
+		}
+		res, height, err := cliCtx.QueryWithData(route, data)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
@@ -82,6 +139,9 @@ func queryListHandlerFn(cliCtx context.CLIContext) http.HandlerFunc {
 		sort.Sort(sort.Reverse(execution.ByBlockHeight(execs)))
 
 		start, end := client.Paginate(len(execs), page, limit, limit)
+		w.Header().Set("X-Page", strconv.Itoa(page))
+		w.Header().Set("X-Limit", strconv.Itoa(limit))
+		w.Header().Set("X-Total-Count", strconv.Itoa(len(execs)))
 		if start < 0 || end < 0 {
 			execs = []*execution.Execution{}
 		} else {
