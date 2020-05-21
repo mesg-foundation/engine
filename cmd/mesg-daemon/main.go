@@ -47,6 +47,7 @@ func main() {
 		Use:   version.ServerName,
 		Short: "Engine Daemon (server)",
 		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+			// adapted version of function from https://github.com/cosmos/cosmos-sdk/blob/v0.38.3/server/util.go#L49-L74
 			if err := server.PersistentPreRunEFn(ctx)(cmd, args); err != nil {
 				return err
 			}
