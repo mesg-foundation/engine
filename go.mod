@@ -42,6 +42,7 @@ require (
 	github.com/prometheus/client_golang v1.5.1
 	github.com/prometheus/procfs v0.0.11 // indirect
 	github.com/pseudomuto/protoc-gen-doc v1.3.1
+	github.com/rakyll/statik v0.1.6
 	github.com/rcrowley/go-metrics v0.0.0-20190706150252-9beb055b7962 // indirect
 	github.com/sirupsen/logrus v1.5.0 // indirect
 	github.com/spf13/afero v1.2.2 // indirect

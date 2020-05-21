@@ -50,7 +50,7 @@ func main() {
 			if err := server.PersistentPreRunEFn(ctx)(cmd, args); err != nil {
 				return err
 			}
-			logger, err := tmflags.ParseLogLevel(ctx.Config.LogLevel, ctx.Logger, cfg.DefaultLogLevel())
+			logger, err := tmflags.ParseLogLevel(ctx.Config.LogLevel, log.NewTMJSONLogger(log.NewSyncWriter(os.Stdout)), cfg.DefaultLogLevel())
 			if err != nil {
 				return err
 			}
