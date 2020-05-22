@@ -145,13 +145,11 @@ func pollExecutionOfProcess(processHash hash.Hash, status execution.Status, node
 	timeout := time.After(pollingTimeout)
 	for {
 		var execs []*execution.Execution
-		if err := lcd.Get("execution/list", &execs); err != nil {
+		if err := lcd.Get(fmt.Sprintf("execution/list?processHash=%s&status=%s&nodeKey=%s", processHash, status, nodeKey), &execs); err != nil {
 			return nil, err
 		}
-		for _, exec := range execs {
-			if exec.ProcessHash.Equal(processHash) && exec.Status == status && exec.NodeKey == nodeKey {
-				return exec, nil
-			}
+		if len(execs) > 0 {
+			return execs[0], nil
 		}
 		select {
 		case <-time.After(pollingInterval):

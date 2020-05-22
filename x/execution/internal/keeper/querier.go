@@ -15,7 +15,9 @@ func NewQuerier(k Keeper) sdk.Querier {
 		case types.QueryGet:
 			return get(ctx, k, path[1:])
 		case types.QueryList:
-			return list(ctx, k)
+			return list(ctx, k, req.Data)
+		case types.QueryParameters:
+			return queryParameters(ctx, k)
 		default:
 			return nil, sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, "unknown execution query endpoint")
 		}
@@ -43,13 +45,25 @@ func get(ctx sdk.Context, k Keeper, path []string) ([]byte, error) {
 	return res, nil
 }
 
-func list(ctx sdk.Context, k Keeper) ([]byte, error) {
-	es, err := k.List(ctx)
+func list(ctx sdk.Context, k Keeper, data []byte) ([]byte, error) {
+	var filter types.ListFilter
+	if err := types.ModuleCdc.UnmarshalJSON(data, &filter); err != nil {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONUnmarshal, err.Error())
+	}
+	es, err := k.List(ctx, filter)
 	if err != nil {
 		return nil, err
 	}
 
 	res, err := types.ModuleCdc.MarshalJSON(es)
+	if err != nil {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONMarshal, err.Error())
+	}
+	return res, nil
+}
+
+func queryParameters(ctx sdk.Context, k Keeper) ([]byte, error) {
+	res, err := types.ModuleCdc.MarshalJSON(k.GetParams(ctx))
 	if err != nil {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONMarshal, err.Error())
 	}

@@ -17,13 +17,10 @@ if [[ "$2" == "monitoring" ]]; then
 fi
 
 function onexit {
-  docker service rm $ENGINE_NAME
-  docker wait $(docker ps -f label=com.docker.swarm.service.name=$ENGINE_NAME -q) 2> /dev/null
+  docker stop $ENGINE_NAME
 
-  if $monitor; then
-    docker service rm engine-grafana engine-prometheus
-    docker wait $(docker ps -f label=com.docker.swarm.service.name=engine-grafana -q) 2> /dev/null
-    docker wait $(docker ps -f label=com.docker.swarm.service.name=engine-prometheus -q) 2> /dev/null
+  if $monitoring; then
+    docker stop engine-grafana engine-prometheus
   fi
 
   docker network remove $NETWORK_NAME
@@ -32,35 +29,41 @@ function onexit {
 trap onexit EXIT
 
 if [[ -z $(docker network list -f name="$NETWORK_NAME" -q) ]]; then
-  docker network create --driver overlay $NETWORK_NAME
+  docker network create $NETWORK_NAME
 fi
 
 if $monitoring; then
   echo "start monitoring"
-  docker service create \
+  docker run \
+    -d \
+    --rm \
+    --name=engine-grafana \
     -p 3001:3000 \
     --network $NETWORK_NAME \
-    --name=engine-grafana \
     --mount type=bind,source=$(pwd)/scripts/monitoring/datasource.yml,destination=/etc/grafana/provisioning/datasources/datasource.yml \
     --mount type=bind,source=$(pwd)/scripts/monitoring/dashboard.yml,destination=/etc/grafana/provisioning/dashboards/dashboard.yml \
     --mount type=bind,source=$(pwd)/scripts/monitoring/dashboards,destination=/var/lib/grafana/dashboards \
     grafana/grafana
 
-  docker service create \
+  docker run \
+    -d \
+    --rm \
+    --name=engine-prometheus \
     -p 9090:9090 \
     --network $NETWORK_NAME \
-    --name=engine-prometheus \
     --mount type=bind,source=$(pwd)/scripts/monitoring/prometheus.yml,destination=/etc/prometheus/prometheus.yml \
     prom/prometheus
 fi
 
-docker service create \
+docker run \
+  -d \
+  --rm \
   --name $ENGINE_NAME \
   -p 1317:1317 \
   -p 50052:50052 \
   -p 26657:26657 \
   --network $NETWORK_NAME \
-  --label com.docker.stack.namespace=$ENGINE_NAME \
+  --volume engine:/root/ \
   mesg/engine:$1-dev
 
-docker service logs --tail 1000 --follow --raw $ENGINE_NAME
+docker logs --tail 1000 --follow $ENGINE_NAME

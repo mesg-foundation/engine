@@ -1,5 +1,21 @@
 # Changelog
 
+## [v0.25.0](https://github.com/mesg-foundation/engine/releases/tag/v0.25.0)
+
+#### Breaking Changes
+
+- ([#1830](https://github.com/mesg-foundation/engine/pull/1830)) Revert "Fix 2 issues with instance".
+
+#### Added
+
+- ([#1825](https://github.com/mesg-foundation/engine/pull/1825)) Add filter on execution list.
+
+#### Changed
+
+- ([#1827](https://github.com/mesg-foundation/engine/pull/1827)) Update dev script to use docker container instead of docker service.
+- ([#1828](https://github.com/mesg-foundation/engine/pull/1828)) Improve CLI commands.
+- ([#1831](https://github.com/mesg-foundation/engine/pull/1831)) Switch to json logger in orchestrator and daemon.
+
 ## [v0.24.0](https://github.com/mesg-foundation/engine/releases/tag/v0.24.0)
 
 #### Breaking Changes

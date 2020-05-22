@@ -37,7 +37,7 @@ func GetTxCmd(cdc *codec.Codec) *cobra.Command {
 func GetCmdWithdraw(cdc *codec.Codec) *cobra.Command {
 	return &cobra.Command{
 		Use:   "withdraw-coins [resourceHash] [amount]",
-		Short: "withdraw coins from a resource",
+		Short: "Withdraw coins from a resource",
 		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			inBuf := bufio.NewReader(cmd.InOrStdin())

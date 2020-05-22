@@ -29,11 +29,6 @@ func registerQueryRoutes(cliCtx context.CLIContext, r *mux.Router) {
 	).Methods(http.MethodPost)
 
 	r.HandleFunc(
-		"/process/parameters",
-		queryParamsHandlerFn(cliCtx),
-	).Methods(http.MethodGet)
-
-	r.HandleFunc(
 		"/process/exist/{hash}",
 		queryExistHandlerFn(cliCtx),
 	).Methods(http.MethodGet)
@@ -69,26 +64,6 @@ func queryListHandlerFn(cliCtx context.CLIContext) http.HandlerFunc {
 		}
 
 		route := fmt.Sprintf("custom/%s/%s", types.QuerierRoute, types.QueryList)
-
-		res, height, err := cliCtx.QueryWithData(route, nil)
-		if err != nil {
-			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
-			return
-		}
-
-		cliCtx = cliCtx.WithHeight(height)
-		rest.PostProcessResponse(w, cliCtx, res)
-	}
-}
-
-func queryParamsHandlerFn(cliCtx context.CLIContext) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		cliCtx, ok := rest.ParseQueryHeightOrReturnBadRequest(w, cliCtx, r)
-		if !ok {
-			return
-		}
-
-		route := fmt.Sprintf("custom/%s/parameters", types.QuerierRoute)
 
 		res, height, err := cliCtx.QueryWithData(route, nil)
 		if err != nil {

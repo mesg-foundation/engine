@@ -39,7 +39,7 @@ func GetTxCmd(cdc *codec.Codec) *cobra.Command {
 func GetCmdCreate(cdc *codec.Codec) *cobra.Command {
 	return &cobra.Command{
 		Use:   "create [serviceHash] [envHash]",
-		Short: "Creates a new runner",
+		Short: "Create a new runner",
 		Args:  cobra.MinimumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			inBuf := bufio.NewReader(cmd.InOrStdin())
@@ -77,7 +77,7 @@ func GetCmdCreate(cdc *codec.Codec) *cobra.Command {
 func GetCmdDelete(cdc *codec.Codec) *cobra.Command {
 	return &cobra.Command{
 		Use:   "delete [runnerHash]",
-		Short: "Deletes a runner",
+		Short: "Delete a runner",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			inBuf := bufio.NewReader(cmd.InOrStdin())

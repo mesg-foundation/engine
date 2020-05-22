@@ -25,8 +25,9 @@ var (
 
 	ModuleCdc = types.ModuleCdc
 
-	QueryGet  = types.QueryGet
-	QueryList = types.QueryList
+	QueryGet        = types.QueryGet
+	QueryList       = types.QueryList
+	QueryParameters = types.QueryParameters
 
 	M = keeper.M
 
