@@ -4,3 +4,4 @@ chain-id = "mesg-dev-chain"
 # orchestrtor
 authorized-pubkeys = "mesgpub1addwnpepqvdrcdvg3x4tf0y5aapn47njxapdu4l0jgsjzcm2klp9a7eztva66eqnadt"
 mnemonic = "neutral false together tattoo matrix stamp poem mouse chair chair grain pledge mandate layer shiver embark struggle vicious antenna total faith genre valley mandate"
+gas-prices = ""
