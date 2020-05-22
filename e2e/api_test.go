@@ -27,7 +27,7 @@ type apiclient struct {
 
 const (
 	chainID         = "mesg-dev-chain"
-	gasPrices       = "1.0atto"
+	gasPrices       = ""
 	pollingInterval = 500 * time.Millisecond // half a block
 	pollingTimeout  = 10 * time.Second       // 10 blocks
 
