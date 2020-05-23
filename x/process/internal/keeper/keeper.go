@@ -14,8 +14,6 @@ import (
 	"github.com/tendermint/tendermint/libs/log"
 )
 
-var processCreateInitialBalance = "10000000atto"
-
 // Keeper of the process store
 type Keeper struct {
 	storeKey        sdk.StoreKey
@@ -72,13 +70,7 @@ func (k Keeper) Create(ctx sdk.Context, msg *types.MsgCreate) (*processpb.Proces
 		}
 	}
 
-	procInitBal, err := sdk.ParseCoins(processCreateInitialBalance)
-	if err != nil {
-		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidCoins, err.Error())
-	}
-	if err := k.bankKeeper.SendCoins(ctx, msg.Owner, p.Address, procInitBal); err != nil {
-		return nil, err
-	}
+	p.PaymentAddress = msg.Owner
 
 	value, err := k.cdc.MarshalBinaryLengthPrefixed(p)
 	if err != nil {

@@ -11,7 +11,6 @@ import (
 	"github.com/mesg-foundation/engine/process"
 	"github.com/mesg-foundation/engine/protobuf/types"
 	"github.com/mesg-foundation/engine/server/grpc/orchestrator"
-	"github.com/mesg-foundation/engine/x/ownership"
 	processmodule "github.com/mesg-foundation/engine/x/process"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc"
@@ -65,7 +64,7 @@ func testOrchestratorProcessBalanceWithdraw(runnerHash, instanceHash hash.Hash) 
 		t.Run("check coins on process", func(t *testing.T) {
 			var coins sdk.Coins
 			require.NoError(t, lcd.Get("bank/balances/"+procAddress.String(), &coins))
-			require.True(t, coins.IsEqual(processInitialBalance), coins)
+			require.True(t, coins.IsZero())
 		})
 		t.Run("trigger process", func(t *testing.T) {
 			req := orchestrator.ExecutionCreateRequest{
@@ -112,21 +111,21 @@ func testOrchestratorProcessBalanceWithdraw(runnerHash, instanceHash hash.Hash) 
 		t.Run("check coins on process after 1 execution", func(t *testing.T) {
 			var coins sdk.Coins
 			require.NoError(t, lcd.Get("bank/balances/"+procAddress.String(), &coins))
-			require.True(t, coins.IsEqual(processInitialBalance.Sub(executionPrice)), coins)
+			require.True(t, coins.IsZero())
 		})
-		t.Run("withdraw from process", func(t *testing.T) {
-			coins := executionPrice
-			msg := ownership.MsgWithdraw{
-				Owner:        cliAddress,
-				Amount:       coins.String(),
-				ResourceHash: processHash,
-			}
-			_, err := lcd.BroadcastMsg(msg)
-			require.NoError(t, err)
-
-			require.NoError(t, lcd.Get("bank/balances/"+procAddress.String(), &coins))
-			require.True(t, coins.IsEqual(processInitialBalance.Sub(executionPrice).Sub(executionPrice)), coins)
-		})
+		// t.Run("withdraw from process", func(t *testing.T) {
+		// 	coins := executionPrice
+		// 	msg := ownership.MsgWithdraw{
+		// 		Owner:        cliAddress,
+		// 		Amount:       coins.String(),
+		// 		ResourceHash: processHash,
+		// 	}
+		// 	_, err := lcd.BroadcastMsg(msg)
+		// 	require.NoError(t, err)
+		//
+		// 	require.NoError(t, lcd.Get("bank/balances/"+procAddress.String(), &coins))
+		// 	require.True(t, coins.IsEqual(processInitialBalance.Sub(executionPrice).Sub(executionPrice)), coins)
+		// })
 		t.Run("delete process", func(t *testing.T) {
 			_, err := lcd.BroadcastMsg(processmodule.MsgDelete{
 				Owner: cliAddress,
