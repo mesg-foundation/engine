@@ -68,7 +68,7 @@ func testOrchestratorProcessBalanceWithdraw(runnerHash, instanceHash hash.Hash) 
 		})
 		t.Run("trigger process", func(t *testing.T) {
 			req := orchestrator.ExecutionCreateRequest{
-				Price:        "10000atto",
+				Price:        "20000atto", // min price + task fee
 				TaskKey:      "task_trigger",
 				ExecutorHash: runnerHash,
 				Inputs: &types.Struct{

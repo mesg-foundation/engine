@@ -101,6 +101,21 @@ func (k *Keeper) Create(ctx sdk.Context, msg types.MsgCreate) (*executionpb.Exec
 		}
 	}
 
+	task, err := srv.GetTask(msg.TaskKey)
+	if err != nil {
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, err.Error())
+	}
+	if task.Fees != "" {
+		fees, err := sdk.ParseCoin(task.Fees)
+		if err != nil {
+			return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, err.Error())
+		}
+	
+		if !price.IsAllGTE(minPriceCoin.Add(fees)) {
+			return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidCoins, "execution price too low. Min value: %q + %q != %q", minPriceCoin.String(), fees.String(), price.String())
+		}
+	}
+
 	if proc == nil && run.Owner != msg.Signer.String() {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "signer is not the execution's executor")
 	}
