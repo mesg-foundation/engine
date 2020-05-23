@@ -99,7 +99,7 @@ func testOrchestratorFilter(runnerHash, instanceHash hash.Hash) func(t *testing.
 		t.Run("pass filter", func(t *testing.T) {
 			t.Run("trigger process", func(t *testing.T) {
 				req := orchestrator.ExecutionCreateRequest{
-					Price:        "10000atto",
+					Price:        "20000atto", // min price + task fee
 					TaskKey:      "task_trigger",
 					ExecutorHash: runnerHash,
 					Inputs: &types.Struct{
@@ -143,7 +143,7 @@ func testOrchestratorFilter(runnerHash, instanceHash hash.Hash) func(t *testing.
 		t.Run("stop at filter", func(t *testing.T) {
 			t.Run("trigger process", func(t *testing.T) {
 				req := orchestrator.ExecutionCreateRequest{
-					Price:        "10000atto",
+					Price:        "20000atto", // min price + task fee
 					TaskKey:      "task_trigger",
 					ExecutorHash: runnerHash,
 					Inputs: &types.Struct{

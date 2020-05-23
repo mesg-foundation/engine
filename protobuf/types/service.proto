@@ -60,6 +60,11 @@ message Service {
     repeated Parameter outputs = 7 [
       (gogoproto.moretags) = 'hash:"name:7" validate:"dive,required"'
     ];
+
+    // fees for the task.
+    string fees = 9 [
+      (gogoproto.moretags) = 'hash:"name:9"'
+    ];
   }
 
   // Parameter describes the task's inputs, the task's outputs, and the event's data.

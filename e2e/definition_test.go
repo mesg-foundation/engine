@@ -48,6 +48,7 @@ var testCreateServiceMsg = &servicemodule.MsgCreate{
 	Tasks: []*service.Service_Task{
 		{
 			Key: "task_trigger",
+			Fees: "10000atto",
 			Inputs: []*service.Service_Parameter{
 				{
 					Key:  "msg",
