@@ -8,6 +8,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/crypto/keys"
+	"github.com/cosmos/cosmos-sdk/types"
 	"github.com/mesg-foundation/engine/cosmos"
 	"github.com/mesg-foundation/engine/event/publisher"
 	"github.com/mesg-foundation/engine/ext/xsignal"
@@ -83,7 +84,13 @@ func startOrchestratorCmd(cdc *codec.Codec) *cobra.Command {
 
 			// orchestrator
 			logger.Info("Starting orchestrator")
-			orch := orchestrator.New(rpc, ep, logger, viper.GetString(flagExecPrice))
+			minExecPrice, err := types.ParseCoin(viper.GetString(flagExecPrice))
+			if err != nil {
+				logger.Error(err.Error())
+				panic(err)
+			}
+			viper.GetString(flagExecPrice)
+			orch := orchestrator.New(rpc, ep, logger, minExecPrice)
 			defer func() {
 				logger.Info("Stopping orchestrator")
 				orch.Stop()
