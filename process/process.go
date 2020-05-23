@@ -19,6 +19,7 @@ func New(name string, nodes []*Process_Node, edges []*Process_Edge) (*Process, e
 	}
 	p.Hash = hash.Dump(p)
 	p.Address = sdk.AccAddress(crypto.AddressHash(p.Hash))
+	p.PaymentAddress = p.Address
 	return p, p.Validate()
 }
 

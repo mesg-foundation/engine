@@ -235,7 +235,7 @@ func (k *Keeper) Create(ctx sdk.Context, msg types.MsgCreate) (*executionpb.Exec
 		// transfer the coin either from the process or from the signer
 		from := msg.Signer
 		if proc != nil {
-			from = proc.Address
+			from = proc.PaymentAddress
 		}
 		if err := k.bankKeeper.SendCoins(ctx, from, exec.Address, price); err != nil {
 			return nil, err

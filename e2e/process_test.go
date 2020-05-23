@@ -58,11 +58,12 @@ func testProcess(t *testing.T) {
 		var p *process.Process
 		require.NoError(t, lcd.Get("process/get/"+processHash.String(), &p))
 		require.True(t, p.Equal(&process.Process{
-			Hash:    p.Hash,
-			Address: p.Address,
-			Name:    msg.Name,
-			Nodes:   msg.Nodes,
-			Edges:   msg.Edges,
+			Hash:           p.Hash,
+			Address:        p.Address,
+			Name:           msg.Name,
+			Nodes:          msg.Nodes,
+			Edges:          msg.Edges,
+			PaymentAddress: cliAddress,
 		}))
 		processAddress = p.Address
 	})
@@ -82,7 +83,7 @@ func testProcess(t *testing.T) {
 	t.Run("check coins on process", func(t *testing.T) {
 		var coins sdk.Coins
 		require.NoError(t, lcd.Get("bank/balances/"+processAddress.String(), &coins))
-		require.True(t, coins.IsEqual(processInitialBalance), coins)
+		require.True(t, coins.IsZero())
 	})
 
 	t.Run("list", func(t *testing.T) {
