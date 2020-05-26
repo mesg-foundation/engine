@@ -62,12 +62,12 @@ func (lcd *LCD) Get(path string, ptr interface{}) error {
 		return err
 	}
 	defer resp.Body.Close()
-	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		return fmt.Errorf("request status code is not 2XX, got %d", resp.StatusCode)
-	}
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return err
+	}
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		return fmt.Errorf("request status code is not 2XX, got %d with body: %s", resp.StatusCode, body)
 	}
 	cosResp := rest.ResponseWithHeight{}
 	if err := lcd.cdc.UnmarshalJSON(body, &cosResp); err != nil {
@@ -108,12 +108,12 @@ func (lcd *LCD) PostBare(path string, req interface{}, ptr interface{}) error {
 		return err
 	}
 	defer resp.Body.Close()
-	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		return fmt.Errorf("request status code is not 2XX, got %d", resp.StatusCode)
-	}
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return err
+	}
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		return fmt.Errorf("request status code is not 2XX, got %d with body: %s", resp.StatusCode, body)
 	}
 	if err := lcd.cdc.UnmarshalJSON(body, ptr); err != nil {
 		return err
