@@ -180,10 +180,15 @@ func (lcd *LCD) getAccount() (*auth.BaseAccount, error) {
 		}
 		lcd.acc = auth.NewBaseAccount(accKb.GetAddress(), nil, accKb.GetPubKey(), 0, 0)
 	}
-	localSeq := lcd.acc.GetSequence()
-	if err := lcd.Get("auth/accounts/"+lcd.acc.GetAddress().String(), &lcd.acc); err != nil {
+	var accR *auth.BaseAccount
+	if err := lcd.Get("auth/accounts/"+lcd.acc.GetAddress().String(), &accR); err != nil {
 		return nil, err
 	}
+	if accR.Address.Empty() {
+		return nil, fmt.Errorf("account %q doesn't exist", lcd.acc.GetAddress().String())
+	}
+	localSeq := lcd.acc.GetSequence()
+	lcd.acc = accR
 	// replace seq if sup
 	if localSeq > lcd.acc.GetSequence() {
 		lcd.acc.SetSequence(localSeq)
