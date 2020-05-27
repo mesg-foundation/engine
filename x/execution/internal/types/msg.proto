@@ -79,6 +79,6 @@ message MsgUpdate {
   
   // Stop time
   uint64 stop = 6 [
-    (gogoproto.moretags) = 'validate:"required,gtfield=start"'
+    (gogoproto.moretags) = 'validate:"required,gtfield=Start"'
   ];
 }

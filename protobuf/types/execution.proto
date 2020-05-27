@@ -107,7 +107,7 @@ message Execution {
 
   // price of running the exeuction.
   string price = 14 [
-    (gogoproto.moretags) = 'hash:"-" validate:"required,bigint"'
+    (gogoproto.moretags) = 'hash:"-" validate:"omitempty,bigint"'
   ];
 
   // blockHeight where the execution was included into blockchain.
@@ -142,11 +142,11 @@ message Execution {
 
   // Start time
   uint64 start = 18 [
-    (gogoproto.moretags) = 'hash:"-" validate:"required"'
+    (gogoproto.moretags) = 'hash:"-" validate:""'
   ];
   
   // Stop time
   uint64 stop = 19 [
-    (gogoproto.moretags) = 'hash:"-" validate:"required"'
+    (gogoproto.moretags) = 'hash:"-" validate:""'
   ];
 }
