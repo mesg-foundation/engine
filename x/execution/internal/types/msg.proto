@@ -47,11 +47,6 @@ message MsgCreate {
     (gogoproto.moretags) = 'validate:"required,hash"',
     (gogoproto.casttype) = "github.com/mesg-foundation/engine/hash.Hash"
   ];
-
-  // price of running the execution.
-  string price = 10 [
-    (gogoproto.moretags) = 'validate:"coinsPositiveZero"'
-  ];
 }
 
 // The message to update an Execution.
@@ -76,4 +71,14 @@ message MsgUpdate {
     // error is an error result.
     string error = 4;
   }
+
+  // Start time
+  uint64 start = 5 [
+    (gogoproto.moretags) = 'validate:"required"'
+  ];
+  
+  // Stop time
+  uint64 stop = 6 [
+    (gogoproto.moretags) = 'validate:"required,gtfield=start"'
+  ];
 }

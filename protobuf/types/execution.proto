@@ -107,7 +107,7 @@ message Execution {
 
   // price of running the exeuction.
   string price = 14 [
-    (gogoproto.moretags) = 'hash:"name:14" validate:"required,coinsPositiveZero"'
+    (gogoproto.moretags) = 'hash:"-" validate:"required,bigint"'
   ];
 
   // blockHeight where the execution was included into blockchain.
@@ -138,5 +138,15 @@ message Execution {
   bytes address = 17 [
     (gogoproto.moretags) = 'hash:"-" validate:"required,accaddress"',
     (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"
+  ];
+
+  // Start time
+  uint64 start = 18 [
+    (gogoproto.moretags) = 'hash:"-" validate:"required"'
+  ];
+  
+  // Stop time
+  uint64 stop = 19 [
+    (gogoproto.moretags) = 'hash:"-" validate:"required"'
   ];
 }
