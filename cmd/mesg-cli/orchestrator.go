@@ -8,7 +8,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/crypto/keys"
-	"github.com/cosmos/cosmos-sdk/types"
 	"github.com/mesg-foundation/engine/cosmos"
 	"github.com/mesg-foundation/engine/event/publisher"
 	"github.com/mesg-foundation/engine/ext/xsignal"
@@ -83,14 +82,7 @@ func startOrchestratorCmd(cdc *codec.Codec) *cobra.Command {
 			ep := publisher.New(rpc)
 
 			// orchestrator
-			logger.Info("Starting orchestrator")
-			minExecPrice, err := types.ParseCoin(viper.GetString(flagExecPrice))
-			if err != nil {
-				logger.Error(err.Error())
-				panic(err)
-			}
-			viper.GetString(flagExecPrice)
-			orch := orchestrator.New(rpc, ep, logger, minExecPrice)
+			orch := orchestrator.New(rpc, ep, logger)
 			defer func() {
 				logger.Info("Stopping orchestrator")
 				orch.Stop()
@@ -125,7 +117,6 @@ func startOrchestratorCmd(cdc *codec.Codec) *cobra.Command {
 	cmd.Flags().String(flagAuthorizedPubKeys, "", "The authorized pubkeys to communicate with the gRPC server")
 	cmd.Flags().String(flagMnemonic, "", "The account's mnemonic that will be used to sign transactions")
 	cmd.Flags().String(flagGasPrices, "", "The gas price to sign tx")
-	cmd.Flags().String(flagExecPrice, "10000atto", "The execution price to create execution")
 	cmd.Flags().String(flagAccNumber, "0", "The account number of the hd path to use to derive the mnemonic")
 	cmd.Flags().String(flagAccIndex, "0", "The account index of the hd path to use to derive the mnemonic")
 	return cmd
@@ -136,7 +127,6 @@ const (
 	flagAuthorizedPubKeys = "authorized-pubkeys"
 	flagMnemonic          = "mnemonic"
 	flagGasPrices         = "gas-prices"
-	flagExecPrice         = "exec-price"
 	flagAccNumber         = "acc-number"
 	flagAccIndex          = "acc-index"
 )

@@ -14,16 +14,12 @@ import (
 	"github.com/mesg-foundation/engine/ext/xrand"
 	"github.com/mesg-foundation/engine/ext/xstrings"
 	"github.com/mesg-foundation/engine/hash"
-	"github.com/mesg-foundation/engine/instance"
 	"github.com/mesg-foundation/engine/process"
 	"github.com/mesg-foundation/engine/protobuf/types"
 	"github.com/mesg-foundation/engine/runner"
-	"github.com/mesg-foundation/engine/service"
 	executionmodule "github.com/mesg-foundation/engine/x/execution"
-	instancemodule "github.com/mesg-foundation/engine/x/instance"
 	processmodule "github.com/mesg-foundation/engine/x/process"
 	runnermodule "github.com/mesg-foundation/engine/x/runner"
-	servicemodule "github.com/mesg-foundation/engine/x/service"
 	tmlog "github.com/tendermint/tendermint/libs/log"
 )
 
@@ -39,17 +35,15 @@ type Orchestrator struct {
 	executionStream chan *execution.Execution
 	stopC           chan bool
 	logger          tmlog.Logger
-	minExecPrice    sdk.Coin
 }
 
 // New creates a new Process instance
-func New(rpc *cosmos.RPC, ep *publisher.EventPublisher, logger tmlog.Logger, minExecPrice sdk.Coin) *Orchestrator {
+func New(rpc *cosmos.RPC, ep *publisher.EventPublisher, logger tmlog.Logger) *Orchestrator {
 	return &Orchestrator{
-		rpc:          rpc,
-		ep:           ep,
-		stopC:        make(chan bool),
-		logger:       logger.With("module", "orchestrator"),
-		minExecPrice: minExecPrice,
+		rpc:    rpc,
+		ep:     ep,
+		stopC:  make(chan bool),
+		logger: logger.With("module", "orchestrator"),
 	}
 }
 
@@ -349,26 +343,6 @@ func (s *Orchestrator) processTask(node *process.Process_Node, task *process.Pro
 	if err != nil {
 		return nil, err
 	}
-	var instance instance.Instance
-	if err := s.rpc.QueryJSON(fmt.Sprintf("custom/%s/%s/%s", instancemodule.QuerierRoute, instancemodule.QueryGet, task.InstanceHash), nil, &instance); err != nil {
-		return nil, err
-	}
-	var srv service.Service
-	if err := s.rpc.QueryJSON(fmt.Sprintf("custom/%s/%s/%s", servicemodule.QuerierRoute, servicemodule.QueryGet, instance.ServiceHash), nil, &srv); err != nil {
-		return nil, err
-	}
-	price := s.minExecPrice
-	srvTask, err := srv.GetTask(task.TaskKey)
-	if err != nil {
-		return nil, err
-	}
-	if srvTask.Fees != "" {
-		fee, err := sdk.ParseCoin(srvTask.Fees)
-		if err != nil {
-			return nil, err
-		}
-		price = price.Add(fee)
-	}
 	msg := executionmodule.MsgCreate{
 		Signer:       acc.GetAddress(),
 		ProcessHash:  wf.Hash,
@@ -378,7 +352,6 @@ func (s *Orchestrator) processTask(node *process.Process_Node, task *process.Pro
 		TaskKey:      task.TaskKey,
 		Inputs:       data,
 		ExecutorHash: executor.Hash,
-		Price:        price.String(),
 		Tags:         nil,
 	}
 	res, err := s.rpc.BuildAndBroadcastMsg(msg)

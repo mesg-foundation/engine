@@ -75,20 +75,6 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 // TODO: we should split the message and keeper function of execution create from user and for process.
 //nolint:gocyclo
 func (k *Keeper) Create(ctx sdk.Context, msg types.MsgCreate) (*executionpb.Execution, error) {
-	// TODO: all the following verification should be moved to a runner.Validate function
-	price, err := sdk.ParseCoins(msg.Price)
-	if err != nil {
-		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidCoins, err.Error())
-	}
-
-	minPriceCoin, err := sdk.ParseCoins(k.MinPrice(ctx))
-	if err != nil {
-		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidCoins, err.Error())
-	}
-	if !price.IsAllGTE(minPriceCoin) {
-		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidCoins, "execution price too low. Min value: %q", minPriceCoin.String())
-	}
-
 	run, err := k.runnerKeeper.Get(ctx, msg.ExecutorHash)
 	if err != nil {
 		return nil, err
@@ -112,21 +98,6 @@ func (k *Keeper) Create(ctx sdk.Context, msg types.MsgCreate) (*executionpb.Exec
 		}
 	}
 
-	task, err := srv.GetTask(msg.TaskKey)
-	if err != nil {
-		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, err.Error())
-	}
-	if task.Fees != "" {
-		fees, err := sdk.ParseCoin(task.Fees)
-		if err != nil {
-			return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, err.Error())
-		}
-	
-		if !price.IsAllGTE(minPriceCoin.Add(fees)) {
-			return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidCoins, "execution price too low. Min value: %q + %q != %q", minPriceCoin.String(), fees.String(), price.String())
-		}
-	}
-
 	if proc == nil && run.Owner != msg.Signer.String() {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "signer is not the execution's executor")
 	}
@@ -138,7 +109,6 @@ func (k *Keeper) Create(ctx sdk.Context, msg types.MsgCreate) (*executionpb.Exec
 		msg.EventHash,
 		msg.NodeKey,
 		msg.TaskKey,
-		msg.Price,
 		msg.Inputs,
 		msg.Tags,
 		msg.ExecutorHash,
@@ -256,15 +226,6 @@ func (k *Keeper) Create(ctx sdk.Context, msg types.MsgCreate) (*executionpb.Exec
 
 		if !ctx.IsCheckTx() {
 			M.InProgress.Add(1)
-		}
-
-		// transfer the coin either from the process or from the signer
-		from := msg.Signer
-		if proc != nil {
-			from = proc.PaymentAddress
-		}
-		if err := k.bankKeeper.SendCoins(ctx, from, exec.Address, price); err != nil {
-			return nil, err
 		}
 	}
 

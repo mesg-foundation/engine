@@ -9,7 +9,7 @@ import (
 )
 
 // New returns a new execution.
-func New(processHash, instanceHash, parentHash, eventHash hash.Hash, nodeKey, taskKey, price string, inputs *types.Struct, tags []string, executorHash hash.Hash) (*Execution, error) {
+func New(processHash, instanceHash, parentHash, eventHash hash.Hash, nodeKey, taskKey string, inputs *types.Struct, tags []string, executorHash hash.Hash) (*Execution, error) {
 	exec := &Execution{
 		ProcessHash:  processHash,
 		EventHash:    eventHash,
@@ -19,7 +19,6 @@ func New(processHash, instanceHash, parentHash, eventHash hash.Hash, nodeKey, ta
 		TaskKey:      taskKey,
 		NodeKey:      nodeKey,
 		Tags:         tags,
-		Price:        price,
 		Status:       Status_Proposed,
 		ExecutorHash: executorHash,
 	}
