@@ -99,13 +99,13 @@ jobs:
     <<: *run_on_docker
     steps:
       - checkout
-      - run: make publish version="`echo $CIRCLE_SHA1 | cut -c1-7`" release-type=unstable
+      - run: make publish-unstable version="`echo $CIRCLE_SHA1 | cut -c1-7`"
 
   "release_cli_prod":
     <<: *run_on_docker
     steps:
       - checkout
-      - run: make publish version=$CIRCLE_TAG release-type=prod
+      - run: make publish-prod version=$CIRCLE_TAG
 
 workflows:
   version: 2
