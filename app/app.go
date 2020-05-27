@@ -19,6 +19,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth/vesting"
 	"github.com/cosmos/cosmos-sdk/x/bank"
 	distr "github.com/cosmos/cosmos-sdk/x/distribution"
+	"github.com/cosmos/cosmos-sdk/x/evidence"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	"github.com/cosmos/cosmos-sdk/x/gov"
 	"github.com/cosmos/cosmos-sdk/x/params"
@@ -60,6 +61,7 @@ var (
 		supply.AppModuleBasic{},
 		gov.NewAppModuleBasic(paramsclient.ProposalHandler, distr.ProposalHandler, upgradeclient.ProposalHandler),
 		upgrade.AppModuleBasic{},
+		evidence.AppModuleBasic{},
 
 		// Engine's AppModuleBasic
 		ownership.AppModuleBasic{},
@@ -118,6 +120,7 @@ type NewApp struct {
 	paramsKeeper   params.Keeper
 	govKeeper      gov.Keeper
 	upgradeKeeper  upgrade.Keeper
+	evidenceKeeper evidence.Keeper
 
 	// Engine's keepers
 	ownershipKeeper ownership.Keeper
@@ -160,6 +163,7 @@ func NewInitApp(
 		params.StoreKey,
 		gov.StoreKey,
 		upgrade.StoreKey,
+		evidence.StoreKey,
 
 		// Engine's module keys
 		ownership.ModuleName,
@@ -191,6 +195,7 @@ func NewInitApp(
 	app.subspaces[distr.ModuleName] = app.paramsKeeper.Subspace(distr.DefaultParamspace)
 	app.subspaces[slashing.ModuleName] = app.paramsKeeper.Subspace(slashing.DefaultParamspace)
 	app.subspaces[gov.ModuleName] = app.paramsKeeper.Subspace(gov.DefaultParamspace).WithKeyTable(gov.ParamKeyTable())
+	app.subspaces[evidence.ModuleName] = app.paramsKeeper.Subspace(evidence.DefaultParamspace)
 	app.subspaces[execution.ModuleName] = app.paramsKeeper.Subspace(execution.DefaultParamspace)
 
 	// The AccountKeeper handles address -> account lookups
@@ -247,6 +252,19 @@ func NewInitApp(
 		keys[upgrade.StoreKey],
 		app.cdc,
 	)
+
+	// create evidence keeper with evidence router
+	evidenceKeeper := evidence.NewKeeper(
+		app.cdc,
+		keys[evidence.StoreKey],
+		app.subspaces[evidence.ModuleName],
+		&stakingKeeper,
+		app.slashingKeeper,
+	)
+	evidenceRouter := evidence.NewRouter()
+	// register evidence routes
+	evidenceKeeper.SetRouter(evidenceRouter)
+	app.evidenceKeeper = *evidenceKeeper
 
 	// register the proposal types
 	govRouter := gov.NewRouter()
@@ -310,6 +328,7 @@ func NewInitApp(
 
 		staking.NewAppModule(app.stakingKeeper, app.accountKeeper, app.supplyKeeper),
 		upgrade.NewAppModule(app.upgradeKeeper),
+		evidence.NewAppModule(app.evidenceKeeper),
 	)
 	// During begin block slashing happens after distr.BeginBlocker so that
 	// there is nothing left over in the validator fee pool, so as to keep the
@@ -339,6 +358,7 @@ func NewInitApp(
 
 		supply.ModuleName,
 		genutil.ModuleName,
+		evidence.ModuleName,
 	)
 
 	// register all module routes and module queriers
