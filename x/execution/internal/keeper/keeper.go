@@ -278,6 +278,8 @@ func (k *Keeper) Update(ctx sdk.Context, msg types.MsgUpdate) (*executionpb.Exec
 		M.Completed.Add(1)
 	}
 
+	exec.Start = msg.Start
+	exec.Stop = msg.Stop
 	price, err := k.calculatePrice(ctx, exec)
 	if err != nil {
 		return nil, err
@@ -418,19 +420,31 @@ func (k *Keeper) calculatePrice(ctx sdk.Context, exec *executionpb.Execution) (s
 	if err != nil {
 		return sdk.Int{}, err
 	}
-	perCall, ok := sdk.NewIntFromString(task.Price.PerCall)
-	if !ok {
-		return sdk.Int{}, fmt.Errorf("invalid price per call %q", task.Price.PerCall)
+	perCall := sdk.NewInt(200)
+	if task.Price != nil && task.Price.PerCall != "" {
+		var ok bool
+		perCall, ok = sdk.NewIntFromString(task.Price.PerCall)
+		if !ok {
+			return sdk.Int{}, fmt.Errorf("invalid price per call %q", task.Price.PerCall)
+		}
 	}
-	perSec, ok := sdk.NewIntFromString(task.Price.PerSec)
-	if !ok {
-		return sdk.Int{}, fmt.Errorf("invalid price per sec %q", task.Price.PerSec)
+	perSec := sdk.NewInt(20000)
+	if task.Price != nil && task.Price.PerSec != "" {
+		var ok bool
+		perSec, ok = sdk.NewIntFromString(task.Price.PerSec)
+		if !ok {
+			return sdk.Int{}, fmt.Errorf("invalid price per sec %q", task.Price.PerSec)
+		}
 	}
-	perKB, ok := sdk.NewIntFromString(task.Price.PerKB)
-	if !ok {
-		return sdk.Int{}, fmt.Errorf("invalid price per kb %q", task.Price.PerKB)
+	perKB := sdk.NewInt(100)
+	if task.Price != nil && task.Price.PerKB != "" {
+		var ok bool
+		perKB, ok = sdk.NewIntFromString(task.Price.PerKB)
+		if !ok {
+			return sdk.Int{}, fmt.Errorf("invalid price per kb %q", task.Price.PerKB)
+		}
 	}
-	duration := sdk.NewIntFromUint64(exec.Stop - exec.Start)
+	duration := sdk.NewInt(int64(math.Ceil(float64((exec.Stop - exec.Start) / 1e9)))) // time in second
 	datasize := sdk.NewInt(int64(exec.Inputs.XXX_Size() + exec.Outputs.XXX_Size()))
 	return perCall.Add(perSec.Mul(duration)).Add(perKB.Mul(datasize)), nil
 }
