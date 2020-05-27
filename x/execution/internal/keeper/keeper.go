@@ -37,11 +37,21 @@ type Keeper struct {
 	instanceKeeper types.InstanceKeeper
 	runnerKeeper   types.RunnerKeeper
 	processKeeper  types.ProcessKeeper
+	creditKeeper   types.CreditKeeper
 	paramstore     params.Subspace
 }
 
 // NewKeeper creates a execution keeper
-func NewKeeper(cdc *codec.Codec, key sdk.StoreKey, bankKeeper types.BankKeeper, serviceKeeper types.ServiceKeeper, instanceKeeper types.InstanceKeeper, runnerKeeper types.RunnerKeeper, processKeeper types.ProcessKeeper, paramstore params.Subspace) Keeper {
+func NewKeeper(
+	cdc *codec.Codec,
+	key sdk.StoreKey,
+	bankKeeper types.BankKeeper,
+	serviceKeeper types.ServiceKeeper,
+	instanceKeeper types.InstanceKeeper,
+	runnerKeeper types.RunnerKeeper,
+	processKeeper types.ProcessKeeper,
+	creditKeeper types.CreditKeeper,
+	paramstore params.Subspace) Keeper {
 	return Keeper{
 		storeKey:       key,
 		cdc:            cdc,
@@ -50,6 +60,7 @@ func NewKeeper(cdc *codec.Codec, key sdk.StoreKey, bankKeeper types.BankKeeper, 
 		instanceKeeper: instanceKeeper,
 		runnerKeeper:   runnerKeeper,
 		processKeeper:  processKeeper,
+		creditKeeper:   creditKeeper,
 		paramstore:     paramstore.WithKeyTable(types.ParamKeyTable()),
 	}
 }
