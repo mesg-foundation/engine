@@ -63,7 +63,11 @@ func GetCmdList(queryRoute string, cdc *codec.Codec) *cobra.Command {
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
-			res, _, err := cliCtx.QueryWithData(fmt.Sprintf("custom/%s/%s", queryRoute, types.QueryList), nil)
+			data, err := cliCtx.Codec.MarshalJSON(types.ListFilter{})
+			if err != nil {
+				return err
+			}
+			res, _, err := cliCtx.QueryWithData(fmt.Sprintf("custom/%s/%s", queryRoute, types.QueryList), data)
 			if err != nil {
 				fmt.Printf("could not list executions\n%s\n", err.Error())
 				return nil
