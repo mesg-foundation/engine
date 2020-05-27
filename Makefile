@@ -18,7 +18,7 @@ build-docker-cache:
 		.
 
 build-docker-cache-if-needed:
-	if [[ -z "$(shell docker images -q mesg/engine:$(version)-build)" ]]; then \
+	if [ -z "$(shell docker images -q mesg/engine:$(version)-build)" ]; then \
 		make build-docker-cache ; \
 	fi
 
