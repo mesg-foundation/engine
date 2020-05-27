@@ -4,6 +4,7 @@ import (
 	"errors"
 	"testing"
 	"testing/quick"
+	"time"
 
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/protobuf/types"
@@ -19,7 +20,7 @@ func TestNewFromService(t *testing.T) {
 		tags       = []string{"tag"}
 	)
 
-	execution, _ := New(nil, hash, parentHash, eventHash, "", taskKey, "", nil, tags, nil)
+	execution, _ := New(nil, hash, parentHash, eventHash, "", taskKey, nil, tags, nil)
 	require.NotNil(t, execution)
 	require.Equal(t, hash, execution.InstanceHash)
 	require.Equal(t, parentHash, execution.ParentHash)
@@ -31,7 +32,7 @@ func TestNewFromService(t *testing.T) {
 }
 
 func TestExecute(t *testing.T) {
-	e, _ := New(nil, nil, nil, nil, "", "", "", nil, nil, nil)
+	e, _ := New(nil, nil, nil, nil, "", "", nil, nil, nil)
 	require.NoError(t, e.Execute())
 	require.Equal(t, Status_InProgress, e.Status)
 	require.Error(t, e.Execute())
@@ -39,7 +40,7 @@ func TestExecute(t *testing.T) {
 
 func TestComplete(t *testing.T) {
 	var output types.Struct
-	e, _ := New(nil, nil, nil, nil, "", "", "", nil, nil, nil)
+	e, _ := New(nil, nil, nil, nil, "", "", nil, nil, nil)
 	e.Execute()
 	require.NoError(t, e.Complete(&output))
 	require.Equal(t, Status_Completed, e.Status)
@@ -49,7 +50,7 @@ func TestComplete(t *testing.T) {
 
 func TestFailed(t *testing.T) {
 	err := errors.New("test")
-	e, _ := New(nil, nil, nil, nil, "", "", "", nil, nil, nil)
+	e, _ := New(nil, nil, nil, nil, "", "", nil, nil, nil)
 	e.Execute()
 	require.NoError(t, e.Fail(err))
 	require.Equal(t, Status_Failed, e.Status)
@@ -61,7 +62,7 @@ func TestExecutionHash(t *testing.T) {
 	ids := make(map[string]bool)
 
 	f := func(instanceHash, parentHash, eventID []byte, taskKey string, tags []string) bool {
-		e, _ := New(nil, instanceHash, parentHash, eventID, "", taskKey, "", nil, tags, nil)
+		e, _ := New(nil, instanceHash, parentHash, eventID, "", taskKey, nil, tags, nil)
 		if ids[string(e.Hash)] {
 			return false
 		}
@@ -70,4 +71,28 @@ func TestExecutionHash(t *testing.T) {
 	}
 
 	require.NoError(t, quick.Check(f, nil))
+}
+
+func TestGetDuration(t *testing.T) {
+	ut := time.Now().Unix()
+	exec1 := &Execution{
+		Start: uint64(ut),
+		Stop:  uint64(ut + 2*1000*1000*1000),
+	}
+	exec2 := &Execution{
+		Start: uint64(ut),
+		Stop:  uint64(ut + 1.6*1000*1000*1000),
+	}
+	exec3 := &Execution{
+		Start: uint64(ut),
+		Stop:  uint64(ut + 1.2*1000*1000*1000),
+	}
+	exec4 := &Execution{
+		Start: uint64(ut),
+		Stop:  uint64(ut + 1),
+	}
+	require.Equal(t, int64(2), exec1.GetDuration())
+	require.Equal(t, int64(2), exec2.GetDuration())
+	require.Equal(t, int64(2), exec3.GetDuration())
+	require.Equal(t, int64(1), exec4.GetDuration())
 }
