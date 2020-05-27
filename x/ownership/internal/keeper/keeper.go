@@ -168,3 +168,16 @@ func (k Keeper) get(store sdk.KVStore, resourceHash hash.Hash) (*ownership.Owner
 	iter.Close()
 	return nil, nil
 }
+
+// Import imports a list of ownerships into the store.
+func (k *Keeper) Import(ctx sdk.Context, ownerships []*ownership.Ownership) error {
+	store := ctx.KVStore(k.storeKey)
+	for _, own := range ownerships {
+		value, err := k.cdc.MarshalBinaryLengthPrefixed(own)
+		if err != nil {
+			return sdkerrors.Wrapf(sdkerrors.ErrJSONMarshal, err.Error())
+		}
+		store.Set(own.Hash, value)
+	}
+	return nil
+}

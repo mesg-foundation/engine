@@ -91,3 +91,16 @@ func (k Keeper) List(ctx sdk.Context) ([]*instance.Instance, error) {
 	iter.Close()
 	return items, nil
 }
+
+// Import imports a list of instances into the store.
+func (k *Keeper) Import(ctx sdk.Context, instances []*instance.Instance) error {
+	store := ctx.KVStore(k.storeKey)
+	for _, inst := range instances {
+		value, err := k.cdc.MarshalBinaryLengthPrefixed(inst)
+		if err != nil {
+			return sdkerrors.Wrapf(sdkerrors.ErrJSONMarshal, err.Error())
+		}
+		store.Set(inst.Hash, value)
+	}
+	return nil
+}
