@@ -269,6 +269,14 @@ func (k *Keeper) Update(ctx sdk.Context, msg types.MsgUpdate) (*executionpb.Exec
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "no execution result supplied")
 	}
 
+	exec.Start = msg.Start
+	exec.Stop = msg.Stop
+	price, err := k.calculatePrice(ctx, exec)
+	if err != nil {
+		return nil, err
+	}
+	exec.Price = price.String()
+
 	value, err := k.cdc.MarshalBinaryLengthPrefixed(exec)
 	if err != nil {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrJSONMarshal, err.Error())
@@ -277,14 +285,6 @@ func (k *Keeper) Update(ctx sdk.Context, msg types.MsgUpdate) (*executionpb.Exec
 	if !ctx.IsCheckTx() {
 		M.Completed.Add(1)
 	}
-
-	exec.Start = msg.Start
-	exec.Stop = msg.Stop
-	price, err := k.calculatePrice(ctx, exec)
-	if err != nil {
-		return nil, err
-	}
-	exec.Price = price.String()
 
 	from := msg.Executor
 	if !exec.ProcessHash.IsZero() {
@@ -444,7 +444,15 @@ func (k *Keeper) calculatePrice(ctx sdk.Context, exec *executionpb.Execution) (s
 			return sdk.Int{}, fmt.Errorf("invalid price per kb %q", task.Price.PerKB)
 		}
 	}
-	duration := sdk.NewInt(int64(math.Ceil(float64((exec.Stop - exec.Start) / 1e9)))) // time in second
-	datasize := sdk.NewInt(int64(exec.Inputs.XXX_Size() + exec.Outputs.XXX_Size()))
+	duration := sdk.NewInt(exec.GetDuration())
+	inputs, err := k.cdc.MarshalBinaryLengthPrefixed(exec.Inputs)
+	if err != nil {
+		return sdk.Int{}, err
+	}
+	outputs, err := k.cdc.MarshalBinaryLengthPrefixed(exec.Outputs)
+	if err != nil {
+		return sdk.Int{}, err
+	}
+	datasize := sdk.NewInt(int64(math.Ceil(float64(len(inputs)+len(outputs)) / 1000)))
 	return perCall.Add(perSec.Mul(duration)).Add(perKB.Mul(datasize)), nil
 }
