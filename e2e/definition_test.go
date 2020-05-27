@@ -5,6 +5,12 @@ import (
 	servicemodule "github.com/mesg-foundation/engine/x/service"
 )
 
+var task1Price = &service.Service_Task_Price{
+	PerCall: "1000",
+	PerKB:   "1000",
+	PerSec:  "30000",
+}
+
 var testComplexCreateServiceMsg = &servicemodule.MsgCreate{
 	Sid:  "test-complex-service",
 	Name: "test-complex-service",
@@ -48,7 +54,6 @@ var testCreateServiceMsg = &servicemodule.MsgCreate{
 	Tasks: []*service.Service_Task{
 		{
 			Key: "task_trigger",
-			Fees: "10000atto",
 			Inputs: []*service.Service_Parameter{
 				{
 					Key:  "msg",
@@ -67,7 +72,8 @@ var testCreateServiceMsg = &servicemodule.MsgCreate{
 			},
 		},
 		{
-			Key: "task1",
+			Key:   "task1",
+			Price: task1Price,
 			Inputs: []*service.Service_Parameter{
 				{
 					Key:  "msg",

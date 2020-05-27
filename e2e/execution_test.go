@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"math"
 	"sync"
 	"testing"
 
@@ -10,7 +11,6 @@ import (
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/protobuf/types"
 	"github.com/mesg-foundation/engine/server/grpc/orchestrator"
-	"github.com/mesg-foundation/engine/x/ownership"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc"
 )
@@ -22,13 +22,11 @@ func testExecution(t *testing.T) {
 		err             error
 	)
 
-	t.Run("simple execution with price and withdraw", func(t *testing.T) {
+	t.Run("simple execution with price", func(t *testing.T) {
 		var (
 			executionHash hash.Hash
-			execAddress   sdk.AccAddress
 			exec          *execution.Execution
 			taskKey       = "task1"
-			price         = sdk.NewCoins(sdk.NewInt64Coin("atto", 50000))
 			inputs        = &types.Struct{
 				Fields: map[string]*types.Value{
 					"msg": {
@@ -38,22 +36,17 @@ func testExecution(t *testing.T) {
 					},
 				},
 			}
-			expectedCoinsForExecutor = sdk.NewCoins(sdk.NewInt64Coin("atto", 40000)) // 80%
-			expectedCoinsForService  = sdk.NewCoins(sdk.NewInt64Coin("atto", 5000))  // 10%
-			expectedCoinsForEmitter  = sdk.NewCoins(sdk.NewInt64Coin("atto", 5000))  // 10%
-			executorBalance          sdk.Coins
-			serviceBalance           sdk.Coins
+			executorBalance sdk.Int
 		)
 
-		require.NoError(t, lcd.Get("bank/balances/"+executorAddress.String(), &executorBalance))
-		require.NoError(t, lcd.Get("bank/balances/"+testServiceAddress.String(), &serviceBalance))
+		require.NoError(t, lcd.Get("credit/get/"+executorAddress.String(), &executorBalance))
+		require.Equal(t, sdk.NewInt(0), executorBalance)
 
 		t.Run("create", func(t *testing.T) {
 			req := orchestrator.ExecutionCreateRequest{
 				TaskKey:      taskKey,
 				ExecutorHash: executorHash,
 				Inputs:       inputs,
-				Price:        price.String(),
 			}
 			resp, err := client.ExecutionClient.Create(context.Background(), &req, grpc.PerRPCCredentials(&signCred{req}))
 			require.NoError(t, err)
@@ -63,12 +56,6 @@ func testExecution(t *testing.T) {
 			var exec *execution.Execution
 			require.NoError(t, lcd.Get("execution/get/"+executionHash.String(), &exec))
 			require.Equal(t, exec.Hash, executionHash)
-			execAddress = exec.Address
-		})
-		t.Run("execution balance before completed", func(t *testing.T) {
-			coins := sdk.Coins{}
-			require.NoError(t, lcd.Get("bank/balances/"+execAddress.String(), &coins))
-			require.True(t, coins.IsEqual(price), price, coins)
 		})
 		t.Run("in progress", func(t *testing.T) {
 			execInProgress, err := pollExecution(executionHash, execution.Status_InProgress)
@@ -95,50 +82,23 @@ func testExecution(t *testing.T) {
 			require.NoError(t, lcd.Get("execution/get/"+executionHash.String(), &execR))
 			require.True(t, exec.Equal(execR), exec, execR)
 		})
-		t.Run("executor + emitter balance", func(t *testing.T) {
-			var coins sdk.Coins
-			require.NoError(t, lcd.Get("bank/balances/"+executorAddress.String(), &coins))
-			expectedCoins := expectedCoinsForExecutor.Add(expectedCoinsForEmitter...).Add(executorBalance...)
-			require.True(t, expectedCoins.IsEqual(coins), expectedCoins, coins)
-		})
-		t.Run("service balance", func(t *testing.T) {
-			var coins sdk.Coins
-			require.NoError(t, lcd.Get("bank/balances/"+testServiceAddress.String(), &coins))
-			expectedCoins := expectedCoinsForService.Add(serviceBalance...)
-			require.True(t, expectedCoins.IsEqual(coins), expectedCoins, coins)
-		})
-		t.Run("execution balance", func(t *testing.T) {
-			var coins sdk.Coins
-			require.NoError(t, lcd.Get("bank/balances/"+execAddress.String(), &coins))
-			require.True(t, coins.IsZero(), coins)
-		})
-		t.Run("withdraw from service", func(t *testing.T) {
-			msg := ownership.MsgWithdraw{
-				Owner:        cliAddress,
-				Amount:       expectedCoinsForService.String(),
-				ResourceHash: testServiceHash,
-			}
-			_, err := lcd.BroadcastMsg(msg)
-			require.NoError(t, err)
+		t.Run("executor balance", func(t *testing.T) {
+			var credits sdk.Int
+			var execR *execution.Execution
+			require.NoError(t, lcd.Get("execution/get/"+executionHash.String(), &execR))
+			require.NoError(t, lcd.Get("credit/get/"+executorAddress.String(), &credits))
 
-			// check balance
-			var coins sdk.Coins
-			require.NoError(t, lcd.Get("bank/balances/"+testServiceAddress.String(), &coins))
-			require.True(t, serviceBalance.IsEqual(coins), serviceBalance, coins)
-		})
-		t.Run("withdraw from runner", func(t *testing.T) {
-			msg := ownership.MsgWithdraw{
-				Owner:        engineAddress,
-				Amount:       expectedCoinsForExecutor.Add(expectedCoinsForEmitter...).String(),
-				ResourceHash: testRunnerHash,
-			}
-			_, err := lcdEngine.BroadcastMsg(msg)
-			require.NoError(t, err)
-
-			// check balance
-			var coins sdk.Coins
-			require.NoError(t, lcd.Get("bank/balances/"+testRunnerAddress.String(), &coins))
-			require.True(t, executorBalance.IsEqual(coins), executorBalance, coins)
+			duration := sdk.NewInt(int64(math.Ceil(float64((exec.Stop - exec.Start) / 1e9))))
+			require.True(t, duration.GTE(sdk.ZeroInt()))
+			datasize := sdk.NewInt(int64(execR.Inputs.XXX_Size() + execR.Outputs.XXX_Size()))
+			perCall, ok1 := sdk.NewIntFromString(task1Price.PerCall)
+			require.True(t, ok1)
+			perSec, ok2 := sdk.NewIntFromString(task1Price.PerSec)
+			require.True(t, ok2)
+			perKB, ok3 := sdk.NewIntFromString(task1Price.PerKB)
+			require.True(t, ok3)
+			expected := perCall.Add(duration.Mul(perSec)).Add(datasize.Mul(perKB))
+			require.Equal(t, expected, credits)
 		})
 	})
 
@@ -147,7 +107,6 @@ func testExecution(t *testing.T) {
 			executionHash hash.Hash
 			exec          *execution.Execution
 			taskKey       = "task_complex"
-			price         = "10000atto"
 			inputs        = &types.Struct{
 				Fields: map[string]*types.Value{
 					"msg": {
@@ -180,7 +139,6 @@ func testExecution(t *testing.T) {
 				TaskKey:      taskKey,
 				ExecutorHash: executorHash,
 				Inputs:       inputs,
-				Price:        price,
 			}
 			resp, err := client.ExecutionClient.Create(context.Background(), &req, grpc.PerRPCCredentials(&signCred{req}))
 			require.NoError(t, err)
@@ -228,7 +186,6 @@ func testExecution(t *testing.T) {
 			n          = 10
 			executions = make([]hash.Hash, 0)
 			taskKey    = "task1"
-			price      = "10000atto"
 			inputs     = &types.Struct{
 				Fields: map[string]*types.Value{
 					"msg": {
@@ -250,7 +207,6 @@ func testExecution(t *testing.T) {
 						TaskKey:      taskKey,
 						ExecutorHash: executorHash,
 						Inputs:       inputs,
-						Price:        price,
 					}
 					resp, err := client.ExecutionClient.Create(context.Background(), &req, grpc.PerRPCCredentials(&signCred{req}))
 					require.NoError(t, err)
