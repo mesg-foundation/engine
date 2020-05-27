@@ -18,6 +18,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	"github.com/cosmos/cosmos-sdk/x/auth/vesting"
 	"github.com/cosmos/cosmos-sdk/x/bank"
+	"github.com/cosmos/cosmos-sdk/x/crisis"
 	distr "github.com/cosmos/cosmos-sdk/x/distribution"
 	"github.com/cosmos/cosmos-sdk/x/evidence"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
@@ -62,6 +63,7 @@ var (
 		gov.NewAppModuleBasic(paramsclient.ProposalHandler, distr.ProposalHandler, upgradeclient.ProposalHandler),
 		upgrade.AppModuleBasic{},
 		evidence.AppModuleBasic{},
+		crisis.AppModuleBasic{},
 
 		// Engine's AppModuleBasic
 		ownership.AppModuleBasic{},
@@ -121,6 +123,7 @@ type NewApp struct {
 	govKeeper      gov.Keeper
 	upgradeKeeper  upgrade.Keeper
 	evidenceKeeper evidence.Keeper
+	crisisKeeper   crisis.Keeper
 
 	// Engine's keepers
 	ownershipKeeper ownership.Keeper
@@ -196,6 +199,7 @@ func NewInitApp(
 	app.subspaces[slashing.ModuleName] = app.paramsKeeper.Subspace(slashing.DefaultParamspace)
 	app.subspaces[gov.ModuleName] = app.paramsKeeper.Subspace(gov.DefaultParamspace).WithKeyTable(gov.ParamKeyTable())
 	app.subspaces[evidence.ModuleName] = app.paramsKeeper.Subspace(evidence.DefaultParamspace)
+	app.subspaces[crisis.ModuleName] = app.paramsKeeper.Subspace(crisis.DefaultParamspace)
 	app.subspaces[execution.ModuleName] = app.paramsKeeper.Subspace(execution.DefaultParamspace)
 
 	// The AccountKeeper handles address -> account lookups
@@ -245,6 +249,13 @@ func NewInitApp(
 		keys[slashing.StoreKey],
 		&stakingKeeper,
 		app.subspaces[slashing.ModuleName],
+	)
+
+	app.crisisKeeper = crisis.NewKeeper(
+		app.subspaces[crisis.ModuleName],
+		invCheckPeriod,
+		app.supplyKeeper,
+		auth.FeeCollectorName,
 	)
 
 	app.upgradeKeeper = upgrade.NewKeeper(
@@ -313,6 +324,7 @@ func NewInitApp(
 		genutil.NewAppModule(app.accountKeeper, app.stakingKeeper, app.BaseApp.DeliverTx),
 		auth.NewAppModule(app.accountKeeper),
 		bank.NewAppModule(app.bankKeeper, app.accountKeeper),
+		crisis.NewAppModule(&app.crisisKeeper),
 		supply.NewAppModule(app.supplyKeeper, app.accountKeeper),
 		gov.NewAppModule(app.govKeeper, app.accountKeeper, app.supplyKeeper),
 		distr.NewAppModule(app.distrKeeper, app.accountKeeper, app.supplyKeeper, app.stakingKeeper),
@@ -335,7 +347,7 @@ func NewInitApp(
 	// CanWithdrawInvariant invariant.
 
 	app.mm.SetOrderBeginBlockers(upgrade.ModuleName, distr.ModuleName, slashing.ModuleName)
-	app.mm.SetOrderEndBlockers(gov.ModuleName, staking.ModuleName)
+	app.mm.SetOrderEndBlockers(crisis.ModuleName, gov.ModuleName, staking.ModuleName)
 
 	// Sets the order of Genesis - Order matters, genutil is to always come last
 	// NOTE: The genutils module must occur after staking so that pools are
@@ -357,6 +369,7 @@ func NewInitApp(
 		execution.ModuleName,
 
 		supply.ModuleName,
+		crisis.ModuleName,
 		genutil.ModuleName,
 		evidence.ModuleName,
 	)
