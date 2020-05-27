@@ -4,12 +4,10 @@ import (
 	"errors"
 	"fmt"
 	"math"
-	"math/big"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/cosmos/cosmos-sdk/x/bank"
 	"github.com/cosmos/cosmos-sdk/x/params"
 	executionpb "github.com/mesg-foundation/engine/execution"
 	"github.com/mesg-foundation/engine/hash"
@@ -18,13 +16,6 @@ import (
 	"github.com/mesg-foundation/engine/runner"
 	"github.com/mesg-foundation/engine/x/execution/internal/types"
 	"github.com/tendermint/tendermint/libs/log"
-)
-
-// price share for the execution runner
-// TODO: this should be a param
-var (
-	runnerShare  = sdk.NewDecWithPrec(8, 1)
-	serviceShare = sdk.NewDecWithPrec(1, 1)
 )
 
 // Keeper of the execution store
@@ -287,18 +278,11 @@ func (k *Keeper) Update(ctx sdk.Context, msg types.MsgUpdate) (*executionpb.Exec
 		M.Completed.Add(1)
 	}
 
-	inst, err := k.instanceKeeper.Get(ctx, exec.InstanceHash)
+	price, err := k.calculatePrice(ctx, exec)
 	if err != nil {
 		return nil, err
 	}
-	srv, err := k.serviceKeeper.Get(ctx, inst.ServiceHash)
-	if err != nil {
-		return nil, err
-	}
-
-	if err := k.distributePriceShares(ctx, exec.Address, runExecutor.Address, srv.Address, exec.Emitters, exec.Price); err != nil {
-		return nil, err
-	}
+	exec.Price = price.String()
 
 	store.Set(exec.Hash, value)
 
@@ -355,55 +339,6 @@ func (k *Keeper) List(ctx sdk.Context, filter types.ListFilter) ([]*executionpb.
 	return execs, nil
 }
 
-func (k *Keeper) distributePriceShares(ctx sdk.Context, execAddress, runnerAddress, serviceAddress sdk.AccAddress, emitters []*executionpb.Execution_Emitter, price string) error {
-	coins, err := sdk.ParseCoins(price)
-	if err != nil {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidCoins, err.Error())
-	}
-	if coins.Empty() {
-		return nil
-	}
-
-	// inputs
-	inputs := []bank.Input{bank.NewInput(execAddress, coins)}
-
-	// outputs
-	runnerCoins, _ := sdk.NewDecCoinsFromCoins(coins...).MulDecTruncate(runnerShare).TruncateDecimal()
-	serviceCoins, _ := sdk.NewDecCoinsFromCoins(coins...).MulDecTruncate(serviceShare).TruncateDecimal()
-
-	outputs := []bank.Output{
-		bank.NewOutput(runnerAddress, runnerCoins),
-		bank.NewOutput(serviceAddress, serviceCoins),
-	}
-
-	// emitters get all the remaining coins
-	emittersCoins := coins.Sub(runnerCoins).Sub(serviceCoins)
-	distributedEmittersCoins := sdk.NewCoins()
-
-	for i, emitter := range emitters {
-		runEmitter, err := k.runnerKeeper.Get(ctx, emitter.RunnerHash)
-		if err != nil {
-			return err
-		}
-		// 1 emitter share = 1 / len(emitters)
-		emitterShare := sdk.NewDecFromBigInt(big.NewInt(1).Div(big.NewInt(1), big.NewInt(int64(len(emitters)))))
-		emitterCoins, _ := sdk.NewDecCoinsFromCoins(emittersCoins...).MulDecTruncate(emitterShare).TruncateDecimal()
-		distributedEmittersCoins = distributedEmittersCoins.Add(emitterCoins...)
-
-		// give the remaining coins to the last emitter
-		if i == len(emitters)-1 {
-			emitterCoins = emitterCoins.Add(emittersCoins.Sub(distributedEmittersCoins)...)
-		}
-
-		outputs = append(outputs, bank.NewOutput(runEmitter.Address, emitterCoins))
-	}
-
-	if err := k.bankKeeper.InputOutputCoins(ctx, inputs, outputs); err != nil {
-		return sdkerrors.Wrapf(err, "cannot distribute coins from execution adddress %s with inputs %s and outputs %s", execAddress, inputs, outputs)
-	}
-	return nil
-}
-
 func (k *Keeper) validateOutput(ctx sdk.Context, instanceHash hash.Hash, taskKey string, outputs *typespb.Struct) error {
 	inst, err := k.instanceKeeper.Get(ctx, instanceHash)
 	if err != nil {
@@ -455,4 +390,34 @@ func (k *Keeper) fetchEmitters(ctx sdk.Context, proc *process.Process, nodeKey s
 		}
 	}
 	return matchedRuns, nil
+}
+
+func (k *Keeper) calculatePrice(ctx sdk.Context, exec *executionpb.Execution) (sdk.Int, error) {
+	inst, err := k.instanceKeeper.Get(ctx, exec.InstanceHash)
+	if err != nil {
+		return sdk.Int{}, err
+	}
+	srv, err := k.serviceKeeper.Get(ctx, inst.ServiceHash)
+	if err != nil {
+		return sdk.Int{}, err
+	}
+	task, err := srv.GetTask(exec.TaskKey)
+	if err != nil {
+		return sdk.Int{}, err
+	}
+	perCall, ok := sdk.NewIntFromString(task.Price.PerCall)
+	if !ok {
+		return sdk.Int{}, fmt.Errorf("invalid price per call %q", task.Price.PerCall)
+	}
+	perSec, ok := sdk.NewIntFromString(task.Price.PerSec)
+	if !ok {
+		return sdk.Int{}, fmt.Errorf("invalid price per sec %q", task.Price.PerSec)
+	}
+	perKB, ok := sdk.NewIntFromString(task.Price.PerKB)
+	if !ok {
+		return sdk.Int{}, fmt.Errorf("invalid price per kb %q", task.Price.PerKB)
+	}
+	duration := sdk.NewIntFromUint64(exec.Stop - exec.Start)
+	datasize := sdk.NewInt(int64(exec.Inputs.XXX_Size() + exec.Outputs.XXX_Size()))
+	return perCall.Add(perSec.Mul(duration)).Add(perKB.Mul(datasize)), nil
 }
