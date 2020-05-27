@@ -284,6 +284,19 @@ func (k *Keeper) Update(ctx sdk.Context, msg types.MsgUpdate) (*executionpb.Exec
 	}
 	exec.Price = price.String()
 
+	from := msg.Executor
+	if !exec.ProcessHash.IsZero() {
+		proc, err := k.processKeeper.Get(ctx, exec.ProcessHash)
+		if err != nil {
+			return nil, err
+		}
+		from = proc.PaymentAddress
+	}
+
+	if err := k.creditKeeper.Transfer(ctx, from, runExecutor.Address, price); err != nil {
+		return nil, err
+	}
+
 	store.Set(exec.Hash, value)
 
 	// emit event
