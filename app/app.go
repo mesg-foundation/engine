@@ -26,6 +26,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/slashing"
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	"github.com/cosmos/cosmos-sdk/x/supply"
+	"github.com/cosmos/cosmos-sdk/x/upgrade"
+	upgradeclient "github.com/cosmos/cosmos-sdk/x/upgrade/client"
 	"github.com/mesg-foundation/engine/protobuf/types"
 	"github.com/mesg-foundation/engine/x/execution"
 	"github.com/mesg-foundation/engine/x/instance"
@@ -56,7 +58,8 @@ var (
 		params.AppModuleBasic{},
 		slashing.AppModuleBasic{},
 		supply.AppModuleBasic{},
-		gov.NewAppModuleBasic(paramsclient.ProposalHandler, distr.ProposalHandler),
+		gov.NewAppModuleBasic(paramsclient.ProposalHandler, distr.ProposalHandler, upgradeclient.ProposalHandler),
+		upgrade.AppModuleBasic{},
 
 		// Engine's AppModuleBasic
 		ownership.AppModuleBasic{},
@@ -114,6 +117,7 @@ type NewApp struct {
 	supplyKeeper   supply.Keeper
 	paramsKeeper   params.Keeper
 	govKeeper      gov.Keeper
+	upgradeKeeper  upgrade.Keeper
 
 	// Engine's keepers
 	ownershipKeeper ownership.Keeper
@@ -136,7 +140,7 @@ var _ simapp.App = (*NewApp)(nil)
 // NewInitApp is a constructor function for engineApp
 func NewInitApp(
 	logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest bool,
-	invCheckPeriod uint, baseAppOptions ...func(*bam.BaseApp),
+	invCheckPeriod uint, skipUpgradeHeights map[int64]bool, baseAppOptions ...func(*bam.BaseApp),
 ) (*NewApp, error) {
 	// First define the top level codec that will be shared by the different modules
 	cdc := MakeCodec()
@@ -155,6 +159,7 @@ func NewInitApp(
 		slashing.StoreKey,
 		params.StoreKey,
 		gov.StoreKey,
+		upgrade.StoreKey,
 
 		// Engine's module keys
 		ownership.ModuleName,
@@ -237,12 +242,19 @@ func NewInitApp(
 		app.subspaces[slashing.ModuleName],
 	)
 
+	app.upgradeKeeper = upgrade.NewKeeper(
+		skipUpgradeHeights,
+		keys[upgrade.StoreKey],
+		app.cdc,
+	)
+
 	// register the proposal types
 	govRouter := gov.NewRouter()
 	govRouter.
 		AddRoute(gov.RouterKey, gov.ProposalHandler).
 		AddRoute(params.RouterKey, params.NewParamChangeProposalHandler(app.paramsKeeper)).
-		AddRoute(distr.RouterKey, distr.NewCommunityPoolSpendProposalHandler(app.distrKeeper))
+		AddRoute(distr.RouterKey, distr.NewCommunityPoolSpendProposalHandler(app.distrKeeper)).
+		AddRoute(upgrade.RouterKey, upgrade.NewSoftwareUpgradeProposalHandler(app.upgradeKeeper))
 	app.govKeeper = gov.NewKeeper(
 		app.cdc,
 		keys[gov.StoreKey],
@@ -297,12 +309,13 @@ func NewInitApp(
 		execution.NewAppModule(app.executionKeeper),
 
 		staking.NewAppModule(app.stakingKeeper, app.accountKeeper, app.supplyKeeper),
+		upgrade.NewAppModule(app.upgradeKeeper),
 	)
 	// During begin block slashing happens after distr.BeginBlocker so that
 	// there is nothing left over in the validator fee pool, so as to keep the
 	// CanWithdrawInvariant invariant.
 
-	app.mm.SetOrderBeginBlockers(distr.ModuleName, slashing.ModuleName)
+	app.mm.SetOrderBeginBlockers(upgrade.ModuleName, distr.ModuleName, slashing.ModuleName)
 	app.mm.SetOrderEndBlockers(gov.ModuleName, staking.ModuleName)
 
 	// Sets the order of Genesis - Order matters, genutil is to always come last
