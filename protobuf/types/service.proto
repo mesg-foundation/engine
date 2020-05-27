@@ -36,6 +36,17 @@ message Service {
 
   // Task is a function that requires inputs and returns output.
   message Task {
+    message Price {
+      string perCall = 1 [
+        (gogoproto.moretags) = 'hash:"name:1" validate:"bigint"'
+      ];
+      string perSec = 2 [
+        (gogoproto.moretags) = 'hash:"name:2" validate:"bigint"'
+      ];
+      string perKB = 3 [
+        (gogoproto.moretags) = 'hash:"name:3" validate:"bigint"'
+      ];
+    }
     // Task's key.
     string key = 8 [
       (gogoproto.moretags) = 'hash:"name:8" validate:"required,printascii"'
@@ -61,8 +72,8 @@ message Service {
       (gogoproto.moretags) = 'hash:"name:7" validate:"dive,required"'
     ];
 
-    // fees for the task.
-    string fees = 9 [
+    // price for the task.
+    Price price = 9 [
       (gogoproto.moretags) = 'hash:"name:9"'
     ];
   }

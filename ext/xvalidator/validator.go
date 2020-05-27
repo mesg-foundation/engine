@@ -133,6 +133,14 @@ func New(prefix string) (*validator.Validate, ut.Translator) {
 		return t
 	})
 
+	validate.RegisterValidation("bigint", IsBigInt)
+	validate.RegisterTranslation("bigint", trans, func(ut ut.Translator) error {
+		return ut.Add("bigint", "{0} must be a valid credit", false)
+	}, func(ut ut.Translator, fe validator.FieldError) string {
+		t, _ := ut.T(fe.Tag(), fe.Field(), prefix)
+		return t
+	})
+
 	en_translations.RegisterDefaultTranslations(validate, trans)
 	return validate, trans
 }
@@ -240,4 +248,10 @@ var envNameRegexp = regexp.MustCompile("^[a-zA-Z][a-zA-Z0-9_]*$")
 func IsEnv(fl validator.FieldLevel) bool {
 	e := strings.Split(fl.Field().String(), envSeparator)
 	return (len(e) == 1 || len(e) == 2) && envNameRegexp.MatchString(e[0])
+}
+
+// IsBigInt validates that field can be parsed as a bigint
+func IsBigInt(fl validator.FieldLevel) bool {
+	_, ok := sdk.NewIntFromString(fl.Field().String())
+	return ok
 }
