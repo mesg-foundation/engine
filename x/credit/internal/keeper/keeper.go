@@ -50,6 +50,7 @@ func (k Keeper) Sub(ctx sdk.Context, address sdk.AccAddress, amount sdk.Int) (sd
 	return k.Set(ctx, address, res)
 }
 
+// Transfer credits from one address to another
 func (k Keeper) Transfer(ctx sdk.Context, from, to sdk.AccAddress, amount sdk.Int) error {
 	if _, err := k.Sub(ctx, from, amount); err != nil {
 		return err
@@ -73,7 +74,9 @@ func (k Keeper) Set(ctx sdk.Context, address sdk.AccAddress, amount sdk.Int) (sd
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
 			types.EventType,
-			sdk.NewAttribute(sdk.AttributeKeyAction, types.AttributeActionCreated),
+			sdk.NewAttribute(sdk.AttributeKeyAction, types.AttributeActionUpdated),
+			sdk.NewAttribute(types.AttributeKeyAddress, address.String()),
+			sdk.NewAttribute(types.AttributeKeyValue, amount.String()),
 		),
 	)
 	return amount, nil

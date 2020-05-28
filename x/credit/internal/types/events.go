@@ -5,6 +5,7 @@ const (
 	EventType = "credit"
 
 	AttributeKeyAddress = "address"
+	AttributeKeyValue   = "value"
 
-	AttributeActionCreated = "transfer"
+	AttributeActionUpdated = "update"
 )
