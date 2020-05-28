@@ -422,26 +422,32 @@ func (k *Keeper) calculatePrice(ctx sdk.Context, exec *executionpb.Execution) (s
 	}
 	perCall := sdk.NewInt(200)
 	if task.Price != nil && task.Price.PerCall != "" {
-		var ok bool
-		perCall, ok = sdk.NewIntFromString(task.Price.PerCall)
+		price, ok := sdk.NewIntFromString(task.Price.PerCall)
 		if !ok {
 			return sdk.Int{}, fmt.Errorf("invalid price per call %q", task.Price.PerCall)
+		}
+		if price.GT(perCall) {
+			perCall = price
 		}
 	}
 	perSec := sdk.NewInt(20000)
 	if task.Price != nil && task.Price.PerSec != "" {
-		var ok bool
-		perSec, ok = sdk.NewIntFromString(task.Price.PerSec)
+		price, ok := sdk.NewIntFromString(task.Price.PerSec)
 		if !ok {
 			return sdk.Int{}, fmt.Errorf("invalid price per sec %q", task.Price.PerSec)
+		}
+		if price.GT(perSec) {
+			perSec = price
 		}
 	}
 	perKB := sdk.NewInt(100)
 	if task.Price != nil && task.Price.PerKB != "" {
-		var ok bool
-		perKB, ok = sdk.NewIntFromString(task.Price.PerKB)
+		price, ok := sdk.NewIntFromString(task.Price.PerKB)
 		if !ok {
 			return sdk.Int{}, fmt.Errorf("invalid price per kb %q", task.Price.PerKB)
+		}
+		if price.GT(perKB) {
+			perKB = price
 		}
 	}
 	duration := sdk.NewInt(exec.GetDuration())
