@@ -469,3 +469,16 @@ func (k *Keeper) fetchEmitters(ctx sdk.Context, proc *process.Process, nodeKey s
 	}
 	return matchedRuns, nil
 }
+
+// Import imports a list of executions into the store.
+func (k *Keeper) Import(ctx sdk.Context, execs []*executionpb.Execution) error {
+	store := ctx.KVStore(k.storeKey)
+	for _, exec := range execs {
+		value, err := k.cdc.MarshalBinaryLengthPrefixed(exec)
+		if err != nil {
+			return sdkerrors.Wrapf(sdkerrors.ErrJSONMarshal, err.Error())
+		}
+		store.Set(exec.Hash, value)
+	}
+	return nil
+}
