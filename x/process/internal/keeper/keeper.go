@@ -20,17 +20,15 @@ type Keeper struct {
 	cdc             *codec.Codec
 	ownershipKeeper types.OwnershipKeeper
 	instanceKeeper  types.InstanceKeeper
-	bankKeeper      types.BankKeeper
 }
 
 // NewKeeper creates a process keeper
-func NewKeeper(cdc *codec.Codec, key sdk.StoreKey, instanceKeeper types.InstanceKeeper, ownershipKeeper types.OwnershipKeeper, bankKeeper types.BankKeeper) Keeper {
+func NewKeeper(cdc *codec.Codec, key sdk.StoreKey, instanceKeeper types.InstanceKeeper, ownershipKeeper types.OwnershipKeeper) Keeper {
 	keeper := Keeper{
 		storeKey:        key,
 		cdc:             cdc,
 		instanceKeeper:  instanceKeeper,
 		ownershipKeeper: ownershipKeeper,
-		bankKeeper:      bankKeeper,
 	}
 	return keeper
 }
