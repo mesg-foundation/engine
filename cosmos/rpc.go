@@ -181,12 +181,11 @@ func (c *RPC) GetAccount() (authExported.Account, error) {
 	if err != nil {
 		return nil, err
 	}
-	localSeq := c.acc.GetSequence()
-	c.acc = accR
 	// replace seq if sup
-	if localSeq > c.acc.GetSequence() {
-		c.acc.SetSequence(localSeq)
+	if c.acc.GetSequence() > accR.GetSequence() {
+		accR.SetSequence(c.acc.GetSequence())
 	}
+	c.acc = accR
 	return c.acc, nil
 }
 

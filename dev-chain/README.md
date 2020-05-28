@@ -11,6 +11,7 @@ See file `dev-genesis.json`
 ### Validator
 
 Address: `mesg10cjcxje0jjdxzdq5hpqa4dc4znhuxsax2zh7mp`
+Validator address: `mesgvaloper10cjcxje0jjdxzdq5hpqa4dc4znhuxsaxkrzt5d`
 Pubkey: `mesgpub1addwnpepq0gwhzul5qcycxxs6r7jdzdn5q29mj2a8gmngfrcfa6l8qs2dar4s2jqycv`
 Mnemonic: `fruit lock run bike eyebrow unique embrace cost parade welcome more frown oxygen crane club donate grid harsh marriage host skirt sign warfare cup`
 Coins: 100000000stake (but used in gentx)

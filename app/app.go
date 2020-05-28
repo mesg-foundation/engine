@@ -16,7 +16,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/version"
 	"github.com/cosmos/cosmos-sdk/x/auth"
-	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 	"github.com/cosmos/cosmos-sdk/x/auth/vesting"
 	"github.com/cosmos/cosmos-sdk/x/bank"
 	distr "github.com/cosmos/cosmos-sdk/x/distribution"
@@ -315,25 +314,11 @@ func NewInitApp(
 
 	// The AnteHandler handles signature verification and transaction pre-processing
 	app.SetAnteHandler(
-		sdk.ChainAnteDecorators(
-			ante.NewSetUpContextDecorator(), // outermost AnteDecorator. SetUpContext must be called first
-			ante.NewMempoolFeeDecorator(),
-			ante.NewValidateBasicDecorator(),
-			ante.NewValidateMemoDecorator(app.accountKeeper),
-			ante.NewConsumeGasForTxSizeDecorator(app.accountKeeper),
-			ante.NewSetPubKeyDecorator(app.accountKeeper), // SetPubKeyDecorator must be called before all signature verification decorators
-			ante.NewValidateSigCountDecorator(app.accountKeeper),
-			ante.NewDeductFeeDecorator(app.accountKeeper, app.supplyKeeper),
-			ante.NewSigGasConsumeDecorator(app.accountKeeper, auth.DefaultSigVerificationGasConsumer),
-			ante.NewSigVerificationDecorator(app.accountKeeper),
-			newForceCheckTxProxyDecorator(ante.NewIncrementSequenceDecorator(app.accountKeeper)), // innermost AnteDecorator
+		auth.NewAnteHandler(
+			app.accountKeeper,
+			app.supplyKeeper,
+			auth.DefaultSigVerificationGasConsumer,
 		),
-		// Previous implementation:
-		// auth.NewAnteHandler(
-		// 	app.accountKeeper,
-		// 	app.supplyKeeper,
-		// 	auth.DefaultSigVerificationGasConsumer,
-		// ),
 	)
 
 	// initialize stores

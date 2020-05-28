@@ -62,12 +62,12 @@ func (lcd *LCD) Get(path string, ptr interface{}) error {
 		return err
 	}
 	defer resp.Body.Close()
-	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		return fmt.Errorf("request status code is not 2XX, got %d", resp.StatusCode)
-	}
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return err
+	}
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		return fmt.Errorf("request status code is not 2XX, got %d with body: %s", resp.StatusCode, body)
 	}
 	cosResp := rest.ResponseWithHeight{}
 	if err := lcd.cdc.UnmarshalJSON(body, &cosResp); err != nil {
@@ -108,12 +108,12 @@ func (lcd *LCD) PostBare(path string, req interface{}, ptr interface{}) error {
 		return err
 	}
 	defer resp.Body.Close()
-	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		return fmt.Errorf("request status code is not 2XX, got %d", resp.StatusCode)
-	}
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return err
+	}
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		return fmt.Errorf("request status code is not 2XX, got %d with body: %s", resp.StatusCode, body)
 	}
 	if err := lcd.cdc.UnmarshalJSON(body, ptr); err != nil {
 		return err
@@ -180,14 +180,18 @@ func (lcd *LCD) getAccount() (*auth.BaseAccount, error) {
 		}
 		lcd.acc = auth.NewBaseAccount(accKb.GetAddress(), nil, accKb.GetPubKey(), 0, 0)
 	}
-	localSeq := lcd.acc.GetSequence()
-	if err := lcd.Get("auth/accounts/"+lcd.acc.GetAddress().String(), &lcd.acc); err != nil {
+	var accR *auth.BaseAccount
+	if err := lcd.Get("auth/accounts/"+lcd.acc.GetAddress().String(), &accR); err != nil {
 		return nil, err
 	}
-	// replace seq if sup
-	if localSeq > lcd.acc.GetSequence() {
-		lcd.acc.SetSequence(localSeq)
+	if accR.Address.Empty() {
+		return nil, fmt.Errorf("account %q doesn't exist", lcd.acc.GetAddress().String())
 	}
+	// replace seq if sup
+	if lcd.acc.GetSequence() > accR.GetSequence() {
+		accR.SetSequence(lcd.acc.GetSequence())
+	}
+	lcd.acc = accR
 	return lcd.acc, nil
 }
 

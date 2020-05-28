@@ -117,7 +117,7 @@ func startOrchestratorCmd(cdc *codec.Codec) *cobra.Command {
 	cmd.Flags().String(flagGrpcAddr, ":50052", "The address for the gRPC server to expose")
 	cmd.Flags().String(flagAuthorizedPubKeys, "", "The authorized pubkeys to communicate with the gRPC server")
 	cmd.Flags().String(flagMnemonic, "", "The account's mnemonic that will be used to sign transactions")
-	cmd.Flags().String(flagGasPrices, "1.0atto", "The gas price to sign tx")
+	cmd.Flags().String(flagGasPrices, "", "The gas price to sign tx")
 	cmd.Flags().String(flagExecPrice, "10000atto", "The execution price to create execution")
 	cmd.Flags().String(flagAccNumber, "0", "The account number of the hd path to use to derive the mnemonic")
 	cmd.Flags().String(flagAccIndex, "0", "The account index of the hd path to use to derive the mnemonic")
