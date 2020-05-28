@@ -25,7 +25,7 @@ func NewGenesisState(params Params, execs []*executionpb.Execution) GenesisState
 func DefaultGenesisState() GenesisState {
 	return GenesisState{
 		Params:     DefaultParams(),
-		Executions: nil,
+		Executions: []*executionpb.Execution{},
 	}
 }
 

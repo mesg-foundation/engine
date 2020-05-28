@@ -22,7 +22,7 @@ func NewGenesisState(processes []*process.Process) GenesisState {
 // DefaultGenesisState - default GenesisState used by Cosmos Hub
 func DefaultGenesisState() GenesisState {
 	return GenesisState{
-		Processes: nil,
+		Processes: []*process.Process{},
 	}
 }
 

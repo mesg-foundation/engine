@@ -22,7 +22,7 @@ func NewGenesisState(execs []*runner.Runner) GenesisState {
 // DefaultGenesisState - default GenesisState used by Cosmos Hub
 func DefaultGenesisState() GenesisState {
 	return GenesisState{
-		Runners: nil,
+		Runners: []*runner.Runner{},
 	}
 }
 

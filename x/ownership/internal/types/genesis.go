@@ -22,7 +22,7 @@ func NewGenesisState(ownerships []*ownership.Ownership) GenesisState {
 // DefaultGenesisState - default GenesisState used by Cosmos Hub
 func DefaultGenesisState() GenesisState {
 	return GenesisState{
-		Ownerships: nil,
+		Ownerships: []*ownership.Ownership{},
 	}
 }
 

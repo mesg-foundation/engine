@@ -22,7 +22,7 @@ func NewGenesisState(services []*service.Service) GenesisState {
 // DefaultGenesisState - default GenesisState used by Cosmos Hub
 func DefaultGenesisState() GenesisState {
 	return GenesisState{
-		Services: nil,
+		Services: []*service.Service{},
 	}
 }
 
