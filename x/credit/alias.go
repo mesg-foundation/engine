@@ -26,7 +26,7 @@ var (
 	QueryGet  = types.QueryGet
 
 	EventType              = types.EventType
-	AttributeActionCreated = types.AttributeActionCreated
+	AttributeActionUpdated = types.AttributeActionUpdated
 )
 
 // module types
