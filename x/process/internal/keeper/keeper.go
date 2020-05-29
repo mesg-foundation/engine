@@ -154,3 +154,16 @@ func (k Keeper) List(ctx sdk.Context) ([]*processpb.Process, error) {
 	iter.Close()
 	return processes, nil
 }
+
+// Import imports a list of processes into the store.
+func (k *Keeper) Import(ctx sdk.Context, processes []*process.Process) error {
+	store := ctx.KVStore(k.storeKey)
+	for _, proc := range processes {
+		value, err := k.cdc.MarshalBinaryLengthPrefixed(proc)
+		if err != nil {
+			return sdkerrors.Wrapf(sdkerrors.ErrJSONMarshal, err.Error())
+		}
+		store.Set(proc.Hash, value)
+	}
+	return nil
+}
