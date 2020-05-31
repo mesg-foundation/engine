@@ -252,7 +252,6 @@ func NewInitApp(
 	app.executionKeeper = execution.NewKeeper(
 		app.cdc,
 		keys[execution.StoreKey],
-		app.bankKeeper,
 		app.serviceKeeper,
 		app.instanceKeeper,
 		app.runnerKeeper,

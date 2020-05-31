@@ -23,7 +23,6 @@ type Keeper struct {
 	storeKey sdk.StoreKey
 	cdc      *codec.Codec
 
-	bankKeeper     types.BankKeeper
 	serviceKeeper  types.ServiceKeeper
 	instanceKeeper types.InstanceKeeper
 	runnerKeeper   types.RunnerKeeper
@@ -36,7 +35,6 @@ type Keeper struct {
 func NewKeeper(
 	cdc *codec.Codec,
 	key sdk.StoreKey,
-	bankKeeper types.BankKeeper,
 	serviceKeeper types.ServiceKeeper,
 	instanceKeeper types.InstanceKeeper,
 	runnerKeeper types.RunnerKeeper,
@@ -46,7 +44,6 @@ func NewKeeper(
 	return Keeper{
 		storeKey:       key,
 		cdc:            cdc,
-		bankKeeper:     bankKeeper,
 		serviceKeeper:  serviceKeeper,
 		instanceKeeper: instanceKeeper,
 		runnerKeeper:   runnerKeeper,
