@@ -2,6 +2,7 @@ package execution
 
 import (
 	"math"
+	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/mesg-foundation/engine/ext/xvalidator"
@@ -75,6 +76,6 @@ func (execution *Execution) Fail(err error) error {
 // GetDuration returns the duration of the execution in seconds
 func (execution *Execution) GetDuration() int64 {
 	delta := execution.Stop - execution.Start
-	deltaInSecond := float64(delta) / 1e9
+	deltaInSecond := float64(delta) / float64(time.Second.Nanoseconds())
 	return int64(math.Ceil(deltaInSecond))
 }
