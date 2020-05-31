@@ -407,21 +407,21 @@ func (k *Keeper) fetchEmitters(ctx sdk.Context, proc *process.Process, nodeKey s
 func (k *Keeper) calculatePrice(ctx sdk.Context, exec *executionpb.Execution) (sdk.Int, error) {
 	inst, err := k.instanceKeeper.Get(ctx, exec.InstanceHash)
 	if err != nil {
-		return sdk.Int{}, err
+		return sdk.Int{}, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, err.Error())
 	}
 	srv, err := k.serviceKeeper.Get(ctx, inst.ServiceHash)
 	if err != nil {
-		return sdk.Int{}, err
+		return sdk.Int{}, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, err.Error())
 	}
 	task, err := srv.GetTask(exec.TaskKey)
 	if err != nil {
-		return sdk.Int{}, err
+		return sdk.Int{}, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, err.Error())
 	}
 	perCall := sdk.NewInt(200)
 	if task.Price != nil && task.Price.PerCall != "" {
 		price, ok := sdk.NewIntFromString(task.Price.PerCall)
 		if !ok {
-			return sdk.Int{}, fmt.Errorf("invalid price per call %q", task.Price.PerCall)
+			return sdk.Int{}, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, fmt.Errorf("invalid price per call %q", task.Price.PerCall).Error())
 		}
 		if price.GT(perCall) {
 			perCall = price
@@ -431,7 +431,7 @@ func (k *Keeper) calculatePrice(ctx sdk.Context, exec *executionpb.Execution) (s
 	if task.Price != nil && task.Price.PerSec != "" {
 		price, ok := sdk.NewIntFromString(task.Price.PerSec)
 		if !ok {
-			return sdk.Int{}, fmt.Errorf("invalid price per sec %q", task.Price.PerSec)
+			return sdk.Int{}, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, fmt.Errorf("invalid price per sec %q", task.Price.PerCall).Error())
 		}
 		if price.GT(perSec) {
 			perSec = price
@@ -441,7 +441,7 @@ func (k *Keeper) calculatePrice(ctx sdk.Context, exec *executionpb.Execution) (s
 	if task.Price != nil && task.Price.PerKB != "" {
 		price, ok := sdk.NewIntFromString(task.Price.PerKB)
 		if !ok {
-			return sdk.Int{}, fmt.Errorf("invalid price per kb %q", task.Price.PerKB)
+			return sdk.Int{}, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, fmt.Errorf("invalid price per kb %q", task.Price.PerCall).Error())
 		}
 		if price.GT(perKB) {
 			perKB = price
@@ -450,16 +450,16 @@ func (k *Keeper) calculatePrice(ctx sdk.Context, exec *executionpb.Execution) (s
 	duration := sdk.NewInt(exec.GetDuration())
 	inputs, err := k.cdc.MarshalBinaryLengthPrefixed(exec.Inputs)
 	if err != nil {
-		return sdk.Int{}, err
+		return sdk.Int{}, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, err.Error())
 	}
 	outputs, err := k.cdc.MarshalBinaryLengthPrefixed(exec.Outputs)
 	if err != nil {
-		return sdk.Int{}, err
+		return sdk.Int{}, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, err.Error())
 	}
 	datasize := sdk.NewInt(int64(math.Ceil(float64(len(inputs)+len(outputs)) / 1000)))
 	return perCall.Add(perSec.Mul(duration)).Add(perKB.Mul(datasize)), nil
-} 
- 
+}
+
 // Import imports a list of executions into the store.
 func (k *Keeper) Import(ctx sdk.Context, execs []*executionpb.Execution) error {
 	store := ctx.KVStore(k.storeKey)

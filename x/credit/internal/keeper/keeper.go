@@ -34,7 +34,7 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 func (k Keeper) Add(ctx sdk.Context, address sdk.AccAddress, amount sdk.Int) (sdk.Int, error) {
 	value, err := k.Get(ctx, address)
 	if err != nil {
-		return sdk.Int{}, err
+		return sdk.Int{}, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, err.Error())
 	}
 	res := value.Add(amount)
 	return k.Set(ctx, address, res)
@@ -44,7 +44,7 @@ func (k Keeper) Add(ctx sdk.Context, address sdk.AccAddress, amount sdk.Int) (sd
 func (k Keeper) Sub(ctx sdk.Context, address sdk.AccAddress, amount sdk.Int) (sdk.Int, error) {
 	value, err := k.Get(ctx, address)
 	if err != nil {
-		return sdk.Int{}, err
+		return sdk.Int{}, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, err.Error())
 	}
 	res := value.Sub(amount)
 	return k.Set(ctx, address, res)
@@ -62,9 +62,9 @@ func (k Keeper) Transfer(ctx sdk.Context, from, to sdk.AccAddress, amount sdk.In
 }
 
 // Set a number of credit to a specific address
-func (k Keeper) Set(ctx sdk.Context, address sdk.AccAddress, amount sdk.Int) (sdk.Int, error) {
+func (k Keeper) Set(ctx sdk.Context, address sdk.AccAddress, balance sdk.Int) (sdk.Int, error) {
 	store := ctx.KVStore(k.storeKey)
-	encoded, err := k.cdc.MarshalBinaryLengthPrefixed(amount)
+	encoded, err := k.cdc.MarshalBinaryLengthPrefixed(balance)
 	if err != nil {
 		return sdk.Int{}, sdkerrors.Wrapf(sdkerrors.ErrJSONMarshal, err.Error())
 	}
@@ -76,22 +76,22 @@ func (k Keeper) Set(ctx sdk.Context, address sdk.AccAddress, amount sdk.Int) (sd
 			types.EventType,
 			sdk.NewAttribute(sdk.AttributeKeyAction, types.AttributeActionUpdated),
 			sdk.NewAttribute(types.AttributeKeyAddress, address.String()),
-			sdk.NewAttribute(types.AttributeKeyValue, amount.String()),
+			sdk.NewAttribute(types.AttributeKeyBalance, balance.String()),
 		),
 	)
-	return amount, nil
+	return balance, nil
 }
 
-// Get the amount of a specific address
+// Get the balance of a specific address
 func (k Keeper) Get(ctx sdk.Context, address sdk.AccAddress) (sdk.Int, error) {
 	store := ctx.KVStore(k.storeKey)
 	if !store.Has(address.Bytes()) {
 		return sdk.ZeroInt(), nil
 	}
 	value := store.Get(address.Bytes())
-	var amount sdk.Int
-	if err := k.cdc.UnmarshalBinaryLengthPrefixed(value, &amount); err != nil {
+	var balance sdk.Int
+	if err := k.cdc.UnmarshalBinaryLengthPrefixed(value, &balance); err != nil {
 		return sdk.Int{}, sdkerrors.Wrapf(sdkerrors.ErrJSONUnmarshal, err.Error())
 	}
-	return amount, nil
+	return balance, nil
 }
