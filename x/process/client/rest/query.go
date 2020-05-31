@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/cosmos/cosmos-sdk/client/context"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/rest"
 	"github.com/gorilla/mux"
 	"github.com/mesg-foundation/engine/process"
@@ -102,7 +103,7 @@ func queryHashHandlerFn(cliCtx context.CLIContext) http.HandlerFunc {
 			return
 		}
 
-		proc, err := process.New(req.Name, req.Nodes, req.Edges)
+		proc, err := process.New(req.Name, req.Nodes, req.Edges, sdk.AccAddress{})
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return

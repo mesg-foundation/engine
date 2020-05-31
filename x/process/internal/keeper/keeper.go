@@ -42,7 +42,7 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 func (k Keeper) Create(ctx sdk.Context, msg *types.MsgCreate) (*processpb.Process, error) {
 	store := ctx.KVStore(k.storeKey)
 
-	p, err := process.New(msg.Name, msg.Nodes, msg.Edges)
+	p, err := process.New(msg.Name, msg.Nodes, msg.Edges, msg.Owner)
 	if err != nil {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, err.Error())
 	}
@@ -67,8 +67,6 @@ func (k Keeper) Create(ctx sdk.Context, msg *types.MsgCreate) (*processpb.Proces
 			}
 		}
 	}
-
-	p.PaymentAddress = msg.Owner
 
 	value, err := k.cdc.MarshalBinaryLengthPrefixed(p)
 	if err != nil {
