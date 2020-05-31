@@ -27,7 +27,7 @@ type Server struct {
 	rpc               *cosmos.RPC
 	eventPublisher    *publisher.EventPublisher
 	tokenToRunnerHash *sync.Map
-	inProgress        *sync.Map
+	execInProgress    *sync.Map
 }
 
 // NewServer creates a new Server.
@@ -36,7 +36,7 @@ func NewServer(rpc *cosmos.RPC, eventPublisher *publisher.EventPublisher, tokenT
 		rpc:               rpc,
 		eventPublisher:    eventPublisher,
 		tokenToRunnerHash: tokenToRunnerHash,
-		inProgress:        &sync.Map{},
+		execInProgress:    &sync.Map{},
 	}
 }
 
@@ -107,7 +107,7 @@ func (s *Server) Execution(req *ExecutionRequest, stream Runner_ExecutionServer)
 				if err := s.rpc.QueryJSON(route, nil, &exec); err != nil {
 					return err
 				}
-				s.inProgress.Store(hash.String(), uint64(time.Now().UnixNano()))
+				s.execInProgress.Store(hash.String(), uint64(time.Now().UnixNano()))
 				if err := stream.Send(exec); err != nil {
 					return err
 				}
@@ -143,7 +143,7 @@ func (s *Server) Result(ctx context.Context, req *ResultRequest) (*ResultRespons
 	if err != nil {
 		return nil, err
 	}
-	start, ok := s.inProgress.Load(req.ExecutionHash.String())
+	start, ok := s.execInProgress.Load(req.ExecutionHash.String())
 	if !ok {
 		panic("execution should be in memory")
 	}
@@ -166,7 +166,7 @@ func (s *Server) Result(ctx context.Context, req *ResultRequest) (*ResultRespons
 	if _, err := s.rpc.BuildAndBroadcastMsg(msg); err != nil {
 		return nil, err
 	}
-	s.inProgress.Delete(req.ExecutionHash.String())
+	s.execInProgress.Delete(req.ExecutionHash.String())
 	return &ResultResponse{}, nil
 }
 
