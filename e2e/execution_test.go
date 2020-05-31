@@ -82,11 +82,9 @@ func testExecution(t *testing.T) {
 			require.NoError(t, lcd.Get("execution/get/"+executionHash.String(), &execR))
 			require.True(t, exec.Equal(execR), exec, execR)
 		})
-		t.Run("executor balance", func(t *testing.T) {
-			var credits sdk.Int
+		t.Run("execution price", func(t *testing.T) {
 			var execR *execution.Execution
 			require.NoError(t, lcd.Get("execution/get/"+executionHash.String(), &execR))
-			require.NoError(t, lcd.Get("credit/get/"+executorAddress.String(), &credits))
 			require.NotEqual(t, uint64(0), execR.Start)
 			require.NotEqual(t, uint64(0), execR.Stop)
 			require.NotEqual(t, execR.Start, execR.Stop)
@@ -103,7 +101,9 @@ func testExecution(t *testing.T) {
 			perKB, ok3 := sdk.NewIntFromString(task1Price.PerKB)
 			require.True(t, ok3)
 			expected := perCall.Add(sdk.NewInt(execR.GetDuration()).Mul(perSec)).Add(sdk.NewInt(int64(datasize)).Mul(perKB))
-			require.Equal(t, expected, credits)
+			execPrice, ok4 := sdk.NewIntFromString(exec.Price)
+			require.True(t, ok4)
+			require.Equal(t, expected, execPrice)
 		})
 	})
 
