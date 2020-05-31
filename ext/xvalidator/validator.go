@@ -135,7 +135,7 @@ func New(prefix string) (*validator.Validate, ut.Translator) {
 
 	validate.RegisterValidation("bigint", IsBigInt)
 	validate.RegisterTranslation("bigint", trans, func(ut ut.Translator) error {
-		return ut.Add("bigint", "{0} must be a valid credit", false)
+		return ut.Add("bigint", "{0} must be a valid big int", false)
 	}, func(ut ut.Translator, fe validator.FieldError) string {
 		t, _ := ut.T(fe.Tag(), fe.Field(), prefix)
 		return t
