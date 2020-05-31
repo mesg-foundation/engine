@@ -48,5 +48,5 @@ type ProcessKeeper interface {
 
 // CreditKeeper module interface.
 type CreditKeeper interface {
-	Transfer(ctx sdk.Context, from, to sdk.AccAddress, amount sdk.Int) error
+	Sub(ctx sdk.Context, address sdk.AccAddress, amount sdk.Int) (sdk.Int, error)
 }

@@ -50,17 +50,6 @@ func (k Keeper) Sub(ctx sdk.Context, address sdk.AccAddress, amount sdk.Int) (sd
 	return k.Set(ctx, address, res)
 }
 
-// Transfer credits from one address to another
-func (k Keeper) Transfer(ctx sdk.Context, from, to sdk.AccAddress, amount sdk.Int) error {
-	if _, err := k.Sub(ctx, from, amount); err != nil {
-		return err
-	}
-	if _, err := k.Add(ctx, to, amount); err != nil {
-		return err
-	}
-	return nil
-}
-
 // Set a number of credit to a specific address
 func (k Keeper) Set(ctx sdk.Context, address sdk.AccAddress, balance sdk.Int) (sdk.Int, error) {
 	store := ctx.KVStore(k.storeKey)
