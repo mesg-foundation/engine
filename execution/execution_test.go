@@ -76,20 +76,20 @@ func TestExecutionHash(t *testing.T) {
 func TestGetDuration(t *testing.T) {
 	ut := time.Now().Unix()
 	exec1 := &Execution{
-		Start: uint64(ut),
-		Stop:  uint64(ut + 2*time.Second.Nanoseconds()),
+		Start: ut,
+		Stop:  ut + 2*time.Second.Nanoseconds(),
 	}
 	exec2 := &Execution{
-		Start: uint64(ut),
-		Stop:  uint64(float64(ut) + 1.6*float64(time.Second.Nanoseconds())),
+		Start: ut,
+		Stop:  ut + int64(1.6*float64(time.Second.Nanoseconds())),
 	}
 	exec3 := &Execution{
-		Start: uint64(ut),
-		Stop:  uint64(float64(ut) + 1.2*float64(time.Second.Nanoseconds())),
+		Start: ut,
+		Stop:  ut + int64(1.2*float64(time.Second.Nanoseconds())),
 	}
 	exec4 := &Execution{
-		Start: uint64(ut),
-		Stop:  uint64(ut + 1),
+		Start: ut,
+		Stop:  ut + 1,
 	}
 	require.Equal(t, int64(2), exec1.GetDuration())
 	require.Equal(t, int64(2), exec2.GetDuration())

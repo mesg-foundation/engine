@@ -73,12 +73,12 @@ message MsgUpdate {
   }
 
   // Start time
-  uint64 start = 5 [
+  int64 start = 5 [
     (gogoproto.moretags) = 'validate:"required"'
   ];
   
   // Stop time
-  uint64 stop = 6 [
+  int64 stop = 6 [
     (gogoproto.moretags) = 'validate:"required,gtfield=Start"'
   ];
 }

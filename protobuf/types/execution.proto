@@ -141,12 +141,12 @@ message Execution {
   ];
 
   // Start time
-  uint64 start = 18 [
+  int64 start = 18 [
     (gogoproto.moretags) = 'hash:"-" validate:""'
   ];
   
   // Stop time
-  uint64 stop = 19 [
+  int64 stop = 19 [
     (gogoproto.moretags) = 'hash:"-" validate:""'
   ];
 }

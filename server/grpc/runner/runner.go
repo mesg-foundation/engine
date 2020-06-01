@@ -110,7 +110,7 @@ func (s *Server) Execution(req *ExecutionRequest, stream Runner_ExecutionServer)
 				if err := s.rpc.QueryJSON(route, nil, &exec); err != nil {
 					return err
 				}
-				s.execInProgress.Store(hash.String(), uint64(time.Now().UnixNano()))
+				s.execInProgress.Store(hash.String(), time.Now().UnixNano())
 				if err := stream.Send(exec); err != nil {
 					return err
 				}
@@ -149,13 +149,13 @@ func (s *Server) Result(ctx context.Context, req *ResultRequest) (*ResultRespons
 	start, ok := s.execInProgress.Load(req.ExecutionHash.String())
 	if !ok {
 		s.logger.Error(fmt.Sprintf("execution %q should be in memory", req.ExecutionHash.String()))
-		start = uint64(time.Now().UnixNano())
+		start = time.Now().UnixNano()
 	}
 	msg := executionmodule.MsgUpdate{
 		Executor: acc.GetAddress(),
 		Hash:     req.ExecutionHash,
-		Start:    start.(uint64),
-		Stop:     uint64(time.Now().UnixNano()),
+		Start:    start.(int64),
+		Stop:     time.Now().UnixNano(),
 	}
 	switch result := req.Result.(type) {
 	case *ResultRequest_Outputs:

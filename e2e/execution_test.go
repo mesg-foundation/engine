@@ -85,8 +85,8 @@ func testExecution(t *testing.T) {
 		t.Run("execution price", func(t *testing.T) {
 			var execR *execution.Execution
 			require.NoError(t, lcd.Get("execution/get/"+executionHash.String(), &execR))
-			require.NotEqual(t, uint64(0), execR.Start)
-			require.NotEqual(t, uint64(0), execR.Stop)
+			require.NotEqual(t, 0, execR.Start)
+			require.NotEqual(t, 0, execR.Stop)
 			require.NotEqual(t, execR.Start, execR.Stop)
 			require.Greater(t, execR.GetDuration(), int64(0))
 			inputs, err := cdc.MarshalBinaryLengthPrefixed(execR.Inputs)
