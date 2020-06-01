@@ -37,7 +37,16 @@ func (k Keeper) Add(ctx sdk.Context, address sdk.AccAddress, amount sdk.Int) (sd
 		return sdk.Int{}, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, err.Error())
 	}
 	res := value.Add(amount)
-	return k.Set(ctx, address, res)
+	// emit event
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			types.EventType,
+			sdk.NewAttribute(sdk.AttributeKeyAction, types.AttributeActionAdded),
+			sdk.NewAttribute(types.AttributeKeyAddress, address.String()),
+			sdk.NewAttribute(types.AttributeKeyAmount, amount.String()),
+		),
+	)
+	return k.set(ctx, address, res)
 }
 
 // Sub a number of credits to an address
@@ -47,27 +56,26 @@ func (k Keeper) Sub(ctx sdk.Context, address sdk.AccAddress, amount sdk.Int) (sd
 		return sdk.Int{}, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, err.Error())
 	}
 	res := value.Sub(amount)
-	return k.Set(ctx, address, res)
+	// emit event
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			types.EventType,
+			sdk.NewAttribute(sdk.AttributeKeyAction, types.AttributeActionSubtracted),
+			sdk.NewAttribute(types.AttributeKeyAddress, address.String()),
+			sdk.NewAttribute(types.AttributeKeyAmount, amount.String()),
+		),
+	)
+	return k.set(ctx, address, res)
 }
 
 // Set a number of credit to a specific address
-func (k Keeper) Set(ctx sdk.Context, address sdk.AccAddress, balance sdk.Int) (sdk.Int, error) {
+func (k Keeper) set(ctx sdk.Context, address sdk.AccAddress, balance sdk.Int) (sdk.Int, error) {
 	store := ctx.KVStore(k.storeKey)
 	encoded, err := k.cdc.MarshalBinaryLengthPrefixed(balance)
 	if err != nil {
 		return sdk.Int{}, sdkerrors.Wrapf(sdkerrors.ErrJSONMarshal, err.Error())
 	}
 	store.Set(address.Bytes(), encoded)
-
-	// emit event
-	ctx.EventManager().EmitEvent(
-		sdk.NewEvent(
-			types.EventType,
-			sdk.NewAttribute(sdk.AttributeKeyAction, types.AttributeActionUpdated),
-			sdk.NewAttribute(types.AttributeKeyAddress, address.String()),
-			sdk.NewAttribute(types.AttributeKeyBalance, balance.String()),
-		),
-	)
 	return balance, nil
 }
 

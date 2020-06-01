@@ -25,8 +25,9 @@ var (
 	ModuleCdc = types.ModuleCdc
 	QueryGet  = types.QueryGet
 
-	EventType              = types.EventType
-	AttributeActionUpdated = types.AttributeActionUpdated
+	EventType                 = types.EventType
+	AttributeActionAdded      = types.AttributeActionAdded
+	AttributeActionSubtracted = types.AttributeActionSubtracted
 )
 
 // module types
