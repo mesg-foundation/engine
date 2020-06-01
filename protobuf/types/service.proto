@@ -38,13 +38,13 @@ message Service {
   message Task {
     message Price {
       string perCall = 1 [
-        (gogoproto.moretags) = 'hash:"name:1" validate:"bigint"'
+        (gogoproto.moretags) = 'hash:"name:1" validate:"required,bigint"'
       ];
       string perSec = 2 [
-        (gogoproto.moretags) = 'hash:"name:2" validate:"bigint"'
+        (gogoproto.moretags) = 'hash:"name:2" validate:"required,bigint"'
       ];
       string perKB = 3 [
-        (gogoproto.moretags) = 'hash:"name:3" validate:"bigint"'
+        (gogoproto.moretags) = 'hash:"name:3" validate:"required,bigint"'
       ];
     }
     // Task's key.
@@ -74,7 +74,7 @@ message Service {
 
     // price for the task.
     Price price = 9 [
-      (gogoproto.moretags) = 'hash:"name:9"'
+      (gogoproto.moretags) = 'hash:"name:9" validate:"dive,required"'
     ];
   }
 
