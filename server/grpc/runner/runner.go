@@ -16,6 +16,7 @@ import (
 	"github.com/mesg-foundation/engine/runner"
 	executionmodule "github.com/mesg-foundation/engine/x/execution"
 	runnermodule "github.com/mesg-foundation/engine/x/runner"
+	tmlog "github.com/tendermint/tendermint/libs/log"
 	"google.golang.org/grpc/metadata"
 )
 
@@ -28,15 +29,17 @@ type Server struct {
 	eventPublisher    *publisher.EventPublisher
 	tokenToRunnerHash *sync.Map
 	execInProgress    *sync.Map
+	logger            tmlog.Logger
 }
 
 // NewServer creates a new Server.
-func NewServer(rpc *cosmos.RPC, eventPublisher *publisher.EventPublisher, tokenToRunnerHash *sync.Map) *Server {
+func NewServer(rpc *cosmos.RPC, eventPublisher *publisher.EventPublisher, tokenToRunnerHash *sync.Map, logger tmlog.Logger) *Server {
 	return &Server{
 		rpc:               rpc,
 		eventPublisher:    eventPublisher,
 		tokenToRunnerHash: tokenToRunnerHash,
 		execInProgress:    &sync.Map{},
+		logger:            logger,
 	}
 }
 
@@ -145,7 +148,8 @@ func (s *Server) Result(ctx context.Context, req *ResultRequest) (*ResultRespons
 	}
 	start, ok := s.execInProgress.Load(req.ExecutionHash.String())
 	if !ok {
-		panic("execution should be in memory")
+		s.logger.Error(fmt.Sprintf("execution %q should be in memory", req.ExecutionHash.String()))
+		start = uint64(time.Now().UnixNano())
 	}
 	msg := executionmodule.MsgUpdate{
 		Executor: acc.GetAddress(),
