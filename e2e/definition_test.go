@@ -1,20 +1,21 @@
 package main
 
 import (
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/mesg-foundation/engine/service"
 	servicemodule "github.com/mesg-foundation/engine/x/service"
 )
 
 var taskPrice = &service.Service_Task_Price{
-	PerCall: "0",
-	PerKB:   "0",
-	PerSec:  "0",
+	PerCall: sdk.NewInt(0),
+	PerKB:   sdk.NewInt(0),
+	PerSec:  sdk.NewInt(0),
 }
 
 var task1Price = &service.Service_Task_Price{
-	PerCall: "1000",
-	PerKB:   "1000",
-	PerSec:  "30000",
+	PerCall: sdk.NewInt(1000),
+	PerKB:   sdk.NewInt(1000),
+	PerSec:  sdk.NewInt(30000),
 }
 
 var testComplexCreateServiceMsg = &servicemodule.MsgCreate{

@@ -417,18 +417,6 @@ func (k *Keeper) calculatePrice(ctx sdk.Context, exec *executionpb.Execution) (s
 	if err != nil {
 		return sdk.Int{}, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, err.Error())
 	}
-	perCall, okCall := sdk.NewIntFromString(task.Price.PerCall)
-	if !okCall {
-		return sdk.Int{}, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, fmt.Errorf("invalid price per call %q", task.Price.PerCall).Error())
-	}
-	perSec, okSec := sdk.NewIntFromString(task.Price.PerSec)
-	if !okSec {
-		return sdk.Int{}, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, fmt.Errorf("invalid price per sec %q", task.Price.PerCall).Error())
-	}
-	perKB, okKB := sdk.NewIntFromString(task.Price.PerKB)
-	if !okKB {
-		return sdk.Int{}, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, fmt.Errorf("invalid price per kb %q", task.Price.PerCall).Error())
-	}
 	duration := sdk.NewInt(exec.GetDuration())
 	inputs, err := k.cdc.MarshalBinaryLengthPrefixed(exec.Inputs)
 	if err != nil {
@@ -439,7 +427,7 @@ func (k *Keeper) calculatePrice(ctx sdk.Context, exec *executionpb.Execution) (s
 		return sdk.Int{}, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, err.Error())
 	}
 	datasize := sdk.NewInt(int64(math.Ceil(float64(len(inputs)+len(outputs)) / 1000)))
-	return perCall.Add(perSec.Mul(duration)).Add(perKB.Mul(datasize)), nil
+	return task.Price.PerCall.Add(task.Price.PerSec.Mul(duration)).Add(task.Price.PerKB.Mul(datasize)), nil
 }
 
 // Import imports a list of executions into the store.
