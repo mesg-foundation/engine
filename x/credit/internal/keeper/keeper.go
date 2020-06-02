@@ -92,3 +92,35 @@ func (k Keeper) Get(ctx sdk.Context, address sdk.AccAddress) (sdk.Int, error) {
 	}
 	return balance, nil
 }
+
+// Export all credits from the keeper.
+func (k *Keeper) Export(ctx sdk.Context) (map[string]sdk.Int, error) {
+	var (
+		credits = make(map[string]sdk.Int)
+		iter    = ctx.KVStore(k.storeKey).Iterator(nil, nil)
+	)
+	for iter.Valid() {
+		var cred sdk.Int
+		value := iter.Value()
+		if err := k.cdc.UnmarshalBinaryLengthPrefixed(value, &cred); err != nil {
+			return nil, sdkerrors.Wrapf(sdkerrors.ErrJSONUnmarshal, err.Error())
+		}
+		address := sdk.AccAddress(iter.Key())
+		credits[address.String()] = cred
+		iter.Next()
+	}
+	iter.Close()
+	return credits, nil
+}
+
+// Import all credits into the keeper.
+func (k *Keeper) Import(ctx sdk.Context, credits map[string]sdk.Int) error {
+	for address, balance := range credits {
+		addr, err := sdk.AccAddressFromBech32(address)
+		if err != nil {
+			return err
+		}
+		k.set(ctx, addr, balance)
+	}
+	return nil
+}
