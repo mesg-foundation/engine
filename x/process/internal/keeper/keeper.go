@@ -14,25 +14,21 @@ import (
 	"github.com/tendermint/tendermint/libs/log"
 )
 
-var processCreateInitialBalance = "10000000atto"
-
 // Keeper of the process store
 type Keeper struct {
 	storeKey        sdk.StoreKey
 	cdc             *codec.Codec
 	ownershipKeeper types.OwnershipKeeper
 	instanceKeeper  types.InstanceKeeper
-	bankKeeper      types.BankKeeper
 }
 
 // NewKeeper creates a process keeper
-func NewKeeper(cdc *codec.Codec, key sdk.StoreKey, instanceKeeper types.InstanceKeeper, ownershipKeeper types.OwnershipKeeper, bankKeeper types.BankKeeper) Keeper {
+func NewKeeper(cdc *codec.Codec, key sdk.StoreKey, instanceKeeper types.InstanceKeeper, ownershipKeeper types.OwnershipKeeper) Keeper {
 	keeper := Keeper{
 		storeKey:        key,
 		cdc:             cdc,
 		instanceKeeper:  instanceKeeper,
 		ownershipKeeper: ownershipKeeper,
-		bankKeeper:      bankKeeper,
 	}
 	return keeper
 }
@@ -46,7 +42,7 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 func (k Keeper) Create(ctx sdk.Context, msg *types.MsgCreate) (*processpb.Process, error) {
 	store := ctx.KVStore(k.storeKey)
 
-	p, err := process.New(msg.Name, msg.Nodes, msg.Edges)
+	p, err := process.New(msg.Name, msg.Nodes, msg.Edges, msg.Owner)
 	if err != nil {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, err.Error())
 	}
@@ -70,14 +66,6 @@ func (k Keeper) Create(ctx sdk.Context, msg *types.MsgCreate) (*processpb.Proces
 				return nil, err
 			}
 		}
-	}
-
-	procInitBal, err := sdk.ParseCoins(processCreateInitialBalance)
-	if err != nil {
-		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidCoins, err.Error())
-	}
-	if err := k.bankKeeper.SendCoins(ctx, msg.Owner, p.Address, procInitBal); err != nil {
-		return nil, err
 	}
 
 	value, err := k.cdc.MarshalBinaryLengthPrefixed(p)

@@ -25,6 +25,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	"github.com/cosmos/cosmos-sdk/x/supply"
 	"github.com/mesg-foundation/engine/protobuf/types"
+	"github.com/mesg-foundation/engine/x/credit"
 	"github.com/mesg-foundation/engine/x/execution"
 	"github.com/mesg-foundation/engine/x/instance"
 	"github.com/mesg-foundation/engine/x/ownership"
@@ -56,6 +57,7 @@ var (
 		supply.AppModuleBasic{},
 
 		// Engine's AppModuleBasic
+		credit.AppModuleBasic{},
 		ownership.AppModuleBasic{},
 		instance.AppModuleBasic{},
 		process.AppModuleBasic{},
@@ -111,6 +113,7 @@ type NewApp struct {
 	paramsKeeper   params.Keeper
 
 	// Engine's keepers
+	creditKeeper    credit.Keeper
 	ownershipKeeper ownership.Keeper
 	instanceKeeper  instance.Keeper
 	processKeeper   process.Keeper
@@ -151,6 +154,7 @@ func NewInitApp(
 		params.StoreKey,
 
 		// Engine's module keys
+		credit.ModuleName,
 		ownership.ModuleName,
 		instance.ModuleName,
 		process.ModuleName,
@@ -179,7 +183,6 @@ func NewInitApp(
 	app.subspaces[staking.ModuleName] = app.paramsKeeper.Subspace(staking.DefaultParamspace)
 	app.subspaces[distr.ModuleName] = app.paramsKeeper.Subspace(distr.DefaultParamspace)
 	app.subspaces[slashing.ModuleName] = app.paramsKeeper.Subspace(slashing.DefaultParamspace)
-	app.subspaces[execution.ModuleName] = app.paramsKeeper.Subspace(execution.DefaultParamspace)
 
 	// The AccountKeeper handles address -> account lookups
 	app.accountKeeper = auth.NewAccountKeeper(
@@ -239,20 +242,20 @@ func NewInitApp(
 	)
 
 	// Engine's module keepers
+	app.creditKeeper = credit.NewKeeper(app.cdc, keys[credit.StoreKey])
 	app.ownershipKeeper = ownership.NewKeeper(app.cdc, keys[ownership.StoreKey], app.bankKeeper)
 	app.serviceKeeper = service.NewKeeper(app.cdc, keys[service.StoreKey], app.ownershipKeeper)
 	app.instanceKeeper = instance.NewKeeper(app.cdc, keys[instance.StoreKey], app.serviceKeeper)
-	app.processKeeper = process.NewKeeper(app.cdc, keys[process.StoreKey], app.instanceKeeper, app.ownershipKeeper, app.bankKeeper)
+	app.processKeeper = process.NewKeeper(app.cdc, keys[process.StoreKey], app.instanceKeeper, app.ownershipKeeper)
 	app.runnerKeeper = runner.NewKeeper(app.cdc, keys[runner.StoreKey], app.instanceKeeper, app.ownershipKeeper)
 	app.executionKeeper = execution.NewKeeper(
 		app.cdc,
 		keys[execution.StoreKey],
-		app.bankKeeper,
 		app.serviceKeeper,
 		app.instanceKeeper,
 		app.runnerKeeper,
 		app.processKeeper,
-		app.subspaces[execution.ModuleName],
+		app.creditKeeper,
 	)
 
 	// NOTE: Any module instantiated in the module manager that is later modified
@@ -266,6 +269,7 @@ func NewInitApp(
 		slashing.NewAppModule(app.slashingKeeper, app.accountKeeper, app.stakingKeeper),
 
 		// Engine's modules
+		credit.NewAppModule(app.creditKeeper),
 		ownership.NewAppModule(app.ownershipKeeper),
 		instance.NewAppModule(app.instanceKeeper),
 		process.NewAppModule(app.processKeeper),
@@ -293,6 +297,7 @@ func NewInitApp(
 		slashing.ModuleName,
 
 		// Engine's modules
+		credit.ModuleName,
 		ownership.ModuleName,
 		instance.ModuleName,
 		process.ModuleName,

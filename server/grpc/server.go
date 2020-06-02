@@ -88,7 +88,7 @@ func validateInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryS
 func (s *Server) register() error {
 	tokenToRunnerHash := &sync.Map{}
 
-	runner.RegisterRunnerServer(s.instance, runner.NewServer(s.rpc, s.ep, tokenToRunnerHash))
+	runner.RegisterRunnerServer(s.instance, runner.NewServer(s.rpc, s.ep, tokenToRunnerHash, s.logger))
 
 	authorizer, err := orchestrator.NewAuthorizer(s.rpc.Codec(), s.authorizedPubKeys)
 	if err != nil {
