@@ -3,7 +3,6 @@ package main
 import (
 	"testing"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/ownership"
 	"github.com/mesg-foundation/engine/process"
@@ -14,10 +13,9 @@ import (
 
 func testProcess(t *testing.T) {
 	var (
-		err            error
-		processHash    hash.Hash
-		processAddress sdk.AccAddress
-		msg            = &processmodule.MsgCreate{
+		err         error
+		processHash hash.Hash
+		msg         = &processmodule.MsgCreate{
 			Owner: cliAddress,
 			Name:  "test-process",
 			Nodes: []*process.Process_Node{
@@ -65,7 +63,6 @@ func testProcess(t *testing.T) {
 			Edges:          msg.Edges,
 			PaymentAddress: cliAddress,
 		}))
-		processAddress = p.Address
 	})
 
 	t.Run("check ownership creation", func(t *testing.T) {
@@ -78,12 +75,6 @@ func testProcess(t *testing.T) {
 			}
 		}
 		require.Len(t, owners, 1)
-	})
-
-	t.Run("check coins on process", func(t *testing.T) {
-		var coins sdk.Coins
-		require.NoError(t, lcd.Get("bank/balances/"+processAddress.String(), &coins))
-		require.True(t, coins.IsZero())
 	})
 
 	t.Run("list", func(t *testing.T) {
@@ -115,11 +106,5 @@ func testProcess(t *testing.T) {
 		ownerships := make([]*ownership.Ownership, 0)
 		require.NoError(t, lcd.Get("ownership/list", &ownerships))
 		require.Len(t, ownerships, 2)
-	})
-
-	t.Run("check coins on process", func(t *testing.T) {
-		var coins sdk.Coins
-		require.NoError(t, lcd.Get("bank/balances/"+processAddress.String(), &coins))
-		require.True(t, coins.IsZero(), coins)
 	})
 }

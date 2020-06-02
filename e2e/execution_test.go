@@ -17,9 +17,8 @@ import (
 
 func testExecution(t *testing.T) {
 	var (
-		executorHash    = testRunnerHash
-		executorAddress = testRunnerAddress
-		err             error
+		executorHash = testRunnerHash
+		err          error
 	)
 
 	t.Run("simple execution with price", func(t *testing.T) {
@@ -36,12 +35,13 @@ func testExecution(t *testing.T) {
 					},
 				},
 			}
-			executorBalance sdk.Int
+			execPrice sdk.Int
 		)
-
-		require.NoError(t, lcd.Get("credit/get/"+executorAddress.String(), &executorBalance))
-		require.Equal(t, sdk.NewInt(0), executorBalance)
-
+		t.Run("executor balance before", func(t *testing.T) {
+			var balance sdk.Int
+			require.NoError(t, lcd.Get("credit/get/"+engineAddress.String(), &balance))
+			require.Equal(t, sdk.NewInt(0), balance)
+		})
 		t.Run("create", func(t *testing.T) {
 			req := orchestrator.ExecutionCreateRequest{
 				TaskKey:      taskKey,
@@ -95,9 +95,15 @@ func testExecution(t *testing.T) {
 			require.NoError(t, err)
 			datasize := math.Ceil(float64(len(inputs)+len(ouputs)) / 1000)
 			expected := task1Price.PerCall.Add(sdk.NewInt(execR.GetDuration()).Mul(task1Price.PerSec)).Add(sdk.NewInt(int64(datasize)).Mul(task1Price.PerKB))
-			execPrice, ok4 := sdk.NewIntFromString(exec.Price)
-			require.True(t, ok4)
-			require.Equal(t, expected, execPrice)
+			var ok bool
+			execPrice, ok = sdk.NewIntFromString(exec.Price)
+			require.True(t, ok)
+			require.True(t, expected.Equal(execPrice))
+		})
+		t.Run("executor balance after", func(t *testing.T) {
+			var balance sdk.Int
+			require.NoError(t, lcd.Get("credit/get/"+engineAddress.String(), &balance))
+			require.True(t, balance.Equal(sdk.NewInt(0).Sub(execPrice)))
 		})
 	})
 
