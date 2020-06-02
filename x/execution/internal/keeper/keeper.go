@@ -291,8 +291,7 @@ func (k *Keeper) Update(ctx sdk.Context, msg types.MsgUpdate) (*executionpb.Exec
 		}
 		from = proc.PaymentAddress
 	}
-	_, err = k.creditKeeper.Sub(ctx, from, price)
-	if err != nil {
+	if _, err = k.creditKeeper.Sub(ctx, from, price); err != nil {
 		return nil, err
 	}
 
