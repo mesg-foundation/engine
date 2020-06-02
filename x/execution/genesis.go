@@ -6,8 +6,7 @@ import (
 	abci "github.com/tendermint/tendermint/abci/types"
 )
 
-// InitGenesis initialize default parameters
-// and the keeper's address to pubkey map
+// InitGenesis initialize the keeper with the data from the genesis file.
 func InitGenesis(ctx sdk.Context, k Keeper, data types.GenesisState) []abci.ValidatorUpdate {
 	if err := k.Import(ctx, data.Executions); err != nil {
 		panic(err)
@@ -15,9 +14,7 @@ func InitGenesis(ctx sdk.Context, k Keeper, data types.GenesisState) []abci.Vali
 	return []abci.ValidatorUpdate{}
 }
 
-// ExportGenesis writes the current store values
-// to a genesis file, which can be imported again
-// with InitGenesis
+// ExportGenesis writes the current store values to a genesis file, which can be imported again with InitGenesis.
 func ExportGenesis(ctx sdk.Context, k Keeper) (data types.GenesisState) {
 	execs, err := k.List(ctx, types.ListFilter{})
 	if err != nil {
