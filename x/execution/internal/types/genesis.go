@@ -19,7 +19,7 @@ func NewGenesisState(execs []*executionpb.Execution) GenesisState {
 	}
 }
 
-// DefaultGenesisState - default GenesisState used by Cosmos Hub
+// DefaultGenesisState is the default GenesisState
 func DefaultGenesisState() GenesisState {
 	return GenesisState{
 		Executions: []*executionpb.Execution{},
