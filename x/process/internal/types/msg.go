@@ -22,7 +22,7 @@ func (msg MsgCreate) ValidateBasic() error {
 	if err := xvalidator.Struct(msg); err != nil {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, err.Error())
 	}
-	if _, err := processpb.New(msg.Name, msg.Nodes, msg.Edges, sdk.AccAddress{}); err != nil {
+	if _, err := processpb.New(msg.Name, msg.Nodes, msg.Edges, msg.Owner); err != nil {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, err.Error())
 	}
 	return nil
