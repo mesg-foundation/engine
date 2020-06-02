@@ -8,7 +8,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/cosmos/cosmos-sdk/x/params"
 	executionpb "github.com/mesg-foundation/engine/execution"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/process"
@@ -28,7 +27,6 @@ type Keeper struct {
 	runnerKeeper   types.RunnerKeeper
 	processKeeper  types.ProcessKeeper
 	creditKeeper   types.CreditKeeper
-	paramstore     params.Subspace
 }
 
 // NewKeeper creates a execution keeper
@@ -40,7 +38,7 @@ func NewKeeper(
 	runnerKeeper types.RunnerKeeper,
 	processKeeper types.ProcessKeeper,
 	creditKeeper types.CreditKeeper,
-	paramstore params.Subspace) Keeper {
+) Keeper {
 	return Keeper{
 		storeKey:       key,
 		cdc:            cdc,
@@ -49,7 +47,6 @@ func NewKeeper(
 		runnerKeeper:   runnerKeeper,
 		processKeeper:  processKeeper,
 		creditKeeper:   creditKeeper,
-		paramstore:     paramstore.WithKeyTable(types.ParamKeyTable()),
 	}
 }
 

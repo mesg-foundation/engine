@@ -183,7 +183,6 @@ func NewInitApp(
 	app.subspaces[staking.ModuleName] = app.paramsKeeper.Subspace(staking.DefaultParamspace)
 	app.subspaces[distr.ModuleName] = app.paramsKeeper.Subspace(distr.DefaultParamspace)
 	app.subspaces[slashing.ModuleName] = app.paramsKeeper.Subspace(slashing.DefaultParamspace)
-	app.subspaces[execution.ModuleName] = app.paramsKeeper.Subspace(execution.DefaultParamspace)
 
 	// The AccountKeeper handles address -> account lookups
 	app.accountKeeper = auth.NewAccountKeeper(
@@ -257,7 +256,6 @@ func NewInitApp(
 		app.runnerKeeper,
 		app.processKeeper,
 		app.creditKeeper,
-		app.subspaces[execution.ModuleName],
 	)
 
 	// NOTE: Any module instantiated in the module manager that is later modified

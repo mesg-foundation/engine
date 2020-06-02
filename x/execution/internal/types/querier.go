@@ -7,9 +7,8 @@ import (
 
 // Querier names
 const (
-	QueryGet        = "get"
-	QueryList       = "list"
-	QueryParameters = "parameters"
+	QueryGet  = "get"
+	QueryList = "list"
 )
 
 // ListFilter available for the List

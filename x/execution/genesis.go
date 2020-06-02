@@ -9,7 +9,6 @@ import (
 // InitGenesis initialize default parameters
 // and the keeper's address to pubkey map
 func InitGenesis(ctx sdk.Context, k Keeper, data types.GenesisState) []abci.ValidatorUpdate {
-	k.SetParams(ctx, data.Params)
 	if err := k.Import(ctx, data.Executions); err != nil {
 		panic(err)
 	}
@@ -20,10 +19,9 @@ func InitGenesis(ctx sdk.Context, k Keeper, data types.GenesisState) []abci.Vali
 // to a genesis file, which can be imported again
 // with InitGenesis
 func ExportGenesis(ctx sdk.Context, k Keeper) (data types.GenesisState) {
-	params := k.GetParams(ctx)
 	execs, err := k.List(ctx, types.ListFilter{})
 	if err != nil {
 		panic(err)
 	}
-	return types.NewGenesisState(params, execs)
+	return types.NewGenesisState(execs)
 }
