@@ -8,8 +8,7 @@ RUN go mod download
 COPY . .
 ARG version
 
-RUN go build -mod=readonly -o ./bin/mesg-cli -ldflags="-s -w -X 'github.com/cosmos/cosmos-sdk/version.Name=mesg' -X 'github.com/cosmos/cosmos-sdk/version.ServerName=mesg-daemon' -X 'github.com/cosmos/cosmos-sdk/version.ClientName=mesg-cli' -X 'github.com/cosmos/cosmos-sdk/version.Version=$version'" ./cmd/mesg-cli/
-RUN go build -mod=readonly -o ./bin/mesg-daemon -ldflags="-s -w -X 'github.com/cosmos/cosmos-sdk/version.Name=mesg' -X 'github.com/cosmos/cosmos-sdk/version.ServerName=mesg-daemon' -X 'github.com/cosmos/cosmos-sdk/version.ClientName=mesg-cli' -X 'github.com/cosmos/cosmos-sdk/version.Version=$version'" ./cmd/mesg-daemon/
+RUN make build
 
 # ubuntu image with binaries for distribution
 FROM ubuntu:18.04
