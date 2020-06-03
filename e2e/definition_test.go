@@ -1,9 +1,22 @@
 package main
 
 import (
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/mesg-foundation/engine/service"
 	servicemodule "github.com/mesg-foundation/engine/x/service"
 )
+
+var taskPrice = &service.Service_Task_Price{
+	PerCall: sdk.NewInt(0),
+	PerKB:   sdk.NewInt(0),
+	PerSec:  sdk.NewInt(0),
+}
+
+var task1Price = &service.Service_Task_Price{
+	PerCall: sdk.NewInt(1000),
+	PerKB:   sdk.NewInt(1000),
+	PerSec:  sdk.NewInt(30000),
+}
 
 var testComplexCreateServiceMsg = &servicemodule.MsgCreate{
 	Sid:  "test-complex-service",
@@ -47,7 +60,8 @@ var testCreateServiceMsg = &servicemodule.MsgCreate{
 	},
 	Tasks: []*service.Service_Task{
 		{
-			Key: "task_trigger",
+			Key:   "task_trigger",
+			Price: taskPrice,
 			Inputs: []*service.Service_Parameter{
 				{
 					Key:  "msg",
@@ -66,7 +80,8 @@ var testCreateServiceMsg = &servicemodule.MsgCreate{
 			},
 		},
 		{
-			Key: "task1",
+			Key:   "task1",
+			Price: task1Price,
 			Inputs: []*service.Service_Parameter{
 				{
 					Key:  "msg",
@@ -85,7 +100,8 @@ var testCreateServiceMsg = &servicemodule.MsgCreate{
 			},
 		},
 		{
-			Key: "task2",
+			Key:   "task2",
+			Price: taskPrice,
 			Inputs: []*service.Service_Parameter{
 				{
 					Key:  "msg",
@@ -104,7 +120,8 @@ var testCreateServiceMsg = &servicemodule.MsgCreate{
 			},
 		},
 		{
-			Key: "task_complex",
+			Key:   "task_complex",
+			Price: taskPrice,
 			Inputs: []*service.Service_Parameter{
 				{
 					Key:  "msg",
@@ -147,7 +164,8 @@ var testCreateServiceMsg = &servicemodule.MsgCreate{
 			},
 		},
 		{
-			Key: "task_complex_trigger",
+			Key:   "task_complex_trigger",
+			Price: taskPrice,
 			Inputs: []*service.Service_Parameter{
 				{
 					Key:  "msg",

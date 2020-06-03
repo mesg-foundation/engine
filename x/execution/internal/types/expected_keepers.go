@@ -45,3 +45,8 @@ type RunnerKeeper interface {
 type ProcessKeeper interface {
 	Get(ctx sdk.Context, hash hash.Hash) (*processpb.Process, error)
 }
+
+// CreditKeeper module interface.
+type CreditKeeper interface {
+	Sub(ctx sdk.Context, address sdk.AccAddress, amount sdk.Int) (sdk.Int, error)
+}

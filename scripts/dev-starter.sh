@@ -7,15 +7,29 @@ set -m
 mesg-daemon start &
 daemon=$!
 
+# function that stop child processes
+function stop {
+  echo "stopping daemon"
+  kill $daemon
+  wait $daemon
+  exit 0
+}
+
+# trap both sigint (ctrl+c) and sigterm (OS ask process to be stopped)
+trap stop SIGINT
+trap stop SIGTERM
+
 # wait 5 sec for the daemon to start rpc server
 sleep 5 &
 wait $!
 
 # start lcd
+echo "starting lcd"
 mesg-cli rest-server --laddr tcp://0.0.0.0:1317 &
 lcd=$!
 
 # start orchestrator
+echo "starting orchestrator"
 mesg-cli orchestrator start &
 orchestrator=$!
 

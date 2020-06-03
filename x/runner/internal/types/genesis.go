@@ -1,19 +1,35 @@
 package types
 
-// GenesisState - all instance state that must be provided at genesis
-type GenesisState struct{}
+import (
+	fmt "fmt"
 
-// NewGenesisState creates a new GenesisState object
-func NewGenesisState() GenesisState {
-	return GenesisState{}
+	"github.com/mesg-foundation/engine/ext/xvalidator"
+	"github.com/mesg-foundation/engine/runner"
+)
+
+// GenesisState - all instance state that must be provided at genesis
+type GenesisState struct {
+	Runners []*runner.Runner `json:"runners" yaml:"runners" validate:"dive"`
 }
 
-// DefaultGenesisState - default GenesisState used by Cosmos Hub
+// NewGenesisState creates a new GenesisState object
+func NewGenesisState(execs []*runner.Runner) GenesisState {
+	return GenesisState{
+		Runners: execs,
+	}
+}
+
+// DefaultGenesisState is the default GenesisState
 func DefaultGenesisState() GenesisState {
-	return GenesisState{}
+	return GenesisState{
+		Runners: []*runner.Runner{},
+	}
 }
 
 // ValidateGenesis validates the instance genesis parameters
 func ValidateGenesis(data GenesisState) error {
+	if err := xvalidator.Struct(data); err != nil {
+		return fmt.Errorf("failed to validate %s genesis state: %w", ModuleName, err)
+	}
 	return nil
 }

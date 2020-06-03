@@ -83,7 +83,7 @@ func startOrchestratorCmd(cdc *codec.Codec) *cobra.Command {
 
 			// orchestrator
 			logger.Info("Starting orchestrator")
-			orch := orchestrator.New(rpc, ep, logger, viper.GetString(flagExecPrice))
+			orch := orchestrator.New(rpc, ep, logger)
 			defer func() {
 				logger.Info("Stopping orchestrator")
 				orch.Stop()
@@ -118,7 +118,6 @@ func startOrchestratorCmd(cdc *codec.Codec) *cobra.Command {
 	cmd.Flags().String(flagAuthorizedPubKeys, "", "The authorized pubkeys to communicate with the gRPC server")
 	cmd.Flags().String(flagMnemonic, "", "The account's mnemonic that will be used to sign transactions")
 	cmd.Flags().String(flagGasPrices, "", "The gas price to sign tx")
-	cmd.Flags().String(flagExecPrice, "10000atto", "The execution price to create execution")
 	cmd.Flags().String(flagAccNumber, "0", "The account number of the hd path to use to derive the mnemonic")
 	cmd.Flags().String(flagAccIndex, "0", "The account index of the hd path to use to derive the mnemonic")
 	return cmd
@@ -129,7 +128,6 @@ const (
 	flagAuthorizedPubKeys = "authorized-pubkeys"
 	flagMnemonic          = "mnemonic"
 	flagGasPrices         = "gas-prices"
-	flagExecPrice         = "exec-price"
 	flagAccNumber         = "acc-number"
 	flagAccIndex          = "acc-index"
 )

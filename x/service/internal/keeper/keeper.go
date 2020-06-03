@@ -117,3 +117,16 @@ func (k Keeper) List(ctx sdk.Context) ([]*servicepb.Service, error) {
 	iter.Close()
 	return services, nil
 }
+
+// Import imports a list of services into the store.
+func (k *Keeper) Import(ctx sdk.Context, services []*servicepb.Service) error {
+	store := ctx.KVStore(k.storeKey)
+	for _, serv := range services {
+		value, err := k.cdc.MarshalBinaryLengthPrefixed(serv)
+		if err != nil {
+			return sdkerrors.Wrapf(sdkerrors.ErrJSONMarshal, err.Error())
+		}
+		store.Set(serv.Hash, value)
+	}
+	return nil
+}

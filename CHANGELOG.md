@@ -1,5 +1,25 @@
 # Changelog
 
+## [v0.25.1](https://github.com/mesg-foundation/engine/releases/tag/v0.25.1)
+
+#### Changed
+
+- ([#1845](https://github.com/mesg-foundation/engine/pull/1845)) Set default flag gasPrice of the orchestrator to null.
+- ([#1851](https://github.com/mesg-foundation/engine/pull/1851)) Remove swarm init from ci.
+
+#### Fixed
+
+- ([#1838](https://github.com/mesg-foundation/engine/pull/1838)) Remove min gas price from dev chain and e2e.
+- ([#1841](https://github.com/mesg-foundation/engine/pull/1841)) Fix dev-starter when user stop script during the first sleep of 5 sec.
+- ([#1843](https://github.com/mesg-foundation/engine/pull/1843)) Display body in lcd client on error.
+- ([#1844](https://github.com/mesg-foundation/engine/pull/1844)) Add a check in LCD client if the account exists or not.
+- ([#1846](https://github.com/mesg-foundation/engine/pull/1846)) Fix command execution list because of not set filter.
+- ([#1848](https://github.com/mesg-foundation/engine/pull/1848)) Implement import and export functions in modules.
+
+#### Dependencies
+
+- ([#1835](https://github.com/mesg-foundation/engine/pull/1835)) Bump github.com/cosmos/cosmos-sdk from 0.38.3 to 0.38.4.
+
 ## [v0.25.0](https://github.com/mesg-foundation/engine/releases/tag/v0.25.0)
 
 #### Breaking Changes
