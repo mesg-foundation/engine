@@ -197,7 +197,7 @@ func NewInitApp(
 	app.subspaces[staking.ModuleName] = app.paramsKeeper.Subspace(staking.DefaultParamspace)
 	app.subspaces[distr.ModuleName] = app.paramsKeeper.Subspace(distr.DefaultParamspace)
 	app.subspaces[slashing.ModuleName] = app.paramsKeeper.Subspace(slashing.DefaultParamspace)
-	app.subspaces[gov.ModuleName] = app.paramsKeeper.Subspace(gov.DefaultParamspace).WithKeyTable(gov.ParamKeyTable())
+	app.subspaces[gov.ModuleName] = app.paramsKeeper.Subspace(gov.DefaultParamspace)
 	app.subspaces[evidence.ModuleName] = app.paramsKeeper.Subspace(evidence.DefaultParamspace)
 	app.subspaces[crisis.ModuleName] = app.paramsKeeper.Subspace(crisis.DefaultParamspace)
 	app.subspaces[execution.ModuleName] = app.paramsKeeper.Subspace(execution.DefaultParamspace)
@@ -287,7 +287,7 @@ func NewInitApp(
 	app.govKeeper = gov.NewKeeper(
 		app.cdc,
 		keys[gov.StoreKey],
-		app.subspaces[gov.ModuleName],
+		app.subspaces[gov.ModuleName].WithKeyTable(gov.ParamKeyTable()),
 		app.supplyKeeper,
 		&stakingKeeper,
 		govRouter,
