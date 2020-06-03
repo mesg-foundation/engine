@@ -33,10 +33,6 @@ message ExecutionCreateRequest {
     (gogoproto.moretags) = 'validate:"omitempty,hash"',
     (gogoproto.casttype) = "github.com/mesg-foundation/engine/hash.Hash"
   ];
-
-  string price = 5 [
-    (gogoproto.moretags) = 'validate:"coins"'
-  ];
 }
 
 // ExecutionCreateResponse is the response of the endpoint ExecutionCreate.

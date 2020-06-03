@@ -14,15 +14,17 @@ import (
 
 // Keeper of the instance store
 type Keeper struct {
-	storeKey sdk.StoreKey
-	cdc      *codec.Codec
+	storeKey      sdk.StoreKey
+	cdc           *codec.Codec
+	serviceKeeper types.ServiceKeeper
 }
 
 // NewKeeper creates a instance keeper
-func NewKeeper(cdc *codec.Codec, key sdk.StoreKey) Keeper {
+func NewKeeper(cdc *codec.Codec, key sdk.StoreKey, serviceKeeper types.ServiceKeeper) Keeper {
 	keeper := Keeper{
-		storeKey: key,
-		cdc:      cdc,
+		storeKey:      key,
+		cdc:           cdc,
+		serviceKeeper: serviceKeeper,
 	}
 	return keeper
 }
@@ -34,13 +36,16 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 
 // FetchOrCreate creates a new instance if needed.
 func (k Keeper) FetchOrCreate(ctx sdk.Context, serviceHash hash.Hash, envHash hash.Hash) (*instance.Instance, error) {
-	store := ctx.KVStore(k.storeKey)
+	if _, err := k.serviceKeeper.Get(ctx, serviceHash); err != nil {
+		return nil, err
+	}
 
 	inst, err := instance.New(serviceHash, envHash)
 	if err != nil {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, err.Error())
 	}
 
+	store := ctx.KVStore(k.storeKey)
 	if !store.Has(inst.Hash) {
 		value, err := k.cdc.MarshalBinaryLengthPrefixed(inst)
 		if err != nil {
@@ -90,4 +95,17 @@ func (k Keeper) List(ctx sdk.Context) ([]*instance.Instance, error) {
 	}
 	iter.Close()
 	return items, nil
+}
+
+// Import imports a list of instances into the store.
+func (k *Keeper) Import(ctx sdk.Context, instances []*instance.Instance) error {
+	store := ctx.KVStore(k.storeKey)
+	for _, inst := range instances {
+		value, err := k.cdc.MarshalBinaryLengthPrefixed(inst)
+		if err != nil {
+			return sdkerrors.Wrapf(sdkerrors.ErrJSONMarshal, err.Error())
+		}
+		store.Set(inst.Hash, value)
+	}
+	return nil
 }

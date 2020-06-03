@@ -149,3 +149,16 @@ func (k Keeper) List(ctx sdk.Context) ([]*runner.Runner, error) {
 	iter.Close()
 	return runners, nil
 }
+
+// Import imports a list of runners into the store.
+func (k *Keeper) Import(ctx sdk.Context, runners []*runner.Runner) error {
+	store := ctx.KVStore(k.storeKey)
+	for _, run := range runners {
+		value, err := k.cdc.MarshalBinaryLengthPrefixed(run)
+		if err != nil {
+			return sdkerrors.Wrapf(sdkerrors.ErrJSONMarshal, err.Error())
+		}
+		store.Set(run.Hash, value)
+	}
+	return nil
+}

@@ -1,5 +1,5 @@
-# base Go image version for building the binaries
-FROM golang:1.13.10 AS build
+ARG from=golang:1.13.10
+FROM $from AS build
 WORKDIR /app
 
 COPY go.mod go.sum ./

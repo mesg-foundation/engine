@@ -143,7 +143,6 @@ func testOrchestratorFilterPathNested(runnerHash, instanceHash hash.Hash) func(t
 		t.Run("pass filter", func(t *testing.T) {
 			t.Run("trigger process", func(t *testing.T) {
 				req := orchestrator.ExecutionCreateRequest{
-					Price:        "10000atto",
 					TaskKey:      "task_complex_trigger",
 					ExecutorHash: runnerHash,
 					Inputs: &types.Struct{
@@ -213,7 +212,6 @@ func testOrchestratorFilterPathNested(runnerHash, instanceHash hash.Hash) func(t
 		t.Run("stop at filter", func(t *testing.T) {
 			t.Run("trigger process", func(t *testing.T) {
 				req := orchestrator.ExecutionCreateRequest{
-					Price:        "10000atto",
 					TaskKey:      "task_complex_trigger",
 					ExecutorHash: runnerHash,
 					Inputs: &types.Struct{

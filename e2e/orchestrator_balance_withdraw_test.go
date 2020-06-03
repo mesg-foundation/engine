@@ -11,7 +11,6 @@ import (
 	"github.com/mesg-foundation/engine/process"
 	"github.com/mesg-foundation/engine/protobuf/types"
 	"github.com/mesg-foundation/engine/server/grpc/orchestrator"
-	"github.com/mesg-foundation/engine/x/ownership"
 	processmodule "github.com/mesg-foundation/engine/x/process"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc"
@@ -21,8 +20,8 @@ func testOrchestratorProcessBalanceWithdraw(runnerHash, instanceHash hash.Hash) 
 	return func(t *testing.T) {
 		var (
 			processHash hash.Hash
-			procAddress sdk.AccAddress
 			err         error
+			execPrice   sdk.Int
 		)
 
 		t.Run("create process", func(t *testing.T) {
@@ -60,16 +59,14 @@ func testOrchestratorProcessBalanceWithdraw(runnerHash, instanceHash hash.Hash) 
 			var proc *process.Process
 			require.NoError(t, lcd.Get("process/get/"+processHash.String(), &proc))
 			require.Equal(t, proc.Hash, processHash)
-			procAddress = proc.Address
 		})
-		t.Run("check coins on process", func(t *testing.T) {
-			var coins sdk.Coins
-			require.NoError(t, lcd.Get("bank/balances/"+procAddress.String(), &coins))
-			require.True(t, coins.IsEqual(processInitialBalance), coins)
+		t.Run("check balance of process owner", func(t *testing.T) {
+			var balance sdk.Int
+			require.NoError(t, lcd.Get("credit/get/"+cliAddress.String(), &balance))
+			require.True(t, balance.IsZero())
 		})
 		t.Run("trigger process", func(t *testing.T) {
 			req := orchestrator.ExecutionCreateRequest{
-				Price:        "10000atto",
 				TaskKey:      "task_trigger",
 				ExecutorHash: runnerHash,
 				Inputs: &types.Struct{
@@ -108,24 +105,14 @@ func testOrchestratorProcessBalanceWithdraw(runnerHash, instanceHash hash.Hash) 
 			require.Equal(t, "n1", exec.NodeKey)
 			require.Equal(t, "foo_1", exec.Outputs.Fields["msg"].GetStringValue())
 			require.NotEmpty(t, exec.Outputs.Fields["timestamp"].GetNumberValue())
+			var ok bool
+			execPrice, ok = sdk.NewIntFromString(exec.Price)
+			require.True(t, ok)
 		})
-		t.Run("check coins on process after 1 execution", func(t *testing.T) {
-			var coins sdk.Coins
-			require.NoError(t, lcd.Get("bank/balances/"+procAddress.String(), &coins))
-			require.True(t, coins.IsEqual(processInitialBalance.Sub(executionPrice)), coins)
-		})
-		t.Run("withdraw from process", func(t *testing.T) {
-			coins := executionPrice
-			msg := ownership.MsgWithdraw{
-				Owner:        cliAddress,
-				Amount:       coins.String(),
-				ResourceHash: processHash,
-			}
-			_, err := lcd.BroadcastMsg(msg)
-			require.NoError(t, err)
-
-			require.NoError(t, lcd.Get("bank/balances/"+procAddress.String(), &coins))
-			require.True(t, coins.IsEqual(processInitialBalance.Sub(executionPrice).Sub(executionPrice)), coins)
+		t.Run("check process owner balance after one execution", func(t *testing.T) {
+			var balance sdk.Int
+			require.NoError(t, lcd.Get("credit/get/"+cliAddress.String(), &balance))
+			require.True(t, balance.Equal(sdk.NewInt(0).Sub(execPrice)))
 		})
 		t.Run("delete process", func(t *testing.T) {
 			_, err := lcd.BroadcastMsg(processmodule.MsgDelete{
@@ -133,11 +120,6 @@ func testOrchestratorProcessBalanceWithdraw(runnerHash, instanceHash hash.Hash) 
 				Hash:  processHash,
 			})
 			require.NoError(t, err)
-		})
-		t.Run("check coins on process after deletion", func(t *testing.T) {
-			var coins sdk.Coins
-			require.NoError(t, lcd.Get("bank/balances/"+procAddress.String(), &coins))
-			require.True(t, coins.IsZero(), coins)
 		})
 	}
 }

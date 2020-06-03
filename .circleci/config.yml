@@ -46,7 +46,6 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker
-      - run: docker swarm init
       - <<: *restore_go_cache
       - <<: *restore_go_path
       - run: make test
@@ -67,7 +66,6 @@ jobs:
             sudo rm -rf /usr/local/go
             curl -sSL "https://dl.google.com/go/go1.13.10.linux-amd64.tar.gz" | sudo tar -xz -C /usr/local/
             echo "export PATH=$PATH:/usr/local/go/bin" >> $BASH_ENV
-      - run: docker swarm init
       - <<: *restore_go_cache
       - <<: *restore_go_path
       - run: make e2e
