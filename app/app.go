@@ -183,6 +183,7 @@ func NewInitApp(
 	app.subspaces[staking.ModuleName] = app.paramsKeeper.Subspace(staking.DefaultParamspace)
 	app.subspaces[distr.ModuleName] = app.paramsKeeper.Subspace(distr.DefaultParamspace)
 	app.subspaces[slashing.ModuleName] = app.paramsKeeper.Subspace(slashing.DefaultParamspace)
+	app.subspaces[credit.ModuleName] = app.paramsKeeper.Subspace(credit.DefaultParamspace)
 
 	// The AccountKeeper handles address -> account lookups
 	app.accountKeeper = auth.NewAccountKeeper(
@@ -242,7 +243,7 @@ func NewInitApp(
 	)
 
 	// Engine's module keepers
-	app.creditKeeper = credit.NewKeeper(app.cdc, keys[credit.StoreKey])
+	app.creditKeeper = credit.NewKeeper(app.cdc, app.accountKeeper, keys[credit.StoreKey], app.subspaces[credit.ModuleName])
 	app.ownershipKeeper = ownership.NewKeeper(app.cdc, keys[ownership.StoreKey], app.bankKeeper)
 	app.serviceKeeper = service.NewKeeper(app.cdc, keys[service.StoreKey], app.ownershipKeeper)
 	app.instanceKeeper = instance.NewKeeper(app.cdc, keys[instance.StoreKey], app.serviceKeeper)

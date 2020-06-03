@@ -7,10 +7,11 @@ import (
 
 // const aliases
 const (
-	ModuleName   = types.ModuleName
-	RouterKey    = types.RouterKey
-	StoreKey     = types.StoreKey
-	QuerierRoute = types.QuerierRoute
+	ModuleName        = types.ModuleName
+	RouterKey         = types.RouterKey
+	StoreKey          = types.StoreKey
+	DefaultParamspace = types.DefaultParamspace
+	QuerierRoute      = types.QuerierRoute
 )
 
 // functions and variable aliases
@@ -22,8 +23,9 @@ var (
 	DefaultGenesisState = types.DefaultGenesisState
 	ValidateGenesis     = types.ValidateGenesis
 
-	ModuleCdc = types.ModuleCdc
-	QueryGet  = types.QueryGet
+	ModuleCdc       = types.ModuleCdc
+	QueryGet        = types.QueryGet
+	QueryParameters = types.QueryParameters
 
 	EventType                 = types.EventType
 	AttributeActionAdded      = types.AttributeActionAdded
@@ -34,4 +36,7 @@ var (
 type (
 	Keeper       = keeper.Keeper
 	GenesisState = types.GenesisState
+	Params       = types.Params
+
+	MsgAdd = types.MsgAdd
 )

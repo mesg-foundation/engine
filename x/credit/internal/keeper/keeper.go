@@ -12,15 +12,19 @@ import (
 
 // Keeper of the credit store
 type Keeper struct {
-	storeKey sdk.StoreKey
-	cdc      *codec.Codec
+	storeKey   sdk.StoreKey
+	cdc        *codec.Codec
+	ak         types.AccountKeeper
+	paramstore types.ParamSubspace
 }
 
 // NewKeeper creates a credit keeper
-func NewKeeper(cdc *codec.Codec, key sdk.StoreKey) Keeper {
+func NewKeeper(cdc *codec.Codec, ak types.AccountKeeper, key sdk.StoreKey, paramstore types.ParamSubspace) Keeper {
 	keeper := Keeper{
-		storeKey: key,
-		cdc:      cdc,
+		storeKey:   key,
+		cdc:        cdc,
+		ak:         ak,
+		paramstore: paramstore.WithKeyTable(types.ParamKeyTable()),
 	}
 	return keeper
 }
@@ -70,6 +74,9 @@ func (k Keeper) Sub(ctx sdk.Context, address sdk.AccAddress, amount sdk.Int) (sd
 
 // Set a number of credit to a specific address
 func (k Keeper) set(ctx sdk.Context, address sdk.AccAddress, balance sdk.Int) (sdk.Int, error) {
+	if k.ak.GetAccount(ctx, address) == nil {
+		k.ak.SetAccount(ctx, k.ak.NewAccountWithAddress(ctx, address))
+	}
 	store := ctx.KVStore(k.storeKey)
 	encoded, err := k.cdc.MarshalBinaryLengthPrefixed(balance)
 	if err != nil {
