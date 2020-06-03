@@ -9,11 +9,27 @@ MINOR_VERSION := $(shell echo $(version) | cut -d . -f 1-2)
 build: dep
 	./scripts/build-cli.sh "$(version)"
 
-build-docker:
+build-docker-cache:
+	# building cache image
 	docker build \
 		--build-arg version=$(version) \
+		--target build \
+		-t mesg/engine:$(version)-build \
+		.
+
+build-docker-cache-if-needed:
+	if [ -z "$(shell docker images -q mesg/engine:$(version)-build)" ]; then \
+		make build-docker-cache ; \
+	fi
+
+build-docker: build-docker-cache-if-needed
+	# building image
+	docker build \
+		--build-arg version=$(version) \
+		--build-arg from=mesg/engine:$(version)-build \
 		-t mesg/engine:$(version) \
 		.
+	# building dev image
 	docker build \
 		-f ./Dockerfile.dev \
 		--build-arg from=mesg/engine:$(version) \
@@ -82,7 +98,7 @@ protobuf: build-tools
 changelog:
 	./scripts/changelog.sh $(milestone)
 
-clean: 
+clean:
 	- rm -rf bin
 	- docker volume rm engine
 	- docker image rm $(shell docker images -q mesg/engine)
