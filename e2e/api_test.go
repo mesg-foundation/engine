@@ -50,9 +50,6 @@ const (
 )
 
 var (
-	executionPrice        = sdk.NewCoins(sdk.NewInt64Coin("atto", 10000)) // /x/execution/internal/types/params.go#DefaultMinPrice
-	processInitialBalance = sdk.NewCoins(sdk.NewInt64Coin("atto", 10000000))
-
 	cdc           = app.MakeCodec()
 	client        *apiclient
 	kb            *cosmos.Keybase

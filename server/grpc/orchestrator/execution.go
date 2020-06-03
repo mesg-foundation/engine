@@ -46,7 +46,6 @@ func (s *executionServer) Create(ctx context.Context, req *ExecutionCreateReques
 		EventHash:    eventHash,
 		ExecutorHash: req.ExecutorHash,
 		Inputs:       req.Inputs,
-		Price:        req.Price,
 		Tags:         req.Tags,
 		TaskKey:      req.TaskKey,
 	}

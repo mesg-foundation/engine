@@ -255,4 +255,10 @@ message Process {
     (gogoproto.moretags) = 'hash:"-" validate:"required,accaddress"',
     (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"
   ];
+
+  // The address of the account that pays for the process
+  bytes paymentAddress = 7 [
+    (gogoproto.moretags) = 'hash:"-" validate:"required,accaddress"',
+    (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"
+  ];
 }

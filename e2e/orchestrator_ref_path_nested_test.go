@@ -201,7 +201,6 @@ func testOrchestratorRefPathNested(runnerHash, instanceHash hash.Hash) func(t *t
 		})
 		t.Run("trigger process", func(t *testing.T) {
 			req := orchestrator.ExecutionCreateRequest{
-				Price:        "10000atto",
 				TaskKey:      "task_complex_trigger",
 				ExecutorHash: runnerHash,
 				Inputs: &types.Struct{

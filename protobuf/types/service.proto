@@ -36,6 +36,20 @@ message Service {
 
   // Task is a function that requires inputs and returns output.
   message Task {
+    message Price {
+      string perCall = 1 [
+        (gogoproto.moretags) = 'hash:"name:1" validate:"required,bigint"',
+        (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.Int"
+      ];
+      string perSec = 2 [
+        (gogoproto.moretags) = 'hash:"name:2" validate:"required,bigint"',
+        (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.Int"
+      ];
+      string perKB = 3 [
+        (gogoproto.moretags) = 'hash:"name:3" validate:"required,bigint"',
+        (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.Int"
+      ];
+    }
     // Task's key.
     string key = 8 [
       (gogoproto.moretags) = 'hash:"name:8" validate:"required,printascii"'
@@ -59,6 +73,11 @@ message Service {
     // List of tasks outputs.
     repeated Parameter outputs = 7 [
       (gogoproto.moretags) = 'hash:"name:7" validate:"dive,required"'
+    ];
+
+    // price for the task.
+    Price price = 9 [
+      (gogoproto.moretags) = 'hash:"name:9" validate:"dive,required"'
     ];
   }
 
