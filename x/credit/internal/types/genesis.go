@@ -9,12 +9,14 @@ import (
 
 // GenesisState - all instance state that must be provided at genesis
 type GenesisState struct {
-	Credits map[string]sdk.Int `json:"credits" yaml:"credits" validate:"dive"`
+	Params  Params             `json:"params" yaml:"params" validate:"dive"`
+	Credits map[string]sdk.Int `json:"credits" yaml:"credits" validate:"dive,required,bigint"`
 }
 
 // NewGenesisState creates a new GenesisState object
-func NewGenesisState(credits map[string]sdk.Int) GenesisState {
+func NewGenesisState(params Params, credits map[string]sdk.Int) GenesisState {
 	return GenesisState{
+		Params:  params,
 		Credits: credits,
 	}
 }
@@ -22,6 +24,7 @@ func NewGenesisState(credits map[string]sdk.Int) GenesisState {
 // DefaultGenesisState is the default GenesisState
 func DefaultGenesisState() GenesisState {
 	return GenesisState{
+		Params:  DefaultParams(),
 		Credits: map[string]sdk.Int{},
 	}
 }

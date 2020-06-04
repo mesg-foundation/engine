@@ -13,6 +13,8 @@ func NewQuerier(k Keeper) sdk.Querier {
 		switch path[0] {
 		case types.QueryGet:
 			return get(ctx, k, path[1])
+		case types.QueryParameters:
+			return queryParameters(ctx, k)
 		default:
 			return nil, sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, "unknown credit query endpoint")
 		}
@@ -29,6 +31,14 @@ func get(ctx sdk.Context, k Keeper, address string) ([]byte, error) {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, err.Error())
 	}
 	res, err := types.ModuleCdc.MarshalJSON(value)
+	if err != nil {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONMarshal, err.Error())
+	}
+	return res, nil
+}
+
+func queryParameters(ctx sdk.Context, k Keeper) ([]byte, error) {
+	res, err := types.ModuleCdc.MarshalJSON(k.GetParams(ctx))
 	if err != nil {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONMarshal, err.Error())
 	}

@@ -191,6 +191,14 @@
       "params": {
         "minPrice": "10000atto"
       }
+    },
+    "credit": {
+      "credits": {},
+      "params": {
+        "minters": [
+          "mesg1s6mqusxaq93d70jeekqehg7aepwt7zs306ctq7"
+        ]
+      }
     }
   }
 }

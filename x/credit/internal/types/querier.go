@@ -2,5 +2,6 @@ package types
 
 // Query endpoints supported by the ownership querier
 const (
-	QueryGet = "get"
+	QueryGet        = "get"
+	QueryParameters = "parameters"
 )
