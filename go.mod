@@ -24,7 +24,7 @@ require (
 	github.com/go-playground/validator/v10 v10.2.0
 	github.com/gogo/protobuf v1.3.1
 	github.com/golang/mock v1.3.1 // indirect
-	github.com/golang/protobuf v1.3.5
+	github.com/golang/protobuf v1.4.0
 	github.com/google/uuid v1.1.1 // indirect
 	github.com/gorilla/mux v1.7.3
 	github.com/grpc-ecosystem/go-grpc-middleware v1.2.0
@@ -39,8 +39,7 @@ require (
 	github.com/opencontainers/go-digest v1.0.0-rc1 // indirect
 	github.com/opencontainers/image-spec v1.0.1 // indirect
 	github.com/opencontainers/runc v0.1.1 // indirect
-	github.com/prometheus/client_golang v1.5.1
-	github.com/prometheus/procfs v0.0.11 // indirect
+	github.com/prometheus/client_golang v1.6.0
 	github.com/pseudomuto/protoc-gen-doc v1.3.1
 	github.com/rcrowley/go-metrics v0.0.0-20190706150252-9beb055b7962 // indirect
 	github.com/sirupsen/logrus v1.5.0 // indirect
@@ -54,7 +53,6 @@ require (
 	github.com/tendermint/tm-db v0.5.0
 	golang.org/x/crypto v0.0.0-20191206172530-e9b2fee46413
 	golang.org/x/net v0.0.0-20200301022130-244492dfa37a // indirect
-	golang.org/x/sys v0.0.0-20200420163511-1957bb5e6d1f // indirect
 	google.golang.org/grpc v1.29.1
 	gotest.tools v2.2.0+incompatible // indirect
 )
