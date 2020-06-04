@@ -59,6 +59,10 @@ func GetCmdCreate(cdc *codec.Codec) *cobra.Command {
 				}
 			}
 
+			if cliCtx.FromAddress.Empty() {
+				return fmt.Errorf("flag --from is required")
+			}
+
 			msg := types.MsgCreate{
 				ServiceHash: serviceHash,
 				EnvHash:     envHash,
