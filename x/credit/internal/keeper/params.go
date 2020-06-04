@@ -21,7 +21,6 @@ func (k Keeper) Minters(ctx sdk.Context) []sdk.AccAddress {
 
 // SetParams will populate all the params
 func (k Keeper) SetParams(ctx sdk.Context, params types.Params) {
-	fmt.Println("SetParams", params)
 	k.paramstore.SetParamSet(ctx, &params)
 }
 
