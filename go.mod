@@ -23,7 +23,6 @@ require (
 	github.com/go-playground/universal-translator v0.17.0
 	github.com/go-playground/validator/v10 v10.2.0
 	github.com/gogo/protobuf v1.3.1
-	github.com/golang/mock v1.3.1 // indirect
 	github.com/golang/protobuf v1.3.5
 	github.com/google/uuid v1.1.1 // indirect
 	github.com/gorilla/mux v1.7.3
@@ -46,7 +45,7 @@ require (
 	github.com/sirupsen/logrus v1.5.0 // indirect
 	github.com/spf13/afero v1.2.2 // indirect
 	github.com/spf13/cobra v0.0.6
-	github.com/spf13/viper v1.6.3
+	github.com/spf13/viper v1.7.0
 	github.com/stretchr/testify v1.5.1
 	github.com/tcnksm/ghr v0.13.0
 	github.com/tendermint/go-amino v0.15.1
