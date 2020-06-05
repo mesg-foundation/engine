@@ -105,7 +105,7 @@ message Execution {
     (gogoproto.casttype) = "github.com/mesg-foundation/engine/hash.Hash"
   ];
 
-  // price of running the exeuction.
+  // price of running the execution.
   string price = 14 [
     (gogoproto.moretags) = 'hash:"-" validate:"omitempty,bigint"'
   ];
@@ -140,12 +140,12 @@ message Execution {
     (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"
   ];
 
-  // Start time
+  // Start time in nanoseconds.
   int64 start = 18 [
     (gogoproto.moretags) = 'hash:"-" validate:""'
   ];
   
-  // Stop time
+  // Stop time in nanoseconds.
   int64 stop = 19 [
     (gogoproto.moretags) = 'hash:"-" validate:""'
   ];
