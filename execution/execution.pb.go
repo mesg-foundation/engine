@@ -98,7 +98,7 @@ type Execution struct {
 	NodeKey string `protobuf:"bytes,12,opt,name=nodeKey,proto3" json:"nodeKey,omitempty" hash:"name:12"`
 	// runner that should execute this execution.
 	ExecutorHash github_com_mesg_foundation_engine_hash.Hash `protobuf:"bytes,13,opt,name=executorHash,proto3,casttype=github.com/mesg-foundation/engine/hash.Hash" json:"executorHash,omitempty" hash:"name:13" validate:"required,hash"`
-	// price of running the exeuction.
+	// price of running the execution.
 	Price string `protobuf:"bytes,14,opt,name=price,proto3" json:"price,omitempty" hash:"-" validate:"omitempty,bigint"`
 	// blockHeight where the execution was included into blockchain.
 	BlockHeight int64 `protobuf:"varint,15,opt,name=blockHeight,proto3" json:"blockHeight,omitempty" hash:"-"`
@@ -106,9 +106,9 @@ type Execution struct {
 	Emitters []*Execution_Emitter `protobuf:"bytes,16,rep,name=emitters,proto3" json:"emitters,omitempty" hash:"-" validate:"dive"`
 	// The address of the execution.
 	Address github_com_cosmos_cosmos_sdk_types.AccAddress `protobuf:"bytes,17,opt,name=address,proto3,casttype=github.com/cosmos/cosmos-sdk/types.AccAddress" json:"address,omitempty" hash:"-" validate:"required,accaddress"`
-	// Start time
+	// Start time in nanoseconds.
 	Start int64 `protobuf:"varint,18,opt,name=start,proto3" json:"start,omitempty" hash:"-" validate:""`
-	// Stop time
+	// Stop time in nanoseconds.
 	Stop                 int64    `protobuf:"varint,19,opt,name=stop,proto3" json:"stop,omitempty" hash:"-" validate:""`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`

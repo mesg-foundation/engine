@@ -142,9 +142,9 @@ type MsgUpdate struct {
 	//	*MsgUpdate_Outputs
 	//	*MsgUpdate_Error
 	Result isMsgUpdate_Result `protobuf_oneof:"result"`
-	// Start time
+	// Start time in nanoseconds.
 	Start int64 `protobuf:"varint,5,opt,name=start,proto3" json:"start,omitempty" validate:"required"`
-	// Stop time
+	// Stop time in nanoseconds.
 	Stop                 int64    `protobuf:"varint,6,opt,name=stop,proto3" json:"stop,omitempty" validate:"required,gtfield=Start"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
