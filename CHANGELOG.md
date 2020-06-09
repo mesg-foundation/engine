@@ -1,5 +1,31 @@
 # Changelog
 
+## [v0.26.0](https://github.com/mesg-foundation/engine/releases/tag/v0.26.0)
+
+#### Breaking Changes
+
+- ([#1842](https://github.com/mesg-foundation/engine/pull/1842)) Execution price based on service task price and new credit module.
+- ([#1853](https://github.com/mesg-foundation/engine/pull/1853)) Fix 3 issues with instance.
+- ([#1855](https://github.com/mesg-foundation/engine/pull/1855)) Add modules gov, upgrade, evidence and crisis.
+
+#### Added
+
+- ([#1860](https://github.com/mesg-foundation/engine/pull/1860)) Add export and import genesis functions to module credit .
+- ([#1861](https://github.com/mesg-foundation/engine/pull/1861)) Add msg to mint credits module credit.
+
+#### Changed
+
+- ([#1849](https://github.com/mesg-foundation/engine/pull/1849)) Add a mechanism to reuse previous build image to speed up build time.
+- ([#1850](https://github.com/mesg-foundation/engine/pull/1850)) Move CLI build and publish script to makefile to avoid duplication of code.
+
+#### Fixed
+
+- ([#1862](https://github.com/mesg-foundation/engine/pull/1862)) Improve checks of commands' parameters.
+
+#### Removed
+
+- ([#1863](https://github.com/mesg-foundation/engine/pull/1863)) Remove not used expected keeper.
+
 ## [v0.25.1](https://github.com/mesg-foundation/engine/releases/tag/v0.25.1)
 
 #### Changed
