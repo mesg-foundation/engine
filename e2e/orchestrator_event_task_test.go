@@ -55,7 +55,6 @@ func testOrchestratorEventTask(runnerHash hash.Hash, instanceHash hash.Hash) fun
 		})
 		t.Run("trigger process", func(t *testing.T) {
 			req := orchestrator.ExecutionCreateRequest{
-				Price:        "10000atto",
 				TaskKey:      "task_trigger",
 				ExecutorHash: runnerHash,
 				Inputs: &types.Struct{

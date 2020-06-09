@@ -19,7 +19,7 @@ func NewGenesisState(instances []*instance.Instance) GenesisState {
 	}
 }
 
-// DefaultGenesisState - default GenesisState used by Cosmos Hub
+// DefaultGenesisState is the default GenesisState
 func DefaultGenesisState() GenesisState {
 	return GenesisState{
 		Instances: []*instance.Instance{},

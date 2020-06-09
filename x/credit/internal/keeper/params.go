@@ -2,7 +2,7 @@ package keeper
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/mesg-foundation/engine/x/execution/internal/types"
+	"github.com/mesg-foundation/engine/x/credit/internal/types"
 )
 
 // Default parameter namespace
@@ -10,11 +10,11 @@ const (
 	DefaultParamspace = types.ModuleName
 )
 
-// MinPrice - Minimum price of an execution
-func (k Keeper) MinPrice(ctx sdk.Context) string {
-	var coins string
-	k.paramstore.Get(ctx, types.KeyMinPrice, &coins)
-	return coins
+// Minters are authorized account that can add credits to any address.
+func (k Keeper) Minters(ctx sdk.Context) []sdk.AccAddress {
+	var minters []sdk.AccAddress
+	k.paramstore.Get(ctx, types.KeyMinters, &minters)
+	return minters
 }
 
 // SetParams will populate all the params

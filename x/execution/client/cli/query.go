@@ -27,7 +27,6 @@ func GetQueryCmd(queryRoute string, cdc *codec.Codec) *cobra.Command {
 		flags.GetCommands(
 			GetCmdGet(queryRoute, cdc),
 			GetCmdList(queryRoute, cdc),
-			GetCmdQueryParams(queryRoute, cdc),
 		)...,
 	)
 
@@ -76,28 +75,6 @@ func GetCmdList(queryRoute string, cdc *codec.Codec) *cobra.Command {
 			var out []*execution.Execution
 			cdc.MustUnmarshalJSON(res, &out)
 			return cliCtx.PrintOutput(out)
-		},
-	}
-}
-
-// GetCmdQueryParams implements the params query command.
-func GetCmdQueryParams(queryRoute string, cdc *codec.Codec) *cobra.Command {
-	return &cobra.Command{
-		Use:   "params",
-		Short: "Query the parameters",
-		Args:  cobra.NoArgs,
-		RunE: func(cmd *cobra.Command, args []string) error {
-			cliCtx := context.NewCLIContext().WithCodec(cdc)
-
-			route := fmt.Sprintf("custom/%s/%s", queryRoute, types.QueryParameters)
-			bz, _, err := cliCtx.QueryWithData(route, nil)
-			if err != nil {
-				return err
-			}
-
-			var params types.Params
-			cdc.MustUnmarshalJSON(bz, &params)
-			return cliCtx.PrintOutput(params)
 		},
 	}
 }

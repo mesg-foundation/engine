@@ -2,28 +2,12 @@ package types
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/x/bank"
-	"github.com/cosmos/cosmos-sdk/x/params"
 	"github.com/mesg-foundation/engine/hash"
 	instancepb "github.com/mesg-foundation/engine/instance"
 	processpb "github.com/mesg-foundation/engine/process"
 	runnerpb "github.com/mesg-foundation/engine/runner"
 	servicepb "github.com/mesg-foundation/engine/service"
 )
-
-// ParamSubspace defines the expected Subspace interfacace
-type ParamSubspace interface {
-	WithKeyTable(table params.KeyTable) params.Subspace
-	Get(ctx sdk.Context, key []byte, ptr interface{})
-	GetParamSet(ctx sdk.Context, ps params.ParamSet)
-	SetParamSet(ctx sdk.Context, ps params.ParamSet)
-}
-
-// BankKeeper module interface.
-type BankKeeper interface {
-	SendCoins(ctx sdk.Context, fromAddr sdk.AccAddress, toAddr sdk.AccAddress, amt sdk.Coins) error
-	InputOutputCoins(ctx sdk.Context, inputs []bank.Input, outputs []bank.Output) error
-}
 
 // ServiceKeeper module interface.
 type ServiceKeeper interface {
@@ -44,4 +28,9 @@ type RunnerKeeper interface {
 // ProcessKeeper module interface.
 type ProcessKeeper interface {
 	Get(ctx sdk.Context, hash hash.Hash) (*processpb.Process, error)
+}
+
+// CreditKeeper module interface.
+type CreditKeeper interface {
+	Sub(ctx sdk.Context, address sdk.AccAddress, amount sdk.Int) (sdk.Int, error)
 }

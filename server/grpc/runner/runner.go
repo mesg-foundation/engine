@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"sync"
+	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/mesg-foundation/engine/cosmos"
@@ -15,6 +16,7 @@ import (
 	"github.com/mesg-foundation/engine/runner"
 	executionmodule "github.com/mesg-foundation/engine/x/execution"
 	runnermodule "github.com/mesg-foundation/engine/x/runner"
+	tmlog "github.com/tendermint/tendermint/libs/log"
 	"google.golang.org/grpc/metadata"
 )
 
@@ -26,14 +28,18 @@ type Server struct {
 	rpc               *cosmos.RPC
 	eventPublisher    *publisher.EventPublisher
 	tokenToRunnerHash *sync.Map
+	execInProgress    *sync.Map
+	logger            tmlog.Logger
 }
 
 // NewServer creates a new Server.
-func NewServer(rpc *cosmos.RPC, eventPublisher *publisher.EventPublisher, tokenToRunnerHash *sync.Map) *Server {
+func NewServer(rpc *cosmos.RPC, eventPublisher *publisher.EventPublisher, tokenToRunnerHash *sync.Map, logger tmlog.Logger) *Server {
 	return &Server{
 		rpc:               rpc,
 		eventPublisher:    eventPublisher,
 		tokenToRunnerHash: tokenToRunnerHash,
+		execInProgress:    &sync.Map{},
+		logger:            logger,
 	}
 }
 
@@ -104,6 +110,7 @@ func (s *Server) Execution(req *ExecutionRequest, stream Runner_ExecutionServer)
 				if err := s.rpc.QueryJSON(route, nil, &exec); err != nil {
 					return err
 				}
+				s.execInProgress.Store(hash.String(), time.Now().UnixNano())
 				if err := stream.Send(exec); err != nil {
 					return err
 				}
@@ -139,9 +146,16 @@ func (s *Server) Result(ctx context.Context, req *ResultRequest) (*ResultRespons
 	if err != nil {
 		return nil, err
 	}
+	start, ok := s.execInProgress.Load(req.ExecutionHash.String())
+	if !ok {
+		s.logger.Error(fmt.Sprintf("execution %q should be in memory", req.ExecutionHash.String()))
+		start = time.Now().UnixNano()
+	}
 	msg := executionmodule.MsgUpdate{
 		Executor: acc.GetAddress(),
 		Hash:     req.ExecutionHash,
+		Start:    start.(int64),
+		Stop:     time.Now().UnixNano(),
 	}
 	switch result := req.Result.(type) {
 	case *ResultRequest_Outputs:
@@ -156,6 +170,7 @@ func (s *Server) Result(ctx context.Context, req *ResultRequest) (*ResultRespons
 	if _, err := s.rpc.BuildAndBroadcastMsg(msg); err != nil {
 		return nil, err
 	}
+	s.execInProgress.Delete(req.ExecutionHash.String())
 	return &ResultResponse{}, nil
 }
 

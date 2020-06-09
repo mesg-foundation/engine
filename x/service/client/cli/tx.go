@@ -45,6 +45,10 @@ func GetCmdCreate(cdc *codec.Codec) *cobra.Command {
 
 			txBldr := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
 
+			if cliCtx.FromAddress.Empty() {
+				return fmt.Errorf("flag --from is required")
+			}
+
 			rawMsg := fmt.Sprintf(`{"type":"service/create","value":%s}`, args[0])
 			var msg types.MsgCreate
 			if err := cdc.UnmarshalJSON([]byte(rawMsg), &msg); err != nil {

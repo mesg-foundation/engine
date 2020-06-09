@@ -18,13 +18,20 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	"github.com/cosmos/cosmos-sdk/x/auth/vesting"
 	"github.com/cosmos/cosmos-sdk/x/bank"
+	"github.com/cosmos/cosmos-sdk/x/crisis"
 	distr "github.com/cosmos/cosmos-sdk/x/distribution"
+	"github.com/cosmos/cosmos-sdk/x/evidence"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
+	"github.com/cosmos/cosmos-sdk/x/gov"
 	"github.com/cosmos/cosmos-sdk/x/params"
+	paramsclient "github.com/cosmos/cosmos-sdk/x/params/client"
 	"github.com/cosmos/cosmos-sdk/x/slashing"
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	"github.com/cosmos/cosmos-sdk/x/supply"
+	"github.com/cosmos/cosmos-sdk/x/upgrade"
+	upgradeclient "github.com/cosmos/cosmos-sdk/x/upgrade/client"
 	"github.com/mesg-foundation/engine/protobuf/types"
+	"github.com/mesg-foundation/engine/x/credit"
 	"github.com/mesg-foundation/engine/x/execution"
 	"github.com/mesg-foundation/engine/x/instance"
 	"github.com/mesg-foundation/engine/x/ownership"
@@ -54,8 +61,13 @@ var (
 		params.AppModuleBasic{},
 		slashing.AppModuleBasic{},
 		supply.AppModuleBasic{},
+		gov.NewAppModuleBasic(paramsclient.ProposalHandler, distr.ProposalHandler, upgradeclient.ProposalHandler),
+		upgrade.AppModuleBasic{},
+		evidence.AppModuleBasic{},
+		crisis.AppModuleBasic{},
 
 		// Engine's AppModuleBasic
+		credit.AppModuleBasic{},
 		ownership.AppModuleBasic{},
 		instance.AppModuleBasic{},
 		process.AppModuleBasic{},
@@ -70,6 +82,7 @@ var (
 		distr.ModuleName:          nil,
 		staking.BondedPoolName:    {supply.Burner, supply.Staking},
 		staking.NotBondedPoolName: {supply.Burner, supply.Staking},
+		gov.ModuleName:            {supply.Burner},
 	}
 )
 
@@ -109,8 +122,13 @@ type NewApp struct {
 	distrKeeper    distr.Keeper
 	supplyKeeper   supply.Keeper
 	paramsKeeper   params.Keeper
+	govKeeper      gov.Keeper
+	upgradeKeeper  upgrade.Keeper
+	evidenceKeeper evidence.Keeper
+	crisisKeeper   crisis.Keeper
 
 	// Engine's keepers
+	creditKeeper    credit.Keeper
 	ownershipKeeper ownership.Keeper
 	instanceKeeper  instance.Keeper
 	processKeeper   process.Keeper
@@ -131,7 +149,7 @@ var _ simapp.App = (*NewApp)(nil)
 // NewInitApp is a constructor function for engineApp
 func NewInitApp(
 	logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest bool,
-	invCheckPeriod uint, baseAppOptions ...func(*bam.BaseApp),
+	invCheckPeriod uint, skipUpgradeHeights map[int64]bool, baseAppOptions ...func(*bam.BaseApp),
 ) (*NewApp, error) {
 	// First define the top level codec that will be shared by the different modules
 	cdc := MakeCodec()
@@ -149,8 +167,12 @@ func NewInitApp(
 		distr.StoreKey,
 		slashing.StoreKey,
 		params.StoreKey,
+		gov.StoreKey,
+		upgrade.StoreKey,
+		evidence.StoreKey,
 
 		// Engine's module keys
+		credit.ModuleName,
 		ownership.ModuleName,
 		instance.ModuleName,
 		process.ModuleName,
@@ -179,7 +201,10 @@ func NewInitApp(
 	app.subspaces[staking.ModuleName] = app.paramsKeeper.Subspace(staking.DefaultParamspace)
 	app.subspaces[distr.ModuleName] = app.paramsKeeper.Subspace(distr.DefaultParamspace)
 	app.subspaces[slashing.ModuleName] = app.paramsKeeper.Subspace(slashing.DefaultParamspace)
-	app.subspaces[execution.ModuleName] = app.paramsKeeper.Subspace(execution.DefaultParamspace)
+	app.subspaces[gov.ModuleName] = app.paramsKeeper.Subspace(gov.DefaultParamspace)
+	app.subspaces[evidence.ModuleName] = app.paramsKeeper.Subspace(evidence.DefaultParamspace)
+	app.subspaces[crisis.ModuleName] = app.paramsKeeper.Subspace(crisis.DefaultParamspace)
+	app.subspaces[credit.ModuleName] = app.paramsKeeper.Subspace(credit.DefaultParamspace)
 
 	// The AccountKeeper handles address -> account lookups
 	app.accountKeeper = auth.NewAccountKeeper(
@@ -230,6 +255,48 @@ func NewInitApp(
 		app.subspaces[slashing.ModuleName],
 	)
 
+	app.crisisKeeper = crisis.NewKeeper(
+		app.subspaces[crisis.ModuleName],
+		invCheckPeriod,
+		app.supplyKeeper,
+		auth.FeeCollectorName,
+	)
+
+	app.upgradeKeeper = upgrade.NewKeeper(
+		skipUpgradeHeights,
+		keys[upgrade.StoreKey],
+		app.cdc,
+	)
+
+	// create evidence keeper with evidence router
+	evidenceKeeper := evidence.NewKeeper(
+		app.cdc,
+		keys[evidence.StoreKey],
+		app.subspaces[evidence.ModuleName],
+		&stakingKeeper,
+		app.slashingKeeper,
+	)
+	evidenceRouter := evidence.NewRouter()
+	// register evidence routes
+	evidenceKeeper.SetRouter(evidenceRouter)
+	app.evidenceKeeper = *evidenceKeeper
+
+	// register the proposal types
+	govRouter := gov.NewRouter()
+	govRouter.
+		AddRoute(gov.RouterKey, gov.ProposalHandler).
+		AddRoute(params.RouterKey, params.NewParamChangeProposalHandler(app.paramsKeeper)).
+		AddRoute(distr.RouterKey, distr.NewCommunityPoolSpendProposalHandler(app.distrKeeper)).
+		AddRoute(upgrade.RouterKey, upgrade.NewSoftwareUpgradeProposalHandler(app.upgradeKeeper))
+	app.govKeeper = gov.NewKeeper(
+		app.cdc,
+		keys[gov.StoreKey],
+		app.subspaces[gov.ModuleName].WithKeyTable(gov.ParamKeyTable()),
+		app.supplyKeeper,
+		&stakingKeeper,
+		govRouter,
+	)
+
 	// register the staking hooks
 	// NOTE: stakingKeeper above is passed by reference, so that it will contain these hooks
 	app.stakingKeeper = *stakingKeeper.SetHooks(
@@ -239,20 +306,20 @@ func NewInitApp(
 	)
 
 	// Engine's module keepers
+	app.creditKeeper = credit.NewKeeper(app.cdc, app.accountKeeper, keys[credit.StoreKey], app.subspaces[credit.ModuleName])
 	app.ownershipKeeper = ownership.NewKeeper(app.cdc, keys[ownership.StoreKey], app.bankKeeper)
-	app.instanceKeeper = instance.NewKeeper(app.cdc, keys[instance.StoreKey])
-	app.processKeeper = process.NewKeeper(app.cdc, keys[process.StoreKey], app.instanceKeeper, app.ownershipKeeper, app.bankKeeper)
 	app.serviceKeeper = service.NewKeeper(app.cdc, keys[service.StoreKey], app.ownershipKeeper)
+	app.instanceKeeper = instance.NewKeeper(app.cdc, keys[instance.StoreKey], app.serviceKeeper)
+	app.processKeeper = process.NewKeeper(app.cdc, keys[process.StoreKey], app.instanceKeeper, app.ownershipKeeper)
 	app.runnerKeeper = runner.NewKeeper(app.cdc, keys[runner.StoreKey], app.instanceKeeper, app.ownershipKeeper)
 	app.executionKeeper = execution.NewKeeper(
 		app.cdc,
 		keys[execution.StoreKey],
-		app.bankKeeper,
 		app.serviceKeeper,
 		app.instanceKeeper,
 		app.runnerKeeper,
 		app.processKeeper,
-		app.subspaces[execution.ModuleName],
+		app.creditKeeper,
 	)
 
 	// NOTE: Any module instantiated in the module manager that is later modified
@@ -261,11 +328,14 @@ func NewInitApp(
 		genutil.NewAppModule(app.accountKeeper, app.stakingKeeper, app.BaseApp.DeliverTx),
 		auth.NewAppModule(app.accountKeeper),
 		bank.NewAppModule(app.bankKeeper, app.accountKeeper),
+		crisis.NewAppModule(&app.crisisKeeper),
 		supply.NewAppModule(app.supplyKeeper, app.accountKeeper),
+		gov.NewAppModule(app.govKeeper, app.accountKeeper, app.supplyKeeper),
 		distr.NewAppModule(app.distrKeeper, app.accountKeeper, app.supplyKeeper, app.stakingKeeper),
 		slashing.NewAppModule(app.slashingKeeper, app.accountKeeper, app.stakingKeeper),
 
 		// Engine's modules
+		credit.NewAppModule(app.creditKeeper),
 		ownership.NewAppModule(app.ownershipKeeper),
 		instance.NewAppModule(app.instanceKeeper),
 		process.NewAppModule(app.processKeeper),
@@ -274,13 +344,15 @@ func NewInitApp(
 		execution.NewAppModule(app.executionKeeper),
 
 		staking.NewAppModule(app.stakingKeeper, app.accountKeeper, app.supplyKeeper),
+		upgrade.NewAppModule(app.upgradeKeeper),
+		evidence.NewAppModule(app.evidenceKeeper),
 	)
 	// During begin block slashing happens after distr.BeginBlocker so that
 	// there is nothing left over in the validator fee pool, so as to keep the
 	// CanWithdrawInvariant invariant.
 
-	app.mm.SetOrderBeginBlockers(distr.ModuleName, slashing.ModuleName)
-	app.mm.SetOrderEndBlockers(staking.ModuleName)
+	app.mm.SetOrderBeginBlockers(upgrade.ModuleName, distr.ModuleName, slashing.ModuleName)
+	app.mm.SetOrderEndBlockers(crisis.ModuleName, gov.ModuleName, staking.ModuleName)
 
 	// Sets the order of Genesis - Order matters, genutil is to always come last
 	// NOTE: The genutils module must occur after staking so that pools are
@@ -291,8 +363,10 @@ func NewInitApp(
 		auth.ModuleName,
 		bank.ModuleName,
 		slashing.ModuleName,
+		gov.ModuleName,
 
 		// Engine's modules
+		credit.ModuleName,
 		ownership.ModuleName,
 		instance.ModuleName,
 		process.ModuleName,
@@ -301,7 +375,9 @@ func NewInitApp(
 		execution.ModuleName,
 
 		supply.ModuleName,
+		crisis.ModuleName,
 		genutil.ModuleName,
+		evidence.ModuleName,
 	)
 
 	// register all module routes and module queriers

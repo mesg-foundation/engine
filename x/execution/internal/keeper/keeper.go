@@ -4,13 +4,10 @@ import (
 	"errors"
 	"fmt"
 	"math"
-	"math/big"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/cosmos/cosmos-sdk/x/bank"
-	"github.com/cosmos/cosmos-sdk/x/params"
 	executionpb "github.com/mesg-foundation/engine/execution"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/process"
@@ -20,37 +17,36 @@ import (
 	"github.com/tendermint/tendermint/libs/log"
 )
 
-// price share for the execution runner
-// TODO: this should be a param
-var (
-	runnerShare  = sdk.NewDecWithPrec(8, 1)
-	serviceShare = sdk.NewDecWithPrec(1, 1)
-)
-
 // Keeper of the execution store
 type Keeper struct {
 	storeKey sdk.StoreKey
 	cdc      *codec.Codec
 
-	bankKeeper     types.BankKeeper
 	serviceKeeper  types.ServiceKeeper
 	instanceKeeper types.InstanceKeeper
 	runnerKeeper   types.RunnerKeeper
 	processKeeper  types.ProcessKeeper
-	paramstore     params.Subspace
+	creditKeeper   types.CreditKeeper
 }
 
 // NewKeeper creates a execution keeper
-func NewKeeper(cdc *codec.Codec, key sdk.StoreKey, bankKeeper types.BankKeeper, serviceKeeper types.ServiceKeeper, instanceKeeper types.InstanceKeeper, runnerKeeper types.RunnerKeeper, processKeeper types.ProcessKeeper, paramstore params.Subspace) Keeper {
+func NewKeeper(
+	cdc *codec.Codec,
+	key sdk.StoreKey,
+	serviceKeeper types.ServiceKeeper,
+	instanceKeeper types.InstanceKeeper,
+	runnerKeeper types.RunnerKeeper,
+	processKeeper types.ProcessKeeper,
+	creditKeeper types.CreditKeeper,
+) Keeper {
 	return Keeper{
 		storeKey:       key,
 		cdc:            cdc,
-		bankKeeper:     bankKeeper,
 		serviceKeeper:  serviceKeeper,
 		instanceKeeper: instanceKeeper,
 		runnerKeeper:   runnerKeeper,
 		processKeeper:  processKeeper,
-		paramstore:     paramstore.WithKeyTable(types.ParamKeyTable()),
+		creditKeeper:   creditKeeper,
 	}
 }
 
@@ -64,20 +60,6 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 // TODO: we should split the message and keeper function of execution create from user and for process.
 //nolint:gocyclo
 func (k *Keeper) Create(ctx sdk.Context, msg types.MsgCreate) (*executionpb.Execution, error) {
-	// TODO: all the following verification should be moved to a runner.Validate function
-	price, err := sdk.ParseCoins(msg.Price)
-	if err != nil {
-		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidCoins, err.Error())
-	}
-
-	minPriceCoin, err := sdk.ParseCoins(k.MinPrice(ctx))
-	if err != nil {
-		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidCoins, err.Error())
-	}
-	if !price.IsAllGTE(minPriceCoin) {
-		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidCoins, "execution price too low. Min value: %q", minPriceCoin.String())
-	}
-
 	run, err := k.runnerKeeper.Get(ctx, msg.ExecutorHash)
 	if err != nil {
 		return nil, err
@@ -112,7 +94,6 @@ func (k *Keeper) Create(ctx sdk.Context, msg types.MsgCreate) (*executionpb.Exec
 		msg.EventHash,
 		msg.NodeKey,
 		msg.TaskKey,
-		msg.Price,
 		msg.Inputs,
 		msg.Tags,
 		msg.ExecutorHash,
@@ -231,15 +212,6 @@ func (k *Keeper) Create(ctx sdk.Context, msg types.MsgCreate) (*executionpb.Exec
 		if !ctx.IsCheckTx() {
 			M.InProgress.Add(1)
 		}
-
-		// transfer the coin either from the process or from the signer
-		from := msg.Signer
-		if proc != nil {
-			from = proc.Address
-		}
-		if err := k.bankKeeper.SendCoins(ctx, from, exec.Address, price); err != nil {
-			return nil, err
-		}
 	}
 
 	// save the exec
@@ -291,6 +263,14 @@ func (k *Keeper) Update(ctx sdk.Context, msg types.MsgUpdate) (*executionpb.Exec
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "no execution result supplied")
 	}
 
+	exec.Start = msg.Start
+	exec.Stop = msg.Stop
+	price, err := k.calculatePrice(ctx, exec)
+	if err != nil {
+		return nil, err
+	}
+	exec.Price = price.String()
+
 	value, err := k.cdc.MarshalBinaryLengthPrefixed(exec)
 	if err != nil {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrJSONMarshal, err.Error())
@@ -300,16 +280,15 @@ func (k *Keeper) Update(ctx sdk.Context, msg types.MsgUpdate) (*executionpb.Exec
 		M.Completed.Add(1)
 	}
 
-	inst, err := k.instanceKeeper.Get(ctx, exec.InstanceHash)
-	if err != nil {
-		return nil, err
+	from := msg.Executor
+	if !exec.ProcessHash.IsZero() {
+		proc, err := k.processKeeper.Get(ctx, exec.ProcessHash)
+		if err != nil {
+			return nil, err
+		}
+		from = proc.PaymentAddress
 	}
-	srv, err := k.serviceKeeper.Get(ctx, inst.ServiceHash)
-	if err != nil {
-		return nil, err
-	}
-
-	if err := k.distributePriceShares(ctx, exec.Address, runExecutor.Address, srv.Address, exec.Emitters, exec.Price); err != nil {
+	if _, err = k.creditKeeper.Sub(ctx, from, price); err != nil {
 		return nil, err
 	}
 
@@ -368,55 +347,6 @@ func (k *Keeper) List(ctx sdk.Context, filter types.ListFilter) ([]*executionpb.
 	return execs, nil
 }
 
-func (k *Keeper) distributePriceShares(ctx sdk.Context, execAddress, runnerAddress, serviceAddress sdk.AccAddress, emitters []*executionpb.Execution_Emitter, price string) error {
-	coins, err := sdk.ParseCoins(price)
-	if err != nil {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidCoins, err.Error())
-	}
-	if coins.Empty() {
-		return nil
-	}
-
-	// inputs
-	inputs := []bank.Input{bank.NewInput(execAddress, coins)}
-
-	// outputs
-	runnerCoins, _ := sdk.NewDecCoinsFromCoins(coins...).MulDecTruncate(runnerShare).TruncateDecimal()
-	serviceCoins, _ := sdk.NewDecCoinsFromCoins(coins...).MulDecTruncate(serviceShare).TruncateDecimal()
-
-	outputs := []bank.Output{
-		bank.NewOutput(runnerAddress, runnerCoins),
-		bank.NewOutput(serviceAddress, serviceCoins),
-	}
-
-	// emitters get all the remaining coins
-	emittersCoins := coins.Sub(runnerCoins).Sub(serviceCoins)
-	distributedEmittersCoins := sdk.NewCoins()
-
-	for i, emitter := range emitters {
-		runEmitter, err := k.runnerKeeper.Get(ctx, emitter.RunnerHash)
-		if err != nil {
-			return err
-		}
-		// 1 emitter share = 1 / len(emitters)
-		emitterShare := sdk.NewDecFromBigInt(big.NewInt(1).Div(big.NewInt(1), big.NewInt(int64(len(emitters)))))
-		emitterCoins, _ := sdk.NewDecCoinsFromCoins(emittersCoins...).MulDecTruncate(emitterShare).TruncateDecimal()
-		distributedEmittersCoins = distributedEmittersCoins.Add(emitterCoins...)
-
-		// give the remaining coins to the last emitter
-		if i == len(emitters)-1 {
-			emitterCoins = emitterCoins.Add(emittersCoins.Sub(distributedEmittersCoins)...)
-		}
-
-		outputs = append(outputs, bank.NewOutput(runEmitter.Address, emitterCoins))
-	}
-
-	if err := k.bankKeeper.InputOutputCoins(ctx, inputs, outputs); err != nil {
-		return sdkerrors.Wrapf(err, "cannot distribute coins from execution adddress %s with inputs %s and outputs %s", execAddress, inputs, outputs)
-	}
-	return nil
-}
-
 func (k *Keeper) validateOutput(ctx sdk.Context, instanceHash hash.Hash, taskKey string, outputs *typespb.Struct) error {
 	inst, err := k.instanceKeeper.Get(ctx, instanceHash)
 	if err != nil {
@@ -468,6 +398,32 @@ func (k *Keeper) fetchEmitters(ctx sdk.Context, proc *process.Process, nodeKey s
 		}
 	}
 	return matchedRuns, nil
+}
+
+func (k *Keeper) calculatePrice(ctx sdk.Context, exec *executionpb.Execution) (sdk.Int, error) {
+	inst, err := k.instanceKeeper.Get(ctx, exec.InstanceHash)
+	if err != nil {
+		return sdk.Int{}, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, err.Error())
+	}
+	srv, err := k.serviceKeeper.Get(ctx, inst.ServiceHash)
+	if err != nil {
+		return sdk.Int{}, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, err.Error())
+	}
+	task, err := srv.GetTask(exec.TaskKey)
+	if err != nil {
+		return sdk.Int{}, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, err.Error())
+	}
+	duration := sdk.NewInt(exec.GetDuration())
+	inputs, err := k.cdc.MarshalBinaryLengthPrefixed(exec.Inputs)
+	if err != nil {
+		return sdk.Int{}, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, err.Error())
+	}
+	outputs, err := k.cdc.MarshalBinaryLengthPrefixed(exec.Outputs)
+	if err != nil {
+		return sdk.Int{}, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, err.Error())
+	}
+	datasize := sdk.NewInt(int64(math.Ceil(float64(len(inputs)+len(outputs)) / 1000)))
+	return task.Price.PerCall.Add(task.Price.PerSec.Mul(duration)).Add(task.Price.PerKB.Mul(datasize)), nil
 }
 
 // Import imports a list of executions into the store.

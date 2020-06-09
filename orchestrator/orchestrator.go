@@ -35,17 +35,15 @@ type Orchestrator struct {
 	executionStream chan *execution.Execution
 	stopC           chan bool
 	logger          tmlog.Logger
-	execPrice       string
 }
 
 // New creates a new Process instance
-func New(rpc *cosmos.RPC, ep *publisher.EventPublisher, logger tmlog.Logger, execPrice string) *Orchestrator {
+func New(rpc *cosmos.RPC, ep *publisher.EventPublisher, logger tmlog.Logger) *Orchestrator {
 	return &Orchestrator{
-		rpc:       rpc,
-		ep:        ep,
-		stopC:     make(chan bool),
-		logger:    logger.With("module", "orchestrator"),
-		execPrice: execPrice,
+		rpc:    rpc,
+		ep:     ep,
+		stopC:  make(chan bool),
+		logger: logger.With("module", "orchestrator"),
 	}
 }
 
@@ -354,7 +352,6 @@ func (s *Orchestrator) processTask(node *process.Process_Node, task *process.Pro
 		TaskKey:      task.TaskKey,
 		Inputs:       data,
 		ExecutorHash: executor.Hash,
-		Price:        s.execPrice,
 		Tags:         nil,
 	}
 	res, err := s.rpc.BuildAndBroadcastMsg(msg)

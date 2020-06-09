@@ -11,7 +11,7 @@ import (
 )
 
 // New returns a new process and validate it.
-func New(name string, nodes []*Process_Node, edges []*Process_Edge) (*Process, error) {
+func New(name string, nodes []*Process_Node, edges []*Process_Edge, paymentAddress sdk.AccAddress) (*Process, error) {
 	p := &Process{
 		Name:  name,
 		Nodes: nodes,
@@ -19,6 +19,7 @@ func New(name string, nodes []*Process_Node, edges []*Process_Edge) (*Process, e
 	}
 	p.Hash = hash.Dump(p)
 	p.Address = sdk.AccAddress(crypto.AddressHash(p.Hash))
+	p.PaymentAddress = paymentAddress
 	return p, p.Validate()
 }
 

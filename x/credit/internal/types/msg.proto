@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+import "gogo/protobuf/gogoproto/gogo.proto";
+
+package mesg.credit.types;
+option go_package = "github.com/mesg-foundation/engine/x/credit/internal/types";
+
+option (gogoproto.goproto_getters_all) = false;
+
+// The message to add credits.
+message MsgAdd {
+  // The msg's signer.
+  bytes signer = 1 [
+    (gogoproto.moretags) = 'validate:"required,accaddress"',
+    (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"
+  ];
+
+  // The address to add the credits.
+  bytes address = 2 [
+    (gogoproto.moretags) = 'validate:"required,accaddress"',
+    (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"
+  ];
+
+  // amount of credits to add.
+  string amount = 3 [
+    (gogoproto.moretags) = 'hash:"name:1" validate:"required,bigint"',
+    (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.Int"
+  ];
+}

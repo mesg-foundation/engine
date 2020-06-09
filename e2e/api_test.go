@@ -50,9 +50,6 @@ const (
 )
 
 var (
-	executionPrice        = sdk.NewCoins(sdk.NewInt64Coin("atto", 10000)) // /x/execution/internal/types/params.go#DefaultMinPrice
-	processInitialBalance = sdk.NewCoins(sdk.NewInt64Coin("atto", 10000000))
-
 	cdc           = app.MakeCodec()
 	client        *apiclient
 	kb            *cosmos.Keybase
@@ -111,6 +108,7 @@ func TestAPI(t *testing.T) {
 
 	// run tests
 	t.Run("account-sequence", testAccountSequence)
+	t.Run("credit", testCredit)
 	t.Run("service", testService)
 	t.Run("runner", testRunner)
 	t.Run("process", testProcess)

@@ -11,23 +11,25 @@ import (
 // Default parameter namespace
 const (
 	DefaultParamspace = ModuleName
-	DefaultMinPrice   = "10000atto"
 )
 
 var (
-	// KeyMinPrice key for the parameter MinPrice
-	KeyMinPrice = []byte("MinPrice")
+	// KeyMinters key for the parameter Minters
+	KeyMinters = []byte("Minters")
+
+	// DefaultMinters is the default value of Minters
+	DefaultMinters = []sdk.AccAddress{}
 )
 
 // Params - used for initializing default parameter for instance at genesis
 type Params struct {
-	MinPrice string `json:"minPrice" yaml:"minPrice"` // min price to pay for an execution
+	Minters []sdk.AccAddress `json:"minters" yaml:"minters"`
 }
 
 // NewParams creates a new Params object
-func NewParams(minPrice string) Params {
+func NewParams(minters []sdk.AccAddress) Params {
 	return Params{
-		MinPrice: minPrice,
+		Minters: minters,
 	}
 }
 
@@ -38,29 +40,32 @@ func ParamKeyTable() subspace.KeyTable {
 
 // String implements the stringer interface for Params
 func (p Params) String() string {
-	return fmt.Sprintf(`Params:
-	MinPrice:			%s
-	`, p.MinPrice)
+	return fmt.Sprintf(`Params:	
+	Minters:			%s	
+	`, p.Minters)
 }
 
 // ParamSetPairs - Implements params.ParamSet
 func (p *Params) ParamSetPairs() params.ParamSetPairs {
 	return params.ParamSetPairs{
-		params.NewParamSetPair(KeyMinPrice, &p.MinPrice, validateMinPrice),
+		params.NewParamSetPair(KeyMinters, &p.Minters, validateMinters),
 	}
 }
 
 // DefaultParams defines the parameters for this module
 func DefaultParams() Params {
-	return NewParams(DefaultMinPrice)
+	return NewParams(DefaultMinters)
 }
 
-func validateMinPrice(i interface{}) error {
-	v, ok := i.(string)
+func validateMinters(i interface{}) error {
+	minters, ok := i.([]sdk.AccAddress)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
-
-	_, err := sdk.ParseCoins(v)
-	return err
+	for _, minter := range minters {
+		if err := sdk.VerifyAddressFormat(minter); err != nil {
+			return err
+		}
+	}
+	return nil
 }

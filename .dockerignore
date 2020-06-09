@@ -22,7 +22,6 @@ schema1.svg
 coverage.txt
 
 # configuration & repo files
-Makefile
 .circleci
 .codacy.yml
 .codeclimate.yml
