@@ -32,12 +32,7 @@
           "type": "cosmos-sdk/Account",
           "value": {
             "address": "mesg1t9h20sn3lk2jdnak5eea4lkqxkpwyfaadtqk4t",
-            "coins": [
-              {
-                "denom": "atto",
-                "amount": "1000000000000000000000000"
-              }
-            ],
+            "coins": [],
             "public_key": "",
             "account_number": 0,
             "sequence": 0
@@ -63,10 +58,6 @@
           "value": {
             "address": "mesg1s6mqusxaq93d70jeekqehg7aepwt7zs306ctq7",
             "coins": [
-              {
-                "denom": "atto",
-                "amount": "1000000000000000000000000"
-              },
               {
                 "denom": "stake",
                 "amount": "1000000000"
@@ -187,11 +178,7 @@
         }
       ]
     },
-    "execution": {
-      "params": {
-        "minPrice": "10000atto"
-      }
-    },
+    "execution": {},
     "credit": {
       "credits": {},
       "params": {
