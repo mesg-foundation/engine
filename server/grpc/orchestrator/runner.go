@@ -2,26 +2,29 @@ package orchestrator
 
 import (
 	"context"
-	fmt "fmt"
 	"sync"
 
-	"github.com/mesg-foundation/engine/cosmos"
 	"github.com/mesg-foundation/engine/hash"
-	"github.com/mesg-foundation/engine/instance"
-	"github.com/mesg-foundation/engine/runner"
-	runnermodule "github.com/mesg-foundation/engine/x/runner"
 )
 
+type runnerStore interface {
+	// RegisterRunner registers a new or existing runner.
+	RegisterRunner(ctx context.Context, serviceHash hash.Hash, envHash hash.Hash) (hash.Hash, error)
+
+	// DeleteRunner deletes an existing runner.
+	DeleteRunner(ctx context.Context, runnerHash hash.Hash) error
+}
+
 type runnerServer struct {
-	rpc               *cosmos.RPC
+	store             runnerStore
 	tokenToRunnerHash *sync.Map
 	auth              *Authorizer
 }
 
 // NewRunnerServer creates a new Runner Server.
-func NewRunnerServer(rpc *cosmos.RPC, tokenToRunnerHash *sync.Map, auth *Authorizer) RunnerServer {
+func NewRunnerServer(store runnerStore, tokenToRunnerHash *sync.Map, auth *Authorizer) RunnerServer {
 	return &runnerServer{
-		rpc:               rpc,
+		store:             store,
 		tokenToRunnerHash: tokenToRunnerHash,
 		auth:              auth,
 	}
@@ -34,55 +37,10 @@ func (s *runnerServer) Register(ctx context.Context, req *RunnerRegisterRequest)
 		return nil, err
 	}
 
-	// get engine account
-	acc, err := s.rpc.GetAccount()
+	// register runner
+	runnerHash, err := s.store.RegisterRunner(ctx, req.ServiceHash, req.EnvHash)
 	if err != nil {
 		return nil, err
-	}
-
-	// calculate runner hash
-	inst, err := instance.New(req.ServiceHash, req.EnvHash)
-	if err != nil {
-		return nil, err
-	}
-	run, err := runner.New(acc.GetAddress().String(), inst.Hash)
-	if err != nil {
-		return nil, err
-	}
-	runnerHash := run.Hash
-
-	// check that runner doesn't already exist
-	var runnerExist bool
-	route := fmt.Sprintf("custom/%s/%s/%s", runnermodule.QuerierRoute, runnermodule.QueryExist, runnerHash)
-	if err := s.rpc.QueryJSON(route, nil, &runnerExist); err != nil {
-		return nil, err
-	}
-
-	// only broadcast if runner doesn't exist
-	if !runnerExist {
-		tx, err := s.rpc.BuildAndBroadcastMsg(runnermodule.MsgCreate{
-			Owner:       acc.GetAddress(),
-			ServiceHash: req.ServiceHash,
-			EnvHash:     req.EnvHash,
-		})
-		if err != nil {
-			return nil, err
-		}
-		runnerHashCreated, err := hash.DecodeFromBytes(tx.Data)
-		if err != nil {
-			return nil, err
-		}
-		if !runnerHashCreated.Equal(runnerHash) {
-			// delete wrong runner
-			_, err := s.rpc.BuildAndBroadcastMsg(runnermodule.MsgDelete{
-				Owner: acc.GetAddress(),
-				Hash:  runnerHashCreated,
-			})
-			if err != nil {
-				return nil, err
-			}
-			return nil, fmt.Errorf("runner hash created is not expected: got %q, expect %q", runnerHashCreated, runnerHash)
-		}
 	}
 
 	// delete any other token corresponding to runnerHash
@@ -115,16 +73,8 @@ func (s *runnerServer) Delete(ctx context.Context, req *RunnerDeleteRequest) (*R
 		return nil, err
 	}
 
-	// create execution
-	acc, err := s.rpc.GetAccount()
-	if err != nil {
-		return nil, err
-	}
-	msg := runnermodule.MsgDelete{
-		Owner: acc.GetAddress(),
-		Hash:  req.RunnerHash,
-	}
-	if _, err := s.rpc.BuildAndBroadcastMsg(msg); err != nil {
+	// delete runner
+	if err := s.store.DeleteRunner(ctx, req.RunnerHash); err != nil {
 		return nil, err
 	}
 	return &RunnerDeleteResponse{}, nil

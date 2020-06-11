@@ -78,11 +78,11 @@ func startOrchestratorCmd(cdc *codec.Codec) *cobra.Command {
 				return err
 			}
 
-			// init event publisher
-			ep := publisher.New(rpc)
+			// init cosmos store
+			store := cosmos.NewStore(rpc, logger)
 
-			// init orchestrator store rpc
-			store := cosmos.NewOrchestratorStore(rpc, logger)
+			// init event publisher
+			ep := publisher.New(store)
 
 			// orchestrator
 			logger.Info("Starting orchestrator")
@@ -100,7 +100,7 @@ func startOrchestratorCmd(cdc *codec.Codec) *cobra.Command {
 
 			// init gRPC server.
 			logger.Info("Starting gRPC server")
-			server := grpc.New(rpc, ep, logger, viper.GetStringSlice(flagAuthorizedPubKeys))
+			server := grpc.New(store, ep, logger, cdc, viper.GetStringSlice(flagAuthorizedPubKeys))
 			defer func() {
 				logger.Info("Stopping gRPC server")
 				server.Close()
