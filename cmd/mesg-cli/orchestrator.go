@@ -81,9 +81,12 @@ func startOrchestratorCmd(cdc *codec.Codec) *cobra.Command {
 			// init event publisher
 			ep := publisher.New(rpc)
 
+			// init orchestrator store rpc
+			storeRPC := orchestrator.NewStoreRPC(rpc, logger)
+
 			// orchestrator
 			logger.Info("Starting orchestrator")
-			orch := orchestrator.New(rpc, ep, logger)
+			orch := orchestrator.New(storeRPC, ep, logger)
 			defer func() {
 				logger.Info("Stopping orchestrator")
 				orch.Stop()
