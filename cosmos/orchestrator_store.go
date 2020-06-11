@@ -1,11 +1,10 @@
-package orchestrator
+package cosmos
 
 import (
 	"context"
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/mesg-foundation/engine/cosmos"
 	"github.com/mesg-foundation/engine/execution"
 	"github.com/mesg-foundation/engine/ext/xstrings"
 	"github.com/mesg-foundation/engine/hash"
@@ -18,19 +17,22 @@ import (
 	tmlog "github.com/tendermint/tendermint/libs/log"
 )
 
-type StoreRPC struct {
-	rpc    *cosmos.RPC
+// OrchestratorStore is an implementation of the orchestrator.Store interface using cosmos rpc.
+type OrchestratorStore struct {
+	rpc    *RPC
 	logger tmlog.Logger
 }
 
-func NewStoreRPC(rpc *cosmos.RPC, logger tmlog.Logger) *StoreRPC {
-	return &StoreRPC{
+// NewOrchestratorStore returns a new implementation of orchestrator.Store using cosmos rpc.
+func NewOrchestratorStore(rpc *RPC, logger tmlog.Logger) *OrchestratorStore {
+	return &OrchestratorStore{
 		rpc:    rpc,
 		logger: logger,
 	}
 }
 
-func (s *StoreRPC) FetchProcesses(ctx context.Context) ([]*process.Process, error) {
+// FetchProcesses returns all processes.
+func (s *OrchestratorStore) FetchProcesses(ctx context.Context) ([]*process.Process, error) {
 	var processes []*process.Process
 	route := fmt.Sprintf("custom/%s/%s", processmodule.QuerierRoute, processmodule.QueryList)
 	if err := s.rpc.QueryJSON(route, nil, &processes); err != nil {
@@ -39,7 +41,8 @@ func (s *StoreRPC) FetchProcesses(ctx context.Context) ([]*process.Process, erro
 	return processes, nil
 }
 
-func (s *StoreRPC) FetchExecution(ctx context.Context, hash hash.Hash) (*execution.Execution, error) {
+// FetchExecution returns one execution from its hash.
+func (s *OrchestratorStore) FetchExecution(ctx context.Context, hash hash.Hash) (*execution.Execution, error) {
 	var exec *execution.Execution
 	route := fmt.Sprintf("custom/%s/%s/%s", executionmodule.QuerierRoute, executionmodule.QueryGet, hash)
 	if err := s.rpc.QueryJSON(route, nil, &exec); err != nil {
@@ -48,7 +51,8 @@ func (s *StoreRPC) FetchExecution(ctx context.Context, hash hash.Hash) (*executi
 	return exec, nil
 }
 
-func (s *StoreRPC) FetchRunners(ctx context.Context, instanceHash hash.Hash) ([]*runner.Runner, error) {
+// FetchRunners returns all runners of an instance.
+func (s *OrchestratorStore) FetchRunners(ctx context.Context, instanceHash hash.Hash) ([]*runner.Runner, error) {
 	var runners []*runner.Runner
 	route := fmt.Sprintf("custom/%s/%s", runnermodule.QuerierRoute, runnermodule.QueryList)
 	if err := s.rpc.QueryJSON(route, nil, &runners); err != nil {
@@ -63,7 +67,8 @@ func (s *StoreRPC) FetchRunners(ctx context.Context, instanceHash hash.Hash) ([]
 	return executors, nil
 }
 
-func (s *StoreRPC) CreateExecution(ctx context.Context, taskKey string, inputs *types.Struct, tags []string, parentHash hash.Hash, eventHash hash.Hash, processHash hash.Hash, nodeKey string, executorHash hash.Hash) (hash.Hash, error) {
+// CreateExecution creates an execution.
+func (s *OrchestratorStore) CreateExecution(ctx context.Context, taskKey string, inputs *types.Struct, tags []string, parentHash hash.Hash, eventHash hash.Hash, processHash hash.Hash, nodeKey string, executorHash hash.Hash) (hash.Hash, error) {
 	acc, err := s.rpc.GetAccount()
 	if err != nil {
 		return nil, err
@@ -86,7 +91,8 @@ func (s *StoreRPC) CreateExecution(ctx context.Context, taskKey string, inputs *
 	return hash.DecodeFromBytes(res.Data)
 }
 
-func (s *StoreRPC) SubscribeToNewCompletedExecutions(ctx context.Context) (<-chan *execution.Execution, error) {
+// SubscribeToNewCompletedExecutions returns a chan that will contain newly completed execution.
+func (s *OrchestratorStore) SubscribeToNewCompletedExecutions(ctx context.Context) (<-chan *execution.Execution, error) {
 	subscriber := xstrings.RandASCIILetters(8)
 	query := fmt.Sprintf("%s.%s EXISTS AND %s.%s='%s'",
 		executionmodule.EventType, executionmodule.AttributeKeyHash,
