@@ -6,26 +6,37 @@ import (
 	"sync"
 	"time"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/mesg-foundation/engine/cosmos"
 	"github.com/mesg-foundation/engine/event/publisher"
 	"github.com/mesg-foundation/engine/execution"
-	"github.com/mesg-foundation/engine/ext/xstrings"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/protobuf/acknowledgement"
+	types "github.com/mesg-foundation/engine/protobuf/types"
 	"github.com/mesg-foundation/engine/runner"
-	executionmodule "github.com/mesg-foundation/engine/x/execution"
-	runnermodule "github.com/mesg-foundation/engine/x/runner"
 	tmlog "github.com/tendermint/tendermint/libs/log"
 	"google.golang.org/grpc/metadata"
 )
+
+// Store is the interface to implement to fetch data.
+type Store interface {
+	// SubscribeToExecutionsForRunner returns a chan that will contain executions that a specific runner must execute.
+	SubscribeToExecutionsForRunner(ctx context.Context, runnerHash hash.Hash) (<-chan *execution.Execution, error)
+
+	// FetchExecution returns one execution from its hash.
+	FetchExecution(ctx context.Context, hash hash.Hash) (*execution.Execution, error)
+
+	// UpdateExecution update an execution.
+	UpdateExecution(ctx context.Context, execHash hash.Hash, start int64, stop int64, outputs *types.Struct, err string) error
+
+	// FetchRunner returns a runner from its hash.
+	FetchRunner(ctx context.Context, hash hash.Hash) (*runner.Runner, error)
+}
 
 // CredentialToken is the name to use in the gRPC metadata to set and read the credential token.
 const CredentialToken = "mesg_credential_token"
 
 // Server is the type to aggregate all Runner APIs.
 type Server struct {
-	rpc               *cosmos.RPC
+	store             Store
 	eventPublisher    *publisher.EventPublisher
 	tokenToRunnerHash *sync.Map
 	execInProgress    *sync.Map
@@ -33,9 +44,9 @@ type Server struct {
 }
 
 // NewServer creates a new Server.
-func NewServer(rpc *cosmos.RPC, eventPublisher *publisher.EventPublisher, tokenToRunnerHash *sync.Map, logger tmlog.Logger) *Server {
+func NewServer(store Store, eventPublisher *publisher.EventPublisher, tokenToRunnerHash *sync.Map, logger tmlog.Logger) *Server {
 	return &Server{
-		rpc:               rpc,
+		store:             store,
 		eventPublisher:    eventPublisher,
 		tokenToRunnerHash: tokenToRunnerHash,
 		execInProgress:    &sync.Map{},
@@ -68,16 +79,10 @@ func (s *Server) Execution(req *ExecutionRequest, stream Runner_ExecutionServer)
 		return err
 	}
 
-	// create rpc event stream
+	// create event stream
 	ctx, cancel := context.WithCancel(stream.Context())
 	defer cancel()
-	subscriber := xstrings.RandASCIILetters(8)
-	query := fmt.Sprintf("%s.%s='%s' AND %s.%s='%s'",
-		executionmodule.EventType, executionmodule.AttributeKeyExecutor, runnerHash.String(),
-		executionmodule.EventType, sdk.AttributeKeyAction, executionmodule.AttributeActionCreated,
-	)
-	eventStream, err := s.rpc.Subscribe(ctx, subscriber, query, 0)
-	defer s.rpc.Unsubscribe(context.Background(), subscriber, query)
+	executionStream, err := s.store.SubscribeToExecutionsForRunner(ctx, runnerHash)
 	if err != nil {
 		return err
 	}
@@ -88,32 +93,10 @@ func (s *Server) Execution(req *ExecutionRequest, stream Runner_ExecutionServer)
 	// listen to event stream
 	for {
 		select {
-		case event := <-eventStream:
-			// get the index of the action=created attributes
-			attrKeyActionCreated := fmt.Sprintf("%s.%s", executionmodule.EventType, sdk.AttributeKeyAction)
-			attrIndexes := make([]int, 0)
-			for index, attr := range event.Events[attrKeyActionCreated] {
-				if attr == executionmodule.AttributeActionCreated {
-					attrIndexes = append(attrIndexes, index)
-				}
-			}
-			// iterate only on the index of attribute hash where action=created
-			attrKeyHash := fmt.Sprintf("%s.%s", executionmodule.EventType, executionmodule.AttributeKeyHash)
-			for _, index := range attrIndexes {
-				attr := event.Events[attrKeyHash][index]
-				hash, err := hash.Decode(attr)
-				if err != nil {
-					return err
-				}
-				var exec *execution.Execution
-				route := fmt.Sprintf("custom/%s/%s/%s", executionmodule.QuerierRoute, executionmodule.QueryGet, hash)
-				if err := s.rpc.QueryJSON(route, nil, &exec); err != nil {
-					return err
-				}
-				s.execInProgress.Store(hash.String(), time.Now().UnixNano())
-				if err := stream.Send(exec); err != nil {
-					return err
-				}
+		case exec := <-executionStream:
+			s.execInProgress.Store(exec.Hash.String(), time.Now().UnixNano())
+			if err := stream.Send(exec); err != nil {
+				return err
 			}
 		case <-ctx.Done():
 			return ctx.Err()
@@ -132,9 +115,8 @@ func (s *Server) Result(ctx context.Context, req *ResultRequest) (*ResultRespons
 	}
 
 	// make sure runner is allowed to update this execution
-	var exec *execution.Execution
-	route := fmt.Sprintf("custom/%s/%s/%s", executionmodule.QuerierRoute, executionmodule.QueryGet, req.ExecutionHash)
-	if err := s.rpc.QueryJSON(route, nil, &exec); err != nil {
+	exec, err := s.store.FetchExecution(ctx, req.ExecutionHash)
+	if err != nil {
 		return nil, err
 	}
 	if !exec.ExecutorHash.Equal(runnerHash) {
@@ -142,32 +124,19 @@ func (s *Server) Result(ctx context.Context, req *ResultRequest) (*ResultRespons
 	}
 
 	// update execution
-	acc, err := s.rpc.GetAccount()
-	if err != nil {
-		return nil, err
-	}
 	start, ok := s.execInProgress.Load(req.ExecutionHash.String())
 	if !ok {
 		s.logger.Error(fmt.Sprintf("execution %q should be in memory", req.ExecutionHash.String()))
 		start = time.Now().UnixNano()
 	}
-	msg := executionmodule.MsgUpdate{
-		Executor: acc.GetAddress(),
-		Hash:     req.ExecutionHash,
-		Start:    start.(int64),
-		Stop:     time.Now().UnixNano(),
-	}
-	switch result := req.Result.(type) {
-	case *ResultRequest_Outputs:
-		msg.Result = &executionmodule.MsgUpdateOutputs{
-			Outputs: result.Outputs,
-		}
-	case *ResultRequest_Error:
-		msg.Result = &executionmodule.MsgUpdateError{
-			Error: result.Error,
-		}
-	}
-	if _, err := s.rpc.BuildAndBroadcastMsg(msg); err != nil {
+	if err := s.store.UpdateExecution(
+		ctx,
+		req.ExecutionHash,
+		start.(int64),
+		time.Now().UnixNano(),
+		req.GetOutputs(),
+		req.GetError(),
+	); err != nil {
 		return nil, err
 	}
 	s.execInProgress.Delete(req.ExecutionHash.String())
@@ -183,11 +152,7 @@ func (s *Server) Event(ctx context.Context, req *EventRequest) (*EventResponse, 
 	}
 
 	// get runner to access instance hash
-	var run *runner.Runner
-	route := fmt.Sprintf("custom/%s/%s/%s", runnermodule.QuerierRoute, runnermodule.QueryGet, runnerHash)
-	if err := s.rpc.QueryJSON(route, nil, &run); err != nil {
-		return nil, err
-	}
+	run, err := s.store.FetchRunner(ctx, runnerHash)
 
 	// publish event
 	if _, err := s.eventPublisher.Publish(run.InstanceHash, req.Key, req.Data); err != nil {

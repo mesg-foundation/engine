@@ -6,20 +6,14 @@ import (
 	"fmt"
 	"math/rand"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/mesg-foundation/engine/cosmos"
 	"github.com/mesg-foundation/engine/event"
 	"github.com/mesg-foundation/engine/event/publisher"
 	"github.com/mesg-foundation/engine/execution"
 	"github.com/mesg-foundation/engine/ext/xrand"
-	"github.com/mesg-foundation/engine/ext/xstrings"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/process"
 	"github.com/mesg-foundation/engine/protobuf/types"
 	"github.com/mesg-foundation/engine/runner"
-	executionmodule "github.com/mesg-foundation/engine/x/execution"
-	processmodule "github.com/mesg-foundation/engine/x/process"
-	runnermodule "github.com/mesg-foundation/engine/x/runner"
 	tmlog "github.com/tendermint/tendermint/libs/log"
 )
 
@@ -27,23 +21,43 @@ func init() {
 	xrand.SeedInit()
 }
 
+// Store is an interface for fetching all data the orchestrator needs.
+type Store interface {
+	// FetchProcesses returns all processes.
+	FetchProcesses(ctx context.Context) ([]*process.Process, error)
+
+	// FetchExecution returns one execution from its hash.
+	FetchExecution(ctx context.Context, hash hash.Hash) (*execution.Execution, error)
+
+	// FetchRunners returns all runners of an instance.
+	FetchRunners(ctx context.Context, instanceHash hash.Hash) ([]*runner.Runner, error)
+
+	// CreateExecution creates an execution.
+	CreateExecution(ctx context.Context, taskKey string, inputs *types.Struct, tags []string, parentHash hash.Hash, eventHash hash.Hash, processHash hash.Hash, nodeKey string, executorHash hash.Hash) (hash.Hash, error)
+
+	// SubscribeToNewCompletedExecutions returns a chan that will contain newly completed execution.
+	SubscribeToNewCompletedExecutions(ctx context.Context) (<-chan *execution.Execution, error)
+}
+
 // Orchestrator manages the executions based on the definition of the processes
 type Orchestrator struct {
-	rpc             *cosmos.RPC
-	ep              *publisher.EventPublisher
+	store  Store
+	ep     *publisher.EventPublisher
+	logger tmlog.Logger
+
 	eventStream     *event.Listener
-	executionStream chan *execution.Execution
+	executionStream <-chan *execution.Execution
 	stopC           chan bool
-	logger          tmlog.Logger
 }
 
 // New creates a new Process instance
-func New(rpc *cosmos.RPC, ep *publisher.EventPublisher, logger tmlog.Logger) *Orchestrator {
+func New(store Store, ep *publisher.EventPublisher, logger tmlog.Logger) *Orchestrator {
 	return &Orchestrator{
-		rpc:    rpc,
+		store:  store,
 		ep:     ep,
-		stopC:  make(chan bool),
 		logger: logger.With("module", "orchestrator"),
+
+		stopC: make(chan bool),
 	}
 }
 
@@ -125,9 +139,8 @@ func (s *Orchestrator) findNodes(wf *process.Process, filter func(wf *process.Pr
 }
 
 func (s *Orchestrator) execute(filter func(wf *process.Process, node *process.Process_Node) (bool, error), exec *execution.Execution, event *event.Event, data *types.Struct) {
-	var processes []*process.Process
-	route := fmt.Sprintf("custom/%s/%s", processmodule.QuerierRoute, processmodule.QueryList)
-	if err := s.rpc.QueryJSON(route, nil, &processes); err != nil {
+	processes, err := s.store.FetchProcesses(context.Background())
+	if err != nil {
 		s.logger.Error(err.Error())
 		return
 	}
@@ -305,9 +318,8 @@ func (s *Orchestrator) resolveInput(wfHash hash.Hash, exec *execution.Execution,
 		return path.Resolve(exec.Outputs)
 	}
 	// get parentExec and do a recursive call
-	var parentExec *execution.Execution
-	route := fmt.Sprintf("custom/%s/%s/%s", executionmodule.QuerierRoute, executionmodule.QueryGet, exec.ParentHash)
-	if err := s.rpc.QueryJSON(route, nil, &parentExec); err != nil {
+	parentExec, err := s.store.FetchExecution(context.Background(), exec.ParentHash)
+	if err != nil {
 		return nil, err
 	}
 	return s.resolveInput(wfHash, parentExec, refNodeKey, path)
@@ -322,16 +334,9 @@ func (s *Orchestrator) processTask(node *process.Process_Node, task *process.Pro
 	if exec != nil {
 		execHash = exec.Hash
 	}
-	var runners []*runner.Runner
-	route := fmt.Sprintf("custom/%s/%s", runnermodule.QuerierRoute, runnermodule.QueryList)
-	if err := s.rpc.QueryJSON(route, nil, &runners); err != nil {
+	executors, err := s.store.FetchRunners(context.Background(), task.InstanceHash)
+	if err != nil {
 		return nil, err
-	}
-	executors := make([]*runner.Runner, 0)
-	for _, run := range runners {
-		if run.InstanceHash.Equal(task.InstanceHash) {
-			executors = append(executors, run)
-		}
 	}
 	if len(executors) == 0 {
 		return nil, fmt.Errorf("no runner is running instance %q", task.InstanceHash)
@@ -339,80 +344,24 @@ func (s *Orchestrator) processTask(node *process.Process_Node, task *process.Pro
 	executor := executors[rand.Intn(len(executors))]
 
 	// create execution
-	acc, err := s.rpc.GetAccount()
-	if err != nil {
-		return nil, err
-	}
-	msg := executionmodule.MsgCreate{
-		Signer:       acc.GetAddress(),
-		ProcessHash:  wf.Hash,
-		EventHash:    eventHash,
-		ParentHash:   execHash,
-		NodeKey:      node.Key,
-		TaskKey:      task.TaskKey,
-		Inputs:       data,
-		ExecutorHash: executor.Hash,
-		Tags:         nil,
-	}
-	res, err := s.rpc.BuildAndBroadcastMsg(msg)
-	if err != nil {
-		return nil, err
-	}
-	return hash.DecodeFromBytes(res.Data)
+	return s.store.CreateExecution(
+		context.Background(),
+		task.TaskKey,
+		data,
+		nil,
+		execHash,
+		eventHash,
+		wf.Hash,
+		node.Key,
+		executor.Hash,
+	)
 }
 
 // startExecutionStream returns execution that matches given hash.
 func (s *Orchestrator) startExecutionStream(ctx context.Context) error {
-	subscriber := xstrings.RandASCIILetters(8)
-	query := fmt.Sprintf("%s.%s EXISTS AND %s.%s='%s'",
-		executionmodule.EventType, executionmodule.AttributeKeyHash,
-		executionmodule.EventType, sdk.AttributeKeyAction, executionmodule.AttributeActionCompleted,
-	)
-	eventStream, err := s.rpc.Subscribe(ctx, subscriber, query, 0)
-	if err != nil {
-		return err
-	}
-
-	s.executionStream = make(chan *execution.Execution)
-	go func() {
-	loop:
-		for {
-			select {
-			case event := <-eventStream:
-				// get the index of the action=completed attributes
-				attrKeyActionCreated := fmt.Sprintf("%s.%s", executionmodule.EventType, sdk.AttributeKeyAction)
-				attrIndexes := make([]int, 0)
-				for index, attr := range event.Events[attrKeyActionCreated] {
-					if attr == executionmodule.AttributeActionCompleted {
-						attrIndexes = append(attrIndexes, index)
-					}
-				}
-				// iterate only on the index of attribute hash where action=completed
-				attrKeyHash := fmt.Sprintf("%s.%s", executionmodule.EventType, executionmodule.AttributeKeyHash)
-				for _, index := range attrIndexes {
-					attr := event.Events[attrKeyHash][index]
-					hash, err := hash.Decode(attr)
-					if err != nil {
-						s.logger.Error(err.Error())
-						continue
-					}
-					var exec *execution.Execution
-					route := fmt.Sprintf("custom/%s/%s/%s", executionmodule.QuerierRoute, executionmodule.QueryGet, hash)
-					if err := s.rpc.QueryJSON(route, nil, &exec); err != nil {
-						s.logger.Error(err.Error())
-						continue
-					}
-					s.executionStream <- exec
-				}
-			case <-ctx.Done():
-				break loop
-			}
-		}
-		if err := s.rpc.Unsubscribe(context.Background(), subscriber, query); err != nil {
-			s.logger.Error(err.Error())
-		}
-	}()
-	return nil
+	var err error
+	s.executionStream, err = s.store.SubscribeToNewCompletedExecutions(ctx)
+	return err
 }
 
 func keyvals(proc *process.Process, node *process.Process_Node, parentExec *execution.Execution, event *event.Event, data *types.Struct) []interface{} {

@@ -2,26 +2,33 @@ package orchestrator
 
 import (
 	"context"
-	fmt "fmt"
 
-	"github.com/mesg-foundation/engine/cosmos"
 	"github.com/mesg-foundation/engine/execution"
 	"github.com/mesg-foundation/engine/ext/xstrings"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/protobuf/acknowledgement"
-	executionmodule "github.com/mesg-foundation/engine/x/execution"
+	types "github.com/mesg-foundation/engine/protobuf/types"
 )
 
+// executionStore is the interface to implement to fetch data.
+type executionStore interface {
+	// CreateExecution creates an execution.
+	CreateExecution(ctx context.Context, taskKey string, inputs *types.Struct, tags []string, parentHash hash.Hash, eventHash hash.Hash, processHash hash.Hash, nodeKey string, executorHash hash.Hash) (hash.Hash, error)
+
+	// SubscribeToExecutions returns a chan that will contain executions that have been created, updated, or anything.
+	SubscribeToExecutions(ctx context.Context) (<-chan *execution.Execution, error)
+}
+
 type executionServer struct {
-	rpc  *cosmos.RPC
-	auth *Authorizer
+	store executionStore
+	auth  *Authorizer
 }
 
 // NewExecutionServer creates a new Execution Server.
-func NewExecutionServer(rpc *cosmos.RPC, auth *Authorizer) ExecutionServer {
+func NewExecutionServer(store executionStore, auth *Authorizer) ExecutionServer {
 	return &executionServer{
-		rpc:  rpc,
-		auth: auth,
+		store: store,
+		auth:  auth,
 	}
 }
 
@@ -33,28 +40,26 @@ func (s *executionServer) Create(ctx context.Context, req *ExecutionCreateReques
 	}
 
 	// create execution
-	acc, err := s.rpc.GetAccount()
-	if err != nil {
-		return nil, err
-	}
 	eventHash, err := hash.Random()
 	if err != nil {
 		return nil, err
 	}
-	msg := executionmodule.MsgCreate{
-		Signer:       acc.GetAddress(),
-		EventHash:    eventHash,
-		ExecutorHash: req.ExecutorHash,
-		Inputs:       req.Inputs,
-		Tags:         req.Tags,
-		TaskKey:      req.TaskKey,
-	}
-	tx, err := s.rpc.BuildAndBroadcastMsg(msg)
+	execHash, err := s.store.CreateExecution(
+		ctx,
+		req.TaskKey,
+		req.Inputs,
+		req.Tags,
+		nil,
+		eventHash,
+		nil,
+		"",
+		req.ExecutorHash,
+	)
 	if err != nil {
 		return nil, err
 	}
 	return &ExecutionCreateResponse{
-		Hash: tx.Data,
+		Hash: execHash,
 	}, nil
 }
 
@@ -65,13 +70,10 @@ func (s *executionServer) Stream(req *ExecutionStreamRequest, stream Execution_S
 		return err
 	}
 
-	// create rpc event stream
+	// create event stream
 	ctx, cancel := context.WithCancel(stream.Context())
 	defer cancel()
-	subscriber := xstrings.RandASCIILetters(8)
-	query := fmt.Sprintf("%s.%s EXISTS", executionmodule.EventType, executionmodule.AttributeKeyHash)
-	eventStream, err := s.rpc.Subscribe(ctx, subscriber, query, 0)
-	defer s.rpc.Unsubscribe(context.Background(), subscriber, query)
+	executionStream, err := s.store.SubscribeToExecutions(ctx)
 	if err != nil {
 		return err
 	}
@@ -82,31 +84,12 @@ func (s *executionServer) Stream(req *ExecutionStreamRequest, stream Execution_S
 	// listen to event stream
 	for {
 		select {
-		case event := <-eventStream:
-			attrHash := fmt.Sprintf("%s.%s", executionmodule.EventType, executionmodule.AttributeKeyHash)
-			attrs := event.Events[attrHash]
-			alreadySeeHashes := make(map[string]bool)
-			for _, attr := range attrs {
-				// skip already see hash. it deduplicate same execution in multiple event.
-				if alreadySeeHashes[attr] {
-					continue
-				}
-				alreadySeeHashes[attr] = true
-				hash, err := hash.Decode(attr)
-				if err != nil {
-					return err
-				}
-				var exec *execution.Execution
-				route := fmt.Sprintf("custom/%s/%s/%s", executionmodule.QuerierRoute, executionmodule.QueryGet, hash)
-				if err := s.rpc.QueryJSON(route, nil, &exec); err != nil {
-					return err
-				}
-				if !req.Filter.Match(exec) {
-					continue
-				}
-				if err := stream.Send(exec); err != nil {
-					return err
-				}
+		case exec := <-executionStream:
+			if !req.Filter.Match(exec) {
+				continue
+			}
+			if err := stream.Send(exec); err != nil {
+				return err
 			}
 		case <-ctx.Done():
 			return ctx.Err()

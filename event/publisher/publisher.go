@@ -1,18 +1,23 @@
 package publisher
 
 import (
-	"fmt"
+	"context"
 
 	"github.com/cskr/pubsub"
-	"github.com/mesg-foundation/engine/cosmos"
 	"github.com/mesg-foundation/engine/event"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/instance"
 	"github.com/mesg-foundation/engine/protobuf/types"
 	"github.com/mesg-foundation/engine/service"
-	instancemodule "github.com/mesg-foundation/engine/x/instance"
-	servicemodule "github.com/mesg-foundation/engine/x/service"
 )
+
+// Store is the interface to implement to fetch data.
+type Store interface {
+	// FetchService returns a service from its hash.
+	FetchService(ctx context.Context, hash hash.Hash) (*service.Service, error)
+	// FetchInstance returns an instance from its hash.
+	FetchInstance(ctx context.Context, hash hash.Hash) (*instance.Instance, error)
+}
 
 const (
 	// streamTopic is topic used to broadcast events.
@@ -21,29 +26,27 @@ const (
 
 // EventPublisher exposes event APIs of MESG.
 type EventPublisher struct {
-	ps  *pubsub.PubSub
-	rpc *cosmos.RPC
+	ps    *pubsub.PubSub
+	store Store
 }
 
 // New creates a new Event SDK with given options.
-func New(rpc *cosmos.RPC) *EventPublisher {
+func New(store Store) *EventPublisher {
 	return &EventPublisher{
-		ps:  pubsub.New(0),
-		rpc: rpc,
+		ps:    pubsub.New(0),
+		store: store,
 	}
 }
 
 // Publish a MESG event eventKey with eventData for service token.
 func (ep *EventPublisher) Publish(instanceHash hash.Hash, eventKey string, eventData *types.Struct) (*event.Event, error) {
-	var i *instance.Instance
-	route := fmt.Sprintf("custom/%s/%s/%s", instancemodule.QuerierRoute, instancemodule.QueryGet, instanceHash)
-	if err := ep.rpc.QueryJSON(route, nil, &i); err != nil {
+	i, err := ep.store.FetchInstance(context.Background(), instanceHash)
+	if err != nil {
 		return nil, err
 	}
 
-	var s *service.Service
-	route = fmt.Sprintf("custom/%s/%s/%s", servicemodule.QuerierRoute, servicemodule.QueryGet, i.ServiceHash)
-	if err := ep.rpc.QueryJSON(route, nil, &s); err != nil {
+	s, err := ep.store.FetchService(context.Background(), i.ServiceHash)
+	if err != nil {
 		return nil, err
 	}
 

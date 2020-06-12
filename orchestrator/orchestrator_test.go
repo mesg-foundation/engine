@@ -1,5 +1,65 @@
 package orchestrator
 
+import (
+	"context"
+	"os"
+	"testing"
+
+	"github.com/mesg-foundation/engine/event/publisher"
+	"github.com/mesg-foundation/engine/execution"
+	"github.com/mesg-foundation/engine/hash"
+	"github.com/mesg-foundation/engine/instance"
+	"github.com/stretchr/testify/require"
+	"github.com/tendermint/tendermint/libs/log"
+)
+
+func newTestOrchestrator(ctx context.Context, t *testing.T) (
+	orch *Orchestrator,
+	ep *publisher.EventPublisher,
+	store *storeTest,
+	serviceHash hash.Hash,
+	instanceHash hash.Hash,
+	runnerHash hash.Hash,
+	instanceEnvHash hash.Hash,
+	execChan <-chan *execution.Execution,
+) {
+	var err error
+	logger := log.NewTMJSONLogger(log.NewSyncWriter(os.Stdout))
+	store, err = newStoreTest()
+	require.NoError(t, err)
+	ep = publisher.New(store)
+	orch = New(store, ep, logger)
+
+	go func() {
+		require.NoError(t, orch.Start())
+	}()
+
+	t.Run("create service", func(t *testing.T) {
+		serviceHash, err = createTestService(store)
+		require.NoError(t, err)
+	})
+
+	t.Run("create runner", func(t *testing.T) {
+		instanceEnvHash, err = hash.Random()
+		require.NoError(t, err)
+		runnerHash, err = store.RegisterRunner(context.Background(), serviceHash, instanceEnvHash)
+		require.NoError(t, err)
+	})
+
+	t.Run("generate instance hash", func(t *testing.T) {
+		inst, err := instance.New(serviceHash, instanceEnvHash)
+		require.NoError(t, err)
+		instanceHash = inst.Hash
+	})
+
+	t.Run("init execution subscriber", func(t *testing.T) {
+		execChan, err = store.SubscribeToExecutions(ctx)
+		require.NoError(t, err)
+	})
+
+	return
+}
+
 // XXX: comment test because they were using sdk mocks.
 // we don't have sdk now so for now keeping it commented
 // TODO: add them later.
