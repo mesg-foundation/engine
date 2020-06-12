@@ -65,11 +65,6 @@ func TestOrchestratorResultTask(t *testing.T) {
 							StringValue: "foo_2",
 						},
 					},
-					"timestamp": {
-						Kind: &types.Value_NumberValue{
-							NumberValue: float64(time.Now().Unix()),
-						},
-					},
 				},
 			},
 			nil,
