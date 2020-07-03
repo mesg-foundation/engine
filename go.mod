@@ -6,10 +6,9 @@ require (
 	github.com/Masterminds/sprig v2.20.0+incompatible // indirect
 	github.com/Microsoft/go-winio v0.4.12 // indirect
 	github.com/Microsoft/hcsshim v0.8.6 // indirect
-	github.com/btcsuite/btcd v0.0.0-20190807005414-4063feeff79a // indirect
 	github.com/containerd/containerd v1.3.0 // indirect
 	github.com/containerd/continuity v0.0.0-20190426062206-aaeac12a7ffc // indirect
-	github.com/cosmos/cosmos-sdk v0.38.4
+	github.com/cosmos/cosmos-sdk v0.38.5
 	github.com/cosmos/go-bip39 v0.0.0-20180819234021-555e2067c45d
 	github.com/cskr/pubsub v1.0.2
 	github.com/docker/cli v0.0.0-20191011045415-5d85cdacd257
@@ -24,7 +23,7 @@ require (
 	github.com/go-playground/validator/v10 v10.2.0
 	github.com/gogo/protobuf v1.3.1
 	github.com/golang/mock v1.3.1 // indirect
-	github.com/golang/protobuf v1.3.5
+	github.com/golang/protobuf v1.4.0
 	github.com/google/uuid v1.1.1 // indirect
 	github.com/gorilla/mux v1.7.3
 	github.com/grpc-ecosystem/go-grpc-middleware v1.2.0
@@ -42,18 +41,16 @@ require (
 	github.com/prometheus/client_golang v1.5.1
 	github.com/prometheus/procfs v0.0.11 // indirect
 	github.com/pseudomuto/protoc-gen-doc v1.3.1
-	github.com/rcrowley/go-metrics v0.0.0-20190706150252-9beb055b7962 // indirect
 	github.com/sirupsen/logrus v1.5.0 // indirect
 	github.com/spf13/afero v1.2.2 // indirect
-	github.com/spf13/cobra v0.0.6
+	github.com/spf13/cobra v1.0.0
 	github.com/spf13/viper v1.6.3
 	github.com/stretchr/testify v1.5.1
 	github.com/tcnksm/ghr v0.13.0
 	github.com/tendermint/go-amino v0.15.1
-	github.com/tendermint/tendermint v0.33.3
-	github.com/tendermint/tm-db v0.5.0
-	golang.org/x/crypto v0.0.0-20191206172530-e9b2fee46413
-	golang.org/x/net v0.0.0-20200301022130-244492dfa37a // indirect
+	github.com/tendermint/tendermint v0.33.6
+	github.com/tendermint/tm-db v0.5.1
+	golang.org/x/crypto v0.0.0-20200406173513-056763e48d71
 	golang.org/x/sys v0.0.0-20200420163511-1957bb5e6d1f // indirect
 	google.golang.org/grpc v1.29.1
 	gotest.tools v2.2.0+incompatible // indirect
