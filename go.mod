@@ -21,7 +21,7 @@ require (
 	github.com/go-kit/kit v0.10.0
 	github.com/go-playground/locales v0.13.0
 	github.com/go-playground/universal-translator v0.17.0
-	github.com/go-playground/validator/v10 v10.2.0
+	github.com/go-playground/validator/v10 v10.4.0
 	github.com/gogo/protobuf v1.3.1
 	github.com/golang/mock v1.3.1 // indirect
 	github.com/golang/protobuf v1.3.5
@@ -52,7 +52,7 @@ require (
 	github.com/tendermint/go-amino v0.15.1
 	github.com/tendermint/tendermint v0.33.3
 	github.com/tendermint/tm-db v0.5.0
-	golang.org/x/crypto v0.0.0-20191206172530-e9b2fee46413
+	golang.org/x/crypto v0.0.0-20200622213623-75b288015ac9
 	golang.org/x/net v0.0.0-20200301022130-244492dfa37a // indirect
 	golang.org/x/sys v0.0.0-20200420163511-1957bb5e6d1f // indirect
 	google.golang.org/grpc v1.29.1
