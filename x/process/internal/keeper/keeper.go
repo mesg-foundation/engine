@@ -8,7 +8,6 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/mesg-foundation/engine/hash"
 	ownershippb "github.com/mesg-foundation/engine/ownership"
-	"github.com/mesg-foundation/engine/process"
 	processpb "github.com/mesg-foundation/engine/process"
 	"github.com/mesg-foundation/engine/x/process/internal/types"
 	"github.com/tendermint/tendermint/libs/log"
@@ -42,7 +41,7 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 func (k Keeper) Create(ctx sdk.Context, msg *types.MsgCreate) (*processpb.Process, error) {
 	store := ctx.KVStore(k.storeKey)
 
-	p, err := process.New(msg.Name, msg.Nodes, msg.Edges, msg.Owner)
+	p, err := processpb.New(msg.Name, msg.Nodes, msg.Edges, msg.Owner)
 	if err != nil {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, err.Error())
 	}
@@ -154,7 +153,7 @@ func (k Keeper) List(ctx sdk.Context) ([]*processpb.Process, error) {
 }
 
 // Import imports a list of processes into the store.
-func (k *Keeper) Import(ctx sdk.Context, processes []*process.Process) error {
+func (k *Keeper) Import(ctx sdk.Context, processes []*processpb.Process) error {
 	store := ctx.KVStore(k.storeKey)
 	for _, proc := range processes {
 		value, err := k.cdc.MarshalBinaryLengthPrefixed(proc)

@@ -9,7 +9,6 @@ import (
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/protobuf/acknowledgement"
 	"github.com/mesg-foundation/engine/runner"
-	"github.com/mesg-foundation/engine/server/grpc/orchestrator"
 	grpcorchestrator "github.com/mesg-foundation/engine/server/grpc/orchestrator"
 	runnerrest "github.com/mesg-foundation/engine/x/runner/client/rest"
 	"github.com/stretchr/testify/require"
@@ -56,8 +55,8 @@ func testRunner(t *testing.T) {
 	})
 
 	t.Run("wait for service to be ready", func(t *testing.T) {
-		req := orchestrator.EventStreamRequest{
-			Filter: &orchestrator.EventStreamRequest_Filter{
+		req := grpcorchestrator.EventStreamRequest{
+			Filter: &grpcorchestrator.EventStreamRequest_Filter{
 				Key: "service_ready",
 			},
 		}
@@ -92,7 +91,7 @@ func testRunner(t *testing.T) {
 }
 
 func testDeleteRunner(t *testing.T) {
-	req := orchestrator.RunnerDeleteRequest{
+	req := grpcorchestrator.RunnerDeleteRequest{
 		RunnerHash: testRunnerHash,
 	}
 	_, err := client.RunnerClient.Delete(context.Background(), &req, grpc.PerRPCCredentials(&signCred{req}))

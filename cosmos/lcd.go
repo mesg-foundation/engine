@@ -13,7 +13,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/crypto/keys"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/rest"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	authrest "github.com/cosmos/cosmos-sdk/x/auth/client/rest"
@@ -30,7 +29,7 @@ type LCD struct {
 	chainID     string
 	accName     string
 	accPassword string
-	gasPrices   sdktypes.DecCoins
+	gasPrices   sdk.DecCoins
 
 	// local state
 	acc            *auth.BaseAccount
@@ -40,7 +39,7 @@ type LCD struct {
 
 // NewLCD initializes a cosmos LCD client.
 func NewLCD(endpoint string, cdc *codec.Codec, kb keys.Keybase, chainID, accName, accPassword, gasPrices string) (*LCD, error) {
-	gasPricesDecoded, err := sdktypes.ParseDecCoins(gasPrices)
+	gasPricesDecoded, err := sdk.ParseDecCoins(gasPrices)
 	if err != nil {
 		return nil, err
 	}

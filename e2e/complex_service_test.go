@@ -7,7 +7,6 @@ import (
 	"github.com/mesg-foundation/engine/ext/xos"
 	"github.com/mesg-foundation/engine/hash"
 	"github.com/mesg-foundation/engine/protobuf/acknowledgement"
-	"github.com/mesg-foundation/engine/server/grpc/orchestrator"
 	grpcorchestrator "github.com/mesg-foundation/engine/server/grpc/orchestrator"
 	"github.com/mesg-foundation/engine/service"
 	runnerrest "github.com/mesg-foundation/engine/x/runner/client/rest"
@@ -70,7 +69,7 @@ func testComplexService(t *testing.T) {
 		require.NoError(t, cont.Start(testServiceComplexStruct, testInstanceComplexHash, testRunnerComplexHash, testInstanceComplexEnvHash, testInstanceComplexEnv, registerPayloadSignature))
 	})
 
-	req := orchestrator.EventStreamRequest{}
+	req := grpcorchestrator.EventStreamRequest{}
 	stream, err := client.EventClient.Stream(context.Background(), &req, grpc.PerRPCCredentials(&signCred{req}))
 	require.NoError(t, err)
 	acknowledgement.WaitForStreamToBeReady(stream)
@@ -96,7 +95,7 @@ func testComplexService(t *testing.T) {
 	})
 
 	t.Run("delete", func(t *testing.T) {
-		req := orchestrator.RunnerDeleteRequest{
+		req := grpcorchestrator.RunnerDeleteRequest{
 			RunnerHash: testRunnerComplexHash,
 		}
 		_, err := client.RunnerClient.Delete(context.Background(), &req, grpc.PerRPCCredentials(&signCred{req}))
